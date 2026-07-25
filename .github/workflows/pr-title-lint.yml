@@ -1,0 +1,31 @@
+name: PR Title Lint
+
+# The repo merges via squash only, and the squash commit title is the PR title
+# (repo setting squash_merge_commit_title=PR_TITLE). So the PR title is the commit
+# that lands on main — validate it against the same commitlint config the local
+# husky commit-msg hook uses (commitlint.config.js), keeping a single source of truth.
+on:
+  pull_request:
+    types: [opened, edited, reopened]
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  lint-title:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - name: Lint PR title against commitlint
+        # Pass the title via env, never interpolate ${{ }} into the shell — a PR
+        # title is attacker-controllable and could otherwise inject commands.
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: echo "$PR_TITLE" | npx --no -- commitlint --verbose
