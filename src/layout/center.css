@@ -1,0 +1,10 @@
+/* Center — a horizontally centred, width-constrained column. The reading measure
+   for prose (docs, blog). Defaults to one teletext page wide (--cf-content-max).
+   DX: data-max="content" (default) | "layout" (two pages) · escape hatch: --cf-center-max. */
+.cf-center{
+  box-sizing:content-box;
+  max-width:var(--cf-center-max,var(--cf-content-max));
+  margin-inline:auto;
+  padding-inline:var(--cf-space-3);
+}
+.cf-center[data-max="layout"]{--cf-center-max:var(--cf-layout-max)}
