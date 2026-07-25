@@ -74,7 +74,7 @@ yyyyyyyyyyyyyyyyyyyy
 ```
 
 - **Palette codes:** `k` black · `r` red · `g` green · `y` yellow · `b` blue · `m` magenta · `c` cyan · `w` white · `.` (or space) transparent. Colours are the authentic `--ceefax-*` values; unknown codes render transparent (with a dev-console warning). Free per-pixel colour — no one-colour-per-cell limit.
-- **Grid** dimensions are inferred from the text (ragged rows pad with transparent; common leading indentation is stripped).
+- **Grid** dimensions are inferred from the text (ragged rows pad with transparent; common leading indentation is stripped — use `.` for intentional left-edge transparent pixels).
 - **Sizing** is fluid and crisp (`image-rendering: pixelated`), capped at `--cf-content-max`. Pick a tier with `data-size` (`sm`/`md`/`lg`/`full`) or set an exact scale with the `--cf-pixels-scale` escape hatch (`style="--cf-pixels-scale: 8"` = 8 CSS px per pixel).
 - **Accessibility:** provide `alt` for a meaningful image (→ `role="img"` + `aria-label`); omit it to mark the canvas decorative (`aria-hidden`).
 - **Live edits** re-render automatically (the future paint-it-yourself editor builds on this).

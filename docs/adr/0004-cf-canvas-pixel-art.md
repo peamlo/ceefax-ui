@@ -34,9 +34,10 @@ concrete answer to ADR-0001's deferred question: richer components ship as opt-i
 elements, and the CSS core stays runtime-free.
 
 **Render with a real `<canvas>`** at the artwork's logical resolution, scaled up crisply
-with `image-rendering: pixelated`. Rendered size is fluid and ADR-0003-consistent:
-capped at `--cf-content-max`, with enumerated `data-size` tiers and a
-`--cf-pixels-scale` CSS-variable escape hatch.
+with `image-rendering: pixelated`. Rendered size is fluid: capped at
+`--cf-content-max`, with enumerated `data-size` tiers and a `--cf-pixels-scale`
+CSS-variable escape hatch — the same "enumerated `data-*` preset + `--cf-*` escape
+hatch" idiom the layout primitives use.
 
 **Use free per-pixel colour** from the eight authentic `--ceefax-*` colours (read live,
 never remapped) — *not* the one-colour-per-cell hardware constraint.
@@ -44,8 +45,9 @@ never remapped) — *not* the one-colour-per-cell hardware constraint.
 **The artwork is the element's text content**: newline-separated rows of single-char
 [palette codes](../../CONTEXT.md) (`k r g y b m c w`, `.`/space = transparent). Parsing
 lives behind a **source adapter** (`parseCharGrid`) that returns a normalised **Pixel
-grid** `{ width, height, cells, transparent }` — the only shape the renderer knows.
-Unknown codes render transparent with a single dev `console.warn`.
+grid** `{ width, height, cells }` — the only shape the renderer knows (plus optional
+per-source parse diagnostics). Unknown codes render transparent, and the element warns
+once per distinct set of unrecognised codes.
 
 **Accessibility:** the canvas is genuinely opaque to assistive tech, so `alt` maps to
 `role="img"` + `aria-label` on the host; no `alt` marks it `aria-hidden` (decorative).

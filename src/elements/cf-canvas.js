@@ -9,26 +9,32 @@
 // renderer.
 
 // --- Palette -----------------------------------------------------------------
-// Index 0 is transparent; codes map to indices 1..8. The adapter is colour-agnostic
-// (it emits indices); the renderer resolves index -> authentic colour.
-const PALETTE_CODES = ['k', 'r', 'g', 'y', 'b', 'm', 'c', 'w'];
-const CODE_TO_CEEFAX = {
-  k: 'black', r: 'red', g: 'green', y: 'yellow',
-  b: 'blue', m: 'magenta', c: 'cyan', w: 'white',
-};
-// Fixed authentic hex, mirroring src/tokens/colors.css --ceefax-*. Used as the
-// SSR / no-stylesheet fallback; the live values are read from the tokens at render.
-const CEEFAX_HEX = {
-  black: '#000000', red: '#ff0000', green: '#00ff00', yellow: '#ffff00',
-  blue: '#0000ff', magenta: '#ff00ff', cyan: '#00ffff', white: '#ffffff',
-};
+// One source of truth for the eight authentic colours: char code, --ceefax-* token
+// name, and the fixed hex (SSR / no-stylesheet fallback; live values are read from
+// the tokens at render). Index 0 is transparent; codes map to indices 1..8. The
+// adapter is colour-agnostic (it emits indices); the renderer resolves index -> hex.
+const PALETTE = [
+  { code: 'k', name: 'black', hex: '#000000' },
+  { code: 'r', name: 'red', hex: '#ff0000' },
+  { code: 'g', name: 'green', hex: '#00ff00' },
+  { code: 'y', name: 'yellow', hex: '#ffff00' },
+  { code: 'b', name: 'blue', hex: '#0000ff' },
+  { code: 'm', name: 'magenta', hex: '#ff00ff' },
+  { code: 'c', name: 'cyan', hex: '#00ffff' },
+  { code: 'w', name: 'white', hex: '#ffffff' },
+];
 const TRANSPARENT = 0;
-const CODE_TO_INDEX = PALETTE_CODES.reduce((m, code, i) => ((m[code] = i + 1), m), {});
+const CODE_TO_INDEX = PALETTE.reduce((m, p, i) => ((m[p.code] = i + 1), m), {});
+const PALETTE_CODES = PALETTE.map((p) => p.code); // for the unknown-code warning
 
 // --- Source adapter ----------------------------------------------------------
-// Text char-grid -> normalised Pixel grid: { width, height, cells, transparent }.
-// `cells` is a Uint8Array of palette indices (row-major). This is the ONLY shape the
-// renderer understands; a future PNG/JSON adapter must return the same shape.
+// Text char-grid -> Pixel grid. The renderer contract is { width, height, cells }
+// (`cells` a Uint8Array of palette indices, row-major); `unknown` is optional
+// char-grid diagnostics (codes that weren't recognised, rendered transparent) that
+// other adapters may omit. Pure — no side effects (the caller decides whether to
+// warn), so it's safe for the future painter to reuse.
+// Transparent pixels: '.' is the explicit code; leading whitespace is treated as source
+// indentation and stripped, so use '.' for intentional left-edge transparency.
 export function parseCharGrid(text) {
   const raw = String(text ?? '').replace(/\r\n?/g, '\n').split('\n');
 
@@ -40,7 +46,9 @@ export function parseCharGrid(text) {
   while (end > start && raw[end - 1].trim() === '') end--;
   const lines = raw.slice(start, end);
 
-  if (lines.length === 0) return { width: 0, height: 0, cells: new Uint8Array(0), transparent: TRANSPARENT };
+  if (lines.length === 0) {
+    return { width: 0, height: 0, cells: new Uint8Array(0), unknown: [] };
+  }
 
   // Strip the common leading whitespace (HTML source indentation).
   let indent = Infinity;
@@ -70,14 +78,7 @@ export function parseCharGrid(text) {
     }
   }
 
-  if (unknown.size) {
-    console.warn(
-      `cf-canvas: unknown palette code(s) ${[...unknown].map((c) => `'${c}'`).join(', ')} ` +
-        `— treated as transparent. Known codes: ${PALETTE_CODES.join(' ')} and '.'`,
-    );
-  }
-
-  return { width, height, cells, transparent: TRANSPARENT };
+  return { width, height, cells, unknown: [...unknown] };
 }
 
 // --- Element -----------------------------------------------------------------
@@ -105,7 +106,7 @@ class CfCanvas extends HTMLElement {
             image-rendering:pixelated;    /* preferred where supported (wins) */
             border-radius:0; /* teletext is square */
           }
-          /* Fluid size tiers (ADR-0003 idiom: enumerated data-* + var escape hatch). */
+          /* Fluid size tiers: enumerated data-* presets + a --cf-* escape-hatch var. */
           :host([data-size="sm"]) canvas{max-width:var(--_scale-w, 16ch)}
           :host([data-size="md"]) canvas{max-width:var(--_scale-w, 24ch)}
           :host([data-size="lg"]) canvas{max-width:var(--_scale-w, var(--cf-content-max, 40ch))}
@@ -113,6 +114,7 @@ class CfCanvas extends HTMLElement {
         </style>
         <canvas></canvas>`;
       this._canvas = root.querySelector('canvas');
+      this._ctx = this._canvas.getContext('2d'); // stable for the canvas's lifetime
     }
 
     // Redraw when the char-grid text content changes (hand-edits, future painter).
@@ -153,43 +155,65 @@ class CfCanvas extends HTMLElement {
   render() {
     if (!this._canvas) return;
     const grid = parseCharGrid(this.textContent);
+    this._warnUnknown(grid.unknown || []);
     const canvas = this._canvas;
 
-    // Backing store = logical resolution; CSS scales it up crisply.
-    canvas.width = grid.width || 1;
-    canvas.height = grid.height || 1;
+    // Backing store = logical resolution; CSS scales it up crisply. Assigning
+    // canvas.width/height resets the whole backing buffer, so only touch it on change.
+    const w = grid.width || 1;
+    const h = grid.height || 1;
+    if (canvas.width !== w) canvas.width = w;
+    if (canvas.height !== h) canvas.height = h;
     // Expose column count so the --cf-pixels-scale escape hatch can size in CSS.
     this.style.setProperty('--cf-canvas-cols', String(grid.width || 0));
 
-    const ctx = canvas.getContext('2d');
+    const ctx = this._ctx;
     ctx.clearRect(0, 0, canvas.width, canvas.height); // transparent = page bg shows through
     if (!grid.width || !grid.height) return;
 
+    // Draw contiguous same-colour runs as a single fillRect (pixel art is mostly runs).
     const colors = this._resolvePalette();
-    let last = -1;
     const { width, height, cells } = grid;
     for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
+      let x = 0;
+      while (x < width) {
         const idx = cells[y * width + x];
-        if (idx === TRANSPARENT) continue;
-        if (idx !== last) {
-          ctx.fillStyle = colors[idx];
-          last = idx;
+        if (idx === TRANSPARENT) {
+          x++;
+          continue;
         }
-        ctx.fillRect(x, y, 1, 1);
+        let run = 1;
+        while (x + run < width && cells[y * width + x + run] === idx) run++;
+        ctx.fillStyle = colors[idx];
+        ctx.fillRect(x, y, run, 1);
+        x += run;
       }
     }
   }
 
+  // Warn once per distinct set of unknown codes (re-renders with the same typo stay quiet).
+  _warnUnknown(unknown) {
+    const codes = [...unknown].sort(); // order-stable signature
+    const sig = codes.join('');
+    if (sig === this._lastUnknownSig) return;
+    this._lastUnknownSig = sig;
+    if (codes.length) {
+      console.warn(
+        `cf-canvas: unknown palette code(s) ${codes.map((c) => `'${c}'`).join(', ')} ` +
+          `— treated as transparent. Known codes: ${PALETTE_CODES.join(' ')} and '.'`,
+      );
+    }
+  }
+
   // index (1..8) -> concrete colour, read live from the authentic --ceefax-* tokens
-  // (never remapped) with the fixed hex as fallback when no stylesheet is present.
+  // (never remapped). Resolved from `this` so scoped ancestor overrides still apply;
+  // falls back to the fixed hex when no stylesheet is present.
   _resolvePalette() {
-    const cs = getComputedStyle(document.documentElement);
+    const cs = getComputedStyle(this);
     const colors = [null];
-    for (const code of PALETTE_CODES) {
-      const name = CODE_TO_CEEFAX[code];
-      const token = cs.getPropertyValue(`--ceefax-${name}`).trim();
-      colors.push(token || CEEFAX_HEX[name]);
+    for (const p of PALETTE) {
+      const token = cs.getPropertyValue(`--ceefax-${p.name}`).trim();
+      colors.push(token || p.hex);
     }
     return colors;
   }

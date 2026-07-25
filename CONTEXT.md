@@ -57,8 +57,8 @@ The normalised in-memory model the Pixel canvas renderer draws: a width, a heigh
 _Avoid_: bitmap, buffer, matrix
 
 **Source adapter**:
-Something that converts a raw input into a Pixel grid. The char-grid text parser is the first adapter; a future PNG or JSON source is another. All produce the same Pixel grid.
-_Avoid_: parser, loader, importer
+Something that converts a raw input into a Pixel grid. The char-grid text adapter is the first; a future PNG or JSON source is another. All produce the same Pixel grid.
+_Avoid_: loader, importer
 
 **Palette code**:
 A single character naming one authentic colour — or transparent — in the char-grid text of a Pixel canvas (`k r g y b m c w`, `.` = transparent).
