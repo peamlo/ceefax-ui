@@ -1,0 +1,30 @@
+:root{
+/* base — authentic broadcast palette. NEVER remapped. */
+--ceefax-black:#000000;
+--ceefax-red:#ff0000;
+--ceefax-green:#00ff00;
+--ceefax-yellow:#ffff00;
+--ceefax-blue:#0000ff;
+--ceefax-magenta:#ff00ff;
+--ceefax-cyan:#00ffff;
+--ceefax-white:#ffffff;
+/* semantic aliases — the ONLY layer components reference. */
+--cf-bg:var(--ceefax-black);
+--cf-fg:var(--ceefax-white);
+--cf-fg-dim:#b3ffb3;
+--cf-link:var(--ceefax-cyan);
+--cf-link-hover:var(--ceefax-yellow);
+--cf-link-visited:var(--ceefax-magenta);
+--cf-accent:var(--ceefax-yellow);
+--cf-accent-2:var(--ceefax-green);
+--cf-border:var(--ceefax-white);
+--cf-info:var(--ceefax-cyan);
+--cf-warning:var(--ceefax-yellow);
+--cf-danger:var(--ceefax-red);
+--cf-success:var(--ceefax-green);
+}
+/* FUTURE ITERATION: opt-in accessible theme remaps ONLY the semantic aliases,
+   leaving --ceefax-* untouched. Fill with WCAG-passing pairs later. */
+[data-theme="accessible"]{
+/* --cf-link: ...; --cf-fg: ...; etc. */
+}

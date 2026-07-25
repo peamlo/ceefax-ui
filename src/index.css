@@ -1,0 +1,10 @@
+/* ceefax-ui — single entry. @import lines only, never inline rules. */
+@import "./tokens/colors.css";
+@import "./tokens/typography.css";
+@import "./tokens/spacing.css";
+@import "./tokens/layout.css";
+@import "./base.css";
+@import "./components/button.css";
+@import "./components/link.css";
+@import "./components/card.css";
+@import "./components/fastext.css";

@@ -1,0 +1,21 @@
+/* Self-hosted webfonts (SIL OFL 1.1). Drop the .woff2 files into /fonts — see fonts/README.md. */
+@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url('../../fonts/vt323-v17-latin-regular.woff2') format('woff2')}
+@font-face{font-family:'Space Mono';font-style:normal;font-weight:400;font-display:swap;src:url('../../fonts/space-mono-v15-latin-regular.woff2') format('woff2')}
+@font-face{font-family:'Space Mono';font-style:normal;font-weight:700;font-display:swap;src:url('../../fonts/space-mono-v15-latin-700.woff2') format('woff2')}
+:root{
+--cf-font-display:'VT323',monospace;
+--cf-font-mono:'Space Mono','Courier New',monospace;
+--cf-font-body:var(--cf-font-mono);
+--cf-text-display-xl:72px;
+--cf-text-display-lg:48px;
+--cf-text-heading:32px;
+--cf-text-subheading:22px;
+--cf-text-body:19px;
+--cf-text-small:15px;
+--cf-text-caption:13px;
+--cf-leading-tight:1.15;
+--cf-leading-normal:1.5;
+--cf-leading-relaxed:1.7;
+--cf-tracking-normal:0;
+--cf-tracking-wide:0.08em;
+}

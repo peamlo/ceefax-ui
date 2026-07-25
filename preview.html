@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ceefax-ui — preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./src/index.css">
+<style>
+body{margin:0;background:#000;color:#fff;font-family:'Space Mono',monospace;padding:40px 32px;max-width:920px}
+section{margin-bottom:44px}
+h1{font-family:'VT323',monospace;font-size:64px;line-height:1;margin:0 0 4px;color:#ff0}
+h2{font-family:'VT323',monospace;font-size:30px;margin:0 0 16px;color:#0ff;letter-spacing:.04em}
+.sub{color:#b3ffb3;font-size:14px;margin:0 0 28px}
+.row{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+.note{font-size:13px;color:#b3ffb3;margin-top:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+</style>
+</head>
+<body>
+<h1>P100 CEEFAX-UI</h1>
+<p class="sub">CSS-first · framework-agnostic · one class + data-* variants + native/ARIA state</p>
+
+<section>
+<h2>Buttons</h2>
+<div class="row">
+<button class="cf-btn">Read more</button>
+<button class="cf-btn" data-variant="red">▸ RED · INDEX</button>
+<button class="cf-btn" data-variant="green">▸ GREEN · POSTS</button>
+<button class="cf-btn" data-variant="yellow">▸ YELLOW · ABOUT</button>
+<button class="cf-btn" data-variant="blue">▸ BLUE · CONTACT</button>
+<button class="cf-btn" data-variant="ghost">Cancel</button>
+</div>
+<div class="row" style="margin-top:16px">
+<button class="cf-btn" data-size="sm">Small</button>
+<button class="cf-btn" data-size="md">Medium</button>
+<button class="cf-btn" data-size="lg">Large</button>
+<button class="cf-btn" disabled>Off air</button>
+</div>
+<p class="note">Hover / Tab to a button → instant colour inversion (focus = hover).</p>
+</section>
+
+<section>
+<h2>Links</h2>
+<div class="row" style="gap:28px">
+<a class="cf-link" href="#">why I stopped using frameworks for static sites</a>
+</div>
+<nav class="row" style="gap:28px;margin-top:16px" aria-label="Main">
+<a class="cf-link" data-variant="nav" href="#">POSTS</a>
+<a class="cf-link" data-variant="nav" href="#" aria-current="page">ABOUT</a>
+<a class="cf-link" data-variant="nav" href="#">CONTACT</a>
+<a class="cf-link" data-variant="nav" href="#"><span class="cf-link__page">p.102</span><span>NEXT PAGE</span></a>
+</nav>
+<p class="note">ABOUT is the current page → persistent ▸ caret via aria-current, independent of focus.</p>
+</section>
+
+<section>
+<h2>Fastext bar</h2>
+<nav aria-label="Fastext">
+<ul class="cf-fastext">
+<li><a class="cf-fastext__key" data-variant="red" href="#">INDEX</a></li>
+<li><a class="cf-fastext__key" data-variant="green" href="#">POSTS</a></li>
+<li><a class="cf-fastext__key" data-variant="yellow" href="#">ABOUT</a></li>
+<li><a class="cf-fastext__key" data-variant="blue" href="#">CONTACT</a></li>
+</ul>
+</nav>
+<p class="note">Every coloured key carries a redundant text label — colour is never the sole cue.</p>
+</section>
+
+<section>
+<h2>Cards</h2>
+<div class="grid">
+<article class="cf-card" data-variant="green"><h3 class="cf-card__title">P101</h3><p class="cf-card__body">Border-only box on the flat page. No shadow, no radius.</p></article>
+<article class="cf-card" data-variant="cyan"><h3 class="cf-card__title">P102</h3><p class="cf-card__body">Colour comes from the border, one of the eight.</p></article>
+<article class="cf-card" data-variant="magenta"><h3 class="cf-card__title">P103</h3><p class="cf-card__body">Square corners always. Teletext is a grid.</p></article>
+</div>
+</section>
+
+<section>
+<h2>cf-loader (Web Component)</h2>
+<div class="row"><cf-loader>LOADING PAGE 102…</cf-loader></div>
+<p class="note">Blink gated behind prefers-reduced-motion.</p>
+</section>
+
+<script type="module" src="./src/elements/cf-loader.js"></script>
+</body>
+</html>

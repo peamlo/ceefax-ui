@@ -1,0 +1,9 @@
+:root{
+--cf-content-max:40ch;   /* one teletext page */
+--cf-layout-max:82ch;    /* two pages side by side */
+--cf-border-thin:2px;
+--cf-border-thick:4px;
+--cf-radius:0px;         /* teletext is square. always 0. */
+--cf-header-row:2.6em;
+--cf-footer-row:2.6em;
+}

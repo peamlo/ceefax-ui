@@ -1,0 +1,4 @@
+/* Low-specificity resets via :where() so consumers override without !important. */
+:where(.cf-btn,.cf-link,.cf-card,.cf-fastext,.cf-fastext__key){box-sizing:border-box}
+/* Optional page shell: flat-black teletext canvas. */
+.cf-page{background:var(--cf-bg);color:var(--cf-fg);font-family:var(--cf-font-body);font-size:var(--cf-text-body);line-height:var(--cf-leading-normal)}

@@ -1,0 +1,24 @@
+/* Button — one class, colour variant via [data-variant], size via [data-size], state via native/ARIA.
+   Focus = hover = instant colour inversion. No modifier classes for state. */
+.cf-btn{
+--_fg:var(--cf-fg);--_bg:var(--cf-bg);--_bd:var(--cf-fg);
+font-family:var(--cf-font-mono);font-size:var(--cf-text-body);font-weight:700;
+letter-spacing:var(--cf-tracking-wide);text-transform:uppercase;line-height:1;
+padding:.4em 2ch;border:var(--cf-border-thin) solid var(--_bd);border-radius:var(--cf-radius);
+background:var(--_bg);color:var(--_fg);cursor:pointer;display:inline-block;
+transition:transform 60ms linear;-webkit-tap-highlight-color:transparent;
+}
+.cf-btn[data-size="sm"]{font-size:var(--cf-text-small);padding:.2em 1.5ch}
+.cf-btn[data-size="lg"]{font-size:var(--cf-text-heading);padding:.6em 3ch}
+/* fastext colour blocks — always paired with a redundant text label in markup */
+.cf-btn[data-variant="red"]{--_bg:var(--ceefax-red);--_fg:var(--ceefax-black);--_bd:var(--ceefax-red)}
+.cf-btn[data-variant="green"]{--_bg:var(--ceefax-green);--_fg:var(--ceefax-black);--_bd:var(--ceefax-green)}
+.cf-btn[data-variant="yellow"]{--_bg:var(--ceefax-yellow);--_fg:var(--ceefax-black);--_bd:var(--ceefax-yellow)}
+.cf-btn[data-variant="blue"]{--_bg:var(--ceefax-blue);--_fg:var(--ceefax-white);--_bd:var(--ceefax-blue)}
+.cf-btn[data-variant="ghost"]{--_bg:transparent;--_fg:var(--cf-link);--_bd:transparent}
+/* inversion on hover + keyboard focus */
+.cf-btn:hover,.cf-btn:focus-visible{background:var(--_fg);color:var(--_bg);border-color:var(--_fg);outline:none}
+.cf-btn[data-variant="ghost"]:hover,.cf-btn[data-variant="ghost"]:focus-visible{background:transparent;color:var(--cf-link-hover);border-color:transparent;text-decoration:underline;text-underline-offset:3px}
+.cf-btn:active{transform:scale(.96)}
+.cf-btn:disabled,.cf-btn[aria-disabled="true"]{opacity:.4;cursor:default;transform:none}
+.cf-btn:disabled:hover,.cf-btn[aria-disabled="true"]:hover{background:var(--_bg);color:var(--_fg);border-color:var(--_bd)}

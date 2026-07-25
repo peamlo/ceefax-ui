@@ -1,0 +1,81 @@
+# ceefax-ui
+
+A Ceefax / teletext-inspired, **framework-agnostic, CSS-first** design system. Ships design tokens + semantic CSS classes + self-hosted fonts. **No JS component runtime** — consume it as plain `class="…"` in Astro, Svelte, or plain HTML. The one interactive widget (`<cf-loader>`) is a standard Web Component.
+
+## Install
+
+```sh
+npm install @peamlo/ceefax-ui
+```
+
+## Use
+
+Import the stylesheet once (in your Astro layout, Svelte root, or `<head>`), then write semantic classes:
+
+```astro
+---
+import "@peamlo/ceefax-ui";           // all styles
+import "@peamlo/ceefax-ui/elements";  // optional — only if you use <cf-loader>
+---
+<a class="cf-link" href="/about" aria-current={pathname === "/about" ? "page" : undefined}>ABOUT</a>
+```
+
+Svelte and plain HTML are identical — there is no framework binding.
+
+## The contract (do not drift from this)
+
+**One semantic class on the correct native element. State from native/ARIA attributes. `data-*` only for presentational variants.**
+
+```html
+<!-- identity = class · look-only variant = data-* · state = native/ARIA attrs -->
+<button class="cf-btn">Read more</button>
+<button class="cf-btn" data-variant="red">▸ RED · INDEX</button>
+<button class="cf-btn" data-size="lg" disabled>Off air</button>
+
+<a class="cf-link" href="/posts">POSTS</a>
+<a class="cf-link" href="/about" aria-current="page">ABOUT</a>   <!-- persistent ▸ caret -->
+```
+
+- **Never** write state-modifier classes (`cf-btn--disabled`, `cf-btn--active`). Use the real `disabled` attribute, `:focus-visible`, `[aria-current]`, `[aria-pressed]`.
+- **`data-variant`** is only for the presentational fastext colour (`red`/`green`/`yellow`/`blue`) and card border colour.
+- No utility classes, no compound-class soup.
+
+### States
+- **Focus** (`:focus-visible`) → instant colour **inversion**. Transient; "the keyboard is here."
+- **Selected** (`[aria-current="page"]`) → persistent **▸ caret**. "You are on this page."
+- **Hover** → same inversion as focus (intentional).
+- **Active** → instant `scale(.96)`, no colour ramp.
+
+## Components
+
+| Class | Element | Variants (`data-*`) | State |
+|---|---|---|---|
+| `cf-btn` | `<button>` / `<a>` | `variant` red/green/yellow/blue/ghost · `size` sm/md/lg | `:disabled`, `:focus-visible`, `:active` |
+| `cf-link` | `<a>` | `variant="nav"` | `[aria-current="page"]` |
+| `cf-card` | any block | `variant` red/green/yellow/blue/cyan/magenta | — |
+| `cf-fastext` / `cf-fastext__key` | `<ul>` / `<a>` | `variant` red/green/yellow/blue | `:focus-visible` |
+| `<cf-loader>` | Web Component | — | blink (reduced-motion aware) |
+
+## Tokens
+
+`--ceefax-*` = the authentic 8 broadcast colours (never remapped). `--cf-*` = semantic aliases (the only layer components reference). Spacing is `ch`-based; radius is always `0`.
+
+**Accessible theme (planned):** an opt-in `[data-theme="accessible"]` will remap only the `--cf-*` semantic aliases to WCAG-passing pairs, leaving `--ceefax-*` and the default authentic theme untouched.
+
+## Develop
+
+```sh
+npm install
+npm run storybook      # framework-agnostic Storybook (HTML mode) — play with every variant
+npm run build          # PostCSS → dist/index.css + dist/tokens.css
+```
+
+Storybook uses `@storybook/html-vite` + the a11y and interactions addons, so stories show the exact HTML contract, run live WCAG checks, and can script keyboard/focus behaviour.
+
+## Fonts
+
+VT323 + Space Mono, self-hosted under SIL OFL 1.1. See [`fonts/README.md`](./fonts/README.md) to drop in the `.woff2` files.
+
+## License
+
+MIT (code) · SIL OFL 1.1 (bundled fonts).

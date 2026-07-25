@@ -1,0 +1,10 @@
+/* Card — border-only box on the flat page. No shadow, no radius, no fill gradient. */
+.cf-card{display:block;border:var(--cf-border-thin) solid var(--cf-border);border-radius:var(--cf-radius);background:var(--cf-bg);color:var(--cf-fg);padding:var(--cf-space-3);font-family:var(--cf-font-mono)}
+.cf-card[data-variant="red"]{border-color:var(--ceefax-red)}
+.cf-card[data-variant="green"]{border-color:var(--ceefax-green)}
+.cf-card[data-variant="yellow"]{border-color:var(--ceefax-yellow)}
+.cf-card[data-variant="blue"]{border-color:var(--ceefax-blue)}
+.cf-card[data-variant="cyan"]{border-color:var(--ceefax-cyan)}
+.cf-card[data-variant="magenta"]{border-color:var(--ceefax-magenta)}
+.cf-card__title{font-family:var(--cf-font-display);font-size:var(--cf-text-heading);line-height:1;margin:0 0 var(--cf-space-2);color:var(--cf-accent)}
+.cf-card__body{margin:0;line-height:var(--cf-leading-relaxed)}
