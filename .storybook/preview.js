@@ -14,7 +14,7 @@ export default {
       storySort: {
         order: [
           'Foundations', ['Overview', 'Colors', 'Typography', 'Spacing', 'Layout', 'Brand'],
-          'Components', ['Button', 'Link', 'Card', 'Fastext bar'],
+          'Components', ['Button', 'Link', 'Card', 'Fastext bar', 'Pixel canvas'],
         ],
       },
     },

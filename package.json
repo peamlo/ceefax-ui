@@ -16,7 +16,9 @@
     ".": "./dist/index.css",
     "./css": "./dist/index.css",
     "./tokens": "./dist/tokens.css",
-    "./elements": "./src/elements/cf-loader.js",
+    "./elements": "./src/elements/index.js",
+    "./elements/cf-loader": "./src/elements/cf-loader.js",
+    "./elements/cf-canvas": "./src/elements/cf-canvas.js",
     "./fonts/*": "./fonts/*"
   },
   "scripts": {
