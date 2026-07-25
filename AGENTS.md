@@ -91,6 +91,8 @@ chore: add package-lock.json
 
 Every PR uses `.github/PULL_REQUEST_TEMPLATE.md`. Keep the repo self-documenting: if a change touches the contract, record it (ADR + `CONTEXT.md` + Storybook), and tick the template's "Docs updated" checklist.
 
+PRs merge into `main` via **squash only** (merge-commit and rebase are disabled). The squash commit title is the **PR title**, so the **PR title must be a Conventional Commit** — it becomes the commit on `main`. It's validated in CI by `.github/workflows/pr-title-lint.yml`, which runs the same `commitlint.config.js` as the local hook. See `docs/adr/0002-squash-only-conventional-pr-titles.md`.
+
 ## Agent skills
 
 Engineering skills from [mattpocock/skills](https://github.com/mattpocock/skills) are installed under `.agents/skills/` (editable; tracked in `skills-lock.json`).
