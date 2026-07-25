@@ -41,6 +41,9 @@ function inkMatrix(text) {
  *   - pad    {number} transparent/band padding around the text (default 0; 1 when bg set)
  * @returns {string} newline-separated rows of palette codes
  */
+/** The classic Ceefax masthead treatment: yellow ink, black drop shadow, blue band. */
+export const masthead = (text) => pixelText(text, { ink: 'y', shadow: 'k', bg: 'b', pad: 1 });
+
 export function pixelText(text, opts = {}) {
   if (typeof opts === 'string') opts = { ink: opts };
   const { ink = 'y', shadow = null, dx = 1, dy = 1, bg = null } = opts;

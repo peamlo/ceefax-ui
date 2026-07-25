@@ -1,6 +1,6 @@
 // Registers <cf-canvas> for these stories (and via the ./elements barrel in real use).
 import '../src/elements/cf-canvas.js';
-import { pixelText } from './_pixel-text.js';
+import { pixelText, masthead } from './_pixel-text.js';
 
 // A stylised CEEFAX-holidays palm: blue sky (b), green fronds (g), red trunk (r),
 // yellow sand (y). Free per-pixel colour — no authentic one-colour-per-cell limit.
@@ -71,10 +71,7 @@ export default {
 export const HeaderText = {
   render: () =>
     stage(
-      pixels(pixelText('CEEFAX-UI', { ink: 'y', shadow: 'k', bg: 'b', pad: 1 }), {
-        alt: 'ceefax-ui',
-        'data-size': 'full',
-      }),
+      pixels(masthead('CEEFAX-UI'), { alt: 'ceefax-ui', 'data-size': 'full' }),
       '720px',
     ),
 };
@@ -102,7 +99,7 @@ export const DecorativeLogo = {
   render: () => stage(pixels(HEART, { 'data-size': 'sm' }), '240px'),
 };
 
-// The enumerated fluid size tiers (ADR-0003 idiom).
+// The enumerated fluid size tiers (data-* presets + a --cf-* escape-hatch var).
 export const Sizes = {
   render: () =>
     stage(
