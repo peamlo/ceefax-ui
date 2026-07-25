@@ -1,0 +1,49 @@
+# ceefax-ui
+
+A framework-agnostic, CSS-first design system whose look and language come from Ceefax / teletext. This is the glossary — the shared vocabulary for the project. It defines terms; it is not a spec and holds no implementation detail.
+
+## Language
+
+**The contract**:
+The single rule the whole library is built around: one semantic class on the correct native element, state expressed through native/ARIA attributes, and `data-*` used only for presentational variants. Everything else follows from it.
+_Avoid_: API, convention, guidelines
+
+**Semantic class**:
+A `cf-*` class that names what an element _is_ (`cf-btn`, `cf-link`, `cf-card`). Exactly one per element. The only class a consumer writes.
+_Avoid_: utility class, component class, BEM block
+
+**Presentational variant**:
+A look-only difference selected with a `data-*` attribute (`data-variant="red"`, `data-size="lg"`). Never encodes state.
+_Avoid_: modifier, `--modifier` class
+
+**State**:
+A run-time condition of an element (disabled, focused, current). Always expressed with native or ARIA attributes (`disabled`, `:focus-visible`, `[aria-current]`, `[aria-pressed]`) — never with a class.
+_Avoid_: state class, `cf-btn--active`, `is-active`
+
+**Fastext**:
+The four coloured navigation keys (red / green / yellow / blue) from teletext, and their component (`cf-fastext`). A domain term, not a generic nav bar.
+_Avoid_: colour buttons, quick links
+
+**Authentic colour**:
+One of the eight original broadcast teletext colours, exposed as a `--ceefax-*` token. Fixed values that are **never** remapped.
+_Avoid_: brand colour, palette colour
+
+**Semantic alias**:
+A `--cf-*` token that maps meaning (e.g. surface, accent) onto an authentic colour. The **only** token layer components reference. Themes remap these; they never touch `--ceefax-*`.
+_Avoid_: theme variable, colour variable
+
+**Accessible theme**:
+The planned opt-in `[data-theme="accessible"]` that remaps only the `--cf-*` semantic aliases to WCAG-passing pairs, leaving the authentic colours and default theme untouched.
+_Avoid_: high-contrast mode, a11y mode
+
+**Inversion**:
+The instant colour swap applied on `:focus-visible` and hover — "the keyboard is here." Transient, unlike the persistent selected caret.
+_Avoid_: highlight, active style
+
+**Selected caret**:
+The persistent `▸` marker shown on `[aria-current="page"]` — "you are on this page." Distinct from inversion.
+_Avoid_: active indicator, highlight
+
+**Custom element**:
+A logic-bearing standard Web Component (e.g. `<cf-loader>`), shipped under the opt-in `./elements` export — separate from the runtime-free CSS core.
+_Avoid_: widget, framework component
