@@ -66,9 +66,30 @@ export default {
   tags: ['autodocs'],
 };
 
-// Pixel-art header text built from a tiny 5x5 font — the classic teletext masthead.
+// Pixel-art header text built from a tiny 5x5 font — the classic teletext masthead:
+// yellow ink, black drop shadow, blue band, just like the Ceefax P100 header.
 export const HeaderText = {
-  render: () => stage(pixels(pixelText('CEEFAX-UI', 'y'), { alt: 'ceefax-ui', 'data-size': 'full' }), '720px'),
+  render: () =>
+    stage(
+      pixels(pixelText('CEEFAX-UI', { ink: 'y', shadow: 'k', bg: 'b', pad: 1 }), {
+        alt: 'ceefax-ui',
+        'data-size': 'full',
+      }),
+      '720px',
+    ),
+};
+
+// The same word with just a drop shadow on the transparent page (no band) —
+// useful over the flat-black canvas.
+export const HeaderShadowOnly = {
+  render: () =>
+    stage(
+      pixels(pixelText('CEEFAX-UI', { ink: 'y', shadow: 'r', dx: 1, dy: 1 }), {
+        alt: 'ceefax-ui',
+        'data-size': 'full',
+      }),
+      '720px',
+    ),
 };
 
 // A meaningful, labelled scene — exposes role="img" + aria-label to assistive tech.

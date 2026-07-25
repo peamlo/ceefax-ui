@@ -13,7 +13,8 @@ export const Overview = () => {
   header.setAttribute('alt', 'ceefax-ui');
   header.setAttribute('data-size', 'full');
   header.style.marginBottom = '8px';
-  header.textContent = pixelText('CEEFAX-UI', 'y');
+  // Classic Ceefax masthead: yellow ink, black drop shadow, blue band.
+  header.textContent = pixelText('CEEFAX-UI', { ink: 'y', shadow: 'k', bg: 'b', pad: 1 });
   root.appendChild(header);
 
   const body = document.createElement('div');
