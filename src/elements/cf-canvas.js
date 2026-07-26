@@ -8,24 +8,16 @@
 // PNG/JSON sources can produce the same normalised Pixel grid without touching the
 // renderer.
 
+import { CEEFAX_PALETTE } from '../tokens/palette.js';
+
 // --- Palette -----------------------------------------------------------------
-// One source of truth for the eight authentic colours: char code, --ceefax-* token
-// name, and the fixed hex (SSR / no-stylesheet fallback; live values are read from
-// the tokens at render). Index 0 is transparent; codes map to indices 1..8. The
-// adapter is colour-agnostic (it emits indices); the renderer resolves index -> hex.
-const PALETTE = [
-  { code: 'k', name: 'black', hex: '#000000' },
-  { code: 'r', name: 'red', hex: '#ff0000' },
-  { code: 'g', name: 'green', hex: '#00ff00' },
-  { code: 'y', name: 'yellow', hex: '#ffff00' },
-  { code: 'b', name: 'blue', hex: '#0000ff' },
-  { code: 'm', name: 'magenta', hex: '#ff00ff' },
-  { code: 'c', name: 'cyan', hex: '#00ffff' },
-  { code: 'w', name: 'white', hex: '#ffffff' },
-];
+// The authentic colours come from the shared palette (src/tokens/palette.js) — the
+// single JS source of truth. Here we only add the canvas convention: index 0 is
+// transparent, codes map to indices 1..8. The adapter is colour-agnostic (it emits
+// indices); the renderer resolves index -> hex.
 const TRANSPARENT = 0;
-const CODE_TO_INDEX = PALETTE.reduce((m, p, i) => ((m[p.code] = i + 1), m), {});
-const PALETTE_CODES = PALETTE.map((p) => p.code); // for the unknown-code warning
+const CODE_TO_INDEX = CEEFAX_PALETTE.reduce((m, p, i) => ((m[p.code] = i + 1), m), {});
+const PALETTE_CODES = CEEFAX_PALETTE.map((p) => p.code); // for the unknown-code warning
 
 // --- Source adapter ----------------------------------------------------------
 // Text char-grid -> Pixel grid. The renderer contract is { width, height, cells }
@@ -211,7 +203,7 @@ class CfCanvas extends HTMLElement {
   _resolvePalette() {
     const cs = getComputedStyle(this);
     const colors = [null];
-    for (const p of PALETTE) {
+    for (const p of CEEFAX_PALETTE) {
       const token = cs.getPropertyValue(`--ceefax-${p.name}`).trim();
       colors.push(token || p.hex);
     }
