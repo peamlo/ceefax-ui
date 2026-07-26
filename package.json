@@ -21,6 +21,7 @@
   },
   "scripts": {
     "build": "postcss src/index.css -o dist/index.css && postcss src/tokens/_index.css -o dist/tokens.css",
+    "demo": "npx --yes serve .",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "prepare": "husky"
