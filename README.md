@@ -22,6 +22,19 @@ import "@peamlo/ceefax-ui/elements";  // optional — only if you use <cf-loader
 
 Svelte and plain HTML are identical — there is no framework binding.
 
+## Demo
+
+A one-page showcase of what the library delivers — the layout primitives and
+components in a teletext blog, with the markup you write beside the live result:
+
+```sh
+npm run demo   # serves the repo, then open http://localhost:3000/demo/
+```
+
+It's a plain static page ([`demo/index.html`](demo/index.html)) that consumes the
+real `src/index.css` and the self-hosted fonts — the result panels are the library,
+not a mockup.
+
 ## The contract (do not drift from this)
 
 **One semantic class on the correct native element. State from native/ARIA attributes. `data-*` only for presentational variants.**
