@@ -48,6 +48,22 @@ _Avoid_: active indicator, highlight
 A logic-bearing standard Web Component (e.g. `<cf-loader>`), shipped under the opt-in `./elements` export — separate from the runtime-free CSS core.
 _Avoid_: widget, framework component
 
+**Pixel canvas**:
+The render-only custom element (`<cf-canvas>`) that draws a Pixel grid as teletext-style pixel art on a `<canvas>`. A logic-bearing custom element, like `<cf-loader>`.
+_Avoid_: image, sprite, bitmap component
+
+**Pixel grid**:
+The normalised in-memory model the Pixel canvas renderer draws: a width, a height, and one authentic-colour (or transparent) value per pixel. The only shape the renderer understands.
+_Avoid_: bitmap, buffer, matrix
+
+**Source adapter**:
+Something that converts a raw input into a Pixel grid. The char-grid text adapter is the first; a future PNG or JSON source is another. All produce the same Pixel grid.
+_Avoid_: loader, importer
+
+**Palette code**:
+A single character naming one authentic colour — or transparent — in the char-grid text of a Pixel canvas (`k r g y b m c w`, `.` = transparent).
+_Avoid_: colour key, symbol, glyph
+
 **Layout primitive**:
 A single-purpose layout class that arranges its children (`cf-stack`, `cf-grid`, `cf-cluster`, `cf-center`, `cf-sidebar`). Generic and composable; unlike a component it carries no teletext identity of its own. Configured with presentational `data-*` and a CSS-variable escape hatch.
 _Avoid_: layout component, wrapper, utility

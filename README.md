@@ -15,7 +15,7 @@ Import the stylesheet once (in your Astro layout, Svelte root, or `<head>`), the
 ```astro
 ---
 import "@peamlo/ceefax-ui";           // all styles
-import "@peamlo/ceefax-ui/elements";  // optional — only if you use <cf-loader>
+import "@peamlo/ceefax-ui/elements";  // optional — registers <cf-loader> + <cf-canvas>
 ---
 <a class="cf-link" href="/about" aria-current={pathname === "/about" ? "page" : undefined}>ABOUT</a>
 ```
@@ -68,6 +68,31 @@ not a mockup.
 | `cf-card` | any block | `variant` red/green/yellow/blue/cyan/magenta | — |
 | `cf-fastext` / `cf-fastext__key` | `<ul>` / `<a>` | `variant` red/green/yellow/blue | `:focus-visible` |
 | `<cf-loader>` | Web Component | — | blink (reduced-motion aware) |
+| `<cf-canvas>` | Web Component | `size` sm/md/lg/full | `alt` → `role="img"` |
+
+### Pixel canvas (`<cf-canvas>`)
+
+A render-only [custom element](./CONTEXT.md) that draws teletext-style **pixel art** on a `<canvas>` — headers, logos, scenes. Import it from the opt-in `./elements` export. The artwork is the element's **text content**: newline-separated rows of single-char palette codes.
+
+```html
+<script type="module">import "@peamlo/ceefax-ui/elements/cf-canvas";</script>
+
+<cf-canvas alt="CEEFAX holidays — palm tree" data-size="md">
+bbbbggbbbbggbbbbbbbb
+bbggggggggggggbbbbbb
+bbbgggggrgggggbbbbbb
+bbbbbbbrbbbbbbbbbbbb
+yyyyyyyyyyyyyyyyyyyy
+</cf-canvas>
+```
+
+- **Palette codes:** `k` black · `r` red · `g` green · `y` yellow · `b` blue · `m` magenta · `c` cyan · `w` white · `.` (or space) transparent. Colours are the authentic `--ceefax-*` values; unknown codes render transparent (with a dev-console warning). Free per-pixel colour — no one-colour-per-cell limit.
+- **Grid** dimensions are inferred from the text (ragged rows pad with transparent; common leading indentation is stripped — use `.` for intentional left-edge transparent pixels).
+- **Sizing** is fluid and crisp (`image-rendering: pixelated`), capped at `--cf-content-max`. Pick a tier with `data-size` (`sm`/`md`/`lg`/`full`) or set an exact scale with the `--cf-pixels-scale` escape hatch (`style="--cf-pixels-scale: 8"` = 8 CSS px per pixel).
+- **Accessibility:** provide `alt` for a meaningful image (→ `role="img"` + `aria-label`); omit it to mark the canvas decorative (`aria-hidden`).
+- **Live edits** re-render automatically (the future paint-it-yourself editor builds on this).
+
+See [ADR-0004](./docs/adr/0004-cf-canvas-pixel-art.md) for the reasoning.
 
 ## Tokens
 
