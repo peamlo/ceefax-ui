@@ -1,0 +1,3 @@
+/* Cluster — an inline group that wraps. Tag lists, fastext keys, button rows.
+   DX: data-gap="0..8", data-align="start|center|end|baseline" · escape hatch: --cf-gap. */
+.cf-cluster{display:flex;flex-wrap:wrap;gap:var(--cf-gap,var(--cf-space-2));align-items:var(--cf-align,center)}

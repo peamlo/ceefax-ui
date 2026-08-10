@@ -1,0 +1,27 @@
+/* Grid — responsive columns that collapse on the grid's OWN available width,
+   not the viewport. Query-free: the track min is a percentage that resolves
+   against this grid's inline size, so a grid nested in a narrow column reflows
+   correctly with no @container / container-type and no support caveats.
+
+   DX:
+     data-cols="2|3|4"  → up to N columns, collapsing toward fewer once a column
+                          would get narrower than --cf-grid-floor (default 20ch,
+                          ~half a teletext page).
+     --cf-grid-floor    → tune that collapse threshold.
+     --cf-grid-min      → full intrinsic escape hatch: as many columns as fit at
+                          this min track width (e.g. style="--cf-grid-min:20ch"),
+                          ignoring data-cols entirely.
+   Default (no data-cols, no --cf-grid-min): a single column.
+
+   The collapse only happens because the track min is max(absolute floor,
+   proportional share): when the grid is wide the share wins → exactly N columns;
+   when it narrows the fixed floor wins → auto-fill drops columns. A purely
+   proportional min would keep N columns at every width and merely cram them. */
+.cf-grid{
+  display:grid;
+  gap:var(--cf-gap,var(--cf-space-3));
+  grid-template-columns:repeat(auto-fill,minmax(min(var(--cf-grid-min,100%),100%),1fr));
+}
+.cf-grid[data-cols="2"]{--cf-grid-min:max(var(--cf-grid-floor,20ch),calc((100% - 1 * var(--cf-gap,var(--cf-space-3))) / 2))}
+.cf-grid[data-cols="3"]{--cf-grid-min:max(var(--cf-grid-floor,20ch),calc((100% - 2 * var(--cf-gap,var(--cf-space-3))) / 3))}
+.cf-grid[data-cols="4"]{--cf-grid-min:max(var(--cf-grid-floor,20ch),calc((100% - 3 * var(--cf-gap,var(--cf-space-3))) / 4))}
