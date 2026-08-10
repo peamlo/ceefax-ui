@@ -11,3 +11,4 @@ Each ADR records **one** decision that was hard to reverse, surprising without c
 - [0001 — CSS-first, no JS component runtime](./0001-css-first-no-js-runtime.md)
 - [0002 — Squash-only merges with Conventional-Commit PR titles](./0002-squash-only-conventional-pr-titles.md)
 - [0003 — Layout primitives: data-attribute config + intrinsic responsive grid](./0003-layout-primitives-data-attr-config.md)
+- [0005 — `.claude/skills` is a symlink to `.agents/skills`](./0005-claude-skills-symlink-to-agents-skills.md)
