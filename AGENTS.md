@@ -95,7 +95,7 @@ PRs merge into `main` via **squash only** (merge-commit and rebase are disabled)
 
 ## Agent skills
 
-Engineering skills from [mattpocock/skills](https://github.com/mattpocock/skills) are installed under `.agents/skills/` (editable; tracked in `skills-lock.json`).
+Engineering skills from [mattpocock/skills](https://github.com/mattpocock/skills) are installed under `.agents/skills/` (editable; tracked in `skills-lock.json`). `.claude/skills` is a committed relative symlink to `.agents/skills` so Claude Code discovers them as `/slash` commands — `.agents/skills` stays the source of truth, don't de-duplicate the two dirs. See `docs/adr/0005-claude-skills-symlink-to-agents-skills.md`.
 
 ### Issue tracker
 
