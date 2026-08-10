@@ -1,0 +1,4 @@
+/* Stack — vertical rhythm. Lays children out in a column with one consistent gap.
+   The workhorse for a blog post body, a form, a card's contents.
+   DX: data-gap="0..8" (see _shared.css) · escape hatch: --cf-gap. */
+.cf-stack{display:flex;flex-direction:column;gap:var(--cf-gap,var(--cf-space-3))}

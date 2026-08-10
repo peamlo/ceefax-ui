@@ -63,3 +63,31 @@ _Avoid_: loader, importer
 **Palette code**:
 A single character naming one authentic colour — or transparent — in the char-grid text of a Pixel canvas (`k r g y b m c w`, `.` = transparent).
 _Avoid_: colour key, symbol, glyph
+
+**Layout primitive**:
+A single-purpose layout class that arranges its children (`cf-stack`, `cf-grid`, `cf-cluster`, `cf-center`, `cf-sidebar`). Generic and composable; unlike a component it carries no teletext identity of its own. Configured with presentational `data-*` and a CSS-variable escape hatch.
+_Avoid_: layout component, wrapper, utility
+
+**Stack**:
+The layout primitive for vertical rhythm — children in a column separated by one consistent gap.
+_Avoid_: flow, v-stack, column
+
+**Cluster**:
+The layout primitive for an inline group that wraps — tags, key rows, the fastext keys.
+_Avoid_: inline, row, chips
+
+**Grid**:
+The layout primitive for responsive columns. Collapses on its **own** available width (never the viewport). `data-cols` caps the count; `--cf-grid-min` makes it intrinsic.
+_Avoid_: row/col system, flexgrid
+
+**Center**:
+The layout primitive for a horizontally centred, width-constrained reading column (defaults to one teletext page wide).
+_Avoid_: container, wrapper, measure
+
+**Sidebar**:
+The layout primitive for a fixed-width rail (`cf-sidebar__side`) beside a fluid main column (`cf-sidebar__main`) that wraps to a stack when space runs out.
+_Avoid_: two-column, aside layout
+
+**Page shell**:
+The optional structural template (`cf-page` with `cf-page__header` / `__body` / `__footer` slots) that stacks a teletext page into header, body, and footer bands. Structure only — the look comes from tokens, not baked markup.
+_Avoid_: layout, page component, template component

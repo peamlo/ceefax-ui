@@ -1,0 +1,9 @@
+/* Page shell — the teletext page as a structural template: a header band, a body,
+   and a footer band, top to bottom, filling the viewport. Slots are optional; you
+   fill them with your own content and the other primitives/components.
+
+   Structural only — the teletext look comes from the tokens, not from baked markup.
+   Gated with :has() so a bare `cf-page` (the flat canvas from base.css) is unaffected. */
+.cf-page:has(.cf-page__body){display:grid;grid-template-rows:auto 1fr auto;min-height:100vh}
+.cf-page__header{min-height:var(--cf-header-row)}
+.cf-page__footer{min-height:var(--cf-footer-row)}
