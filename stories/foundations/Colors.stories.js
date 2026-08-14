@@ -1,4 +1,6 @@
 import { css, page, heading, resolveColor } from './_tokens.js';
+import { expect } from '@storybook/test';
+import { CEEFAX_PALETTE } from '../../src/tokens/palette.js';
 
 export default { title: 'Foundations/Colors' };
 
@@ -43,6 +45,15 @@ export const Palette = () => {
   d.appendChild(heading('Base palette · never remapped'));
   d.appendChild(swatchGrid(BASE));
   return d;
+};
+// Palette-drift guard: the JS mirror (palette.js) must match the CSS tokens
+// (colors.css). Fails the build if the hand-synced pair diverges. Tagged
+// `contract` so CI's scoped run includes it (see .github/workflows).
+Palette.tags = ['contract'];
+Palette.play = async () => {
+  for (const { name, hex } of CEEFAX_PALETTE) {
+    await expect(css('--ceefax-' + name).toLowerCase()).toBe(hex.toLowerCase());
+  }
 };
 
 export const SemanticAliases = () => {

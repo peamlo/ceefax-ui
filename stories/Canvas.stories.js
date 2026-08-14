@@ -1,6 +1,8 @@
 // Registers <cf-canvas> for these stories (and via the ./elements barrel in real use).
 import '../src/elements/cf-canvas.js';
+import { parseCharGrid } from '../src/elements/cf-canvas.js';
 import { pixelText, masthead } from './_pixel-text.js';
+import { expect } from '@storybook/test';
 
 // A stylised CEEFAX-holidays palm: blue sky (b), green fronds (g), red trunk (r),
 // yellow sand (y). Free per-pixel colour — no authentic one-colour-per-cell limit.
@@ -63,7 +65,7 @@ function label(text) {
 
 export default {
   title: 'Components/Pixel canvas',
-  tags: ['autodocs'],
+  tags: ['autodocs', 'contract'],
 };
 
 // Pixel-art header text built from a tiny 5x5 font — the classic teletext masthead:
@@ -92,11 +94,25 @@ export const HeaderShadowOnly = {
 // A meaningful, labelled scene — exposes role="img" + aria-label to assistive tech.
 export const PalmScene = {
   render: () => stage(pixels(PALM, { alt: 'CEEFAX holidays — palm tree on a beach', 'data-size': 'md' })),
+  // Contract: alt present => role="img" + aria-label carrying the description.
+  play: async ({ canvasElement }) => {
+    const el = canvasElement.querySelector('cf-canvas');
+    await expect(el).toHaveAttribute('role', 'img');
+    await expect(el.getAttribute('aria-label')).toContain('palm tree'); // == the alt text
+    await expect(el).not.toHaveAttribute('aria-hidden');
+  },
 };
 
 // A small decorative logo on a transparent background (no alt -> aria-hidden).
 export const DecorativeLogo = {
   render: () => stage(pixels(HEART, { 'data-size': 'sm' }), '240px'),
+  // Contract: alt absent => decorative, hidden from assistive tech, no role.
+  play: async ({ canvasElement }) => {
+    const el = canvasElement.querySelector('cf-canvas');
+    await expect(el).toHaveAttribute('aria-hidden', 'true');
+    await expect(el).not.toHaveAttribute('role');
+    await expect(el).not.toHaveAttribute('aria-label');
+  },
 };
 
 // The enumerated fluid size tiers (data-* presets + a --cf-* escape-hatch var).
@@ -132,4 +148,21 @@ export const AllColours = {
 export const UnknownCodes = {
   render: () =>
     stage(pixels('.rXr.\nrZZZr\n.rrr.', { alt: 'heart with unknown codes X and Z' }), '240px'),
+  // parseCharGrid self-check (the pure source adapter). Run here rather than in node
+  // because importing cf-canvas.js registers a custom element (needs a DOM).
+  play: async () => {
+    // Known code -> palette index (r = red = index 2); '.' and unknown -> 0 (transparent).
+    const g = parseCharGrid('.rXr.\nrZZZr\n.rrr.');
+    await expect({ width: g.width, height: g.height }).toEqual({ width: 5, height: 3 });
+    await expect(Array.from(g.cells)).toEqual([
+      0, 2, 0, 2, 0, // .rXr.  (X unknown -> 0)
+      2, 0, 0, 0, 2, // rZZZr  (Z unknown -> 0)
+      0, 2, 2, 2, 0, // .rrr.
+    ]);
+    await expect(g.unknown.sort()).toEqual(['X', 'Z']);
+    // Leading source indentation is stripped; interior blank rows are kept.
+    const indented = parseCharGrid('  rr\n  \n  rr');
+    await expect({ width: indented.width, height: indented.height }).toEqual({ width: 2, height: 3 });
+    await expect(Array.from(indented.cells)).toEqual([2, 2, 0, 0, 2, 2]);
+  },
 };

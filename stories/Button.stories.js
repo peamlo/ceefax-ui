@@ -1,6 +1,6 @@
 export default {
   title: 'Components/Button',
-  tags: ['autodocs'],
+  tags: ['autodocs', 'contract'],
   render: ({ label, variant, size, disabled }) => {
     const b = document.createElement('button');
     b.className = 'cf-btn';
@@ -19,6 +19,10 @@ export default {
   args: { label: 'READ MORE', variant: '', size: 'md', disabled: false },
 };
 
+// The hover/focus-inversion and disabled-suppression contract claims are verified
+// in .storybook/test-runner.js: CSS :hover / :focus-visible only respond to *real*
+// pointer/keyboard input, which the in-page synthetic userEvent cannot produce — so
+// those assertions run through Playwright's real input in the runner's postVisit.
 export const Default = {};
 export const FastextRed = { args: { variant: 'red', label: '\u25B8 RED \u00B7 INDEX' } };
 export const FastextGreen = { args: { variant: 'green', label: '\u25B8 GREEN \u00B7 POSTS' } };

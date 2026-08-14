@@ -26,6 +26,7 @@
     "demo": "npx --yes serve .",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
+    "test-storybook": "test-storybook --testTimeout=60000",
     "prepare": "husky"
   },
   "devDependencies": {
@@ -35,7 +36,10 @@
     "@storybook/addon-essentials": "^8.3.0",
     "@storybook/addon-interactions": "^8.3.0",
     "@storybook/html-vite": "^8.3.0",
+    "@storybook/test": "^8.3.0",
+    "@storybook/test-runner": "^0.19.0",
     "autoprefixer": "^10.4.0",
+    "axe-playwright": "^2.0.0",
     "husky": "^9.1.7",
     "js-beautify": "^2.0.3",
     "postcss": "^8.4.0",

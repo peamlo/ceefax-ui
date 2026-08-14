@@ -1,6 +1,6 @@
 export default {
   title: 'Components/Card',
-  tags: ['autodocs'],
+  tags: ['autodocs', 'contract'],
   render: ({ title, body, variant }) => {
     const card = document.createElement('article');
     card.className = 'cf-card';
