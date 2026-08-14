@@ -47,9 +47,7 @@ export const Palette = () => {
   return d;
 };
 // Palette-drift guard: the JS mirror (palette.js) must match the CSS tokens
-// (colors.css). Fails the build if the hand-synced pair diverges. Tagged
-// `contract` so CI's scoped run includes it (see .github/workflows).
-Palette.tags = ['contract'];
+// (colors.css). Fails the build if the hand-synced pair diverges.
 Palette.play = async () => {
   for (const { name, hex } of CEEFAX_PALETTE) {
     await expect(css('--ceefax-' + name).toLowerCase()).toBe(hex.toLowerCase());

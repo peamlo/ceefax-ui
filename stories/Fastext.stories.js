@@ -9,7 +9,7 @@ const KEYS = [
 
 export default {
   title: 'Components/Fastext bar',
-  tags: ['autodocs', 'contract'],
+  tags: ['autodocs'],
   render: () => {
     const nav = document.createElement('nav');
     nav.setAttribute('aria-label', 'Fastext');

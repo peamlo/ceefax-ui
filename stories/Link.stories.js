@@ -2,7 +2,7 @@ import { expect, within } from '@storybook/test';
 
 export default {
   title: 'Components/Link',
-  tags: ['autodocs', 'contract'],
+  tags: ['autodocs'],
   render: ({ label, variant, page, current, href }) => {
     const a = document.createElement('a');
     a.className = 'cf-link';

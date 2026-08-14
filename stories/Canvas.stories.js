@@ -65,7 +65,7 @@ function label(text) {
 
 export default {
   title: 'Components/Pixel canvas',
-  tags: ['autodocs', 'contract'],
+  tags: ['autodocs'],
 };
 
 // Pixel-art header text built from a tiny 5x5 font — the classic teletext masthead:

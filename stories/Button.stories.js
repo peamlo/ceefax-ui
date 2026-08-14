@@ -1,6 +1,6 @@
 export default {
   title: 'Components/Button',
-  tags: ['autodocs', 'contract'],
+  tags: ['autodocs'],
   render: ({ label, variant, size, disabled }) => {
     const b = document.createElement('button');
     b.className = 'cf-btn';
