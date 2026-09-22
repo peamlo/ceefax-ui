@@ -10,11 +10,10 @@ transition:transform 60ms linear;-webkit-tap-highlight-color:transparent;
 }
 .cf-btn[data-size="sm"]{font-size:var(--cf-text-small);padding:.2em 1.5ch}
 .cf-btn[data-size="lg"]{font-size:var(--cf-text-heading);padding:.6em 3ch}
-/* fastext colour blocks — always paired with a redundant text label in markup */
-.cf-btn[data-variant="red"]{--_bg:var(--ceefax-red);--_fg:var(--ceefax-black);--_bd:var(--ceefax-red)}
-.cf-btn[data-variant="green"]{--_bg:var(--ceefax-green);--_fg:var(--ceefax-black);--_bd:var(--ceefax-green)}
-.cf-btn[data-variant="yellow"]{--_bg:var(--ceefax-yellow);--_fg:var(--ceefax-black);--_bd:var(--ceefax-yellow)}
-.cf-btn[data-variant="blue"]{--_bg:var(--ceefax-blue);--_fg:var(--ceefax-white);--_bd:var(--ceefax-blue)}
+/* fastext colour blocks — always paired with a redundant text label in markup.
+   Colour comes from the variant seam (base.css); the button decides it paints
+   fill + ink + border. Ghost has no seam colour, so its rule must stay below. */
+.cf-btn[data-variant]{--_bg:var(--_variant);--_fg:var(--_variant-ink);--_bd:var(--_variant)}
 .cf-btn[data-variant="ghost"]{--_bg:transparent;--_fg:var(--cf-link);--_bd:transparent}
 /* inversion on hover + keyboard focus */
 .cf-btn:hover,.cf-btn:focus-visible{background:var(--_fg);color:var(--_bg);border-color:var(--_fg);outline:none}

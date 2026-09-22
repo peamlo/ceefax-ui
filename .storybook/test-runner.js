@@ -39,12 +39,25 @@ async function assertButtonContract(page, name) {
   }
 }
 
+// Contract: hovering a fastext key inverts it — the page background behind the key's
+// own colour as text. One key is enough; all four share the rule.
+async function assertFastextHover(page) {
+  const RED_KEY = '.cf-fastext__key[data-variant="red"]';
+  await page.hover(RED_KEY);
+  const cs = await page.evaluate((sel) => {
+    const s = getComputedStyle(document.querySelector(sel));
+    return { backgroundColor: s.backgroundColor, color: s.color };
+  }, RED_KEY);
+  expect(cs).toEqual({ backgroundColor: 'rgb(0, 0, 0)', color: 'rgb(255, 0, 0)' });
+}
+
 export default {
   async postVisit(page, context) {
     const { title, name } = await getStoryContext(page, context);
     if (!title.startsWith('Components/')) return;
 
     if (title === 'Components/Button') await assertButtonContract(page, name);
+    if (title === 'Components/Fastext bar') await assertFastextHover(page);
 
     await injectAxe(page);
     await checkA11y(page, '#storybook-root', {

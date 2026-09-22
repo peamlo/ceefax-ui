@@ -3,5 +3,19 @@
    future ceefax-ui class gets border-box by virtue of the contract, so adding a
    component needs no edit here. [class*=" cf-"] covers any multi-class element. */
 :where([class^="cf-"],[class*=" cf-"]){box-sizing:border-box}
+/* The variant seam: the one place a [data-variant] name meets an authentic colour.
+   --_variant is the resolved colour, --_variant-ink the readable foreground on it.
+   Components read them; they never re-declare the mapping. Two rules to know:
+   1. these inherit, so a component opts in by matching [data-variant] ON ITSELF —
+      read them unguarded and a plain button inside a red card would turn red;
+   2. non-colour variants (ghost, nav) get no --_variant, so a component rule that
+      matches one must come AFTER its own generic [data-variant] rule to win on order. */
+:where([data-variant]){--_variant-ink:var(--ceefax-black)}
+:where([data-variant="red"]){--_variant:var(--ceefax-red)}
+:where([data-variant="green"]){--_variant:var(--ceefax-green)}
+:where([data-variant="yellow"]){--_variant:var(--ceefax-yellow)}
+:where([data-variant="blue"]){--_variant:var(--ceefax-blue);--_variant-ink:var(--ceefax-white)}
+:where([data-variant="cyan"]){--_variant:var(--ceefax-cyan)}
+:where([data-variant="magenta"]){--_variant:var(--ceefax-magenta)}
 /* Optional page shell: flat-black teletext canvas. */
 .cf-page{background:var(--cf-bg);color:var(--cf-fg);font-family:var(--cf-font-body);font-size:var(--cf-text-body);line-height:var(--cf-leading-normal)}

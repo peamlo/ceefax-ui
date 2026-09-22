@@ -31,4 +31,5 @@ jobs:
           npx --yes wait-on http://127.0.0.1:6006
           npm run test-storybook -- \
             stories/Button stories/Link stories/Card \
-            stories/Fastext stories/Canvas stories/PaletteDrift
+            stories/Fastext stories/Canvas stories/PaletteDrift \
+            stories/VariantColours
