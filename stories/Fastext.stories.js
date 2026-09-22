@@ -1,3 +1,5 @@
+import { expect, within } from '@storybook/test';
+
 const KEYS = [
   { variant: 'red', label: 'INDEX' },
   { variant: 'green', label: 'POSTS' },
@@ -28,4 +30,15 @@ export default {
   },
 };
 
-export const FastextBar = {};
+export const FastextBar = {
+  // Contract: colour is never the sole cue — every coloured key carries a
+  // redundant, non-empty text label in the markup.
+  play: async ({ canvasElement }) => {
+    const keys = within(canvasElement).getAllByRole('link');
+    await expect(keys.length).toBe(KEYS.length);
+    for (const key of keys) {
+      await expect(key).toHaveAttribute('data-variant'); // it is a colour key
+      await expect(key.textContent.trim().length).toBeGreaterThan(0); // ...with a label
+    }
+  },
+};

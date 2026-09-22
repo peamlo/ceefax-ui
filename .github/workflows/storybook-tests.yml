@@ -1,0 +1,34 @@
+# Runs the Storybook test-runner against a built Storybook: the story play()
+# functions (contract interaction assertions) + the axe a11y pass on Components/*.
+# Per ADR-0002 this is a SOFT gate — it reports red but may not block merge until
+# the repo is public / on a plan with required checks. See ADR-0006.
+name: storybook-tests
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  test-storybook:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build-storybook
+      - name: Serve Storybook and run the test-runner
+        # Scoped to the contract stories (issue #8's tested modules) by file path.
+        # The Foundations/Layout documentation stories are out of scope and currently
+        # destabilise the test-runner (60s "navigation" hangs) — see ADR-0006.
+        run: |
+          npx --yes http-server storybook-static -p 6006 --silent &
+          npx --yes wait-on http://127.0.0.1:6006
+          npm run test-storybook -- \
+            stories/Button stories/Link stories/Card \
+            stories/Fastext stories/Canvas stories/PaletteDrift

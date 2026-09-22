@@ -13,3 +13,4 @@ Each ADR records **one** decision that was hard to reverse, surprising without c
 - [0004 — `<cf-canvas>` canvas pixel-art element and its char-grid source](./0004-cf-canvas-pixel-art.md)
 - [0003 — Layout primitives: data-attribute config + intrinsic responsive grid](./0003-layout-primitives-data-attr-config.md)
 - [0005 — `.claude/skills` is a symlink to `.agents/skills`](./0005-claude-skills-symlink-to-agents-skills.md)
+- [0006 — The stories are the executable test surface](./0006-stories-are-the-test-surface.md)
