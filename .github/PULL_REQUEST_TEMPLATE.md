@@ -29,8 +29,8 @@ Tick all that apply, or write "None — internal only".
 
 <!-- The repo is self-documenting; keep it that way. Tick what you touched. -->
 - [ ] ADR added/updated (`docs/adr/`)
-- [ ] Glossary updated (`docs/glossary.md`)
-- [ ] `CONTEXT.md` / `AGENTS.md` updated
+- [ ] Glossary updated (`CONTEXT.md`)
+- [ ] `AGENTS.md` / `README.md` updated
 - [ ] Storybook story added/updated
 - [ ] No docs needed (explain why): 
 
