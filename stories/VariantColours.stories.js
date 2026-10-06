@@ -52,7 +52,7 @@ const CASES = [
 ];
 
 // --_variant inherits, so a variant ancestor must not colour a descendant that did not
-// ask for one. [child component, its own variant, expected] inside a red card.
+// ask for one. [child component, its own variant, expected] — rendered inside a red card.
 const NESTED = [
   ['btn', '', { backgroundColor: BLACK, color: WHITE, ...BORDER }],
   ['btn', 'ghost', { backgroundColor: TRANSPARENT, color: CYAN, borderTopColor: TRANSPARENT }],
@@ -72,9 +72,9 @@ const build = ([kind, variant], i) => {
   return n;
 };
 
-const assertCases = async (cases, canvasElement) => {
+const assertCases = async (cases, canvasElement, offset = 0) => {
   for (const [i, [kind, variant, want]] of cases.entries()) {
-    const cs = getComputedStyle(canvasElement.querySelector(`[data-case="${i}"]`));
+    const cs = getComputedStyle(canvasElement.querySelector(`[data-case="${offset + i}"]`));
     const label = `${kind}[data-variant="${variant}"]`;
     for (const [prop, value] of Object.entries(want)) {
       // Labelled so a failure names the pair that drifted, not just two colours.
@@ -85,25 +85,26 @@ const assertCases = async (cases, canvasElement) => {
 
 export default { title: 'Foundations/Variant colours' };
 
+// Deliberately ONE story: a Foundations file with more than one story reproducibly hangs
+// the test-runner for 60s with a "navigation" error on CI (ADR-0006), which is why the
+// Layout documentation stories are out of the gate. The nested cases ride along here.
 export const Matrix = {
   name: 'Every component × variant',
   render: () => {
     const wrap = document.createElement('div');
     wrap.style.cssText = 'display:flex;flex-wrap:wrap;align-items:flex-start;gap:1ch';
     CASES.forEach((c, i) => wrap.appendChild(build(c, i)));
+
+    const host = document.createElement('article');
+    host.className = 'cf-card';
+    host.dataset.variant = 'red';
+    host.style.cssText = 'display:flex;flex-wrap:wrap;align-items:flex-start;gap:1ch';
+    NESTED.forEach((c, i) => host.appendChild(build(c, CASES.length + i)));
+    wrap.appendChild(host);
     return wrap;
   },
-  play: async ({ canvasElement }) => assertCases(CASES, canvasElement),
-};
-
-export const Nested = {
-  name: 'Inside a variant ancestor',
-  render: () => {
-    const card = document.createElement('article');
-    card.className = 'cf-card';
-    card.dataset.variant = 'red';
-    NESTED.forEach((c, i) => card.appendChild(build(c, i)));
-    return card;
+  play: async ({ canvasElement }) => {
+    await assertCases(CASES, canvasElement);
+    await assertCases(NESTED, canvasElement, CASES.length);
   },
-  play: async ({ canvasElement }) => assertCases(NESTED, canvasElement),
 };
