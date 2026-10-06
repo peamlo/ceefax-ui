@@ -13,9 +13,9 @@ import { injectAxe, checkA11y } from 'axe-playwright';
 // build on non-contract stories.
 
 const BTN = '.cf-btn';
-// Read the button's live colours from inside the page (runs in the browser context).
-const btnColours = () => {
-  const cs = getComputedStyle(document.querySelector('.cf-btn'));
+// Read an element's live colours from inside the page (runs in the browser context).
+const colours = (sel) => {
+  const cs = getComputedStyle(document.querySelector(sel));
   return { backgroundColor: cs.backgroundColor, color: cs.color };
 };
 // default button: fg=white / bg=black, so inversion => white bg + black text.
@@ -27,16 +27,36 @@ async function assertButtonContract(page, name) {
     // Contract: keyboard focus (:focus-visible) inverts the colours. A real Tab
     // press (the button is the only focusable) makes :focus-visible match.
     await page.keyboard.press('Tab');
-    expect(await page.evaluate(btnColours)).toEqual(INVERTED);
+    expect(await page.evaluate(colours, BTN)).toEqual(INVERTED);
     // Contract: hover inverts too (same CSS rule as focus-visible).
     await page.hover(BTN);
-    expect(await page.evaluate(btnColours)).toEqual(INVERTED);
+    expect(await page.evaluate(colours, BTN)).toEqual(INVERTED);
   }
   if (name === 'Disabled') {
     // Contract: a disabled button does NOT invert on hover.
     await page.hover(BTN);
-    expect(await page.evaluate(btnColours)).toEqual(RESTING);
+    expect(await page.evaluate(colours, BTN)).toEqual(RESTING);
   }
+}
+
+// Contract: hovering a fastext key inverts it — the page background behind the key's own
+// colour as text. One key is enough, and deliberately so: the per-colour part (which
+// colour each name resolves to) is pinned for all four by the Foundations/Variant colours
+// matrix, so what is left for real input to prove is that the single hover rule fires.
+// Hovering all four cost 9 Playwright round-trips in postVisit and made this suite fail
+// intermittently on CI with "Resulting promise was garbage collected".
+const RED_KEY = '.cf-fastext__key[data-variant="red"]';
+
+async function assertFastextHover(page) {
+  await page.hover(RED_KEY);
+  expect(await page.evaluate(colours, RED_KEY)).toEqual({
+    backgroundColor: 'rgb(0, 0, 0)',
+    color: 'rgb(255, 0, 0)',
+  });
+  // Leave nothing hovered: the axe pass below audits the resting state, and a key held
+  // in hover is a transient inversion whose contrast is not the contract. (Blue's hover
+  // pair is blue-on-black, ~2.4:1 — it would fail axe if left held. See #12.)
+  await page.mouse.move(0, 0);
 }
 
 export default {
@@ -45,6 +65,7 @@ export default {
     if (!title.startsWith('Components/')) return;
 
     if (title === 'Components/Button') await assertButtonContract(page, name);
+    if (title === 'Components/Fastext bar') await assertFastextHover(page);
 
     await injectAxe(page);
     await checkA11y(page, '#storybook-root', {

@@ -3,5 +3,23 @@
    future ceefax-ui class gets border-box by virtue of the contract, so adding a
    component needs no edit here. [class*=" cf-"] covers any multi-class element. */
 :where([class^="cf-"],[class*=" cf-"]){box-sizing:border-box}
+/* The variant seam: the one place a [data-variant] name meets an authentic colour.
+   --_variant is the resolved colour, --_variant-ink the readable foreground on it —
+   one row per colour, both set together. Components read them; they never re-declare
+   the mapping. Three rules to know:
+   1. these inherit, so a component opts in by matching [data-variant] ON ITSELF —
+      read them unguarded and a plain button inside a red card would turn red;
+   2. a name with no row here (a consumer typo, or a look-only variant like ghost or
+      nav) sets NEITHER property, so every component must read them through a var()
+      fallback. Without one, an unresolved var() in a `border` shorthand would reset
+      every border longhand and leave an invisible, border-less element;
+   3. a component rule for a look-only variant must come AFTER its own generic
+      [data-variant] rule to win on order — both have the same specificity. */
+:where([data-variant="red"]){--_variant:var(--ceefax-red);--_variant-ink:var(--ceefax-black)}
+:where([data-variant="green"]){--_variant:var(--ceefax-green);--_variant-ink:var(--ceefax-black)}
+:where([data-variant="yellow"]){--_variant:var(--ceefax-yellow);--_variant-ink:var(--ceefax-black)}
+:where([data-variant="blue"]){--_variant:var(--ceefax-blue);--_variant-ink:var(--ceefax-white)}
+:where([data-variant="cyan"]){--_variant:var(--ceefax-cyan);--_variant-ink:var(--ceefax-black)}
+:where([data-variant="magenta"]){--_variant:var(--ceefax-magenta);--_variant-ink:var(--ceefax-black)}
 /* Optional page shell: flat-black teletext canvas. */
 .cf-page{background:var(--cf-bg);color:var(--cf-fg);font-family:var(--cf-font-body);font-size:var(--cf-text-body);line-height:var(--cf-leading-normal)}

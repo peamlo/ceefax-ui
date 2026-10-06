@@ -2,12 +2,7 @@
    every key carries a redundant text label in the markup. */
 .cf-fastext{display:flex;gap:var(--cf-space-1);margin:0;padding:0;list-style:none;font-family:var(--cf-font-mono);font-weight:700;text-transform:uppercase;letter-spacing:var(--cf-tracking-wide)}
 .cf-fastext__key{flex:1 1 0;display:flex;align-items:center;gap:var(--cf-space-2);padding:.4em 2ch;color:var(--ceefax-black);text-decoration:none;border:var(--cf-border-thin) solid transparent;white-space:nowrap}
-.cf-fastext__key[data-variant="red"]{background:var(--ceefax-red)}
-.cf-fastext__key[data-variant="green"]{background:var(--ceefax-green)}
-.cf-fastext__key[data-variant="yellow"]{background:var(--ceefax-yellow)}
-.cf-fastext__key[data-variant="blue"]{background:var(--ceefax-blue);color:var(--ceefax-white)}
+/* Colour comes from the variant seam (base.css); the key paints its background. */
+.cf-fastext__key[data-variant]{background:var(--_variant,transparent);color:var(--_variant-ink,var(--ceefax-black))}
 .cf-fastext__key:hover,.cf-fastext__key:focus-visible{outline:none;background:var(--cf-bg);border-color:currentColor}
-.cf-fastext__key[data-variant="red"]:hover,.cf-fastext__key[data-variant="red"]:focus-visible{color:var(--ceefax-red)}
-.cf-fastext__key[data-variant="green"]:hover,.cf-fastext__key[data-variant="green"]:focus-visible{color:var(--ceefax-green)}
-.cf-fastext__key[data-variant="yellow"]:hover,.cf-fastext__key[data-variant="yellow"]:focus-visible{color:var(--ceefax-yellow)}
-.cf-fastext__key[data-variant="blue"]:hover,.cf-fastext__key[data-variant="blue"]:focus-visible{color:var(--ceefax-blue)}
+.cf-fastext__key[data-variant]:hover,.cf-fastext__key[data-variant]:focus-visible{color:var(--_variant,var(--ceefax-black))}

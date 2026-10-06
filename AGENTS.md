@@ -9,7 +9,7 @@ Read this, then `CONTEXT.md` (the glossary) and any relevant `docs/adr/` before 
 **One semantic class on the correct native element. State comes from native/ARIA attributes. `data-*` is only for presentational variants.** See `README.md` → "The contract" and `docs/adr/` for the reasoning.
 
 - **Never** write state-modifier classes (`cf-btn--disabled`, `cf-btn--active`). Use the real `disabled` attribute, `:focus-visible`, `[aria-current]`, `[aria-pressed]`.
-- `data-variant` is only the presentational fastext colour (`red`/`green`/`yellow`/`blue`) and card border colour; `data-size` is presentational too.
+- `data-variant` is only a presentational colour — one of the six named authentic colours (`red`/`green`/`yellow`/`blue`/`cyan`/`magenta`), plus look-only `ghost` (button) and `nav` (link). The name→colour mapping lives once in the variant seam (`src/base.css`, ADR-0007); a component opts in by matching `[data-variant]` on itself and reading `--_variant` through a fallback. `data-size` is presentational too.
 - No utility classes, no compound-class soup.
 - Tokens layer strictly: `--ceefax-*` = the authentic 8 broadcast colours (never remapped); `--cf-*` = semantic aliases (the **only** layer components reference).
 

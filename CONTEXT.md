@@ -16,6 +16,10 @@ _Avoid_: utility class, component class, BEM block
 A look-only difference selected with a `data-*` attribute (`data-variant="red"`, `data-size="lg"`). Never encodes state.
 _Avoid_: modifier, `--modifier` class
 
+**Variant seam**:
+The single place a presentational variant name resolves to a colour — `--_variant` (the authentic colour) and `--_variant-ink` (the readable foreground on it), declared once in the base layer. Components read them to paint; they never re-declare the mapping. The one sanctioned route by which an authentic colour reaches a component: it is the seam, not the component, that names `--ceefax-*`.
+_Avoid_: variant mixin, colour map, theme lookup
+
 **State**:
 A run-time condition of an element (disabled, focused, current). Always expressed with native or ARIA attributes (`disabled`, `:focus-visible`, `[aria-current]`, `[aria-pressed]`) — never with a class.
 _Avoid_: state class, `cf-btn--active`, `is-active`
@@ -29,7 +33,7 @@ One of the eight original broadcast teletext colours, exposed as a `--ceefax-*` 
 _Avoid_: brand colour, palette colour
 
 **Semantic alias**:
-A `--cf-*` token that maps meaning (e.g. surface, accent) onto an authentic colour. The **only** token layer components reference. Themes remap these; they never touch `--ceefax-*`.
+A `--cf-*` token that maps meaning (e.g. surface, accent) onto an authentic colour. The only token layer components reference for their own paint — the single exception is the Variant seam, through which a consumer-chosen authentic colour reaches a component. Themes remap these; they never touch `--ceefax-*`.
 _Avoid_: theme variable, colour variable
 
 **Accessible theme**:
