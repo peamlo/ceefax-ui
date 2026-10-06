@@ -243,7 +243,7 @@ footer{margin-top:clamp(30px,5vw,56px)}
 // result and as highlighted source, so the two panels can never drift.
 const COLORS = ['black','red','green','yellow','blue','magenta','cyan','white'];
 for (const bar of document.querySelectorAll('[data-colorbar]')) {
-  bar.innerHTML = COLORS.map(c => `<span style="background:var(--ceefax-${c})"></span>`).join('');
+  bar.innerHTML = COLORS.map(c => `<span style="background:var(--cf-base-${c})"></span>`).join('');
 }
 
 const dedent = (t) => {

@@ -197,14 +197,14 @@ class CfCanvas extends HTMLElement {
     }
   }
 
-  // index (1..8) -> concrete colour, read live from the authentic --ceefax-* tokens
+  // index (1..8) -> concrete colour, read live from the authentic --cf-base-* tokens
   // (never remapped). Resolved from `this` so scoped ancestor overrides still apply;
   // falls back to the fixed hex when no stylesheet is present.
   _resolvePalette() {
     const cs = getComputedStyle(this);
     const colors = [null];
     for (const p of CEEFAX_PALETTE) {
-      const token = cs.getPropertyValue(`--ceefax-${p.name}`).trim();
+      const token = cs.getPropertyValue(`--cf-base-${p.name}`).trim();
       colors.push(token || p.hex);
     }
     return colors;

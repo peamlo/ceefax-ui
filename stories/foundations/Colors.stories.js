@@ -3,12 +3,13 @@ import { css, page, heading, resolveColor } from './_tokens.js';
 export default { title: 'Foundations/Colors' };
 
 const BASE = [
-  'ceefax-black', 'ceefax-red', 'ceefax-green', 'ceefax-yellow',
-  'ceefax-blue', 'ceefax-magenta', 'ceefax-cyan', 'ceefax-white',
+  'cf-base-black', 'cf-base-red', 'cf-base-green', 'cf-base-yellow',
+  'cf-base-blue', 'cf-base-magenta', 'cf-base-cyan', 'cf-base-white',
 ];
 const SEMANTIC = [
   'cf-bg', 'cf-fg', 'cf-fg-dim', 'cf-link', 'cf-link-hover', 'cf-link-visited',
   'cf-accent', 'cf-accent-2', 'cf-border', 'cf-info', 'cf-warning', 'cf-danger', 'cf-success',
+  'cf-variant-ink', 'cf-variant-ink-on-dark',
 ];
 
 // Light values need black text to stay legible on the swatch.

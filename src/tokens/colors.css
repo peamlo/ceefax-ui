@@ -1,30 +1,34 @@
 :root{
 /* base — authentic broadcast palette. NEVER remapped. */
---ceefax-black:#000000;
---ceefax-red:#ff0000;
---ceefax-green:#00ff00;
---ceefax-yellow:#ffff00;
---ceefax-blue:#0000ff;
---ceefax-magenta:#ff00ff;
---ceefax-cyan:#00ffff;
---ceefax-white:#ffffff;
-/* semantic aliases — the ONLY layer components reference. */
---cf-bg:var(--ceefax-black);
---cf-fg:var(--ceefax-white);
+--cf-base-black:#000000;
+--cf-base-red:#ff0000;
+--cf-base-green:#00ff00;
+--cf-base-yellow:#ffff00;
+--cf-base-blue:#0000ff;
+--cf-base-magenta:#ff00ff;
+--cf-base-cyan:#00ffff;
+--cf-base-white:#ffffff;
+/* semantic aliases — the ONLY colour tier component/layout CSS references
+   (CI: Foundations/Token layering guard, ADR-0008). */
+--cf-bg:var(--cf-base-black);
+--cf-fg:var(--cf-base-white);
 --cf-fg-dim:#b3ffb3;
---cf-link:var(--ceefax-cyan);
---cf-link-hover:var(--ceefax-yellow);
---cf-link-visited:var(--ceefax-magenta);
---cf-accent:var(--ceefax-yellow);
---cf-accent-2:var(--ceefax-green);
---cf-border:var(--ceefax-white);
---cf-info:var(--ceefax-cyan);
---cf-warning:var(--ceefax-yellow);
---cf-danger:var(--ceefax-red);
---cf-success:var(--ceefax-green);
+--cf-link:var(--cf-base-cyan);
+--cf-link-hover:var(--cf-base-yellow);
+--cf-link-visited:var(--cf-base-magenta);
+--cf-accent:var(--cf-base-yellow);
+--cf-accent-2:var(--cf-base-green);
+--cf-border:var(--cf-base-white);
+--cf-info:var(--cf-base-cyan);
+--cf-warning:var(--cf-base-yellow);
+--cf-danger:var(--cf-base-red);
+--cf-success:var(--cf-base-green);
+/* ink (readable foreground) on a variant block: light blocks, and dark ones (authentic blue) */
+--cf-variant-ink:var(--cf-base-black);
+--cf-variant-ink-on-dark:var(--cf-base-white);
 }
 /* FUTURE ITERATION: opt-in accessible theme remaps ONLY the semantic aliases,
-   leaving --ceefax-* untouched. Fill with WCAG-passing pairs later. */
+   leaving --cf-base-* untouched. Fill with WCAG-passing pairs later. */
 [data-theme="accessible"]{
 /* --cf-link: ...; --cf-fg: ...; etc. */
 }

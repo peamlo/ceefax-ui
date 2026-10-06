@@ -15,12 +15,12 @@ export const Guard = {
   render: () => {
     const p = document.createElement('p');
     p.style.cssText = 'color:#fff;font-family:Space Mono,monospace;font-size:14px';
-    p.textContent = 'palette.js is asserted equal to the --ceefax-* tokens (see play()).';
+    p.textContent = 'palette.js is asserted equal to the --cf-base-* tokens (see play()).';
     return p;
   },
   play: async () => {
     for (const { name, hex } of CEEFAX_PALETTE) {
-      await expect(css('--ceefax-' + name).toLowerCase()).toBe(hex.toLowerCase());
+      await expect(css('--cf-base-' + name).toLowerCase()).toBe(hex.toLowerCase());
     }
   },
 };
