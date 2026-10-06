@@ -12,7 +12,7 @@ export default {
   },
   argTypes: {
     label: { control: 'text' },
-    variant: { control: 'select', options: ['', 'red', 'green', 'yellow', 'blue', 'ghost'] },
+    variant: { control: 'select', options: ['', 'red', 'green', 'yellow', 'blue', 'cyan', 'magenta', 'ghost'] },
     size: { control: 'radio', options: ['sm', 'md', 'lg'] },
     disabled: { control: 'boolean' },
   },
