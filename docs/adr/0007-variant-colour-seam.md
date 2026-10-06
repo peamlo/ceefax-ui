@@ -19,24 +19,37 @@ paints the border, the fastext key paints its background. Adding an authentic co
 now one line; a new component opts into variants by reading `--_variant`, with no
 mapping to copy.
 
-The seam is pure cascade — no new token tier, no export, no runtime. It maps onto
-`--ceefax-*` authentic colours and does not touch the `--cf-*` semantic aliases, so the
-accessible theme (#12) still remaps only `--cf-*`.
+The seam is pure cascade — no export, no runtime. It maps onto `--ceefax-*` authentic
+colours and leaves the `--cf-*` semantic aliases untouched, so the accessible theme
+(#12) still remaps only `--cf-*`.
 
 ## Consequences
 
+- **This is a third, cross-module property tier, and that is the trade.** `--_bg` /
+  `--_fg` / `--_bd` were declared and consumed inside one file; `--_variant` is declared
+  in `base.css` and read by three components. CONTEXT.md's "`--cf-*` is the only layer
+  components reference" now carries one sanctioned exception, recorded there: it is the
+  seam, not the component, that names `--ceefax-*`. We took that over three copies of
+  the mapping.
 - **Components must match `[data-variant]` on themselves.** `--_variant` inherits, so a
-  component that reads it unguarded would colour itself from an ancestor — a plain
-  button inside a red card would turn red. The guard is the component's own attribute
-  selector, not a reset.
+  component that read it unguarded would colour itself from an ancestor — a plain button
+  inside a red card would turn red. The guard is the component's own attribute selector.
+- **Every read needs a `var()` fallback.** A name the seam has no row for — a consumer
+  typo, or a look-only variant — sets neither property. An unresolved `var()` inside the
+  `border` *shorthand* is invalid at computed-value time and resets every border
+  longhand, which turned a typo into an invisible, border-less button. Each component
+  therefore reads `var(--_variant, <its own default>)`. This also fixed a latent bug in
+  the card, which previously fell back to `currentColor` and would have diverged from
+  `--cf-border` as soon as the accessible theme remapped it.
 - **Non-colour variants stay local and stay last.** `ghost` (button) and `nav` (link)
-  get no `--_variant` from the seam; a component rule matching one must sit *after* the
-  component's generic `[data-variant]` rule, since both have the same specificity and
-  order decides.
-- The seam matches any element carrying `data-variant`, not only `cf-*` ones. It only
-  sets two private custom properties that nothing outside the library reads, and the
-  alternative — repeating the `cf-*` namespace match on every colour — costs more than
-  it protects. Same reasoning as the box-sizing reset (ADR/issue #10).
-- The consumer contract is unchanged: `data-variant="red"` renders exactly what it did
-  before. Pinned by the `Foundations/Variant colours` story, which asserts the computed
-  colour of every (component × variant) pair (ADR-0006).
+  get no `--_variant`; a component rule matching one must sit *after* the component's
+  generic `[data-variant]` rule, since both have the same specificity and order decides.
+- **The accepted variant surface widened.** Because a component matches `[data-variant]`
+  rather than enumerating names, every component with variants now accepts all six
+  authentic colours — the button and the fastext key previously ignored `cyan` and
+  `magenta`. This is the seam working as intended ("a new colour costs nothing"), but it
+  is a real change to the documented contract, recorded in `README.md` and `AGENTS.md`.
+  Markup using the previously documented values renders exactly as before.
+- Pinned by the `Foundations/Variant colours` stories, which assert the computed colour
+  of every (component × variant) pair, the unmapped-name fallback, and the nesting case
+  (ADR-0006).

@@ -15,25 +15,48 @@ const CYAN = 'rgb(0, 255, 255)';
 const MAGENTA = 'rgb(255, 0, 255)';
 const TRANSPARENT = 'rgba(0, 0, 0, 0)';
 
+// A name the seam deliberately does not map — a consumer typo. It must fall through to
+// the component's own default, not to the empty value of an unresolved custom property.
+const UNMAPPED = 'RED';
+// The untouched border a fallback has to preserve: an unresolved var() in the `border`
+// SHORTHAND would reset every longhand, leaving a border-less button.
+const BORDER = { borderTopColor: WHITE, borderTopWidth: '2px', borderTopStyle: 'solid' };
+
 // [component, data-variant, the computed values a consumer sees]
 const CASES = [
-  ['btn', '', { backgroundColor: BLACK, color: WHITE, borderTopColor: WHITE }],
+  ['btn', '', { backgroundColor: BLACK, color: WHITE, ...BORDER }],
+  ['btn', UNMAPPED, { backgroundColor: BLACK, color: WHITE, ...BORDER }],
   ['btn', 'red', { backgroundColor: RED, color: BLACK, borderTopColor: RED }],
   ['btn', 'green', { backgroundColor: GREEN, color: BLACK, borderTopColor: GREEN }],
   ['btn', 'yellow', { backgroundColor: YELLOW, color: BLACK, borderTopColor: YELLOW }],
   ['btn', 'blue', { backgroundColor: BLUE, color: WHITE, borderTopColor: BLUE }],
+  ['btn', 'cyan', { backgroundColor: CYAN, color: BLACK, borderTopColor: CYAN }],
+  ['btn', 'magenta', { backgroundColor: MAGENTA, color: BLACK, borderTopColor: MAGENTA }],
   ['btn', 'ghost', { backgroundColor: TRANSPARENT, color: CYAN, borderTopColor: TRANSPARENT }],
   ['card', '', { borderTopColor: WHITE }],
+  ['card', UNMAPPED, { borderTopColor: WHITE }],
   ['card', 'red', { borderTopColor: RED }],
   ['card', 'green', { borderTopColor: GREEN }],
   ['card', 'yellow', { borderTopColor: YELLOW }],
   ['card', 'blue', { borderTopColor: BLUE }],
   ['card', 'cyan', { borderTopColor: CYAN }],
   ['card', 'magenta', { borderTopColor: MAGENTA }],
+  ['key', '', { backgroundColor: TRANSPARENT, color: BLACK }],
+  ['key', UNMAPPED, { backgroundColor: TRANSPARENT, color: BLACK }],
   ['key', 'red', { backgroundColor: RED, color: BLACK }],
   ['key', 'green', { backgroundColor: GREEN, color: BLACK }],
   ['key', 'yellow', { backgroundColor: YELLOW, color: BLACK }],
   ['key', 'blue', { backgroundColor: BLUE, color: WHITE }],
+  ['key', 'cyan', { backgroundColor: CYAN, color: BLACK }],
+  ['key', 'magenta', { backgroundColor: MAGENTA, color: BLACK }],
+];
+
+// --_variant inherits, so a variant ancestor must not colour a descendant that did not
+// ask for one. [child component, its own variant, expected] inside a red card.
+const NESTED = [
+  ['btn', '', { backgroundColor: BLACK, color: WHITE, ...BORDER }],
+  ['btn', 'ghost', { backgroundColor: TRANSPARENT, color: CYAN, borderTopColor: TRANSPARENT }],
+  ['card', '', { borderTopColor: WHITE }],
 ];
 
 const TAG = { btn: 'button', card: 'article', key: 'a' };
@@ -49,6 +72,17 @@ const build = ([kind, variant], i) => {
   return n;
 };
 
+const assertCases = async (cases, canvasElement) => {
+  for (const [i, [kind, variant, want]] of cases.entries()) {
+    const cs = getComputedStyle(canvasElement.querySelector(`[data-case="${i}"]`));
+    const label = `${kind}[data-variant="${variant}"]`;
+    for (const [prop, value] of Object.entries(want)) {
+      // Labelled so a failure names the pair that drifted, not just two colours.
+      await expect(`${label} ${prop} ${cs[prop]}`).toBe(`${label} ${prop} ${value}`);
+    }
+  }
+};
+
 export default { title: 'Foundations/Variant colours' };
 
 export const Matrix = {
@@ -59,14 +93,17 @@ export const Matrix = {
     CASES.forEach((c, i) => wrap.appendChild(build(c, i)));
     return wrap;
   },
-  play: async ({ canvasElement }) => {
-    for (const [i, [kind, variant, want]] of CASES.entries()) {
-      const cs = getComputedStyle(canvasElement.querySelector(`[data-case="${i}"]`));
-      const label = `${kind}[data-variant="${variant}"]`;
-      for (const [prop, value] of Object.entries(want)) {
-        // Labelled so a failure names the pair that drifted, not just two colours.
-        await expect(`${label} ${prop} ${cs[prop]}`).toBe(`${label} ${prop} ${value}`);
-      }
-    }
+  play: async ({ canvasElement }) => assertCases(CASES, canvasElement),
+};
+
+export const Nested = {
+  name: 'Inside a variant ancestor',
+  render: () => {
+    const card = document.createElement('article');
+    card.className = 'cf-card';
+    card.dataset.variant = 'red';
+    NESTED.forEach((c, i) => card.appendChild(build(c, i)));
+    return card;
   },
+  play: async ({ canvasElement }) => assertCases(NESTED, canvasElement),
 };

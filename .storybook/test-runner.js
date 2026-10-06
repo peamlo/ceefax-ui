@@ -13,9 +13,9 @@ import { injectAxe, checkA11y } from 'axe-playwright';
 // build on non-contract stories.
 
 const BTN = '.cf-btn';
-// Read the button's live colours from inside the page (runs in the browser context).
-const btnColours = () => {
-  const cs = getComputedStyle(document.querySelector('.cf-btn'));
+// Read an element's live colours from inside the page (runs in the browser context).
+const colours = (sel) => {
+  const cs = getComputedStyle(document.querySelector(sel));
   return { backgroundColor: cs.backgroundColor, color: cs.color };
 };
 // default button: fg=white / bg=black, so inversion => white bg + black text.
@@ -27,28 +27,40 @@ async function assertButtonContract(page, name) {
     // Contract: keyboard focus (:focus-visible) inverts the colours. A real Tab
     // press (the button is the only focusable) makes :focus-visible match.
     await page.keyboard.press('Tab');
-    expect(await page.evaluate(btnColours)).toEqual(INVERTED);
+    expect(await page.evaluate(colours, BTN)).toEqual(INVERTED);
     // Contract: hover inverts too (same CSS rule as focus-visible).
     await page.hover(BTN);
-    expect(await page.evaluate(btnColours)).toEqual(INVERTED);
+    expect(await page.evaluate(colours, BTN)).toEqual(INVERTED);
   }
   if (name === 'Disabled') {
     // Contract: a disabled button does NOT invert on hover.
     await page.hover(BTN);
-    expect(await page.evaluate(btnColours)).toEqual(RESTING);
+    expect(await page.evaluate(colours, BTN)).toEqual(RESTING);
   }
 }
 
 // Contract: hovering a fastext key inverts it — the page background behind the key's
-// own colour as text. One key is enough; all four share the rule.
+// own colour as text. All four are checked: they share one rule only because of the
+// variant seam, which is exactly what could regress (ADR-0007).
+const KEY_COLOURS = {
+  red: 'rgb(255, 0, 0)',
+  green: 'rgb(0, 255, 0)',
+  yellow: 'rgb(255, 255, 0)',
+  blue: 'rgb(0, 0, 255)',
+};
+
 async function assertFastextHover(page) {
-  const RED_KEY = '.cf-fastext__key[data-variant="red"]';
-  await page.hover(RED_KEY);
-  const cs = await page.evaluate((sel) => {
-    const s = getComputedStyle(document.querySelector(sel));
-    return { backgroundColor: s.backgroundColor, color: s.color };
-  }, RED_KEY);
-  expect(cs).toEqual({ backgroundColor: 'rgb(0, 0, 0)', color: 'rgb(255, 0, 0)' });
+  for (const [variant, colour] of Object.entries(KEY_COLOURS)) {
+    const sel = `.cf-fastext__key[data-variant="${variant}"]`;
+    await page.hover(sel);
+    expect(await page.evaluate(colours, sel)).toEqual({
+      backgroundColor: 'rgb(0, 0, 0)',
+      color: colour,
+    });
+  }
+  // Leave nothing hovered: the axe pass below audits the resting state, and a key held
+  // in hover is a transient inversion whose contrast is not the contract.
+  await page.mouse.move(0, 0);
 }
 
 export default {
