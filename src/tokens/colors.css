@@ -24,8 +24,8 @@
 --cf-danger:var(--cf-base-red);
 --cf-success:var(--cf-base-green);
 /* ink (readable foreground) on a variant block: light blocks, and dark ones (authentic blue) */
---cf-variant-ink:var(--cf-base-black);
---cf-variant-ink-on-dark:var(--cf-base-white);
+--cf-on-variant:var(--cf-base-black);
+--cf-on-variant-dark:var(--cf-base-white);
 }
 /* FUTURE ITERATION: opt-in accessible theme remaps ONLY the semantic aliases,
    leaving --cf-base-* untouched. Fill with WCAG-passing pairs later. */

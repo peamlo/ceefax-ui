@@ -9,7 +9,7 @@ const BASE = [
 const SEMANTIC = [
   'cf-bg', 'cf-fg', 'cf-fg-dim', 'cf-link', 'cf-link-hover', 'cf-link-visited',
   'cf-accent', 'cf-accent-2', 'cf-border', 'cf-info', 'cf-warning', 'cf-danger', 'cf-success',
-  'cf-variant-ink', 'cf-variant-ink-on-dark',
+  'cf-on-variant', 'cf-on-variant-dark',
 ];
 
 // Light values need black text to stay legible on the swatch.

@@ -15,11 +15,11 @@
       every border longhand and leave an invisible, border-less element;
    3. a component rule for a look-only variant must come AFTER its own generic
       [data-variant] rule to win on order — both have the same specificity. */
-:where([data-variant="red"]){--_variant:var(--cf-base-red);--_variant-ink:var(--cf-variant-ink)}
-:where([data-variant="green"]){--_variant:var(--cf-base-green);--_variant-ink:var(--cf-variant-ink)}
-:where([data-variant="yellow"]){--_variant:var(--cf-base-yellow);--_variant-ink:var(--cf-variant-ink)}
-:where([data-variant="blue"]){--_variant:var(--cf-base-blue);--_variant-ink:var(--cf-variant-ink-on-dark)}
-:where([data-variant="cyan"]){--_variant:var(--cf-base-cyan);--_variant-ink:var(--cf-variant-ink)}
-:where([data-variant="magenta"]){--_variant:var(--cf-base-magenta);--_variant-ink:var(--cf-variant-ink)}
+:where([data-variant="red"]){--_variant:var(--cf-base-red);--_variant-ink:var(--cf-on-variant)}
+:where([data-variant="green"]){--_variant:var(--cf-base-green);--_variant-ink:var(--cf-on-variant)}
+:where([data-variant="yellow"]){--_variant:var(--cf-base-yellow);--_variant-ink:var(--cf-on-variant)}
+:where([data-variant="blue"]){--_variant:var(--cf-base-blue);--_variant-ink:var(--cf-on-variant-dark)}
+:where([data-variant="cyan"]){--_variant:var(--cf-base-cyan);--_variant-ink:var(--cf-on-variant)}
+:where([data-variant="magenta"]){--_variant:var(--cf-base-magenta);--_variant-ink:var(--cf-on-variant)}
 /* Optional page shell: flat-black teletext canvas. */
 .cf-page{background:var(--cf-bg);color:var(--cf-fg);font-family:var(--cf-font-body);font-size:var(--cf-text-body);line-height:var(--cf-leading-normal)}

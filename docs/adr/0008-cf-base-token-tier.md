@@ -23,9 +23,10 @@ source and fails if any names `--cf-base-*` (or if it finds no files). It runs i
 storybook-tests CI job beside the palette-drift guard (ADR-0006). The only places allowed
 to name the base tier are the token layer, the pixel canvas renderer (ADR-0004), and —
 until #12 points it at a remappable `--cf-variant-*` tier — the variant seam's `--_variant`
-(ADR-0007). The ink on a variant block is already an alias: `--cf-variant-ink` (on light
-blocks) and `--cf-variant-ink-on-dark` (on authentic blue), so a theme sets it
-declaratively.
+(ADR-0007). The ink on a variant block is already an alias: `--cf-on-variant` (on light
+blocks) and `--cf-on-variant-dark` (on authentic blue), so a theme sets it
+declaratively. The `on-` prefix ("the colour drawn on a variant") keeps `--cf-variant-*`
+free for #12's block-colour tier, so each prefix holds one kind of token.
 
 ## Considered options
 
@@ -44,5 +45,5 @@ declaratively.
   computed styles, never internals. The guard reads stylesheet *source*, because the rule
   is about what the source names — rendered output can't show which tier a colour came
   through. Rendered colours stay pinned by `Foundations/Variant colours`.
-- The fastext key's ink fallbacks now read `--cf-variant-ink` instead of naming black.
+- The fastext key's ink fallbacks now read `--cf-on-variant` instead of naming black.
 - Accepted ADRs 0004 and 0007 still say `--ceefax-*`; read it as `--cf-base-*`.

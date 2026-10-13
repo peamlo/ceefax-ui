@@ -17,7 +17,7 @@ A look-only difference selected with a `data-*` attribute (`data-variant="red"`,
 _Avoid_: modifier, `--modifier` class
 
 **Variant seam**:
-The single place a presentational variant name resolves to a colour — `--_variant` (the authentic colour) and `--_variant-ink` (the readable foreground on it, from the `--cf-variant-ink*` aliases), declared once in the base layer. Components read them to paint; they never re-declare the mapping. The one sanctioned route by which an authentic colour reaches a component: it is the seam, not the component, that names `--cf-base-*`.
+The single place a presentational variant name resolves to a colour — `--_variant` (the authentic colour) and `--_variant-ink` (the readable foreground on it, from the `--cf-on-variant*` aliases), declared once in the base layer. Components read them to paint; they never re-declare the mapping. The one sanctioned route by which an authentic colour reaches a component: it is the seam, not the component, that names `--cf-base-*`.
 _Avoid_: variant mixin, colour map, theme lookup
 
 **Variant block**:
