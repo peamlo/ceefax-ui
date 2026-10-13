@@ -86,7 +86,7 @@ yyyyyyyyyyyyyyyyyyyy
 </cf-canvas>
 ```
 
-- **Palette codes:** `k` black · `r` red · `g` green · `y` yellow · `b` blue · `m` magenta · `c` cyan · `w` white · `.` (or space) transparent. Colours are the authentic `--ceefax-*` values; unknown codes render transparent (with a dev-console warning). Free per-pixel colour — no one-colour-per-cell limit.
+- **Palette codes:** `k` black · `r` red · `g` green · `y` yellow · `b` blue · `m` magenta · `c` cyan · `w` white · `.` (or space) transparent. Colours are the authentic `--cf-base-*` values; unknown codes render transparent (with a dev-console warning). Free per-pixel colour — no one-colour-per-cell limit.
 - **Grid** dimensions are inferred from the text (ragged rows pad with transparent; common leading indentation is stripped — use `.` for intentional left-edge transparent pixels).
 - **Sizing** is fluid and crisp (`image-rendering: pixelated`), capped at `--cf-content-max`. Pick a tier with `data-size` (`sm`/`md`/`lg`/`full`) or set an exact scale with the `--cf-pixels-scale` escape hatch (`style="--cf-pixels-scale: 8"` = 8 CSS px per pixel).
 - **Accessibility:** provide `alt` for a meaningful image (→ `role="img"` + `aria-label`); omit it to mark the canvas decorative (`aria-hidden`).
@@ -96,9 +96,16 @@ See [ADR-0004](./docs/adr/0004-cf-canvas-pixel-art.md) for the reasoning.
 
 ## Tokens
 
-`--ceefax-*` = the authentic 8 broadcast colours (never remapped). `--cf-*` = semantic aliases (the only layer components reference). Spacing is `ch`-based; radius is always `0`.
+Colour tokens come in two tiers, both under the `cf` namespace:
 
-**Accessible theme (planned):** an opt-in `[data-theme="accessible"]` will remap only the `--cf-*` semantic aliases to WCAG-passing pairs, leaving `--ceefax-*` and the default authentic theme untouched.
+- **`--cf-base-*`** — the authentic 8 broadcast colours (`--cf-base-red`, …). Fixed and **never** remapped, so a theme cannot change them.
+- **Semantic aliases** — every other `--cf-*` colour (`--cf-bg`, `--cf-fg`, `--cf-link`, `--cf-danger`, …). They say what a colour is *for*, and they are what themes remap.
+
+Use the semantic aliases in your own CSS so it follows the active theme; reach for `--cf-base-*` only when you deliberately want the authentic colour whatever the theme (e.g. pixel art). The library's own component and layout stylesheets use semantic aliases only — CI enforces it.
+
+Spacing is `ch`-based; radius is always `0`.
+
+**Accessible theme (planned):** an opt-in `[data-theme="accessible"]` will remap only the `--cf-*` semantic aliases to WCAG-passing pairs, leaving `--cf-base-*` and the default authentic theme untouched.
 
 ## Develop
 

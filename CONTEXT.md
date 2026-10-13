@@ -17,8 +17,12 @@ A look-only difference selected with a `data-*` attribute (`data-variant="red"`,
 _Avoid_: modifier, `--modifier` class
 
 **Variant seam**:
-The single place a presentational variant name resolves to a colour — `--_variant` (the authentic colour) and `--_variant-ink` (the readable foreground on it), declared once in the base layer. Components read them to paint; they never re-declare the mapping. The one sanctioned route by which an authentic colour reaches a component: it is the seam, not the component, that names `--ceefax-*`.
+The single place a presentational variant name resolves to a colour — `--_variant` (the authentic colour) and `--_variant-ink` (the readable foreground on it, from the `--cf-on-variant*` aliases), declared once in the base layer. Components read them to paint; they never re-declare the mapping. The one sanctioned route by which an authentic colour reaches a component: it is the seam, not the component, that names `--cf-base-*`.
 _Avoid_: variant mixin, colour map, theme lookup
+
+**Variant block**:
+A surface filled with a presentational variant's colour — a fastext key, a coloured button. The readable foreground painted on it is its **ink** (black on light blocks, white on authentic blue).
+_Avoid_: swatch, colour chip
 
 **State**:
 A run-time condition of an element (disabled, focused, current). Always expressed with native or ARIA attributes (`disabled`, `:focus-visible`, `[aria-current]`, `[aria-pressed]`) — never with a class.
@@ -29,15 +33,15 @@ The four coloured navigation keys (red / green / yellow / blue) from teletext, a
 _Avoid_: colour buttons, quick links
 
 **Authentic colour**:
-One of the eight original broadcast teletext colours, exposed as a `--ceefax-*` token. Fixed values that are **never** remapped.
-_Avoid_: brand colour, palette colour
+One of the eight original broadcast teletext colours, exposed as a `--cf-base-*` token (e.g. `--cf-base-red`). Fixed values that are **never** remapped. Together they form the **base tier** — the bottom token tier, beneath the semantic aliases. "Base" here means that tier — unrelated to the base stylesheet (`src/base.css`). Only the token layer, the Variant seam, and the pixel canvas renderer name these; CI fails if a component or layout stylesheet does (ADR-0008).
+_Avoid_: brand colour, palette colour, `--ceefax-*` (the retired spelling)
 
 **Semantic alias**:
-A `--cf-*` token that maps meaning (e.g. surface, accent) onto an authentic colour. The only token layer components reference for their own paint — the single exception is the Variant seam, through which a consumer-chosen authentic colour reaches a component. Themes remap these; they never touch `--ceefax-*`.
+Any other `--cf-*` colour token (e.g. `--cf-bg`, `--cf-danger`) — it maps meaning onto an authentic colour. The only colour tier component and layout stylesheets reference — the single exception is the Variant seam, through which a consumer-chosen authentic colour reaches a component. Themes remap these; they never touch `--cf-base-*`.
 _Avoid_: theme variable, colour variable
 
 **Accessible theme**:
-The planned opt-in `[data-theme="accessible"]` that remaps only the `--cf-*` semantic aliases to WCAG-passing pairs, leaving the authentic colours and default theme untouched.
+The planned opt-in `[data-theme="accessible"]` that remaps only the `--cf-*` semantic aliases to WCAG-passing pairs, leaving the `--cf-base-*` authentic colours and default theme untouched.
 _Avoid_: high-contrast mode, a11y mode
 
 **Inversion**:

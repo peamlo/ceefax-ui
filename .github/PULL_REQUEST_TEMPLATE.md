@@ -21,7 +21,7 @@ Tick all that apply, or write "None — internal only".
 -->
 - [ ] New or changed semantic class (`cf-*`)
 - [ ] New or changed `data-*` presentational variant
-- [ ] Token change (`--ceefax-*` authentic colours / `--cf-*` semantic aliases)
+- [ ] Token change (`--cf-base-*` authentic colours / `--cf-*` semantic aliases)
 - [ ] State model change (`:focus-visible`, `[aria-current]`, `[aria-pressed]`, `disabled`)
 - [ ] None — internal only
 
@@ -29,8 +29,8 @@ Tick all that apply, or write "None — internal only".
 
 <!-- The repo is self-documenting; keep it that way. Tick what you touched. -->
 - [ ] ADR added/updated (`docs/adr/`)
-- [ ] Glossary updated (`docs/glossary.md`)
-- [ ] `CONTEXT.md` / `AGENTS.md` updated
+- [ ] Glossary updated (`CONTEXT.md`)
+- [ ] `AGENTS.md` / `README.md` updated
 - [ ] Storybook story added/updated
 - [ ] No docs needed (explain why): 
 
