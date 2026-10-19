@@ -99,3 +99,7 @@ _Avoid_: two-column, aside layout
 **Page shell**:
 The optional structural template (`cf-page` with `cf-page__header` / `__body` / `__footer` slots) that stacks a teletext page into header, body, and footer bands. Structure only — the look comes from tokens, not baked markup.
 _Avoid_: layout, page component, template component
+
+**Screen frame**:
+The opt-in `data-frame` variant of the page shell: a 4:3 teletext set, as wide as fits the viewport and centred, with the type tokens scaled to the frame, header and footer pinned and only the body scrolling. Full-bleed below one narrow-viewport breakpoint. Presentational only; the ratio is tunable with `--cf-frame-ratio`.
+_Avoid_: viewport, TV wrapper, `cf-screen`

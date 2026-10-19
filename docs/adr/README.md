@@ -16,3 +16,4 @@ Each ADR records **one** decision that was hard to reverse, surprising without c
 - [0006 — The stories are the executable test surface](./0006-stories-are-the-test-surface.md)
 - [0007 — One seam resolves a variant name to its colour](./0007-variant-colour-seam.md)
 - [0008 — Authentic colours are `--cf-base-*`, and CI enforces the token layering](./0008-cf-base-token-tier.md)
+- [0009 — The 4:3 screen frame is a `data-frame` variant of the page shell](./0009-screen-frame-data-attr.md)
