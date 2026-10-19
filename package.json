@@ -27,7 +27,11 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test-storybook": "test-storybook --testTimeout=60000",
+    "prepublishOnly": "npm run build",
     "prepare": "husky"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.1",
