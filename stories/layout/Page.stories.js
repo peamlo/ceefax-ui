@@ -3,6 +3,17 @@ import { el } from './_demo.js';
 export default {
   title: 'Layout/Page',
   tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        component:
+          'The **page shell**: `cf-page` with `cf-page__header` / `__body` / `__footer` slots stacks a teletext page ' +
+          'into three bands. Use it for any page that wants a pinned masthead and fastext footer. It fills the ' +
+          'viewport at whatever aspect ratio the window has. To sit it in a 4:3 TV screen instead, add ' +
+          '`data-frame` — see **Layout/Screen**.',
+      },
+    },
+  },
 };
 
 const card = (variant, title, body) => {

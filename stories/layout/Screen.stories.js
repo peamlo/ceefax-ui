@@ -4,7 +4,23 @@ import { el } from './_demo.js';
 export default {
   title: 'Layout/Screen',
   tags: ['autodocs'],
-  parameters: { layout: 'fullscreen' },
+  parameters: {
+    layout: 'fullscreen',
+    docs: {
+      description: {
+        component:
+          'The **screen frame** is not a separate element: it is the `data-frame` variant of the page shell ' +
+          '(`<section class="cf-page" data-frame>`, see **Layout/Page**). Add it when you want the page to look ' +
+          'like a real teletext set: a centred 4:3 box on a black canvas, type scaled to the box, header and ' +
+          'footer pinned and only the body scrolling. Omit it and you get the plain full-viewport page.\n\n' +
+          '- **Wide monitor:** 4:3 with side bars, so line lengths stay readable.\n' +
+          '- **Below 40em (phones):** the frame is dropped and the page is full-bleed at normal type sizes.\n' +
+          '- **Keyboard:** give the body `tabindex="0"` so the scroll region is reachable; `#hash` links scroll inside it.\n' +
+          '- **Other ratios:** set `--cf-frame-ratio` (default `1.3333`).\n\n' +
+          'Use the viewport toolbar to try it at phone and desktop widths.',
+      },
+    },
+  },
 };
 
 const fastextKey = (variant, label) => {
