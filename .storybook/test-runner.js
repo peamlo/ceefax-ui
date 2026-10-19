@@ -73,7 +73,6 @@ async function assertScreenFrame(page) {
 }
 
 const axe = async (page) => {
-  await injectAxe(page);
   await checkA11y(page, '#storybook-root', {
     detailedReport: true,
     detailedReportOptions: { html: true },
@@ -90,6 +89,7 @@ export default {
     if (title === 'Components/Button') await assertButtonContract(page, name);
     if (title === 'Components/Fastext bar') await assertFastextHover(page);
 
+    await injectAxe(page);
     await axe(page);
     if (isFrame) {
       // The frame must also pass axe under the accessible theme.
