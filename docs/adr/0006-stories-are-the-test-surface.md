@@ -46,9 +46,8 @@ would see — never a private `--_var` or an internal selector.
 CI (`.github/workflows/storybook-tests.yml`) builds Storybook, serves it, and runs
 the test-runner **scoped by file path to the contract stories** — issue #8's tested
 modules (button, link, card, fastext, `<cf-canvas>`) plus the palette-drift guard.
-Per [ADR-0002](0002-squash-only-conventional-pr-titles.md) this is a **soft** gate: it
-reports red but may not block merge until the repo is public / on a plan with required
-checks.
+Per [ADR-0002](0002-squash-only-conventional-pr-titles.md) this is a **hard** gate: the
+`main protection` ruleset requires `test-storybook`, so a red run blocks merge.
 
 The Foundations/Layout **documentation** stories are deliberately *not* in the CI gate.
 They are out of #8's scope (they assert no contract claim — they are visual token/layout
