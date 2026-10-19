@@ -1,0 +1,56 @@
+# Publishes the static Storybook to GitHub Pages (issue #29), with the demo
+# pages alongside it at /demo/. The demo links ../src/index.css raw, so src/ and
+# fonts/ are copied next to it unchanged — relative paths resolve as they do locally.
+name: pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Serialise deploys; never cancel one mid-flight.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run build-storybook
+      - run: cp -r demo src fonts storybook-static/
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: storybook-static
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Smoke test the live site
+        env:
+          URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -e
+          curl -fsS --retry 5 --retry-delay 10 --retry-all-errors "$URL" -o /dev/null
+          curl -fsS "${URL}index.json" | grep -q '"id"'
+          id=$(curl -fsS "${URL}index.json" | grep -o '"id":"[^"]*--[^"]*"' | head -1 | cut -d'"' -f4)
+          curl -fsS "${URL}iframe.html?id=${id}" -o /dev/null
+          curl -fsS "${URL}demo/" | grep -q 'src/index.css'
+          curl -fsS "${URL}src/index.css" -o /dev/null
