@@ -8,7 +8,7 @@ import { injectAxe, checkA11y } from 'axe-playwright';
 //    :focus-visible only respond to a real pointer/keyboard, which the synthetic
 //    in-page userEvent cannot produce — plus the axe a11y pass.
 //
-// axe is gated to Components/* — the Foundations swatch/demo pages deliberately show
+// axe is gated to Components/* and the Layout/Page screen-frame story — the Foundations swatch/demo pages deliberately show
 // the raw palette (known contrast tradeoffs), so running axe over them would fail the
 // build on non-contract stories.
 
@@ -59,18 +59,42 @@ async function assertFastextHover(page) {
   await page.mouse.move(0, 0);
 }
 
+// Contract: below the narrow breakpoint the 4:3 frame is dropped and the page is full-bleed.
+// Needs a real viewport resize, which in-page play() cannot do. Restores the wide viewport.
+async function assertScreenFrame(page) {
+  await page.setViewportSize({ width: 400, height: 800 });
+  const { width, aspectRatio } = await page.evaluate(() => {
+    const cs = getComputedStyle(document.querySelector('.cf-page[data-frame]'));
+    return { width: parseFloat(cs.width), aspectRatio: cs.aspectRatio };
+  });
+  expect(aspectRatio).toBe('auto');
+  expect(width).toBeGreaterThanOrEqual(380); // viewport minus scrollbar, i.e. full-bleed
+  await page.setViewportSize({ width: 1280, height: 720 });
+}
+
+const axe = async (page) => {
+  await checkA11y(page, '#storybook-root', {
+    detailedReport: true,
+    detailedReportOptions: { html: true },
+  });
+};
+
 export default {
   async postVisit(page, context) {
     const { title, name } = await getStoryContext(page, context);
-    if (!title.startsWith('Components/')) return;
+    const isFrame = title === 'Layout/Page' && name === 'Screen frame (data-frame)';
+    if (isFrame) await assertScreenFrame(page);
+    if (!title.startsWith('Components/') && !isFrame) return;
 
     if (title === 'Components/Button') await assertButtonContract(page, name);
     if (title === 'Components/Fastext bar') await assertFastextHover(page);
 
     await injectAxe(page);
-    await checkA11y(page, '#storybook-root', {
-      detailedReport: true,
-      detailedReportOptions: { html: true },
-    });
+    await axe(page);
+    if (isFrame) {
+      // The frame must also pass axe under the accessible theme.
+      await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'accessible'));
+      await axe(page);
+    }
   },
 };

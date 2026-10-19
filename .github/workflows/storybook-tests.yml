@@ -32,4 +32,5 @@ jobs:
           npm run test-storybook -- \
             stories/Button stories/Link stories/Card \
             stories/Fastext stories/Canvas stories/PaletteDrift \
-            stories/VariantColours stories/TokenLayering
+            stories/VariantColours stories/TokenLayering \
+            stories/layout/Page

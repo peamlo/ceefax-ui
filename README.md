@@ -69,6 +69,7 @@ not a mockup.
 | `cf-link` | `<a>` | `variant="nav"` | `[aria-current="page"]` |
 | `cf-card` | any block | `variant` red/green/yellow/blue/cyan/magenta | — |
 | `cf-fastext` / `cf-fastext__key` | `<ul>` / `<a>` | `variant` red/green/yellow/blue | `:focus-visible` |
+| `cf-page` + `data-frame` | `<section>` with `header`/`main`/`footer` | `frame` (4:3 screen; `--cf-frame-ratio` to change) | — |
 | `<cf-loader>` | Web Component | — | blink (reduced-motion aware) |
 | `<cf-canvas>` | Web Component | `size` sm/md/lg/full | `alt` → `role="img"` |
 
