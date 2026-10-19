@@ -21,8 +21,9 @@ that lands on `main`, and it is validated in CI
 
 - Exactly one Conventional commit lands per PR; individual WIP commit messages are
   squashed away, so CI lints the PR title only (not every commit).
-- Enforcement is a **soft** check: the repo is private on the free plan, where
-  branch-protection required status checks are unavailable, so a failing check
-  reports red but does not block the merge button. Hardening requires making the
-  repo public or upgrading to GitHub Pro — deferred.
+- Enforcement is a **hard** gate: the repo is public, so the `main protection`
+  ruleset requires the `lint-title` and `test-storybook` status checks (plus a
+  pull request, no force-push, no deletion, linear history) before merge. This
+  supersedes the original soft check, written while the repo was private on the
+  free plan where required checks were unavailable.
 - Reversible: re-enabling other merge methods is a repo-settings change.
