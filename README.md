@@ -35,6 +35,8 @@ It's a plain static page ([`demo/index.html`](demo/index.html)) that consumes th
 real `src/index.css` and the self-hosted fonts — the result panels are the library,
 not a mockup.
 
+![The ceefax-ui demo page: markup on the left, live result on the right](docs/images/demo.png)
+
 ## The contract (do not drift from this)
 
 **One semantic class on the correct native element. State from native/ARIA attributes. `data-*` only for presentational variants.**
@@ -91,6 +93,8 @@ yyyyyyyyyyyyyyyyyyyy
 - **Sizing** is fluid and crisp (`image-rendering: pixelated`), capped at `--cf-content-max`. Pick a tier with `data-size` (`sm`/`md`/`lg`/`full`) or set an exact scale with the `--cf-pixels-scale` escape hatch (`style="--cf-pixels-scale: 8"` = 8 CSS px per pixel).
 - **Accessibility:** provide `alt` for a meaningful image (→ `role="img"` + `aria-label`); omit it to mark the canvas decorative (`aria-hidden`).
 - **Live edits** re-render automatically (the future paint-it-yourself editor builds on this).
+
+![A CEEFAX·UI header drawn with cf-canvas](docs/images/cf-canvas.png)
 
 See [ADR-0004](./docs/adr/0004-cf-canvas-pixel-art.md) for the reasoning.
 
