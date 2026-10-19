@@ -8,7 +8,7 @@ import { injectAxe, checkA11y } from 'axe-playwright';
 //    :focus-visible only respond to a real pointer/keyboard, which the synthetic
 //    in-page userEvent cannot produce — plus the axe a11y pass.
 //
-// axe is gated to Components/* and Layout/Screen — the Foundations swatch/demo pages deliberately show
+// axe is gated to Components/* and the Layout/Page screen-frame story — the Foundations swatch/demo pages deliberately show
 // the raw palette (known contrast tradeoffs), so running axe over them would fail the
 // build on non-contract stories.
 
@@ -83,14 +83,15 @@ const axe = async (page) => {
 export default {
   async postVisit(page, context) {
     const { title, name } = await getStoryContext(page, context);
-    if (title === 'Layout/Screen') await assertScreenFrame(page);
-    if (!title.startsWith('Components/') && title !== 'Layout/Screen') return;
+    const isFrame = title === 'Layout/Page' && name === 'Screen frame (data-frame)';
+    if (isFrame) await assertScreenFrame(page);
+    if (!title.startsWith('Components/') && !isFrame) return;
 
     if (title === 'Components/Button') await assertButtonContract(page, name);
     if (title === 'Components/Fastext bar') await assertFastextHover(page);
 
     await axe(page);
-    if (title === 'Layout/Screen') {
+    if (isFrame) {
       // The frame must also pass axe under the accessible theme.
       await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'accessible'));
       await axe(page);

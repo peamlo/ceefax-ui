@@ -14,5 +14,5 @@ A teletext page should sit in a 4:3 screen whose type scales with it (issue #27)
 
 ## Consequences
 
-- `Layout/Screen` is the first `Layout/*` story in the CI gate (it runs axe too). [ADR-0006](0006-stories-are-the-test-surface.md) kept the Layout *documentation* stories out because they hang the runner; this one asserts a contract (aspect ratio, pinned slots, full-bleed fallback), so it is gated, by path.
+- The `Layout/Page` stories (`Screen frame`) are the first `Layout/*` stories in the CI gate (it runs axe too). [ADR-0006](0006-stories-are-the-test-surface.md) kept the Layout *documentation* stories out because they hang the runner; this one asserts a contract (aspect ratio, pinned slots, full-bleed fallback), so it is gated, by path.
 - Other ratios need only `--cf-frame-ratio`; a `data-ratio` enumeration can be added later without breaking this API.
