@@ -139,9 +139,36 @@ export const ScaleEscapeHatch = {
     ),
 };
 
-// Proof of free per-pixel colour across all eight authentic colours.
+// The colour each SWATCH column (k r g y b m c w) is drawn in, per theme. Black and white
+// have no variant token, so the accessible theme leaves them alone (#12, ADR-0011).
+const AUTHENTIC = ['0,0,0', '255,0,0', '0,255,0', '255,255,0', '0,0,255', '255,0,255', '0,255,255', '255,255,255'];
+const ACCESSIBLE = ['0,0,0', '255,158,77', '51,224,192', '255,255,0', '102,179,255', '224,160,208', '153,230,255', '255,255,255'];
+
+const drawn = (el) => {
+  const ctx = el.shadowRoot.querySelector('canvas').getContext('2d');
+  return AUTHENTIC.map((_, x) => Array.from(ctx.getImageData(x, 0, 1, 1).data.slice(0, 3)).join(','));
+};
+const repaint = () => new Promise((r) => setTimeout(r)); // the theme observer runs as a microtask
+
+// Proof of free per-pixel colour across all eight colours — and that the canvas follows the
+// accessible theme, repainting when data-theme changes on an ancestor.
 export const AllColours = {
-  render: () => stage(pixels(SWATCH, { alt: 'the eight authentic teletext colours', 'data-size': 'sm' }), '320px'),
+  render: () => stage(pixels(SWATCH, { alt: 'the eight teletext colours', 'data-size': 'sm' }), '320px'),
+  play: async ({ canvasElement }) => {
+    const el = canvasElement.querySelector('cf-canvas');
+    const host = el.parentElement;
+    // The Storybook Theme toolbar may already theme <html>; start from whatever applies.
+    const initial = el.closest('[data-theme="accessible"]') ? ACCESSIBLE : AUTHENTIC;
+    await expect(drawn(el)).toEqual(initial);
+
+    host.dataset.theme = 'accessible';
+    await repaint();
+    await expect(drawn(el)).toEqual(ACCESSIBLE);
+
+    delete host.dataset.theme;
+    await repaint();
+    await expect(drawn(el)).toEqual(initial);
+  },
 };
 
 // Unknown codes render transparent and log a single console.warn (see the console).
