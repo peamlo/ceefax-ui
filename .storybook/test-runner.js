@@ -79,8 +79,17 @@ const axe = async (page) => {
   });
 };
 
+// The runner moves on at `storyRendered`, but Storybook 8.6 fires that *before* the
+// afterEach phase, where addon-a11y runs axe in-page. Switching stories while that is
+// still running makes Storybook's teardown call window.location.reload(), which kills
+// the next story's evaluate ("most likely because of a navigation") and hangs its retry.
+// So wait until the story has fully finished before handing the page on.
+const storyFinished = (page) =>
+  page.waitForFunction(() => globalThis.__STORYBOOK_PREVIEW__?.currentRender?.phase === 'finished');
+
 export default {
   async postVisit(page, context) {
+    await storyFinished(page);
     const { title, name } = await getStoryContext(page, context);
     const isFrame = title === 'Layout/Page' && name === 'Screen frame (data-frame)';
     if (isFrame) await assertScreenFrame(page);
