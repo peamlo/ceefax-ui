@@ -18,3 +18,4 @@ Each ADR records **one** decision that was hard to reverse, surprising without c
 - [0008 — Authentic colours are `--cf-base-*`, and CI enforces the token layering](./0008-cf-base-token-tier.md)
 - [0009 — The 4:3 screen frame is a `data-frame` variant of the page shell](./0009-screen-frame-data-attr.md)
 - [0010 — The accessible theme remaps a `--cf-variant-*` alias tier, never the base colours](./0010-accessible-theme-variant-alias-tier.md)
+- [0011 — Pixel canvas art follows the theme through `--cf-variant-*`](./0011-pixel-canvas-follows-theme.md)

@@ -3,15 +3,15 @@
 // teletext style. Framework-agnostic, shipped under the opt-in ./elements export.
 //
 // The artwork is the element's TEXT CONTENT — newline-separated rows of single-char
-// palette codes. Free per-pixel colour from the eight authentic broadcast colours
-// (ADR-0004). Parsing is isolated behind a source adapter (parseCharGrid) so future
+// palette codes. Free per-pixel colour from the eight teletext colours (ADR-0004),
+// which follow the active theme like data-variant blocks do (ADR-0011). Parsing is isolated behind a source adapter (parseCharGrid) so future
 // PNG/JSON sources can produce the same normalised Pixel grid without touching the
 // renderer.
 
 import { CEEFAX_PALETTE } from '../tokens/palette.js';
 
 // --- Palette -----------------------------------------------------------------
-// The authentic colours come from the shared palette (src/tokens/palette.js) — the
+// The colour names and fallback hexes come from the shared palette (src/tokens/palette.js) — the
 // single JS source of truth. Here we only add the canvas convention: index 0 is
 // transparent, codes map to indices 1..8. The adapter is colour-agnostic (it emits
 // indices); the renderer resolves index -> hex.
@@ -114,6 +114,17 @@ class CfCanvas extends HTMLElement {
       this._observer = new MutationObserver(() => this.render());
       this._observer.observe(this, { childList: true, characterData: true, subtree: true });
     }
+    // Redraw when a theme is switched on <html> or any ancestor: canvas pixels don't
+    // follow the cascade by themselves, so the palette must be resolved again.
+    // One observer per canvas over the whole document, filtered to data-theme: cheap.
+    if (!this._themeObserver) {
+      this._themeObserver = new MutationObserver(() => this.render());
+      this._themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme'],
+        subtree: true,
+      });
+    }
 
     this._updateA11y();
     this.render();
@@ -123,6 +134,10 @@ class CfCanvas extends HTMLElement {
     if (this._observer) {
       this._observer.disconnect();
       this._observer = null;
+    }
+    if (this._themeObserver) {
+      this._themeObserver.disconnect();
+      this._themeObserver = null;
     }
   }
 
@@ -197,14 +212,17 @@ class CfCanvas extends HTMLElement {
     }
   }
 
-  // index (1..8) -> concrete colour, read live from the authentic --cf-base-* tokens
-  // (never remapped). Resolved from `this` so scoped ancestor overrides still apply;
-  // falls back to the fixed hex when no stylesheet is present.
+  // index (1..8) -> concrete colour, read live from the --cf-variant-* tier — the same
+  // remappable colours data-variant blocks use, so a theme recolours pixel art too.
+  // Black and white have no variant token and read --cf-base-*. Resolved from `this` so
+  // a theme set on any ancestor applies; the fixed hex covers a page with no stylesheet.
   _resolvePalette() {
     const cs = getComputedStyle(this);
     const colors = [null];
     for (const p of CEEFAX_PALETTE) {
-      const token = cs.getPropertyValue(`--cf-base-${p.name}`).trim();
+      const token =
+        cs.getPropertyValue(`--cf-variant-${p.name}`).trim() ||
+        cs.getPropertyValue(`--cf-base-${p.name}`).trim();
       colors.push(token || p.hex);
     }
     return colors;

@@ -33,7 +33,7 @@ The four coloured navigation keys (red / green / yellow / blue) from teletext, a
 _Avoid_: colour buttons, quick links
 
 **Authentic colour**:
-One of the eight original broadcast teletext colours, exposed as a `--cf-base-*` token (e.g. `--cf-base-red`). Fixed values that are **never** remapped. Together they form the **base tier** — the bottom token tier, beneath the semantic aliases. "Base" here means that tier — unrelated to the base stylesheet (`src/base.css`). Only the token layer and the pixel canvas renderer name these; CI fails if a component or layout stylesheet, or the Variant seam, does (ADR-0008, ADR-0010).
+One of the eight original broadcast teletext colours, exposed as a `--cf-base-*` token (e.g. `--cf-base-red`). Fixed values that are **never** remapped. Together they form the **base tier** — the bottom token tier, beneath the semantic aliases. "Base" here means that tier — unrelated to the base stylesheet (`src/base.css`). Only the token layer and the Pixel canvas renderer (as a fallback behind `--cf-variant-*`) name these; CI fails if a component or layout stylesheet, or the Variant seam, does (ADR-0008, ADR-0010).
 _Avoid_: brand colour, palette colour, `--ceefax-*` (the retired spelling)
 
 **Semantic alias**:
@@ -61,7 +61,7 @@ The render-only custom element (`<cf-canvas>`) that draws a Pixel grid as telete
 _Avoid_: image, sprite, bitmap component
 
 **Pixel grid**:
-The normalised in-memory model the Pixel canvas renderer draws: a width, a height, and one authentic-colour (or transparent) value per pixel. The only shape the renderer understands.
+The normalised in-memory model the Pixel canvas renderer draws: a width, a height, and one palette colour (or transparent) value per pixel. The only shape the renderer understands.
 _Avoid_: bitmap, buffer, matrix
 
 **Source adapter**:
@@ -69,7 +69,7 @@ Something that converts a raw input into a Pixel grid. The char-grid text adapte
 _Avoid_: loader, importer
 
 **Palette code**:
-A single character naming one authentic colour — or transparent — in the char-grid text of a Pixel canvas (`k r g y b m c w`, `.` = transparent).
+A single character naming one of the eight teletext colours — or transparent — in the char-grid text of a Pixel canvas (`k r g y b m c w`, `.` = transparent).
 _Avoid_: colour key, symbol, glyph
 
 **Layout primitive**:
