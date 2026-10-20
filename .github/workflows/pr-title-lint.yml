@@ -4,9 +4,11 @@ name: PR Title Lint
 # (repo setting squash_merge_commit_title=PR_TITLE). So the PR title is the commit
 # that lands on main — validate it against the same commitlint config the local
 # husky commit-msg hook uses (commitlint.config.js), keeping a single source of truth.
+# `synchronize` re-runs it on every push: it is a required check, and a required
+# check that hasn't reported on the PR's latest commit leaves the PR BLOCKED.
 on:
   pull_request:
-    types: [opened, edited, reopened]
+    types: [opened, edited, reopened, synchronize]
     branches: [main]
 
 permissions:
