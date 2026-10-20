@@ -18,8 +18,8 @@ export const Tokens = () => {
     const row = document.createElement('div');
     row.style.cssText = 'display:flex;align-items:baseline;gap:16px;border-bottom:1px solid #222;padding:8px 0';
     row.innerHTML =
-      '<code style="min-width:150px;color:#00ffff;font-size:13px">' + token + '</code>' +
-      '<code style="min-width:70px;color:#b3ffb3;font-size:13px">' + css('--' + token) + '</code>' +
+      '<code style="min-width:150px;color:var(--cf-info);font-size:13px">' + token + '</code>' +
+      '<code style="min-width:70px;color:var(--cf-fg-dim);font-size:13px">' + css('--' + token) + '</code>' +
       '<span style="color:#888;font-size:13px">' + note + '</span>';
     d.appendChild(row);
   });
@@ -27,9 +27,9 @@ export const Tokens = () => {
   const demo = document.createElement('div');
   demo.style.cssText = 'margin-top:24px;display:flex;flex-direction:column;gap:12px';
   demo.innerHTML =
-    '<div style="max-width:var(--cf-content-max);border:var(--cf-border-thin) solid #fff;padding:8px;font-size:13px">' +
+    '<div style="max-width:var(--cf-content-max);border:var(--cf-border-thin) solid var(--cf-border);padding:8px;font-size:13px">' +
     'content-max · ' + css('--cf-content-max') + '</div>' +
-    '<div style="max-width:var(--cf-layout-max);border:var(--cf-border-thin) solid #fff;padding:8px;font-size:13px">' +
+    '<div style="max-width:var(--cf-layout-max);border:var(--cf-border-thin) solid var(--cf-border);padding:8px;font-size:13px">' +
     'layout-max · ' + css('--cf-layout-max') + '</div>';
   d.appendChild(demo);
   return d;

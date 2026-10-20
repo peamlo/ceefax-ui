@@ -6,14 +6,14 @@ export const css = (name) =>
 // A white page container in the Space Mono body face.
 export const page = (html = '') => {
   const d = document.createElement('div');
-  d.style.cssText = 'color:#fff;font-family:Space Mono,monospace;font-size:15px';
+  d.style.cssText = 'color:var(--cf-fg);font-family:Space Mono,monospace;font-size:15px';
   d.innerHTML = html;
   return d;
 };
 
 export const heading = (text) => {
   const h = document.createElement('h3');
-  h.style.cssText = 'font-family:VT323,monospace;font-size:32px;color:#ffff00;margin:24px 0 8px';
+  h.style.cssText = 'font-family:VT323,monospace;font-size:32px;color:var(--cf-accent);margin:24px 0 8px';
   h.textContent = text;
   return h;
 };
