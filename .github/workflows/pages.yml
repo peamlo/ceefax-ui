@@ -44,13 +44,15 @@ jobs:
       - id: deployment
         uses: actions/deploy-pages@v4
       - name: Smoke test the live site
+        shell: bash # implies -eo pipefail
         env:
           URL: ${{ steps.deployment.outputs.page_url }}
         run: |
-          set -e
-          curl -fsS --retry 5 --retry-delay 10 --retry-all-errors "$URL" -o /dev/null
-          curl -fsS "${URL}index.json" | grep -q '"id"'
-          id=$(curl -fsS "${URL}index.json" | grep -o '"id":"[^"]*--[^"]*"' | head -1 | cut -d'"' -f4)
-          curl -fsS "${URL}iframe.html?id=${id}" -o /dev/null
-          curl -fsS "${URL}demo/" | grep -q 'src/index.css'
-          curl -fsS "${URL}src/index.css" -o /dev/null
+          get() { curl -fsS --retry 5 --retry-delay 10 --retry-all-errors "${URL}$1"; }
+          get "" > /dev/null
+          # iframe.html is static (200 for any id), so the real check is a story in index.json.
+          id=$(get index.json | jq -re '[.entries[] | select(.type == "story")][0].id')
+          get "iframe.html?id=${id}" > /dev/null
+          get demo/ | grep -q 'src/index.css'
+          get src/index.css > /dev/null
+          get fonts/vt323-v17-latin-regular.woff2 > /dev/null
