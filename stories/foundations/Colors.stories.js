@@ -50,7 +50,7 @@ export const Palette = () => {
 
 export const SemanticAliases = () => {
   const d = page(
-    '<p style="max-width:60ch;color:#b3ffb3">The only layer components reference. ' +
+    '<p style="max-width:60ch;color:var(--cf-fg-dim)">The only layer components reference. ' +
     'The accessible theme (<code>data-theme="accessible"</code>, toolbar → Theme) remaps <em>only</em> these aliases, ' +
     'leaving the base palette untouched.</p>'
   );

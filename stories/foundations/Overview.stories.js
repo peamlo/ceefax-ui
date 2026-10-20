@@ -16,16 +16,16 @@ export const Overview = () => {
   header.textContent = masthead('CEEFAX-UI');
   root.appendChild(header);
 
-  const ul = 'max-width:60ch;line-height:1.7;color:#b3ffb3';
-  const key = 'color:#00ffff';
+  const ul = 'max-width:60ch;line-height:1.7;color:var(--cf-fg-dim)';
+  const key = 'color:var(--cf-info)';
 
   const intro = document.createElement('div');
   intro.innerHTML =
-    '<div style="font-family:Space Mono,monospace;font-size:15px;color:#00ffff;margin:4px 0 16px">' +
+    '<div style="font-family:Space Mono,monospace;font-size:15px;color:var(--cf-info);margin:4px 0 16px">' +
     'A lightweight, CSS-first design system — teletext for the web.</div>' +
     '<p style="max-width:60ch;line-height:1.7">A framework-agnostic component library inspired by ' +
     'Ceefax / teletext. It ships design tokens, semantic CSS classes, and self-hosted fonts — ' +
-    '<strong style="color:#ffff00">no framework, no JS runtime</strong>. Consume it as plain ' +
+    '<strong style="color:var(--cf-accent)">no framework, no JS runtime</strong>. Consume it as plain ' +
     '<code>class="…"</code> in Astro, Svelte, or plain HTML: one stylesheet, zero lock-in. The ' +
     'eight-colour broadcast palette is fixed and never remapped; components only reference the ' +
     'semantic aliases. Square corners, flat black canvas, monospaced type.</p>';
