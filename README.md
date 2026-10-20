@@ -25,7 +25,8 @@ Svelte and plain HTML are identical — there is no framework binding.
 ## Demo
 
 A one-page showcase of what the library delivers — the layout primitives and
-components in a teletext blog, with the markup you write beside the live result:
+components in a teletext blog, with the markup you write beside the live result.
+**Live:** [demo](https://peamlo.github.io/ceefax-ui/demo/) · [Storybook](https://peamlo.github.io/ceefax-ui/). Or run it locally:
 
 ```sh
 npm run demo   # serves the repo, then open http://localhost:3000/demo/
