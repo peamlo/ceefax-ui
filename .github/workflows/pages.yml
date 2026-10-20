@@ -53,6 +53,6 @@ jobs:
           # iframe.html is static (200 for any id), so the real check is a story in index.json.
           id=$(get index.json | jq -re '[.entries[] | select(.type == "story")][0].id')
           get "iframe.html?id=${id}" > /dev/null
-          get demo/ | grep -q 'src/index.css'
+          grep -q 'src/index.css' <<< "$(get demo/)"
           get src/index.css > /dev/null
           get fonts/vt323-v17-latin-regular.woff2 > /dev/null
