@@ -1,17 +1,18 @@
 # Fonts (self-hosted, SIL OFL 1.1)
 
-Both faces are free for commercial use and self-hosting under the SIL Open Font License 1.1.
+Both faces are free for commercial use and self-hosting under the SIL Open Font License 1.1 (`OFL.txt`).
 
-Place these two files here (exact names — they're referenced from `src/tokens/typography.css`):
+`src/tokens/typography.css` loads these (exact names):
 
 - `vt323-v17-latin-regular.woff2`
 - `space-mono-v15-latin-regular.woff2`
 - `space-mono-v15-latin-700.woff2`
 
-### Easiest way to get them
-Use **google-webfonts-helper** (https://gwfh.mranftl.com/fonts):
-1. Search "VT323" → charset **latin**, style **regular** → download → grab the `.woff2`, rename to `vt323-v17-latin-regular.woff2`.
-2. Search "Space Mono" → charset **latin**, styles **regular + 700** → download → rename to the two `space-mono-*` names above.
-3. Copy the site's OFL license text into `OFL.txt` next to the fonts.
+They are compressed from the TTFs here, so regenerate them if a TTF changes:
 
-Until the files are present, the CSS falls back to the `monospace` system font.
+```sh
+pip install fonttools brotli
+fonttools ttLib.woff2 compress -o vt323-v17-latin-regular.woff2 VT323-Regular.ttf
+fonttools ttLib.woff2 compress -o space-mono-v15-latin-regular.woff2 SpaceMono-Regular.ttf
+fonttools ttLib.woff2 compress -o space-mono-v15-latin-700.woff2 SpaceMono-Bold.ttf
+```
