@@ -106,11 +106,33 @@ Colour tokens come in two tiers, both under the `cf` namespace:
 - **`--cf-base-*`** — the authentic 8 broadcast colours (`--cf-base-red`, …). Fixed and **never** remapped, so a theme cannot change them.
 - **Semantic aliases** — every other `--cf-*` colour (`--cf-bg`, `--cf-fg`, `--cf-link`, `--cf-danger`, …). They say what a colour is *for*, and they are what themes remap.
 
-Use the semantic aliases in your own CSS so it follows the active theme; reach for `--cf-base-*` only when you deliberately want the authentic colour whatever the theme (e.g. pixel art). The library's own component and layout stylesheets use semantic aliases only — CI enforces it.
+Use the semantic aliases in your own CSS so it follows the active theme; reach for `--cf-base-*` only when you deliberately want the authentic colour whatever the theme (e.g. pixel art). The library's own component and layout stylesheets, and the variant seam, use semantic aliases only — CI enforces it.
 
 Spacing is `ch`-based; radius is always `0`.
 
-**Accessible theme (planned):** an opt-in `[data-theme="accessible"]` will remap only the `--cf-*` semantic aliases to WCAG-passing pairs, leaving `--cf-base-*` and the default authentic theme untouched.
+## Accessible theme
+
+The authentic palette is the point of the library, but it is not accessible: authentic blue is 2.44:1 on black, and `danger = red` / `success = green` is the classic red–green confusion. Opt into the **accessible theme** with one attribute — no JavaScript, no build step, no markup changes:
+
+```html
+<html data-theme="accessible">
+```
+
+It also works on any subtree (`<section data-theme="accessible">`) to scope it to one region. Without the attribute nothing changes.
+
+The theme is colour-vision-deficiency optimised (Okabe–Ito-inspired): every colour clears **WCAG AAA (≥ 7:1)** on black, and `danger`/`success` sit on the blue–yellow axis (amber vs teal) so they stay apart under red–green colour-blindness. Your existing `data-variant` markup is re-coloured through the same names:
+
+| `data-variant` / alias | Accessible colour | On black |
+|---|---|---|
+| `red` · `--cf-danger` | amber `#FF9E4D` | 10.3:1 |
+| `green` · `--cf-success`, `--cf-accent-2` | teal `#33E0C0` | 12.6:1 |
+| `yellow` · `--cf-accent`, `--cf-warning`, `--cf-link-hover` | yellow `#FFFF00` | 19.6:1 |
+| `blue` | sky `#66B3FF` | 9.5:1 |
+| `magenta` · `--cf-link-visited` | orchid `#E0A0D0` | 10.1:1 |
+| `cyan` · `--cf-link`, `--cf-info` | ice `#99E6FF` | 15.1:1 |
+| `--cf-fg-dim` | grey `#B3B3B3` | 10.0:1 |
+
+Every block colour is light, so the ink on a variant block is black — blue included. The theme only remaps semantic aliases (including the `--cf-variant-*` tier the variant colours resolve through); `--cf-base-*` keeps the authentic colours, so pixel art stays authentic. Colour is still never the only cue: fastext keys keep their labels and the current page its caret. Try it in Storybook (toolbar → Theme) or on the demo page's switch.
 
 ## Develop
 

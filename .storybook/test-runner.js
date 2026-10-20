@@ -10,7 +10,8 @@ import { injectAxe, checkA11y } from 'axe-playwright';
 //
 // axe is gated to Components/* and the Layout/Page screen-frame story — the Foundations swatch/demo pages deliberately show
 // the raw palette (known contrast tradeoffs), so running axe over them would fail the
-// build on non-contract stories.
+// build on non-contract stories. Each gated story is audited twice: as authored, then
+// with data-theme="accessible" on <html> at AAA contrast (color-contrast-enhanced, #12).
 
 const BTN = '.cf-btn';
 // Read an element's live colours from inside the page (runs in the browser context).
@@ -59,6 +60,20 @@ async function assertFastextHover(page) {
   await page.mouse.move(0, 0);
 }
 
+// Contract (#12): under the accessible theme the hover inversion stays legible. Blue is the
+// key whose authentic inversion fails (~2.4:1), so it is the one worth a real hover: it must
+// invert to sky on black (9.5:1). Call with the theme already set on <html>.
+const BLUE_KEY = '.cf-fastext__key[data-variant="blue"]';
+
+async function assertAccessibleFastextHover(page) {
+  await page.hover(BLUE_KEY);
+  expect(await page.evaluate(colours, BLUE_KEY)).toEqual({
+    backgroundColor: 'rgb(0, 0, 0)',
+    color: 'rgb(102, 179, 255)',
+  });
+  await page.mouse.move(0, 0);
+}
+
 // Contract: below the narrow breakpoint the 4:3 frame is dropped and the page is full-bleed.
 // Needs a real viewport resize, which in-page play() cannot do. Restores the wide viewport.
 async function assertScreenFrame(page) {
@@ -72,10 +87,12 @@ async function assertScreenFrame(page) {
   await page.setViewportSize({ width: 1280, height: 720 });
 }
 
-const axe = async (page) => {
+// `aaa` also enables axe's AAA contrast rule — the accessible theme's promise (#12).
+const axe = async (page, { aaa = false } = {}) => {
   await checkA11y(page, '#storybook-root', {
     detailedReport: true,
     detailedReportOptions: { html: true },
+    ...(aaa && { axeOptions: { rules: { 'color-contrast-enhanced': { enabled: true } } } }),
   });
 };
 
@@ -91,10 +108,9 @@ export default {
 
     await injectAxe(page);
     await axe(page);
-    if (isFrame) {
-      // The frame must also pass axe under the accessible theme.
-      await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'accessible'));
-      await axe(page);
-    }
+    // Every contract story must also pass axe — at AAA contrast — under the accessible theme.
+    await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'accessible'));
+    if (title === 'Components/Fastext bar') await assertAccessibleFastextHover(page);
+    await axe(page, { aaa: true });
   },
 };

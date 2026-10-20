@@ -1,11 +1,12 @@
 import { expect } from '@storybook/test';
 
 // A contract story with no component of its own: it pins the token layering rule — component
-// and layout stylesheets reference only `--cf-*` semantic aliases, never the `--cf-base-*`
-// authentic colours (those reach components only through the variant seam in base.css).
+// and layout stylesheets — and the variant seam in base.css — reference only `--cf-*`
+// semantic aliases, never the `--cf-base-*` authentic colours (the seam reaches them through
+// the remappable `--cf-variant-*` tier, #12).
 // It reads stylesheet SOURCE because the rule is about what the source names; the
 // computed colours themselves are pinned by the Variant colours stories. ADR-0008.
-const SHEETS = import.meta.glob(['../src/components/*.css', '../src/layout/*.css'], {
+const SHEETS = import.meta.glob(['../src/base.css', '../src/components/*.css', '../src/layout/*.css'], {
   query: '?raw',
   import: 'default',
   eager: true,

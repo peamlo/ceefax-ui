@@ -10,6 +10,30 @@ const formatHtml = (code) =>
 
 /** @type { import('@storybook/html').Preview } */
 export default {
+  // Toolbar switch for the opt-in accessible theme (#12): the same one attribute a
+  // consumer sets on <html>, so every story can be read under either theme.
+  globalTypes: {
+    theme: {
+      description: 'Colour theme',
+      toolbar: {
+        title: 'Theme',
+        icon: 'contrast',
+        items: [
+          { value: 'authentic', title: 'Authentic (default)' },
+          { value: 'accessible', title: 'Accessible' },
+        ],
+        dynamicTitle: true,
+      },
+    },
+  },
+  initialGlobals: { theme: 'authentic' },
+  decorators: [
+    (story, { globals }) => {
+      if (globals.theme === 'accessible') document.documentElement.dataset.theme = 'accessible';
+      else delete document.documentElement.dataset.theme;
+      return story();
+    },
+  ],
   parameters: {
     docs: {
       source: {

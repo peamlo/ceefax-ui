@@ -10,6 +10,8 @@ const SEMANTIC = [
   'cf-bg', 'cf-fg', 'cf-fg-dim', 'cf-link', 'cf-link-hover', 'cf-link-visited',
   'cf-accent', 'cf-accent-2', 'cf-border', 'cf-info', 'cf-warning', 'cf-danger', 'cf-success',
   'cf-on-variant', 'cf-on-variant-dark',
+  'cf-variant-red', 'cf-variant-green', 'cf-variant-yellow',
+  'cf-variant-blue', 'cf-variant-magenta', 'cf-variant-cyan',
 ];
 
 // Light values need black text to stay legible on the swatch.
@@ -49,7 +51,8 @@ export const Palette = () => {
 export const SemanticAliases = () => {
   const d = page(
     '<p style="max-width:60ch;color:#b3ffb3">The only layer components reference. ' +
-    'A future accessible theme remaps <em>only</em> these aliases, leaving the base palette untouched.</p>'
+    'The accessible theme (<code>data-theme="accessible"</code>, toolbar → Theme) remaps <em>only</em> these aliases, ' +
+    'leaving the base palette untouched.</p>'
   );
   d.appendChild(swatchGrid(SEMANTIC));
   return d;
