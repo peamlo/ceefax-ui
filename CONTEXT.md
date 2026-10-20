@@ -17,11 +17,11 @@ A look-only difference selected with a `data-*` attribute (`data-variant="red"`,
 _Avoid_: modifier, `--modifier` class
 
 **Variant seam**:
-The single place a presentational variant name resolves to a colour — `--_variant` (the authentic colour) and `--_variant-ink` (the readable foreground on it, from the `--cf-on-variant*` aliases), declared once in the base layer. Components read them to paint; they never re-declare the mapping. The one sanctioned route by which an authentic colour reaches a component: it is the seam, not the component, that names `--cf-base-*`.
+The single place a presentational variant name resolves to a colour — `--_variant` (the variant colour, read from the `--cf-variant-*` aliases) and `--_variant-ink` (the readable foreground on it, from the `--cf-on-variant*` aliases), declared once in the base layer. Components read them to paint; they never re-declare the mapping. It names no `--cf-base-*` token itself: the `--cf-variant-*` aliases default to the authentic colours and a theme remaps them.
 _Avoid_: variant mixin, colour map, theme lookup
 
 **Variant block**:
-A surface filled with a presentational variant's colour — a fastext key, a coloured button. The readable foreground painted on it is its **ink** (black on light blocks, white on authentic blue).
+A surface filled with a presentational variant's colour — a fastext key, a coloured button. The readable foreground painted on it is its **ink** (black on light blocks, white on authentic blue; black on every block under the Accessible theme).
 _Avoid_: swatch, colour chip
 
 **State**:
@@ -33,15 +33,15 @@ The four coloured navigation keys (red / green / yellow / blue) from teletext, a
 _Avoid_: colour buttons, quick links
 
 **Authentic colour**:
-One of the eight original broadcast teletext colours, exposed as a `--cf-base-*` token (e.g. `--cf-base-red`). Fixed values that are **never** remapped. Together they form the **base tier** — the bottom token tier, beneath the semantic aliases. "Base" here means that tier — unrelated to the base stylesheet (`src/base.css`). Only the token layer, the Variant seam, and the pixel canvas renderer name these; CI fails if a component or layout stylesheet does (ADR-0008).
+One of the eight original broadcast teletext colours, exposed as a `--cf-base-*` token (e.g. `--cf-base-red`). Fixed values that are **never** remapped. Together they form the **base tier** — the bottom token tier, beneath the semantic aliases. "Base" here means that tier — unrelated to the base stylesheet (`src/base.css`). Only the token layer and the pixel canvas renderer name these; CI fails if a component or layout stylesheet, or the Variant seam, does (ADR-0008, ADR-0010).
 _Avoid_: brand colour, palette colour, `--ceefax-*` (the retired spelling)
 
 **Semantic alias**:
-Any other `--cf-*` colour token (e.g. `--cf-bg`, `--cf-danger`) — it maps meaning onto an authentic colour. The only colour tier component and layout stylesheets reference — the single exception is the Variant seam, through which a consumer-chosen authentic colour reaches a component. Themes remap these; they never touch `--cf-base-*`.
+Any other `--cf-*` colour token (e.g. `--cf-bg`, `--cf-danger`) — it maps meaning onto a colour (an authentic one by default; a theme may remap it). The only colour tier component and layout stylesheets reference. Includes the `--cf-variant-*` tier (the colour each `data-variant` name resolves to) and the `--cf-on-variant*` ink. Themes remap these; they never touch `--cf-base-*`.
 _Avoid_: theme variable, colour variable
 
 **Accessible theme**:
-The planned opt-in `[data-theme="accessible"]` that remaps only the `--cf-*` semantic aliases to WCAG-passing pairs, leaving the `--cf-base-*` authentic colours and default theme untouched.
+The opt-in `[data-theme="accessible"]` (on `<html>` or any subtree) that remaps only the `--cf-*` semantic aliases to a colour-vision-deficiency-optimised palette, every colour ≥ 7:1 (WCAG AAA) on black, leaving the `--cf-base-*` authentic colours and the default theme untouched (ADR-0010).
 _Avoid_: high-contrast mode, a11y mode
 
 **Inversion**:

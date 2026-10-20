@@ -37,6 +37,8 @@ a{color:var(--doc-cyan)}
 .colorbar{display:grid;grid-template-columns:repeat(8,1fr);height:14px}
 .colorbar span{display:block}
 .colorbar span:first-child{box-shadow:inset 0 0 0 1px #222}
+.mast-theme{margin:0;padding:12px clamp(16px,3vw,28px);border-top:1px solid var(--doc-line);font-weight:700;letter-spacing:.1em;color:var(--doc-text);cursor:pointer;display:block}
+.mast-theme input{accent-color:var(--doc-yellow);margin-right:1ch}
 .mast-sub{margin:0;padding:18px clamp(16px,3vw,28px);color:var(--doc-dim);border-top:1px solid var(--doc-line);max-width:74ch}
 .mast-sub b{color:var(--doc-text);font-weight:700}
 
@@ -101,6 +103,7 @@ footer{margin-top:clamp(30px,5vw,56px)}
       <span class="mast-meta">LAYOUT<br>DEMO</span>
     </div>
     <div class="colorbar" data-colorbar></div>
+    <label class="mast-theme"><input type="checkbox" data-theme-switch>ACCESSIBLE THEME <span style="color:var(--doc-dim);font-weight:400">— sets <code>data-theme="accessible"</code> on &lt;html&gt;; the bar above is <code>--cf-base-*</code>, so it never changes</span></label>
     <p class="mast-sub">A quick view of what the library delivers. The <b>class markup you write</b> is on the left; the <b>real library stylesheet</b> (<code>../src/index.css</code>) renders it on the right. One import, then plain <code>class="…"</code> — identical in Astro, Svelte, or hand-written HTML.</p>
   </header>
 
@@ -245,6 +248,13 @@ const COLORS = ['black','red','green','yellow','blue','magenta','cyan','white'];
 for (const bar of document.querySelectorAll('[data-colorbar]')) {
   bar.innerHTML = COLORS.map(c => `<span style="background:var(--cf-base-${c})"></span>`).join('');
 }
+
+// The theme switch is the one attribute a consumer would set on <html> (#12).
+const themeSwitch = document.querySelector('[data-theme-switch]');
+themeSwitch.addEventListener('change', () => {
+  if (themeSwitch.checked) document.documentElement.dataset.theme = 'accessible';
+  else delete document.documentElement.dataset.theme;
+});
 
 const dedent = (t) => {
   t = t.replace(/^\n/, '').replace(/\s+$/, '');

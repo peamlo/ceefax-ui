@@ -59,6 +59,39 @@ const NESTED = [
   ['card', '', { borderTopColor: WHITE }],
 ];
 
+// The same pairs under [data-theme="accessible"] (#12): every block colour is light, so
+// the ink is uniformly black — blue included.
+const AMBER = 'rgb(255, 158, 77)';
+const TEAL = 'rgb(51, 224, 192)';
+const SKY = 'rgb(102, 179, 255)';
+const ORCHID = 'rgb(224, 160, 208)';
+const ICE = 'rgb(153, 230, 255)';
+const ACCESSIBLE = [
+  ['btn', '', { backgroundColor: BLACK, color: WHITE, ...BORDER }],
+  ['btn', UNMAPPED, { backgroundColor: BLACK, color: WHITE, ...BORDER }],
+  ['btn', 'red', { backgroundColor: AMBER, color: BLACK, borderTopColor: AMBER }],
+  ['btn', 'green', { backgroundColor: TEAL, color: BLACK, borderTopColor: TEAL }],
+  ['btn', 'yellow', { backgroundColor: YELLOW, color: BLACK, borderTopColor: YELLOW }],
+  ['btn', 'blue', { backgroundColor: SKY, color: BLACK, borderTopColor: SKY }],
+  ['btn', 'cyan', { backgroundColor: ICE, color: BLACK, borderTopColor: ICE }],
+  ['btn', 'magenta', { backgroundColor: ORCHID, color: BLACK, borderTopColor: ORCHID }],
+  ['btn', 'ghost', { backgroundColor: TRANSPARENT, color: ICE, borderTopColor: TRANSPARENT }],
+  ['card', '', { borderTopColor: WHITE }],
+  ['card', 'red', { borderTopColor: AMBER }],
+  ['card', 'green', { borderTopColor: TEAL }],
+  ['card', 'yellow', { borderTopColor: YELLOW }],
+  ['card', 'blue', { borderTopColor: SKY }],
+  ['card', 'cyan', { borderTopColor: ICE }],
+  ['card', 'magenta', { borderTopColor: ORCHID }],
+  ['key', '', { backgroundColor: TRANSPARENT, color: BLACK }],
+  ['key', 'red', { backgroundColor: AMBER, color: BLACK }],
+  ['key', 'green', { backgroundColor: TEAL, color: BLACK }],
+  ['key', 'yellow', { backgroundColor: YELLOW, color: BLACK }],
+  ['key', 'blue', { backgroundColor: SKY, color: BLACK }],
+  ['key', 'cyan', { backgroundColor: ICE, color: BLACK }],
+  ['key', 'magenta', { backgroundColor: ORCHID, color: BLACK }],
+];
+
 const TAG = { btn: 'button', card: 'article', key: 'a' };
 const CLASS = { btn: 'cf-btn', card: 'cf-card', key: 'cf-fastext__key' };
 
@@ -101,10 +134,19 @@ export const Matrix = {
     host.style.cssText = 'display:flex;flex-wrap:wrap;align-items:flex-start;gap:1ch';
     NESTED.forEach((c, i) => host.appendChild(build(c, CASES.length + i)));
     wrap.appendChild(host);
+
+    // Scoped to a subtree on purpose: the theme must work below <html>, not only on it.
+    const themed = document.createElement('div');
+    themed.dataset.theme = 'accessible';
+    themed.style.cssText = 'display:flex;flex-wrap:wrap;align-items:flex-start;gap:1ch;width:100%';
+    const offset = CASES.length + NESTED.length;
+    ACCESSIBLE.forEach((c, i) => themed.appendChild(build(c, offset + i)));
+    wrap.appendChild(themed);
     return wrap;
   },
   play: async ({ canvasElement }) => {
     await assertCases(CASES, canvasElement);
     await assertCases(NESTED, canvasElement, CASES.length);
+    await assertCases(ACCESSIBLE, canvasElement, CASES.length + NESTED.length);
   },
 };

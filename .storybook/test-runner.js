@@ -10,7 +10,8 @@ import { injectAxe, checkA11y } from 'axe-playwright';
 //
 // axe is gated to Components/* and the Layout/Page screen-frame story — the Foundations swatch/demo pages deliberately show
 // the raw palette (known contrast tradeoffs), so running axe over them would fail the
-// build on non-contract stories.
+// build on non-contract stories. Each gated story is audited twice: as authored, then
+// with data-theme="accessible" on <html> at AAA contrast (color-contrast-enhanced, #12).
 
 const BTN = '.cf-btn';
 // Read an element's live colours from inside the page (runs in the browser context).
@@ -72,10 +73,12 @@ async function assertScreenFrame(page) {
   await page.setViewportSize({ width: 1280, height: 720 });
 }
 
-const axe = async (page) => {
+// `aaa` also enables axe's AAA contrast rule — the accessible theme's promise (#12).
+const axe = async (page, { aaa = false } = {}) => {
   await checkA11y(page, '#storybook-root', {
     detailedReport: true,
     detailedReportOptions: { html: true },
+    ...(aaa && { axeOptions: { rules: { 'color-contrast-enhanced': { enabled: true } } } }),
   });
 };
 
@@ -91,10 +94,8 @@ export default {
 
     await injectAxe(page);
     await axe(page);
-    if (isFrame) {
-      // The frame must also pass axe under the accessible theme.
-      await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'accessible'));
-      await axe(page);
-    }
+    // Every contract story must also pass axe — at AAA contrast — under the accessible theme.
+    await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'accessible'));
+    await axe(page, { aaa: true });
   },
 };

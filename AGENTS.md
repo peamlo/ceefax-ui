@@ -9,9 +9,9 @@ Read this, then `CONTEXT.md` (the glossary) and any relevant `docs/adr/` before 
 **One semantic class on the correct native element. State comes from native/ARIA attributes. `data-*` is only for presentational variants.** See `README.md` → "The contract" and `docs/adr/` for the reasoning.
 
 - **Never** write state-modifier classes (`cf-btn--disabled`, `cf-btn--active`). Use the real `disabled` attribute, `:focus-visible`, `[aria-current]`, `[aria-pressed]`.
-- `data-variant` is only a presentational colour — one of the six named authentic colours (`red`/`green`/`yellow`/`blue`/`cyan`/`magenta`), plus look-only `ghost` (button) and `nav` (link). The name→colour mapping lives once in the variant seam (`src/base.css`, ADR-0007); a component opts in by matching `[data-variant]` on itself and reading `--_variant` through a fallback. `data-size` is presentational too.
+- `data-variant` is only a presentational colour — one of the six named authentic colours (`red`/`green`/`yellow`/`blue`/`cyan`/`magenta`), plus look-only `ghost` (button) and `nav` (link). The name→colour mapping lives once in the variant seam (`src/base.css`, ADR-0007), via `--cf-variant-*`; a component opts in by matching `[data-variant]` on itself and reading `--_variant` through a fallback. `data-size` is presentational too.
 - No utility classes, no compound-class soup.
-- Tokens layer strictly: `--cf-base-*` = the authentic 8 broadcast colours (never remapped); every other `--cf-*` colour = a semantic alias, the **only** colour tier component and layout stylesheets reference. Need a colour in a component? Use (or add) a semantic alias, never `--cf-base-*` — the `Foundations/Token layering` guard story fails CI otherwise (ADR-0008).
+- Tokens layer strictly: `--cf-base-*` = the authentic 8 broadcast colours (never remapped); every other `--cf-*` colour = a semantic alias (including the `--cf-variant-*` tier the variant seam resolves through), the **only** colour tier component, layout and seam stylesheets reference. Themes (`[data-theme="accessible"]`, ADR-0010) remap aliases only. Need a colour in a component? Use (or add) a semantic alias, never `--cf-base-*` — the `Foundations/Token layering` guard story fails CI otherwise (ADR-0008).
 
 ## Commands
 
