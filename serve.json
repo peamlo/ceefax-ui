@@ -1,0 +1,5 @@
+{
+  "cleanUrls": ["/demo", "/demo/"],
+  "trailingSlash": true,
+  "redirects": [{ "source": "/demo/index.html", "destination": "/demo/" }]
+}
