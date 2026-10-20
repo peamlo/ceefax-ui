@@ -37,11 +37,11 @@ One of the eight original broadcast teletext colours, exposed as a `--cf-base-*`
 _Avoid_: brand colour, palette colour, `--ceefax-*` (the retired spelling)
 
 **Semantic alias**:
-Any other `--cf-*` colour token (e.g. `--cf-bg`, `--cf-danger`) — it maps meaning onto a colour (an authentic one by default; a theme may remap it). The only colour tier component and layout stylesheets reference. Includes the `--cf-variant-*` tier (the colour each `data-variant` name resolves to) and the `--cf-on-variant*` ink. Themes remap these; they never touch `--cf-base-*`.
+Any other `--cf-*` colour token (e.g. `--cf-bg`, `--cf-danger`) — it maps meaning onto a colour (an authentic one by default; a theme may remap it). The only colour tier component, layout and Variant seam stylesheets reference. Includes the `--cf-variant-*` tier (the colour each `data-variant` name resolves to) and the `--cf-on-variant*` ink. Themes remap these; they never touch `--cf-base-*`.
 _Avoid_: theme variable, colour variable
 
 **Accessible theme**:
-The opt-in `[data-theme="accessible"]` (on `<html>` or any subtree) that remaps only the `--cf-*` semantic aliases to a colour-vision-deficiency-optimised palette, every colour ≥ 7:1 (WCAG AAA) on black, leaving the `--cf-base-*` authentic colours and the default theme untouched (ADR-0010).
+The opt-in `[data-theme="accessible"]` that remaps only the `--cf-*` semantic aliases to a colour-vision-deficiency-optimised, WCAG-AAA palette, leaving the `--cf-base-*` authentic colours and the default theme untouched (ADR-0010).
 _Avoid_: high-contrast mode, a11y mode
 
 **Inversion**:

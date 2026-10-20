@@ -2,9 +2,9 @@ import { expect } from '@storybook/test';
 
 // A contract story with no component of its own: it guards the accessible theme's
 // promise (#12) — every colour it ships clears WCAG AAA (≥7:1) against the page
-// background, and the ink on every variant block clears it against that block. It
-// reads the rendered colour of each token inside a [data-theme="accessible"] subtree,
-// so an edit that drops a colour below AAA fails here, whichever token carried it.
+// background, and the ink on every variant block clears it against that block. Tokens
+// are resolved inside a [data-theme="accessible"] subtree; ink pairs are read off
+// rendered variant buttons, so they follow whatever pairing the seam declares.
 const AAA = 7;
 
 // Colours drawn ON the page background.
@@ -15,15 +15,7 @@ const ON_BG = [
   'cf-variant-red', 'cf-variant-green', 'cf-variant-yellow',
   'cf-variant-blue', 'cf-variant-magenta', 'cf-variant-cyan',
 ];
-// [ink, block] — the ink the variant seam pairs with each block colour.
-const INK = [
-  ['cf-on-variant', 'cf-variant-red'],
-  ['cf-on-variant', 'cf-variant-green'],
-  ['cf-on-variant', 'cf-variant-yellow'],
-  ['cf-on-variant-dark', 'cf-variant-blue'],
-  ['cf-on-variant', 'cf-variant-magenta'],
-  ['cf-on-variant', 'cf-variant-cyan'],
-];
+const VARIANTS = ['red', 'green', 'yellow', 'blue', 'magenta', 'cyan'];
 
 // WCAG 2.x relative luminance and contrast ratio.
 const channel = (c) => (c /= 255) <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
@@ -46,13 +38,24 @@ const resolve = (root, token) => {
   return rgb;
 };
 
-// [label, fg, bg, ratio] for every pair the theme promises.
+// The ink and fill of a rendered variant button — the seam's pairing, as painted.
+const block = (root, variant) => {
+  const btn = document.createElement('button');
+  btn.className = 'cf-btn';
+  btn.dataset.variant = variant;
+  root.append(btn);
+  const { color: fg, backgroundColor: bg } = getComputedStyle(btn);
+  btn.remove();
+  return { label: `ink on data-variant="${variant}"`, fg, bg };
+};
+
+// { label, fg, bg, ratio } for every pair the theme promises.
 const measure = (root) => {
   const bg = resolve(root, 'cf-bg');
   return [
-    ...ON_BG.map((t) => [`--${t} on --cf-bg`, resolve(root, t), bg]),
-    ...INK.map(([ink, block]) => [`--${ink} on --${block}`, resolve(root, ink), resolve(root, block)]),
-  ].map(([label, fg, back]) => [label, fg, back, contrast(fg, back)]);
+    ...ON_BG.map((t) => ({ label: `--${t} on --cf-bg`, fg: resolve(root, t), bg })),
+    ...VARIANTS.map((v) => block(root, v)),
+  ].map((row) => ({ ...row, ratio: contrast(row.fg, row.bg) }));
 };
 
 export default { title: 'Foundations/Accessible theme' };
@@ -78,12 +81,12 @@ export const Contrast = {
     // Measure once attached, so the subtree's custom properties resolve.
     requestAnimationFrame(() => {
       const rows = measure(el);
-      const fails = rows.filter((r) => r[3] < AAA).length;
+      const fails = rows.filter((r) => r.ratio < AAA).length;
       status.style.color = fails ? '#f00' : '#0f0';
       status.textContent = fails
         ? `FAIL — ${fails} pair(s) below ${AAA}:1`
         : `PASS — all ${rows.length} pairs ≥ ${AAA}:1`;
-      for (const [label, fg, bg, ratio] of rows) {
+      for (const { label, fg, bg, ratio } of rows) {
         const li = document.createElement('li');
         li.textContent = `${label}: ${fg} / ${bg} = ${ratio.toFixed(2)}:1 ${ratio >= AAA ? '✓' : '✗'}`;
         list.append(li);
@@ -93,8 +96,8 @@ export const Contrast = {
   },
   play: async ({ canvasElement }) => {
     const root = canvasElement.querySelector('[data-theme="accessible"]');
-    for (const [label, fg, bg, ratio] of measure(root)) {
-      await expect(`${label} ${fg}/${bg} ≥ ${AAA}: ${ratio >= AAA}`).toBe(`${label} ${fg}/${bg} ≥ ${AAA}: true`);
+    for (const { label, fg, bg, ratio } of measure(root)) {
+      await expect(ratio, `${label}: ${fg} / ${bg}`).toBeGreaterThanOrEqual(AAA);
     }
   },
 };

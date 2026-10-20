@@ -37,8 +37,8 @@ aliases is a side effect.
 - The seam names no base token any more, so ADR-0008's seam exception is closed: the
   `Foundations/Token layering` guard now scans `src/base.css` too. Where accepted ADRs 0007
   and 0008 say the seam names the base tier, read it as "names `--cf-variant-*`".
-- Guarded by `Foundations/Accessible theme` (every themed colour and ink pair ≥ 7:1, measured
-  from rendered colours), the accessible half of `Foundations/Variant colours` (applied on a
+- Guarded by `Foundations/Accessible theme` (every themed colour ≥ 7:1 on the background,
+  resolved in a themed subtree, and the ink on every rendered variant button ≥ 7:1), the accessible half of `Foundations/Variant colours` (applied on a
   subtree), and a second axe pass with AAA contrast on every `Components/*` story under the
   theme.
 - Storybook gains a Theme toolbar and the demo page a switch; both set the same attribute.

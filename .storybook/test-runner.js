@@ -60,6 +60,20 @@ async function assertFastextHover(page) {
   await page.mouse.move(0, 0);
 }
 
+// Contract (#12): under the accessible theme the hover inversion stays legible. Blue is the
+// key whose authentic inversion fails (~2.4:1), so it is the one worth a real hover: it must
+// invert to sky on black (9.5:1). Call with the theme already set on <html>.
+const BLUE_KEY = '.cf-fastext__key[data-variant="blue"]';
+
+async function assertAccessibleFastextHover(page) {
+  await page.hover(BLUE_KEY);
+  expect(await page.evaluate(colours, BLUE_KEY)).toEqual({
+    backgroundColor: 'rgb(0, 0, 0)',
+    color: 'rgb(102, 179, 255)',
+  });
+  await page.mouse.move(0, 0);
+}
+
 // Contract: below the narrow breakpoint the 4:3 frame is dropped and the page is full-bleed.
 // Needs a real viewport resize, which in-page play() cannot do. Restores the wide viewport.
 async function assertScreenFrame(page) {
@@ -96,6 +110,7 @@ export default {
     await axe(page);
     // Every contract story must also pass axe — at AAA contrast — under the accessible theme.
     await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'accessible'));
+    if (title === 'Components/Fastext bar') await assertAccessibleFastextHover(page);
     await axe(page, { aaa: true });
   },
 };

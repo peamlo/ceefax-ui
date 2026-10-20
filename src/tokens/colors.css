@@ -46,15 +46,15 @@
 --cf-variant-blue:#66b3ff;
 --cf-variant-magenta:#e0a0d0;
 --cf-variant-cyan:#99e6ff;
---cf-link:#99e6ff;
---cf-link-hover:#ffff00;
---cf-link-visited:#e0a0d0;
---cf-accent:#ffff00;
---cf-accent-2:#33e0c0;
---cf-info:#99e6ff;
---cf-warning:#ffff00;
---cf-danger:#ff9e4d;
---cf-success:#33e0c0;
+--cf-link:var(--cf-variant-cyan);
+--cf-link-hover:var(--cf-variant-yellow);
+--cf-link-visited:var(--cf-variant-magenta);
+--cf-accent:var(--cf-variant-yellow);
+--cf-accent-2:var(--cf-variant-green);
+--cf-info:var(--cf-variant-cyan);
+--cf-warning:var(--cf-variant-yellow);
+--cf-danger:var(--cf-variant-red);
+--cf-success:var(--cf-variant-green);
 --cf-fg-dim:#b3b3b3;
 /* every accessible block is light, so the ink on blue is black like the rest */
 --cf-on-variant-dark:var(--cf-on-variant);
