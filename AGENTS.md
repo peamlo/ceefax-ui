@@ -29,6 +29,7 @@ Storybook (`@storybook/html-vite` + a11y + interactions addons) is the **living 
 - `README.md` — public consumer docs + the contract.
 - `CONTEXT.md` — the glossary / ubiquitous language. Use its terms; don't drift to synonyms it marks `_Avoid_`.
 - `docs/adr/` — Architecture Decision Records (why, not how). Flag output that contradicts an ADR.
+- `docs/references.md` — prior art (Pico CSS, 98.css): what we take from each and what we deliberately don't.
 - Storybook — live component behaviour and variants.
 - `docs/agents/` — how agents consume the issue tracker, triage labels, and domain docs (see below).
 

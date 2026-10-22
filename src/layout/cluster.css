@@ -1,3 +1,6 @@
 /* Cluster — an inline group that wraps. Tag lists, fastext keys, button rows.
-   DX: data-gap="0..8", data-align="start|center|end|baseline" · escape hatch: --cf-gap. */
-.cf-cluster{display:flex;flex-wrap:wrap;gap:var(--cf-gap,var(--cf-space-2));align-items:var(--cf-align,center)}
+   DX: data-gap="0..8", data-align="start|center|end|baseline" · escape hatch: --cf-gap.
+   EXPERIMENTAL (#26, classless spike — see components/link.css): the bare list of a <nav>
+   inside .cf-root is laid out as a cluster, with the list chrome reset. */
+.cf-cluster,:where(.cf-root nav > ul:not([class^="cf-"],[class*=" cf-"])){display:flex;flex-wrap:wrap;gap:var(--cf-gap,var(--cf-space-2));align-items:var(--cf-align,center)}
+:where(.cf-root nav > ul:not([class^="cf-"],[class*=" cf-"])){list-style:none;margin:0;padding:0}

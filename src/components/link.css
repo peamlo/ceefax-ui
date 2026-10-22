@@ -1,14 +1,20 @@
 /* Link — one class. Current page via [aria-current="page"] (persistent caret).
-   Focus = instant inversion. Nav style via [data-variant="nav"]. */
-.cf-link{font-family:var(--cf-font-mono);color:var(--cf-link);text-decoration:none;text-underline-offset:3px}
-.cf-link:hover{color:var(--cf-link-hover);text-decoration:underline}
-.cf-link:focus-visible{outline:none;background:var(--cf-link);color:var(--cf-bg);text-decoration:none}
-.cf-link:visited{color:var(--cf-link-visited)}
-.cf-link[data-variant="nav"]{display:inline-flex;align-items:baseline;gap:var(--cf-space-2);font-weight:700;letter-spacing:var(--cf-tracking-wide);text-transform:uppercase;text-decoration:none}
+   Focus = instant inversion. Nav style via [data-variant="nav"].
+   EXPERIMENTAL (#26, classless spike — not a supported API, removed if rejected): every
+   rule also matches a bare <a href> inside an opt-in .cf-root, and a link inside a <nav>
+   there takes the nav style with no data-variant (structure from semantics). Same guards
+   as button.css: :where() for zero specificity, :not(cf-*) to leave components alone. */
+.cf-link,:where(.cf-root a[href]:not([class^="cf-"],[class*=" cf-"])){font-family:var(--cf-font-mono);color:var(--cf-link);text-decoration:none;text-underline-offset:3px}
+.cf-link:hover,:where(.cf-root a[href]:not([class^="cf-"],[class*=" cf-"]):hover){color:var(--cf-link-hover);text-decoration:underline}
+.cf-link:focus-visible,:where(.cf-root a[href]:not([class^="cf-"],[class*=" cf-"]):focus-visible){outline:none;background:var(--cf-link);color:var(--cf-bg);text-decoration:none}
+.cf-link:visited,:where(.cf-root a[href]:not([class^="cf-"],[class*=" cf-"]):visited){color:var(--cf-link-visited)}
+.cf-link[data-variant="nav"],
+:where(.cf-root a[href]:not([class^="cf-"],[class*=" cf-"]):is([data-variant="nav"],nav *)){display:inline-flex;align-items:baseline;gap:var(--cf-space-2);font-weight:700;letter-spacing:var(--cf-tracking-wide);text-transform:uppercase;text-decoration:none}
 .cf-link[data-variant="nav"] .cf-link__page{color:var(--cf-accent)}
-.cf-link[data-variant="nav"]:hover{text-decoration:none;color:var(--cf-link-hover)}
+.cf-link[data-variant="nav"]:hover,
+:where(.cf-root a[href]:not([class^="cf-"],[class*=" cf-"]):is([data-variant="nav"],nav *):hover){text-decoration:none;color:var(--cf-link-hover)}
 /* selected / "you are here" — persistent, distinct from transient focus */
-.cf-link[aria-current="page"]{color:var(--cf-link-hover)}
-.cf-link[aria-current="page"]::before{content:"\25B8\00A0";color:var(--cf-accent)}
-.cf-link[aria-current="page"]:focus-visible{color:var(--cf-bg)}
-.cf-link[aria-current="page"]:focus-visible::before{color:var(--cf-bg)}
+.cf-link[aria-current="page"],:where(.cf-root a[href][aria-current="page"]:not([class^="cf-"],[class*=" cf-"])){color:var(--cf-link-hover)}
+.cf-link[aria-current="page"]::before,:where(.cf-root a[href][aria-current="page"]:not([class^="cf-"],[class*=" cf-"]))::before{content:"\25B8\00A0";color:var(--cf-accent)}
+.cf-link[aria-current="page"]:focus-visible,:where(.cf-root a[href][aria-current="page"]:not([class^="cf-"],[class*=" cf-"]):focus-visible){color:var(--cf-bg)}
+.cf-link[aria-current="page"]:focus-visible::before,:where(.cf-root a[href][aria-current="page"]:not([class^="cf-"],[class*=" cf-"]):focus-visible)::before{color:var(--cf-bg)}
