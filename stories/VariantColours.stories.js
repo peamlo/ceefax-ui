@@ -5,15 +5,36 @@ import { expect } from '@storybook/test';
 // (issue #7) without any outcome drifting. Asserts the rendered result only — never the
 // custom property that carries it. Kept out of Components/* so the axe pass in
 // .storybook/test-runner.js doesn't run over a raw colour matrix.
+//
+// The pairs are generated, not listed: each theme says which colour every variant name
+// resolves to, each component says which properties it paints with that colour. A new
+// variant-aware component is one entry in COMPONENTS; a new theme is one in PALETTES.
 const BLACK = 'rgb(0, 0, 0)';
 const WHITE = 'rgb(255, 255, 255)';
-const RED = 'rgb(255, 0, 0)';
-const GREEN = 'rgb(0, 255, 0)';
 const YELLOW = 'rgb(255, 255, 0)';
-const BLUE = 'rgb(0, 0, 255)';
-const CYAN = 'rgb(0, 255, 255)';
-const MAGENTA = 'rgb(255, 0, 255)';
 const TRANSPARENT = 'rgba(0, 0, 0, 0)';
+
+// variant name → [the colour it resolves to, the ink drawn on top of it]
+const PALETTES = {
+  authentic: {
+    red: ['rgb(255, 0, 0)', BLACK],
+    green: ['rgb(0, 255, 0)', BLACK],
+    yellow: [YELLOW, BLACK],
+    blue: ['rgb(0, 0, 255)', WHITE],
+    cyan: ['rgb(0, 255, 255)', BLACK],
+    magenta: ['rgb(255, 0, 255)', BLACK],
+  },
+  // [data-theme="accessible"] (#12): every block colour is light, so the ink is
+  // uniformly black — blue included.
+  accessible: {
+    red: ['rgb(255, 158, 77)', BLACK],
+    green: ['rgb(51, 224, 192)', BLACK],
+    yellow: [YELLOW, BLACK],
+    blue: ['rgb(102, 179, 255)', BLACK],
+    cyan: ['rgb(153, 230, 255)', BLACK],
+    magenta: ['rgb(224, 160, 208)', BLACK],
+  },
+};
 
 // A name the seam deliberately does not map — a consumer typo. It must fall through to
 // the component's own default, not to the empty value of an unresolved custom property.
@@ -22,99 +43,88 @@ const UNMAPPED = 'RED';
 // SHORTHAND would reset every longhand, leaving a border-less button.
 const BORDER = { borderTopColor: WHITE, borderTopWidth: '2px', borderTopStyle: 'solid' };
 
-// [component, data-variant, the computed values a consumer sees]
-const CASES = [
-  ['btn', '', { backgroundColor: BLACK, color: WHITE, ...BORDER }],
-  ['btn', UNMAPPED, { backgroundColor: BLACK, color: WHITE, ...BORDER }],
-  ['btn', 'red', { backgroundColor: RED, color: BLACK, borderTopColor: RED }],
-  ['btn', 'green', { backgroundColor: GREEN, color: BLACK, borderTopColor: GREEN }],
-  ['btn', 'yellow', { backgroundColor: YELLOW, color: BLACK, borderTopColor: YELLOW }],
-  ['btn', 'blue', { backgroundColor: BLUE, color: WHITE, borderTopColor: BLUE }],
-  ['btn', 'cyan', { backgroundColor: CYAN, color: BLACK, borderTopColor: CYAN }],
-  ['btn', 'magenta', { backgroundColor: MAGENTA, color: BLACK, borderTopColor: MAGENTA }],
-  ['btn', 'ghost', { backgroundColor: TRANSPARENT, color: CYAN, borderTopColor: TRANSPARENT }],
-  ['card', '', { borderTopColor: WHITE }],
-  ['card', UNMAPPED, { borderTopColor: WHITE }],
-  ['card', 'red', { borderTopColor: RED }],
-  ['card', 'green', { borderTopColor: GREEN }],
-  ['card', 'yellow', { borderTopColor: YELLOW }],
-  ['card', 'blue', { borderTopColor: BLUE }],
-  ['card', 'cyan', { borderTopColor: CYAN }],
-  ['card', 'magenta', { borderTopColor: MAGENTA }],
-  ['key', '', { backgroundColor: TRANSPARENT, color: BLACK }],
-  ['key', UNMAPPED, { backgroundColor: TRANSPARENT, color: BLACK }],
-  ['key', 'red', { backgroundColor: RED, color: BLACK }],
-  ['key', 'green', { backgroundColor: GREEN, color: BLACK }],
-  ['key', 'yellow', { backgroundColor: YELLOW, color: BLACK }],
-  ['key', 'blue', { backgroundColor: BLUE, color: WHITE }],
-  ['key', 'cyan', { backgroundColor: CYAN, color: BLACK }],
-  ['key', 'magenta', { backgroundColor: MAGENTA, color: BLACK }],
-];
+// How each component looks with no variant (base), with a palette variant (paint), and
+// with any variant of its own that is not a palette colour (extra).
+// `bar` is the class of the container the component only works inside.
+const COMPONENTS = {
+  btn: {
+    tag: 'button',
+    className: 'cf-btn',
+    base: { backgroundColor: BLACK, color: WHITE, ...BORDER },
+    paint: (colour, ink) => ({ backgroundColor: colour, color: ink, borderTopColor: colour }),
+    extra: {
+      ghost: (p) => ({ backgroundColor: TRANSPARENT, color: p.cyan[0], borderTopColor: TRANSPARENT }),
+    },
+  },
+  card: {
+    tag: 'article',
+    className: 'cf-card',
+    base: { borderTopColor: WHITE },
+    paint: (colour) => ({ borderTopColor: colour }),
+  },
+  key: {
+    tag: 'a',
+    className: 'cf-fastext__key',
+    // A key takes its font from the bar, as in real markup; bare, it falls back to serif.
+    bar: 'cf-fastext',
+    base: { backgroundColor: TRANSPARENT, color: BLACK },
+    paint: (colour, ink) => ({ backgroundColor: colour, color: ink }),
+  },
+};
+
+// The computed values a consumer sees for one pair under one palette.
+const look = (kind, variant, palette) => {
+  const c = COMPONENTS[kind];
+  if (c.extra?.[variant]) return c.extra[variant](palette);
+  return palette[variant] ? c.paint(...palette[variant]) : c.base;
+};
+
+// Every component × (no variant, a typo, each palette colour, its own extras).
+const pairs = (palette) =>
+  Object.entries(COMPONENTS).flatMap(([kind, c]) =>
+    ['', UNMAPPED, ...Object.keys(palette), ...Object.keys(c.extra ?? {})].map((v) => [kind, v]),
+  );
 
 // --_variant inherits, so a variant ancestor must not colour a descendant that did not
-// ask for one. [child component, its own variant, expected] — rendered inside a red card.
-const NESTED = [
-  ['btn', '', { backgroundColor: BLACK, color: WHITE, ...BORDER }],
-  ['btn', 'ghost', { backgroundColor: TRANSPARENT, color: CYAN, borderTopColor: TRANSPARENT }],
-  ['card', '', { borderTopColor: WHITE }],
-];
-
-// The same pairs under [data-theme="accessible"] (#12): every block colour is light, so
-// the ink is uniformly black — blue included.
-const AMBER = 'rgb(255, 158, 77)';
-const TEAL = 'rgb(51, 224, 192)';
-const SKY = 'rgb(102, 179, 255)';
-const ORCHID = 'rgb(224, 160, 208)';
-const ICE = 'rgb(153, 230, 255)';
-const ACCESSIBLE = [
-  ['btn', '', { backgroundColor: BLACK, color: WHITE, ...BORDER }],
-  ['btn', UNMAPPED, { backgroundColor: BLACK, color: WHITE, ...BORDER }],
-  ['btn', 'red', { backgroundColor: AMBER, color: BLACK, borderTopColor: AMBER }],
-  ['btn', 'green', { backgroundColor: TEAL, color: BLACK, borderTopColor: TEAL }],
-  ['btn', 'yellow', { backgroundColor: YELLOW, color: BLACK, borderTopColor: YELLOW }],
-  ['btn', 'blue', { backgroundColor: SKY, color: BLACK, borderTopColor: SKY }],
-  ['btn', 'cyan', { backgroundColor: ICE, color: BLACK, borderTopColor: ICE }],
-  ['btn', 'magenta', { backgroundColor: ORCHID, color: BLACK, borderTopColor: ORCHID }],
-  ['btn', 'ghost', { backgroundColor: TRANSPARENT, color: ICE, borderTopColor: TRANSPARENT }],
-  ['card', '', { borderTopColor: WHITE }],
-  ['card', 'red', { borderTopColor: AMBER }],
-  ['card', 'green', { borderTopColor: TEAL }],
-  ['card', 'yellow', { borderTopColor: YELLOW }],
-  ['card', 'blue', { borderTopColor: SKY }],
-  ['card', 'cyan', { borderTopColor: ICE }],
-  ['card', 'magenta', { borderTopColor: ORCHID }],
-  ['key', '', { backgroundColor: TRANSPARENT, color: BLACK }],
-  ['key', 'red', { backgroundColor: AMBER, color: BLACK }],
-  ['key', 'green', { backgroundColor: TEAL, color: BLACK }],
-  ['key', 'yellow', { backgroundColor: YELLOW, color: BLACK }],
-  ['key', 'blue', { backgroundColor: SKY, color: BLACK }],
-  ['key', 'cyan', { backgroundColor: ICE, color: BLACK }],
-  ['key', 'magenta', { backgroundColor: ORCHID, color: BLACK }],
-];
-
-const TAG = { btn: 'button', card: 'article', key: 'a' };
-const CLASS = { btn: 'cf-btn', card: 'cf-card', key: 'cf-fastext__key' };
+// ask for one. Rendered inside a red card.
+const NESTED = [['btn', ''], ['btn', 'ghost'], ['card', '']];
 
 const build = ([kind, variant], i) => {
-  const n = document.createElement(TAG[kind]);
-  n.className = CLASS[kind];
-  if (kind === 'key') n.href = '#';
+  const c = COMPONENTS[kind];
+  const n = document.createElement(c.tag);
+  n.className = c.className;
+  if (c.tag === 'a') n.href = '#';
   if (variant) n.dataset.variant = variant;
   n.dataset.case = String(i);
   n.textContent = (variant || 'default').toUpperCase();
-  return n;
+  if (!c.bar) return n;
+  const bar = document.createElement('div');
+  bar.className = c.bar;
+  bar.appendChild(n);
+  return bar;
 };
 
-const assertCases = async (cases, canvasElement, offset = 0) => {
-  for (const [i, [kind, variant, want]] of cases.entries()) {
+const assertCases = async (cases, palette, canvasElement, offset) => {
+  for (const [i, [kind, variant]] of cases.entries()) {
     const cs = getComputedStyle(canvasElement.querySelector(`[data-case="${offset + i}"]`));
     const label = `${kind}[data-variant="${variant}"]`;
-    for (const [prop, value] of Object.entries(want)) {
+    for (const [prop, value] of Object.entries(look(kind, variant, palette))) {
       // Labelled so a failure names the pair that drifted, not just two colours.
       await expect(`${label} ${prop} ${cs[prop]}`).toBe(`${label} ${prop} ${value}`);
     }
   }
 };
+
+// [theme, palette, pairs, optional variant host] in render order; data-case indices run across all.
+const GROUPS = [
+  ['authentic', PALETTES.authentic, pairs(PALETTES.authentic)],
+  ['authentic', PALETTES.authentic, NESTED, { className: 'cf-card', variant: 'red' }],
+  ...Object.entries(PALETTES)
+    .filter(([theme]) => theme !== 'authentic')
+    .map(([theme, palette]) => [theme, palette, pairs(palette)]),
+];
+
+const row = 'display:flex;flex-wrap:wrap;align-items:flex-start;gap:1ch;width:100%';
 
 export default { title: 'Foundations/Variant colours' };
 
@@ -125,28 +135,27 @@ export const Matrix = {
   name: 'Every component × variant',
   render: () => {
     const wrap = document.createElement('div');
-    wrap.style.cssText = 'display:flex;flex-wrap:wrap;align-items:flex-start;gap:1ch';
-    CASES.forEach((c, i) => wrap.appendChild(build(c, i)));
-
-    const host = document.createElement('article');
-    host.className = 'cf-card';
-    host.dataset.variant = 'red';
-    host.style.cssText = 'display:flex;flex-wrap:wrap;align-items:flex-start;gap:1ch';
-    NESTED.forEach((c, i) => host.appendChild(build(c, CASES.length + i)));
-    wrap.appendChild(host);
-
-    // Scoped to a subtree on purpose: the theme must work below <html>, not only on it.
-    const themed = document.createElement('div');
-    themed.dataset.theme = 'accessible';
-    themed.style.cssText = 'display:flex;flex-wrap:wrap;align-items:flex-start;gap:1ch;width:100%';
-    const offset = CASES.length + NESTED.length;
-    ACCESSIBLE.forEach((c, i) => themed.appendChild(build(c, offset + i)));
-    wrap.appendChild(themed);
+    wrap.style.cssText = 'display:flex;flex-direction:column;gap:2ch';
+    let i = 0;
+    for (const [theme, , cases, host] of GROUPS) {
+      const group = document.createElement(host ? 'article' : 'div');
+      group.style.cssText = row;
+      if (host) {
+        group.className = host.className;
+        group.dataset.variant = host.variant;
+      }
+      // Scoped to a subtree on purpose: the theme must work below <html>, not only on it.
+      if (theme !== 'authentic') group.dataset.theme = theme;
+      for (const c of cases) group.appendChild(build(c, i++));
+      wrap.appendChild(group);
+    }
     return wrap;
   },
   play: async ({ canvasElement }) => {
-    await assertCases(CASES, canvasElement);
-    await assertCases(NESTED, canvasElement, CASES.length);
-    await assertCases(ACCESSIBLE, canvasElement, CASES.length + NESTED.length);
+    let offset = 0;
+    for (const [, palette, cases] of GROUPS) {
+      await assertCases(cases, palette, canvasElement, offset);
+      offset += cases.length;
+    }
   },
 };
