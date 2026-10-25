@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ceefax-ui CI Review</title>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<style>
+  body{font-family:ui-monospace,'Space Mono',monospace;background:#000;color:#fff}
+  .tt-y{color:#ff0}.tt-c{color:#0ff}.tt-g{color:#0f0}.tt-r{color:#f55}.tt-m{color:#f0f}
+  .card{border:2px solid #fff;background:#0a0a0a}
+  .lane{border:1px dashed #555;padding:.5rem}
+  .box{border:1px solid #888;padding:.25rem .5rem;margin:.2rem 0;font-size:.8rem}
+  .box.miss{border-color:#f55;color:#f99;border-style:dashed}
+  .box.new{border-color:#0f0;color:#9f9}
+  .badge{display:inline-block;padding:.1rem .5rem;font-size:.75rem;font-weight:700;color:#000}
+  .strong{background:#0f0}.explore{background:#ff0}.spec{background:#0ff}
+  code{color:#0ff}
+  .mermaid{background:#fff;border-radius:4px;padding:.5rem}
+  h2{color:#ff0}
+</style>
+</head>
+<body class="p-4 md:p-8 max-w-6xl mx-auto">
+
+<header class="mb-8 border-b-2 border-white pb-4">
+  <p class="tt-c text-sm">P100 · ceefax-ui · CI REVIEW · 25 OCT 2026</p>
+  <h1 class="text-3xl tt-y font-bold mt-1">CI checks worth adding</h1>
+  <p class="mt-2 text-gray-300">Areas covered: security, readability, static checks, bundling, token exposure, accessibility, dead code.
+  The checks are ordered by how much they protect the artefact consumers actually install.</p>
+</header>
+
+<section class="mb-10">
+  <h2 class="text-xl font-bold mb-3">Current status</h2>
+  <div class="grid md:grid-cols-3 gap-4 text-sm">
+    <div class="card p-3"><p class="tt-g font-bold">Already strong</p>
+      <ul class="list-disc ml-5 mt-1 text-gray-300">
+        <li>Contract stories + test-runner (ADR-0006), axe on Components/* in <b>both</b> themes, AAA for accessible</li>
+        <li>Token layering &amp; palette-drift guards as stories (ADR-0008)</li>
+        <li>PR title → commitlint, with env-var injection guard</li>
+        <li>Pages deploy with a live smoke test</li>
+      </ul></div>
+    <div class="card p-3"><p class="tt-r font-bold">Gaps</p>
+      <ul class="list-disc ml-5 mt-1 text-gray-300">
+        <li><b>No PR job runs <code>npm run build</code></b>; only <code>prepublishOnly</code> does</li>
+        <li>No lint at all (CSS, JS, formatting)</li>
+        <li>No dependency, secret, or workflow scanning</li>
+        <li>Actions use tags, not SHAs; <code>pr-title-lint</code> is on v4 + Node 20 while the others are on v5 + Node 24</li>
+        <li><code>storybook-tests.yml</code> has no <code>permissions:</code> block</li>
+        <li>No release workflow, so publishing is manual with a long-lived npm token</li>
+      </ul></div>
+    <div class="card p-3"><p class="tt-y font-bold">Hot spot evidence</p>
+      <ul class="list-disc ml-5 mt-1 text-gray-300">
+        <li><code>#32</code> build: prepare package for npm publish</li>
+        <li><code>#37</code> fix(fonts): ship the self-hosted woff2 files</li>
+        <li><code>#39</code> fix(build): mark custom element modules as side effects</li>
+      </ul>
+      <p class="mt-2 text-gray-400">Three of the last ten commits fix the <b>published package</b>, and no check covers it.</p></div>
+  </div>
+</section>
+
+<section class="mb-10">
+  <h2 class="text-xl font-bold mb-3">Cost &amp; solo-maintainer fit</h2>
+  <p class="text-sm text-gray-300 mb-3">Everything proposed costs <b class="tt-g">€0</b> for this repo. That depends on two facts: the repo is <b>public</b> (ADR-0002), so GitHub Actions minutes on standard runners and GitHub's security features are free, and every tool below is open source and runs inside Actions. For a solo maintainer, the real cost is <b>time</b>: setup, noisy PRs, and false positives. The last column rates that.</p>
+  <div class="overflow-x-auto">
+  <table class="w-full text-xs border border-gray-600">
+    <thead class="tt-y text-left"><tr class="border-b border-gray-600">
+      <th class="p-2">#</th><th class="p-2">Tool / feature</th><th class="p-2">Price</th><th class="p-2">Catch</th><th class="p-2">Setup</th><th class="p-2">Ongoing upkeep (solo)</th></tr></thead>
+    <tbody class="text-gray-300">
+      <tr class="border-b border-gray-800"><td class="p-2">1</td><td class="p-2">npm pack, publint, own assertion script</td><td class="p-2 tt-g">Free, OSS</td><td class="p-2">—</td><td class="p-2">~1 h</td><td class="p-2 tt-g">Near zero; fails only on real packaging bugs</td></tr>
+      <tr class="border-b border-gray-800"><td class="p-2">2</td><td class="p-2">size-limit / compressed-size-action</td><td class="p-2 tt-g">Free, OSS</td><td class="p-2">—</td><td class="p-2">~30 min</td><td class="p-2 tt-g">Bump a budget occasionally</td></tr>
+      <tr class="border-b border-gray-800"><td class="p-2">3</td><td class="p-2">Stylelint, ESLint, Prettier</td><td class="p-2 tt-g">Free, OSS</td><td class="p-2">—</td><td class="p-2">~2 h (first-run reformat)</td><td class="p-2 tt-y">Low. Run via husky + lint-staged so CI rarely fails</td></tr>
+      <tr class="border-b border-gray-800"><td class="p-2">4</td><td class="p-2">Surface-diff script (PostCSS)</td><td class="p-2 tt-g">Free (your own code)</td><td class="p-2">You maintain it</td><td class="p-2">~2–3 h</td><td class="p-2 tt-y">Update the snapshot when adding tokens</td></tr>
+      <tr class="border-b border-gray-800"><td class="p-2">5</td><td class="p-2">zizmor</td><td class="p-2 tt-g">Free, OSS</td><td class="p-2">—</td><td class="p-2">~15 min</td><td class="p-2 tt-g">Near zero</td></tr>
+      <tr class="border-b border-gray-800"><td class="p-2">5</td><td class="p-2">Dependabot (version + security updates)</td><td class="p-2 tt-g">Free</td><td class="p-2">Can flood you with PRs</td><td class="p-2">~10 min</td><td class="p-2 tt-r">The noisiest item. Use <b>monthly</b> + <b>grouped</b> updates (one Storybook PR, one actions PR)</td></tr>
+      <tr class="border-b border-gray-800"><td class="p-2">5</td><td class="p-2">Secret scanning + push protection</td><td class="p-2 tt-g">Free on public repos</td><td class="p-2">Private repos need paid GitHub Advanced Security</td><td class="p-2">2 clicks</td><td class="p-2 tt-g">Zero</td></tr>
+      <tr class="border-b border-gray-800"><td class="p-2">5</td><td class="p-2">dependency-review-action</td><td class="p-2 tt-g">Free on public repos</td><td class="p-2">Same as above for private repos</td><td class="p-2">~10 min</td><td class="p-2 tt-g">Low</td></tr>
+      <tr class="border-b border-gray-800"><td class="p-2">5</td><td class="p-2">gitleaks</td><td class="p-2 tt-g">CLI free, OSS</td><td class="p-2">The <i>gitleaks-action</i> wrapper needs a (free) licence key for <b>org</b>-owned repos; run the CLI directly to avoid it</td><td class="p-2">~15 min</td><td class="p-2 tt-y">Optional; secret scanning already covers most of it</td></tr>
+      <tr class="border-b border-gray-800"><td class="p-2">5</td><td class="p-2">npm trusted publishing + provenance</td><td class="p-2 tt-g">Free</td><td class="p-2">Needs a GitHub-hosted runner (you already use one)</td><td class="p-2">~1 h</td><td class="p-2 tt-g">Removes token rotation work</td></tr>
+      <tr class="border-b border-gray-800"><td class="p-2">6</td><td class="p-2">@axe-core/playwright / pa11y-ci</td><td class="p-2 tt-g">Free, OSS</td><td class="p-2">Adds ~1 min to CI</td><td class="p-2">~1–2 h</td><td class="p-2 tt-y">Low; reuses the existing Playwright install</td></tr>
+      <tr class="border-b border-gray-800"><td class="p-2">6</td><td class="p-2">Lighthouse CI</td><td class="p-2 tt-g">Free, OSS</td><td class="p-2">Free report storage is temporary; scores are flaky</td><td class="p-2">~1 h</td><td class="p-2 tt-r">Skip for now; the axe checks cover what matters</td></tr>
+      <tr class="border-b border-gray-800"><td class="p-2">7</td><td class="p-2">knip</td><td class="p-2 tt-g">Free, OSS</td><td class="p-2">Needs entry-point config</td><td class="p-2">~1 h</td><td class="p-2 tt-y">Low; occasional false positive to ignore</td></tr>
+      <tr><td class="p-2">8</td><td class="p-2">markdownlint, lychee</td><td class="p-2 tt-g">Free, OSS</td><td class="p-2">External links flake; run lychee <code>--offline</code></td><td class="p-2">~30 min</td><td class="p-2 tt-g">Near zero offline</td></tr>
+    </tbody>
+  </table></div>
+  <div class="grid md:grid-cols-2 gap-4 mt-4 text-sm">
+    <div class="card p-3"><p class="tt-r font-bold">Deliberately not proposed (paid or high-upkeep)</p>
+      <ul class="list-disc ml-5 mt-1 text-gray-300">
+        <li><b>Chromatic / Percy</b> visual regression: freemium snapshot quotas, and baseline review is a chore for one person</li>
+        <li><b>Snyk / Socket</b>: free tiers exist, but Dependabot and dependency-review cover the same ground for free</li>
+        <li><b>SonarCloud</b>: free for public repos, but overkill for about 600 lines of CSS and JS</li>
+        <li><b>CodeQL</b>: free on public repos, but there is little JS to analyse. Add it later if <code>src/elements</code> grows.</li>
+      </ul></div>
+    <div class="card p-3"><p class="tt-g font-bold">Solo-maintainer rules of thumb</p>
+      <ul class="list-disc ml-5 mt-1 text-gray-300">
+        <li><b>Few required checks.</b> Make <code>build</code>, <code>lint</code> and <code>test-storybook</code> required. Leave a11y-demo, knip and docs advisory until they have been quiet for a while.</li>
+        <li><b>Shift left.</b> Run Prettier and Stylelint in the existing husky hook (lint-staged) so CI failures are rare surprises</li>
+        <li><b>One workflow, parallel jobs.</b> A single <code>ci.yml</code> with a shared <code>npm ci</code> cache is easier to keep current than six files</li>
+        <li><b>Batch the bots.</b> Monthly grouped Dependabot, plus auto-merge for patch-level devDep bumps once tests pass</li>
+        <li>If the repo ever goes <b>private</b>, the free tier changes: Actions minutes become capped (2,000/month), and secret scanning and dependency review need GHAS</li>
+      </ul></div>
+  </div>
+</section>
+
+<section class="mb-10">
+  <h2 class="text-xl font-bold mb-3">Pipeline: today vs proposed</h2>
+  <div class="grid md:grid-cols-2 gap-4">
+    <div><p class="tt-r mb-1 text-sm">TODAY</p>
+<pre class="mermaid">
+flowchart LR
+  PR[Pull request] --> T[lint-title]
+  PR --> S[test-storybook]
+  S --> SB[build-storybook]
+  SB --> TR[play + axe]
+  M[main] --> P[pages deploy]
+  X[npm run build]:::gap
+  N[npm pack]:::gap
+  classDef gap stroke:#f00,stroke-dasharray:4,color:#c00
+</pre></div>
+    <div><p class="tt-g mb-1 text-sm">PROPOSED</p>
+<pre class="mermaid">
+flowchart LR
+  PR[Pull request] --> T[lint-title]
+  PR --> L[lint: stylelint, eslint, prettier]
+  PR --> B[build + pack + publint]
+  B --> SZ[size budget]
+  B --> API[public surface diff]
+  PR --> S[test-storybook]
+  PR --> D[demo a11y]
+  PR --> SEC[dep-review + zizmor]
+  PR --> K[knip dead code]
+  M[main / tag] --> R[release: trusted publishing + provenance]
+</pre></div>
+  </div>
+</section>
+
+<main class="space-y-8">
+
+<!-- 1 -->
+<article class="card p-5">
+  <div class="flex flex-wrap items-center gap-3"><h3 class="text-lg font-bold tt-c">1 · Build &amp; package gate (bundling)</h3><span class="badge strong">Strong</span></div>
+  <p class="text-sm text-gray-400 mt-1"><b>Files:</b> <code>package.json</code> (<code>build</code>, <code>files</code>, <code>exports</code>, <code>sideEffects</code>), <code>postcss.config.js</code>, <code>fonts/</code>, new <code>.github/workflows/ci.yml</code></p>
+  <div class="grid md:grid-cols-2 gap-4 mt-3 text-sm">
+    <div><p class="tt-r font-bold">Problem</p><p>The thing consumers install (<code>dist/*.css</code>, <code>src/elements/*.js</code>, <code>fonts/</code>) is never built or packed in CI. Each packaging regression so far was found by hand after merge. The tarball also includes about 560 KB of <code>.ttf</code> files that no stylesheet references (only the woff2 are in <code>@font-face</code>). And because <code>postcss-url</code> copies fonts to <code>dist/fonts</code> while <code>files</code> also lists <code>fonts</code>, the woff2 files probably ship twice. That needs confirming with one <code>npm pack</code>.</p></div>
+    <div><p class="tt-g font-bold">Solution</p><p>Add a <code>build</code> job: <code>npm ci → npm run build → npm pack --dry-run --json</code>, then run <a class="underline" href="https://publint.dev">publint</a> on the result. Add a small assertion script that checks every <code>exports</code> target exists in the tarball and every <code>url()</code> in <code>dist/*.css</code> resolves to a packed file. Also import each <code>./elements/*</code> subpath in a clean temp project to prove it resolves and registers its custom element.</p></div>
+  </div>
+  <p class="text-sm mt-3"><b class="tt-y">Benefits:</b> the published package gets checked where its bugs have actually been. #37 and #39 would both have failed here before merge. The check runs against the packed tarball (what consumers install), not against <code>src/</code>.</p>
+  <div class="grid grid-cols-2 gap-3 mt-3">
+    <div class="lane"><p class="text-xs tt-r">BEFORE</p><div class="box">PR merged</div><div class="box miss">build? never run</div><div class="box miss">tarball? never inspected</div><div class="box">npm publish (laptop)</div><div class="box">bug found by consumer → fix PR</div></div>
+    <div class="lane"><p class="text-xs tt-g">AFTER</p><div class="box new">build</div><div class="box new">npm pack --dry-run</div><div class="box new">publint + exports/url() resolve</div><div class="box new">clean-install import smoke</div><div class="box">merge</div></div>
+  </div>
+</article>
+
+<!-- 2 -->
+<article class="card p-5">
+  <div class="flex flex-wrap items-center gap-3"><h3 class="text-lg font-bold tt-c">2 · Size budget (bundling)</h3><span class="badge strong">Strong</span></div>
+  <p class="text-sm text-gray-400 mt-1"><b>Files:</b> <code>dist/index.css</code>, <code>dist/tokens.css</code>, <code>src/elements/index.js</code>, <code>cf-canvas.js</code>, <code>cf-loader.js</code>, new <code>.size-limit.json</code></p>
+  <div class="grid md:grid-cols-2 gap-4 mt-3 text-sm">
+    <div><p class="tt-r font-bold">Problem</p><p>The library promises to be a CSS-first core that stays small, with JS strictly opt-in (ADR-0001). Nothing measures that. The output is not minified either: the PostCSS chain has no cssnano.</p></div>
+    <div><p class="tt-g font-bold">Solution</p><p><a class="underline" href="https://github.com/ai/size-limit">size-limit</a> (or <code>compressed-size-action</code> for a PR comment) with brotli budgets per entry, e.g. <code>index.css</code> ≤ N KB and <code>elements/cf-loader</code> ≤ 1 KB. Also add a budget asserting <code>./css</code> pulls in <b>zero</b> JS. Whether to minify <code>dist</code> is a separate decision for you; the budget is useful either way.</p></div>
+  </div>
+  <p class="text-sm mt-3"><b class="tt-y">Benefits:</b> every PR shows its size delta, so growth that would break the CSS-first promise in ADR-0001 is visible when it happens.</p>
+  <div class="grid grid-cols-2 gap-3 mt-3 text-xs">
+    <div class="lane"><p class="tt-r">BEFORE</p><div class="h-4 bg-gray-600 w-1/2 mt-2"></div><p class="mt-1">size: ?</p></div>
+    <div class="lane"><p class="tt-g">AFTER</p><div class="flex items-center gap-2 mt-2"><div class="h-4 bg-green-500 w-1/2"></div><span>index.css 4.1 / 6 KB</span></div><div class="flex items-center gap-2 mt-1"><div class="h-4 bg-green-500 w-1/4"></div><span>cf-canvas 1.9 / 3 KB</span></div><p class="text-gray-500 mt-1">(illustrative numbers)</p></div>
+  </div>
+</article>
+
+<!-- 3 -->
+<article class="card p-5">
+  <div class="flex flex-wrap items-center gap-3"><h3 class="text-lg font-bold tt-c">3 · Stylelint that enforces the contract (static checks + readability)</h3><span class="badge strong">Strong</span></div>
+  <p class="text-sm text-gray-400 mt-1"><b>Files:</b> <code>src/**/*.css</code>, new <code>stylelint.config.js</code>; plus ESLint + Prettier for <code>src/elements</code>, <code>stories</code>, <code>.storybook</code></p>
+  <div class="grid md:grid-cols-2 gap-4 mt-3 text-sm">
+    <div><p class="tt-r font-bold">Problem</p><p>The contract in AGENTS.md (no state-modifier classes, one <code>cf-*</code> namespace, no <code>--cf-base-*</code> outside the token layer) is enforced only by review, plus the Token layering story for the last rule. The CSS is also written as minified one-line rules (<code>colors.css</code>, <code>typography.css</code>), so diffs are hard to read.</p></div>
+    <div><p class="tt-g font-bold">Solution</p><ul class="list-disc ml-5">
+      <li><code>selector-class-pattern: ^cf-[a-z]+(-[a-z]+)*(__[a-z]+)?$</code> makes <code>cf-btn--disabled</code> a lint error</li>
+      <li><code>custom-property-pattern: ^(cf|_)[a-z-]+</code> keeps the token namespace consistent</li>
+      <li><code>declaration-property-value-disallowed-list</code> bans raw hex outside <code>src/tokens/</code></li>
+      <li>ESLint flat config with <code>eslint-plugin-wc</code> and <code>no-unsanitized</code> (both custom elements set <code>innerHTML</code>; it is static today, and this keeps it static)</li>
+      <li><code>prettier --check</code> for formatting</li></ul></div>
+  </div>
+  <div class="mt-3 border-l-4 border-yellow-400 pl-3 text-sm"><b class="tt-y">ADR-0006 / ADR-0008 note:</b> this does <b>not</b> replace the Token layering guard story; stories remain the test surface. Lint is a faster, in-editor complement. Keep the story as the gate.</div>
+  <div class="grid grid-cols-2 gap-3 mt-3">
+    <div class="lane"><p class="text-xs tt-r">BEFORE</p><div class="box">author writes .cf-btn--active</div><div class="box miss">reviewer must notice</div><div class="box">merged?</div></div>
+    <div class="lane"><p class="text-xs tt-g">AFTER</p><div class="box">author writes .cf-btn--active</div><div class="box new">editor + CI: selector-class-pattern ✗</div><div class="box new">use [aria-pressed] instead</div></div>
+  </div>
+</article>
+
+<!-- 4 -->
+<article class="card p-5">
+  <div class="flex flex-wrap items-center gap-3"><h3 class="text-lg font-bold tt-c">4 · Public-surface diff (design-token exposure)</h3><span class="badge strong">Strong</span></div>
+  <p class="text-sm text-gray-400 mt-1"><b>Files:</b> <code>dist/index.css</code>, <code>dist/tokens.css</code>, new <code>api/surface.json</code> snapshot</p>
+  <div class="grid md:grid-cols-2 gap-4 mt-3 text-sm">
+    <div><p class="tt-r font-bold">Problem</p><p>The library's public interface is its <code>--cf-*</code> custom properties, its <code>cf-*</code> classes, and its <code>data-*</code> values. The <code>--ceefax-*</code> → <code>--cf-base-*</code> rename (#25) was breaking, and only the <code>!</code> in the PR title recorded that. Nothing would catch an accidental removal or rename.</p></div>
+    <div><p class="tt-g font-bold">Solution</p><p>A script parses the built CSS with PostCSS and extracts the sorted set of exposed custom properties, semantic classes, and <code>[data-*="…"]</code> values. It diffs that set against a committed snapshot. Additions are fine once the snapshot is updated. A <b>removal</b> fails unless the PR title carries <code>!</code> or a <code>BREAKING CHANGE</code> footer. The lint-title job already reads the title, so it can perform that check.</p></div>
+  </div>
+  <p class="text-sm mt-3"><b class="tt-y">Benefits:</b> the semver promise lives in CI alongside the existing commitlint gate, and reviewers see the surface change as a readable diff.</p>
+  <div class="grid grid-cols-2 gap-3 mt-3 text-xs">
+    <div class="lane"><p class="tt-r">BEFORE</p><pre>- --cf-accent-2   (silently gone)
+  feat(tokens): tidy colours  ✓ merged</pre></div>
+    <div class="lane"><p class="tt-g">AFTER</p><pre>surface diff:
+- --cf-accent-2
+✗ removal without "!" in PR title</pre></div>
+  </div>
+</article>
+
+<!-- 5 -->
+<article class="card p-5">
+  <div class="flex flex-wrap items-center gap-3"><h3 class="text-lg font-bold tt-c">5 · Supply-chain &amp; secret hygiene (security + token exposure)</h3><span class="badge strong">Strong</span></div>
+  <p class="text-sm text-gray-400 mt-1"><b>Files:</b> <code>.github/workflows/*.yml</code>, new <code>.github/dependabot.yml</code>, future <code>release.yml</code></p>
+  <div class="grid md:grid-cols-2 gap-4 mt-3 text-sm">
+    <div><p class="tt-r font-bold">Problem</p><ul class="list-disc ml-5">
+      <li>Third-party actions are pinned to mutable tags</li>
+      <li><code>storybook-tests.yml</code> has no <code>permissions:</code>, so its <code>GITHUB_TOKEN</code> gets the repo default scope</li>
+      <li><code>npx --yes http-server</code> / <code>wait-on</code> install unpinned packages at CI time, bypassing the lockfile</li>
+      <li>No dependency audit; there are about 800 locked packages, almost all from Storybook</li>
+      <li>Publishing presumably uses a long-lived npm token stored somewhere</li></ul></div>
+    <div><p class="tt-g font-bold">Solution</p><ul class="list-disc ml-5">
+      <li><a class="underline" href="https://github.com/zizmorcore/zizmor">zizmor</a> to lint workflows (it flags unpinned actions, excessive permissions, and template injection)</li>
+      <li>Pin actions by SHA; Dependabot for <code>github-actions</code> + <code>npm</code></li>
+      <li><code>actions/dependency-review-action</code> on PRs (license + vuln gate) and <code>npm audit --omit=dev</code>. Prod deps are currently empty, so this stays green and catches the day one is added.</li>
+      <li>Enable GitHub secret scanning + push protection (free for public repos). Optionally add gitleaks in CI.</li>
+      <li>A <code>release.yml</code> using npm <b>trusted publishing</b> (OIDC) with <code>--provenance</code>, which removes the long-lived npm token</li>
+      <li>Move <code>http-server</code>/<code>wait-on</code> into devDeps</li></ul></div>
+  </div>
+  <div class="grid grid-cols-2 gap-3 mt-3">
+    <div class="lane"><p class="text-xs tt-r">BEFORE</p><div class="box miss">NPM_TOKEN on a laptop</div><div class="box miss">actions@v5 (mutable)</div><div class="box miss">npx --yes (unlocked)</div></div>
+    <div class="lane"><p class="text-xs tt-g">AFTER</p><div class="box new">OIDC → npm, signed provenance</div><div class="box new">actions@&lt;sha&gt; + Dependabot</div><div class="box new">everything from package-lock</div></div>
+  </div>
+</article>
+
+<!-- 6 -->
+<article class="card p-5">
+  <div class="flex flex-wrap items-center gap-3"><h3 class="text-lg font-bold tt-c">6 · Accessibility beyond Components/* (accessibility)</h3><span class="badge explore">Worth exploring</span></div>
+  <p class="text-sm text-gray-400 mt-1"><b>Files:</b> <code>demo/index.html</code>, <code>demo/screen.html</code>, <code>.storybook/test-runner.js</code>, <code>src/elements/cf-loader.js</code></p>
+  <div class="grid md:grid-cols-2 gap-4 mt-3 text-sm">
+    <div><p class="tt-r font-bold">Problem</p><p>axe runs only on isolated contract stories. The demo pages, which are the closest thing to a real consumer page (whole-page landmarks, heading order, the page shell plus fastext together), are never audited. Reduced motion and <code>forced-colors</code> are claimed but not asserted.</p></div>
+    <div><p class="tt-g font-bold">Solution</p><ul class="list-disc ml-5">
+      <li>A Playwright + <code>@axe-core/playwright</code> job (or <code>pa11y-ci</code>) over <code>demo/*.html</code>, served raw, in both themes, with a full ruleset including <code>landmark-*</code> and <code>heading-order</code></li>
+      <li>In <code>postVisit</code>, add <code>page.emulateMedia({ reducedMotion: 'reduce' })</code> and assert <code>&lt;cf-loader&gt;</code>'s cursor has <code>animation-name: none</code></li>
+      <li><code>forcedColors: 'active'</code> run to check that focus inversion stays visible</li>
+      <li>Optional: Lighthouse CI against the Pages deploy</li></ul></div>
+  </div>
+  <div class="mt-3 border-l-4 border-yellow-400 pl-3 text-sm"><b class="tt-y">ADR-0006 note:</b> keeping Foundations/Layout stories out of the gate is already decided and tracked. This proposal leaves those stories alone and adds a different surface, the demo pages.</div>
+</article>
+
+<!-- 7 -->
+<article class="card p-5">
+  <div class="flex flex-wrap items-center gap-3"><h3 class="text-lg font-bold tt-c">7 · Dead code &amp; dead tokens (dead code)</h3><span class="badge explore">Worth exploring</span></div>
+  <p class="text-sm text-gray-400 mt-1"><b>Files:</b> <code>src/tokens/*.css</code>, <code>src/elements/</code>, <code>stories/</code>, <code>package.json</code>, <code>fonts/*.ttf</code></p>
+  <div class="grid md:grid-cols-2 gap-4 mt-3 text-sm">
+    <div><p class="tt-r font-bold">Problem</p><p>Nine tokens are defined but not read through <code>var()</code> anywhere in <code>src/</code>, <code>stories/</code>, or <code>demo/</code>:</p>
+      <p class="tt-c mt-1 text-xs"><code>--cf-accent-2 --cf-warning --cf-border-thick --cf-leading-tight --cf-row --cf-text-caption --cf-text-display-xl --cf-text-subheading --cf-tracking-normal</code></p>
+      <p class="mt-1">They are public interface, so they are not necessarily dead, but none of them is exercised or proven. The TTF files are unused assets.</p></div>
+    <div><p class="tt-g font-bold">Solution</p><ul class="list-disc ml-5">
+      <li><a class="underline" href="https://knip.dev">knip</a> for unused files, exports, and devDeps (entry points: <code>exports</code> + <code>.storybook</code> + <code>stories</code>)</li>
+      <li>A token-usage report that <b>warns</b> on tokens with no consumer and no Foundations story, and fails only on tokens absent from both</li>
+      <li>Drop the TTFs from <code>files</code>, or move them out of the package</li></ul></div>
+  </div>
+</article>
+
+<!-- 8 -->
+<article class="card p-5">
+  <div class="flex flex-wrap items-center gap-3"><h3 class="text-lg font-bold tt-c">8 · Docs integrity (readability)</h3><span class="badge spec">Speculative</span></div>
+  <p class="text-sm text-gray-400 mt-1"><b>Files:</b> <code>README.md</code>, <code>AGENTS.md</code>, <code>CONTEXT.md</code>, <code>docs/adr/*</code></p>
+  <p class="text-sm mt-2">The repo is self-documenting by policy, so broken ADR cross-links or an ADR missing from <code>docs/adr/README.md</code> count as defects. <code>markdownlint</code> + <a class="underline" href="https://github.com/lycheeverse/lychee">lychee</a> (offline mode for repo links) + a 10-line script asserting every <code>docs/adr/NNNN-*.md</code> is listed in the index. The cost is low, but the value depends on how often docs drift, and so far they haven't.</p>
+</article>
+
+</main>
+
+<section class="mt-12">
+  <h2 class="text-2xl font-bold mb-3">Priority ranking &amp; tracking</h2>
+  <p class="text-sm text-gray-300 mb-3">Each row is filed as a <code>/to-spec</code> issue on <code>peamlo/ceefax-ui</code>. The issues are canonical; this table is the snapshot. Card #5 is split in two: configuration-only hardening ships first, and the release workflow follows.</p>
+  <div class="overflow-x-auto"><table class="w-full text-xs border border-gray-600">
+    <thead class="tt-y text-left"><tr class="border-b border-gray-600"><th class="p-2">Rank</th><th class="p-2">Priority</th><th class="p-2">Spec</th><th class="p-2">Card</th><th class="p-2">Blocked by</th><th class="p-2">Why this rank</th></tr></thead>
+    <tbody class="text-gray-300">
+      <tr class="border-b border-gray-800"><td class="p-2">1</td><td class="p-2"><span class="badge" style="background:#f55">P0</span></td><td class="p-2">Build &amp; package gate</td><td class="p-2">#1</td><td class="p-2">—</td><td class="p-2">Where the real bugs have been (#32, #37, #39); prerequisite for ranks 3, 5 and 6</td></tr>
+      <tr class="border-b border-gray-800"><td class="p-2">2</td><td class="p-2"><span class="badge" style="background:#f55">P0</span></td><td class="p-2">Workflow &amp; dependency hardening</td><td class="p-2">#5a</td><td class="p-2">—</td><td class="p-2">Configuration only, about an hour; closes the public repo's widest exposure</td></tr>
+      <tr class="border-b border-gray-800"><td class="p-2">3</td><td class="p-2"><span class="badge" style="background:#ff0">P1</span></td><td class="p-2">Size budget</td><td class="p-2">#2</td><td class="p-2">1</td><td class="p-2">Cheap once the build job exists; guards ADR-0001</td></tr>
+      <tr class="border-b border-gray-800"><td class="p-2">4</td><td class="p-2"><span class="badge" style="background:#ff0">P1</span></td><td class="p-2">Contract-enforcing lint</td><td class="p-2">#3</td><td class="p-2">—</td><td class="p-2">Every future PR benefits; catches contract drift in the editor</td></tr>
+      <tr class="border-b border-gray-800"><td class="p-2">5</td><td class="p-2"><span class="badge" style="background:#ff0">P1</span></td><td class="p-2">Release via trusted publishing</td><td class="p-2">#5b</td><td class="p-2">1</td><td class="p-2">Removes the long-lived npm token; makes releases reproducible</td></tr>
+      <tr class="border-b border-gray-800"><td class="p-2">6</td><td class="p-2"><span class="badge" style="background:#0ff">P2</span></td><td class="p-2">Public-surface diff</td><td class="p-2">#4</td><td class="p-2">1</td><td class="p-2">High value, but custom code to maintain; matters more once there are consumers</td></tr>
+      <tr class="border-b border-gray-800"><td class="p-2">7</td><td class="p-2"><span class="badge" style="background:#0ff">P2</span></td><td class="p-2">Accessibility on demo pages</td><td class="p-2">#6</td><td class="p-2">—</td><td class="p-2">Components already have axe; this widens to whole pages and media emulation</td></tr>
+      <tr class="border-b border-gray-800"><td class="p-2">8</td><td class="p-2"><span class="badge" style="background:#888">P3</span></td><td class="p-2">Dead code &amp; dead tokens</td><td class="p-2">#7</td><td class="p-2">—</td><td class="p-2">Small codebase; the TTF cleanup lands with spec 1 anyway</td></tr>
+      <tr><td class="p-2">9</td><td class="p-2"><span class="badge" style="background:#888">P3</span></td><td class="p-2">Docs integrity</td><td class="p-2">#8</td><td class="p-2">—</td><td class="p-2">No drift observed yet</td></tr>
+    </tbody></table></div>
+</section>
+
+<section class="mt-12 card p-6 border-yellow-400">
+  <h2 class="text-2xl font-bold">Top recommendation</h2>
+  <p class="mt-2"><b class="tt-c">Start with #1 (build &amp; package gate), with #2 (size budget) in the same job.</b> It covers the area where bugs have actually landed: three of the last ten commits fix the published package, and today nothing checks that package before merge. It is one new <code>ci.yml</code> job, it would immediately show whether the TTF/duplicate-font weight is real, and it gives #2 and #4 the built <code>dist/</code> they need.</p>
+  <p class="mt-2">Then do <b class="tt-c">#5 (supply-chain hardening)</b>. Most of it is configuration (SHA pins, <code>permissions:</code>, Dependabot, zizmor), and trusted publishing removes the riskiest secret this project probably has.</p>
+  <p class="mt-2 text-gray-400 text-sm">Suggested order: 1+2 → 5 → 3 → 4 → 7 → 6 → 8.</p>
+  <p class="mt-3 text-sm"><b class="tt-g">Solo "weekend one" bundle (≈ half a day, €0):</b> #1 + #2 in a new <code>ci.yml</code>, then from #5 the configuration-only items: SHA pins, <code>permissions:</code>, zizmor, monthly grouped Dependabot, secret scanning on. Defer #4 (custom code to maintain) and #6–#8 until the library has its first outside consumers.</p>
+</section>
+
+<script>mermaid.initialize({ startOnLoad: true, theme: 'default' });</script>
+</body>
+</html>

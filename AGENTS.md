@@ -31,6 +31,7 @@ Storybook (`@storybook/html-vite` + a11y + interactions addons) is the **living 
 - `docs/adr/` — Architecture Decision Records (why, not how). Flag output that contradicts an ADR.
 - Storybook — live component behaviour and variants.
 - `docs/agents/` — how agents consume the issue tracker, triage labels, and domain docs (see below).
+- `docs/reviews/` — dated, point-in-time reviews (e.g. CI checks). Snapshots, not living docs: the GitHub issues they spawn are canonical.
 
 ## Commit messages — Conventional Commits
 
