@@ -7,7 +7,7 @@ const BASE = [
   'cf-base-blue', 'cf-base-magenta', 'cf-base-cyan', 'cf-base-white',
 ];
 const SEMANTIC = [
-  'cf-bg', 'cf-fg', 'cf-fg-dim', 'cf-link', 'cf-link-hover', 'cf-link-visited',
+  'cf-bg', 'cf-bg-2', 'cf-fg', 'cf-fg-dim', 'cf-link', 'cf-link-hover', 'cf-link-visited',
   'cf-accent', 'cf-accent-2', 'cf-border', 'cf-info', 'cf-warning', 'cf-danger', 'cf-success',
   'cf-on-variant', 'cf-on-variant-dark',
   'cf-variant-red', 'cf-variant-green', 'cf-variant-yellow',

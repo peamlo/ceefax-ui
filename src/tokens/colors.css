@@ -11,6 +11,7 @@
 /* semantic aliases — the ONLY colour tier component/layout CSS references
    (CI: Foundations/Token layering guard, ADR-0008). */
 --cf-bg:var(--cf-base-black);
+--cf-bg-2:#100b8a;       /* secondary background — deep teletext blue */
 --cf-fg:var(--cf-base-white);
 --cf-fg-dim:#b3ffb3;
 --cf-link:var(--cf-base-cyan);
