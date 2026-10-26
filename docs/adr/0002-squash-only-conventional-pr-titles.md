@@ -22,12 +22,11 @@ that lands on `main`, and it is validated in CI
 - Exactly one Conventional commit lands per PR; individual WIP commit messages are
   squashed away, so CI lints the PR title only (not every commit).
 - Enforcement is a **hard** gate: the repo is public, so the `main protection`
-  ruleset requires the `lint-title` and `test-storybook` status checks (plus a
+  ruleset requires the `lint-title`, `test-storybook` and `package` status checks (plus a
   pull request, no force-push, no deletion, linear history) before merge. This
   supersedes the original soft check, written while the repo was private on the
   free plan where required checks were unavailable.
 - `package` (`.github/workflows/ci.yml`, issue #45) builds and packs the library
   and asserts the tarball, so packaging regressions block merge instead of
-  surfacing after a release. It joins the required checks once the ruleset is
-  updated after #45 merges (pending).
+  surfacing after a release.
 - Reversible: re-enabling other merge methods is a repo-settings change.
