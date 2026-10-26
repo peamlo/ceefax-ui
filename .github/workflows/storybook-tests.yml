@@ -10,12 +10,17 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   test-storybook:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: '24'
           cache: npm
@@ -27,8 +32,8 @@ jobs:
         # The Foundations/Layout documentation stories are out of scope and currently
         # destabilise the test-runner (60s "navigation" hangs) — see ADR-0006.
         run: |
-          npx --yes http-server storybook-static -p 6006 --silent &
-          npx --yes wait-on http://127.0.0.1:6006
+          npx --no -- http-server storybook-static -p 6006 --silent &
+          npx --no -- wait-on http://127.0.0.1:6006
           npm run test-storybook -- \
             stories/Button stories/Link stories/Card \
             stories/Fastext stories/Canvas stories/PaletteDrift \

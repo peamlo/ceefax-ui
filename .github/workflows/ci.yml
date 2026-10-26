@@ -2,7 +2,9 @@
 # (issue #45): exports targets exist, font url()s resolve to packed files, fonts
 # ship once, sideEffects keeps CSS + elements, publint passes, and each element
 # subpath imports and registers from a clean install. The packed file list is
-# printed to the log. Required by the `main protection` ruleset — see ADR-0002.
+# printed to the log. The `security` job (issue #46) lints workflows with zizmor and
+# reviews dependencies a PR adds. Both jobs are required by the `main protection`
+# ruleset — see ADR-0002.
 name: ci
 
 on:
@@ -11,12 +13,17 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   package:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: '24'
           cache: npm
@@ -26,3 +33,28 @@ jobs:
       - run: npm run assert-package
         env:
           FORCE_COLOR: '1' # the Actions log renders ANSI colour but isn't a TTY
+
+  # Supply-chain gate (issue #46): zizmor lints the workflows (unpinned actions,
+  # template injection, excess permissions) and dependency review flags any
+  # dependency a PR adds with a high-severity advisory or a non-permissive
+  # licence. Runs on every PR, with no `paths:` filter: it is a required check,
+  # and a required check that never reports leaves the PR BLOCKED.
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
+      - uses: zizmorcore/zizmor-action@53290badfa369cb0bf7ad16342cb62c2fa47ac7b # v0.8.0
+        with:
+          version: 1.16.3
+          advanced-security: false # fail the job on findings instead of uploading SARIF
+          annotations: true
+      # Needs a base..head diff, so PRs only.
+      - if: github.event_name == 'pull_request'
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: high
+          allow-licenses: >-
+            MIT, ISC, 0BSD, BSD-2-Clause, BSD-3-Clause, Apache-2.0, BlueOak-1.0.0,
+            CC0-1.0, CC-BY-4.0, MPL-2.0, Python-2.0, Unlicense, WTFPL

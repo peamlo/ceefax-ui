@@ -22,11 +22,18 @@ that lands on `main`, and it is validated in CI
 - Exactly one Conventional commit lands per PR; individual WIP commit messages are
   squashed away, so CI lints the PR title only (not every commit).
 - Enforcement is a **hard** gate: the repo is public, so the `main protection`
-  ruleset requires the `lint-title`, `test-storybook` and `package` status checks (plus a
-  pull request, no force-push, no deletion, linear history) before merge. This
-  supersedes the original soft check, written while the repo was private on the
-  free plan where required checks were unavailable.
+  ruleset requires the `lint-title`, `test-storybook`, `package` and `security`
+  status checks (plus a pull request, no force-push, no deletion, linear history)
+  before merge. This supersedes the original soft check, written while the repo was
+  private on the free plan where required checks were unavailable.
 - `package` (`.github/workflows/ci.yml`, issue #45) builds and packs the library
   and asserts the tarball, so packaging regressions block merge instead of
   surfacing after a release.
+- `security` (`.github/workflows/ci.yml`, issue #46) runs zizmor on the workflows
+  and dependency review on the PR, so an unpinned action, an over-scoped token or a
+  newly added vulnerable or non-permissively licensed dependency blocks merge. It
+  runs on every PR with no `paths:` filter, because a required check that never
+  reports leaves the PR blocked.
+- Dependabot PRs go through the same gate: `.github/dependabot.yml` sets
+  `build(deps)` / `ci(deps)` commit prefixes, so their titles pass `lint-title`.
 - Reversible: re-enabling other merge methods is a repo-settings change.
