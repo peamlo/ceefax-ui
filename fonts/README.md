@@ -8,6 +8,9 @@ Both faces are free for commercial use and self-hosting under the SIL Open Font 
 - `space-mono-v15-latin-regular.woff2`
 - `space-mono-v15-latin-700.woff2`
 
+The npm package ships only these `.woff2` files and `OFL.txt` from this folder (the built
+`dist/*.css` point here); the TTFs stay in the repo as the regeneration sources.
+
 They are compressed from the TTFs here, so regenerate them if a TTF changes:
 
 ```sh
