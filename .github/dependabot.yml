@@ -22,6 +22,12 @@ updates:
       misc:
         patterns:
           - '*'
+      # Security fixes are not on the monthly schedule and ignore the groups
+      # above; this batches them into one PR instead of one per advisory.
+      security:
+        applies-to: security-updates
+        patterns:
+          - '*'
 
   - package-ecosystem: github-actions
     directory: /
