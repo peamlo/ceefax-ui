@@ -4,6 +4,8 @@ A Ceefax / teletext-inspired, **framework-agnostic, CSS-first** design system. S
 
 ## Install
 
+Published on npm as [`@peamlo/ceefax-ui`](https://www.npmjs.com/package/@peamlo/ceefax-ui).
+
 ```sh
 npm install @peamlo/ceefax-ui
 ```
