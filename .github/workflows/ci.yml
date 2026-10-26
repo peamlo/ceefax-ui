@@ -2,7 +2,7 @@
 # (issue #45): exports targets exist, font url()s resolve to packed files, fonts
 # ship once, sideEffects keeps CSS + elements, publint passes, and each element
 # subpath imports and registers from a clean install. The packed file list is
-# printed to the log. To be required by the `main protection` ruleset — see ADR-0002.
+# printed to the log. Required by the `main protection` ruleset — see ADR-0002.
 name: ci
 
 on:
