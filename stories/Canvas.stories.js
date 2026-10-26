@@ -2,7 +2,7 @@
 import '../src/elements/cf-canvas.js';
 import { parseCharGrid } from '../src/elements/cf-canvas.js';
 import { pixelText, masthead } from './_pixel-text.js';
-import { expect } from '@storybook/test';
+import { expect } from 'storybook/test';
 
 // A stylised CEEFAX-holidays palm: blue sky (b), green fronds (g), red trunk (r),
 // yellow sand (y). Free per-pixel colour — no authentic one-colour-per-cell limit.

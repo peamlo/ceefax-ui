@@ -67,8 +67,12 @@ the gate widens with no change to the stories.
   `test-runner.js` and not in `Button.stories.js`?** Because synthetic events can't
   trigger the CSS state; a `play()`-based hover test would fail on the enabled button
   and pass *vacuously* on the disabled one. Real input has to come from Playwright.
-- New deps: `@storybook/test-runner`, `@storybook/test`, `axe-playwright`, and
-  Playwright browsers in CI.
+- New deps: `@storybook/test-runner`, `axe-playwright`, and Playwright browsers in
+  CI. Since Storybook 9 the `play()` helpers (`expect`, `within`) come from core
+  (`storybook/test`), so `@storybook/test` is no longer a separate package. Storybook
+  10 needs test-runner 0.26+, which still depends on `uuid@8` (a moderate advisory),
+  so `package.json` overrides `uuid` to `^11.1.1`. Drop the override once
+  test-runner stops pulling `uuid@8`.
 - **Exception — packaging:** `scripts/assert-package.mjs` (issue #45) drives
   Playwright outside the stories. It is not a parallel component harness: it
   tests the *installed tarball* (exports resolve, elements register from a clean

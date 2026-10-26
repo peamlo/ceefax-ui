@@ -23,7 +23,7 @@ npm run build-storybook
 npm run assert-package # after build: pack, clean-install and assert the tarball (CI `package` job)
 ```
 
-Storybook (`@storybook/html-vite` + a11y + interactions addons) is the **living component documentation** — stories show the exact HTML contract and run WCAG checks. Add/update a story for any component or variant change.
+Storybook (`@storybook/html-vite` + the a11y addon; interactions/`play()` are core) is the **living component documentation** — stories show the exact HTML contract and run WCAG checks. Add/update a story for any component or variant change.
 
 ## Where things are documented
 

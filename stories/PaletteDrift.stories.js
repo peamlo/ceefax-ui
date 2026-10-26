@@ -1,4 +1,4 @@
-import { expect } from '@storybook/test';
+import { expect } from 'storybook/test';
 import { CEEFAX_PALETTE } from '../src/tokens/palette.js';
 
 // A contract story with no component of its own: it exists so the palette-drift guard

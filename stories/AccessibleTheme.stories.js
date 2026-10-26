@@ -1,4 +1,4 @@
-import { expect } from '@storybook/test';
+import { expect } from 'storybook/test';
 
 // A contract story with no component of its own: it guards the accessible theme's
 // promise (#12) — every colour it ships clears WCAG AAA (≥7:1) against the page
