@@ -8,21 +8,28 @@
 import { execFileSync } from 'node:child_process';
 import { createServer } from 'node:http';
 import { createRequire } from 'node:module';
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  realpathSync,
+  statSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, extname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+// styleText drops the colour when stdout isn't a TTY or NO_COLOR is set.
 import { styleText } from 'node:util';
 import { chromium } from 'playwright';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const FONT_EXT = new Set(['.woff2', '.woff', '.ttf', '.otf']);
-const MIME = { '.js': 'text/javascript' };
 
 const npm = (args, cwd) =>
   execFileSync('npm', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] });
 
-// styleText drops the colour when stdout isn't a TTY or NO_COLOR is set.
 const kB = (bytes) => `${(bytes / 1024).toFixed(1)} kB`;
 let passed = 0;
 
@@ -37,7 +44,7 @@ function check(name, fn) {
   try {
     note = fn();
   } catch (err) {
-    fail(name, err.message);
+    fail(name, err?.message ?? String(err));
   }
   passed++;
   console.log(`${styleText('green', '✔')} ${name}${note ? styleText('dim', ` · ${note}`) : ''}`);
@@ -49,13 +56,18 @@ function walk(dir) {
   );
 }
 
+const toPosix = (path) => path.split(sep).join('/');
+// `./elements/cf-loader` -> `cf-loader`
+const tagOf = (subpath) => subpath.split('/').pop();
+
 // Flatten an `exports` value (string or nested conditions) to its target strings.
 const targets = (value) =>
   typeof value === 'string' ? [value] : Object.values(value ?? {}).flatMap(targets);
 
 // 1. Pack. --ignore-scripts: the build already ran, and lifecycle output would
 //    corrupt the --json on stdout.
-const work = mkdtempSync(join(tmpdir(), 'ceefax-pack-'));
+// realpath: macOS's tmpdir is a symlink, and require.resolve returns real paths.
+const work = realpathSync(mkdtempSync(join(tmpdir(), 'ceefax-pack-')));
 const [packed] = JSON.parse(
   npm(['pack', '--json', '--ignore-scripts', '--pack-destination', work], root),
 );
@@ -73,7 +85,7 @@ npm(['init', '-y'], consumer);
 npm(['install', '--ignore-scripts', '--no-audit', '--no-fund', tarball], consumer);
 const pkgDir = join(consumer, 'node_modules', '@peamlo', 'ceefax-ui');
 const pkg = JSON.parse(readFileSync(join(pkgDir, 'package.json'), 'utf8'));
-const files = walk(pkgDir).map((f) => relative(pkgDir, f).split(sep).join('/'));
+const files = walk(pkgDir).map((f) => toPosix(relative(pkgDir, f)));
 
 // 3. Every `exports` target is in the tarball.
 check('exports targets exist', () => {
@@ -92,6 +104,22 @@ check('exports targets exist', () => {
   }
   if (missing.length) throw new Error(missing.join('\n'));
   return `${Object.keys(pkg.exports).length} entries`;
+});
+
+// Importing the CSS entry points pulls in no JavaScript (#45, story 7).
+check('CSS exports are pure CSS', () => {
+  const problems = [];
+  for (const [key, value] of Object.entries(pkg.exports)) {
+    if (key.startsWith('./elements')) continue;
+    const ext = key === './fonts/*' ? '.woff2' : '.css';
+    for (const target of targets(value))
+      if (!target.endsWith(ext) && !target.endsWith('*')) problems.push(`${key} -> ${target} (not ${ext})`);
+  }
+  for (const css of files.filter((f) => f.endsWith('.css'))) {
+    const text = readFileSync(join(pkgDir, css), 'utf8');
+    if (/@import[^;]*\.m?js\b/.test(text)) problems.push(`${css}: @import of a .js file`);
+  }
+  if (problems.length) throw new Error(problems.join('\n'));
 });
 
 // 4. Every font url() in the packed CSS resolves to a packed file; fonts ship
@@ -127,22 +155,24 @@ check('fonts ship once, woff2 only', () => {
 
 // 5. Bundlers must keep the CSS and the self-registering elements.
 check('sideEffects keeps CSS and elements', () => {
-  const se = pkg.sideEffects;
+  const { sideEffects } = pkg;
   const required = ['*.css', './src/elements/*.js'];
-  if (!Array.isArray(se) || required.some((r) => !se.includes(r)))
-    throw new Error(`expected an array including ${required.join(', ')}; got ${JSON.stringify(se)}`);
+  if (!Array.isArray(sideEffects) || required.some((r) => !sideEffects.includes(r)))
+    throw new Error(
+      `expected an array including ${required.join(', ')}; got ${JSON.stringify(sideEffects)}`,
+    );
 });
 
-// 6. publint over the same file list npm packs.
+// 6. publint over the tarball consumers install, not a fresh pack of the repo.
 check('publint', () => {
-  npm(['exec', '--no', '--', 'publint', '--level', 'error', root], root);
+  npm(['exec', '--no', '--', 'publint', 'run', tarball, '--level', 'error'], root);
 });
 
 // 7. Each element subpath, resolved through `exports` from the consumer, imports
 //    and registers its tag(s) in a real browser — no bundler, no framework.
-const require = createRequire(join(consumer, 'package.json'));
+const resolveFromConsumer = createRequire(join(consumer, 'package.json'));
 const elementKeys = Object.keys(pkg.exports).filter((k) => k.startsWith('./elements'));
-const granular = elementKeys.filter((k) => k !== './elements').map((k) => k.split('/').pop());
+const granularTags = elementKeys.filter((k) => k !== './elements').map(tagOf);
 const server = createServer((req, res) => {
   const path = decodeURIComponent(new URL(req.url, 'http://x').pathname);
   if (path === '/') {
@@ -150,11 +180,12 @@ const server = createServer((req, res) => {
     return;
   }
   const file = join(consumer, path);
-  if (!file.startsWith(consumer) || !existsSync(file) || !statSync(file).isFile()) {
+  if (!file.startsWith(consumer + sep) || !existsSync(file) || !statSync(file).isFile()) {
     res.writeHead(404).end();
     return;
   }
-  res.writeHead(200, { 'content-type': MIME[extname(file)] ?? 'application/octet-stream' });
+  const type = extname(file) === '.js' ? 'text/javascript' : 'application/octet-stream';
+  res.writeHead(200, { 'content-type': type });
   res.end(readFileSync(file));
 }).listen(0, '127.0.0.1');
 await new Promise((r) => server.once('listening', r));
@@ -169,8 +200,8 @@ try {
     const specifier = `${pkg.name}${key.slice(1)}`;
     let url;
     check(`resolve ${specifier}`, () => {
-      const file = require.resolve(specifier);
-      url = `${origin}/${relative(consumer, file).split(sep).join('/')}`;
+      const file = resolveFromConsumer.resolve(specifier);
+      url = `${origin}/${toPosix(relative(consumer, file))}`;
       return relative(pkgDir, file);
     });
     // A fresh page per subpath, so a granular import can't lean on the barrel.
@@ -178,7 +209,7 @@ try {
     const errors = [];
     page.on('pageerror', (e) => errors.push(e.message));
     await page.goto(`${origin}/`);
-    const tags = key === './elements' ? granular : [key.split('/').pop()];
+    const tags = key === './elements' ? granularTags : [tagOf(key)];
     const result = await page.evaluate(
       async ([src, tags]) => {
         try {

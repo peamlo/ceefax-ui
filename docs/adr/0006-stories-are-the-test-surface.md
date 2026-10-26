@@ -69,6 +69,10 @@ the gate widens with no change to the stories.
   and pass *vacuously* on the disabled one. Real input has to come from Playwright.
 - New deps: `@storybook/test-runner`, `@storybook/test`, `axe-playwright`, and
   Playwright browsers in CI.
+- **Exception — packaging:** `scripts/assert-package.mjs` (issue #45) drives
+  Playwright outside the stories. It is not a parallel component harness: it
+  tests the *installed tarball* (exports resolve, elements register from a clean
+  install), which no story can see. Component behaviour still belongs in stories.
 - Out of scope here, enabled by this: contrast under `[data-theme="accessible"]`
   (#12) reuses this surface; the Astro adapter (#9) proves its output against these
   same assertions rather than building a parallel one.
