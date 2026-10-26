@@ -106,14 +106,14 @@ check('exports targets exist', () => {
   return `${Object.keys(pkg.exports).length} entries`;
 });
 
-// Importing the CSS entry points pulls in no JavaScript (#45, story 7).
+// 4. Importing the CSS entry points pulls in no JavaScript (#45, story 7).
 check('CSS exports are pure CSS', () => {
   const problems = [];
   for (const [key, value] of Object.entries(pkg.exports)) {
     if (key.startsWith('./elements')) continue;
-    const ext = key === './fonts/*' ? '.woff2' : '.css';
+    // Wildcard targets (`./fonts/*`) are covered by the woff2-only check.
     for (const target of targets(value))
-      if (!target.endsWith(ext) && !target.endsWith('*')) problems.push(`${key} -> ${target} (not ${ext})`);
+      if (!target.endsWith('.css') && !target.endsWith('*')) problems.push(`${key} -> ${target} (not .css)`);
   }
   for (const css of files.filter((f) => f.endsWith('.css'))) {
     const text = readFileSync(join(pkgDir, css), 'utf8');
@@ -122,8 +122,7 @@ check('CSS exports are pure CSS', () => {
   if (problems.length) throw new Error(problems.join('\n'));
 });
 
-// 4. Every font url() in the packed CSS resolves to a packed file; fonts ship
-//    once, woff2 only.
+// 5. Every font url() in the packed CSS resolves to a packed file.
 check('font url()s resolve', () => {
   const broken = [];
   let count = 0;
@@ -142,6 +141,7 @@ check('font url()s resolve', () => {
   return `${count} refs`;
 });
 
+// 6. Fonts ship once, woff2 only.
 check('fonts ship once, woff2 only', () => {
   const fonts = files.filter((f) => FONT_EXT.has(extname(f)));
   const problems = fonts.filter((f) => extname(f) !== '.woff2').map((f) => `not woff2: ${f}`);
@@ -153,7 +153,7 @@ check('fonts ship once, woff2 only', () => {
   return `${fonts.length} fonts`;
 });
 
-// 5. Bundlers must keep the CSS and the self-registering elements.
+// 7. Bundlers must keep the CSS and the self-registering elements.
 check('sideEffects keeps CSS and elements', () => {
   const { sideEffects } = pkg;
   const required = ['*.css', './src/elements/*.js'];
@@ -163,12 +163,17 @@ check('sideEffects keeps CSS and elements', () => {
     );
 });
 
-// 6. publint over the tarball consumers install, not a fresh pack of the repo.
+// 8. publint over the tarball consumers install, not a fresh pack of the repo.
 check('publint', () => {
-  npm(['exec', '--no', '--', 'publint', 'run', tarball, '--level', 'error'], root);
+  try {
+    npm(['exec', '--no', '--', 'publint', 'run', tarball, '--level', 'error'], root);
+  } catch (err) {
+    // publint reports on stdout, which npm() captures.
+    throw new Error(err.stdout?.trim() || err.message);
+  }
 });
 
-// 7. Each element subpath, resolved through `exports` from the consumer, imports
+// 9. Each element subpath, resolved through `exports` from the consumer, imports
 //    and registers its tag(s) in a real browser — no bundler, no framework.
 const resolveFromConsumer = createRequire(join(consumer, 'package.json'));
 const elementKeys = Object.keys(pkg.exports).filter((k) => k.startsWith('./elements'));
@@ -192,7 +197,7 @@ await new Promise((r) => server.once('listening', r));
 const origin = `http://127.0.0.1:${server.address().port}`;
 const browser = await chromium.launch().catch((err) => {
   server.close();
-  fail('launch Chromium', `${err.message.split('\n')[0]}\nrun \`npx playwright install chromium\``);
+  fail('launch Chromium', `${String(err?.message ?? err).split('\n')[0]}\nrun \`npx playwright install chromium\``);
 });
 
 try {
