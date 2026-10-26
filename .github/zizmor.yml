@@ -1,0 +1,8 @@
+# zizmor config for the `security` job (issue #46). By default zizmor accepts
+# tag pins (`actions/checkout@v5`) for GitHub's own `actions/*` namespace; this
+# repo pins every action, first-party included, to a full commit SHA.
+rules:
+  unpinned-uses:
+    config:
+      policies:
+        '*': hash-pin
