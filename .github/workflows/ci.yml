@@ -1,0 +1,28 @@
+# Builds the library, packs it as `npm publish` would, and asserts the tarball
+# (issue #45): exports targets exist, font url()s resolve to packed files, fonts
+# ship once, sideEffects keeps CSS + elements, publint passes, and each element
+# subpath imports and registers from a clean install. The packed file list is
+# printed to the log. To be required by the `main protection` ruleset — see ADR-0002.
+name: ci
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - run: npm run assert-package
+        env:
+          FORCE_COLOR: '1' # the Actions log renders ANSI colour but isn't a TTY

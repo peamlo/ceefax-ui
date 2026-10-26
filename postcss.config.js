@@ -3,7 +3,9 @@
 export default {
   plugins: {
     'postcss-import': {},
-    'postcss-url': { url: 'copy', assetsPath: 'fonts', useHash: false },
+    // Rebase, don't copy: every dist/*.css points at the one packed fonts/ folder
+    // (copy placed assets by entry depth, so tokens.css silently missed dist/fonts).
+    'postcss-url': { url: 'rebase' },
     autoprefixer: {},
   },
 };

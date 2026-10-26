@@ -1,7 +1,7 @@
 # Runs the Storybook test-runner against a built Storybook: the story play()
 # functions (contract interaction assertions) + the axe a11y pass on Components/*.
-# Per ADR-0002 this is a SOFT gate — it reports red but may not block merge until
-# the repo is public / on a plan with required checks. See ADR-0006.
+# Per ADR-0002 this is a HARD gate — the `main protection` ruleset requires
+# `test-storybook`, so a red run blocks merge. See ADR-0006.
 name: storybook-tests
 
 on:

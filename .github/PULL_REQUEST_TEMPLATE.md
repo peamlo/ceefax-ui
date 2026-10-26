@@ -38,6 +38,7 @@ Tick all that apply, or write "None — internal only".
 
 <!-- How you verified this. -->
 - [ ] `npm run build` passes (`dist/index.css` + `dist/tokens.css`)
+- [ ] `npm run assert-package` passes (packaging, exports, fonts)
 - [ ] `npm run storybook` — Storybook a11y checks pass for affected components
 - [ ] Keyboard/focus behaviour verified (focus inversion, `▸` caret on `[aria-current]`)
 - [ ] Reduced-motion respected where relevant (`<cf-loader>` blink, `:active` scale)

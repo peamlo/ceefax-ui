@@ -26,4 +26,8 @@ that lands on `main`, and it is validated in CI
   pull request, no force-push, no deletion, linear history) before merge. This
   supersedes the original soft check, written while the repo was private on the
   free plan where required checks were unavailable.
+- `package` (`.github/workflows/ci.yml`, issue #45) builds and packs the library
+  and asserts the tarball, so packaging regressions block merge instead of
+  surfacing after a release. It joins the required checks once the ruleset is
+  updated after #45 merges (pending).
 - Reversible: re-enabling other merge methods is a repo-settings change.
