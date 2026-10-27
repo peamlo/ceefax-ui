@@ -1,5 +1,5 @@
 /* Notice — a thick-bordered note the reader mustn't miss. Danger by default; any
-   data-variant follows the variant seam (base.css), so "yellow" is the warning colour.
+   data-variant follows the variant seam (base.css), so "yellow" is the warning colour and "green" success.
    The flag repeats a word from the body, so neither its colour nor its flash is the only cue. */
 .cf-notice{--_tone:var(--cf-danger);display:block;border:var(--cf-border-thick) solid var(--_tone);border-radius:var(--cf-radius);background:var(--cf-bg);color:var(--cf-fg);padding:var(--cf-space-3);font-family:var(--cf-font-mono);line-height:var(--cf-leading-relaxed)}
 .cf-notice[data-variant]{--_tone:var(--_variant,var(--cf-danger))}

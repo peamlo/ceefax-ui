@@ -28,7 +28,7 @@ export default {
   tags: ['autodocs'],
   render: notice,
   argTypes: {
-    variant: { control: 'select', options: ['', 'red', 'yellow'] },
+    variant: { control: 'select', options: ['', 'red', 'yellow', 'green'] },
     blink: { control: 'select', options: ['', 'off'] },
     flag: { control: 'text' },
     body: { control: 'text' },
@@ -53,6 +53,15 @@ export const Warning = {
   play: async (ctx) => {
     await assertNote(ctx);
     await expect(border(ctx.canvasElement)).toBe('rgb(255, 255, 0)'); // --cf-warning
+  },
+};
+
+// Good news rarely needs a flash: leave the one flashing notice to danger or a warning.
+export const Success = {
+  args: { variant: 'green', blink: 'off', flag: 'DONE', body: '<p>Done: your transfer of €5,000 has arrived.</p>' },
+  play: async (ctx) => {
+    await assertNote(ctx);
+    await expect(border(ctx.canvasElement)).toBe('rgb(0, 255, 0)'); // --cf-success
   },
 };
 

@@ -90,7 +90,7 @@ async function assertScreenFrame(page) {
 // Contract (#19): the notice flag flashes for ~5s then holds visible, never under reduced
 // motion, and never with data-blink="off". Needs emulated media, which play() cannot set.
 // Leaves the flag solid (animation finished) so axe audits the resting state.
-async function assertNoticeBlink(page, name) {
+async function assertNoticeBlink(page) {
   // The animated properties too: opacity, never visibility, keeps the flag in the a11y tree.
   const flagAnimations = () =>
     document.querySelector('.cf-notice__flag').getAnimations().map((a) => {
@@ -105,7 +105,7 @@ async function assertNoticeBlink(page, name) {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   expect(await page.evaluate(animationName)).toBe('none');
   await page.emulateMedia({ reducedMotion: 'no-preference' });
-  if (name === 'Blink off') {
+  if (await page.evaluate(() => document.querySelector('.cf-notice').dataset.blink === 'off')) {
     expect(await page.evaluate(animationName)).toBe('none');
     return;
   }
@@ -136,7 +136,7 @@ export default {
 
     if (title === 'Components/Button') await assertButtonContract(page, name);
     if (title === 'Components/Fastext bar') await assertFastextHover(page);
-    if (title === 'Components/Notice') await assertNoticeBlink(page, name);
+    if (title === 'Components/Notice') await assertNoticeBlink(page);
 
     await injectAxe(page);
     await axe(page);
