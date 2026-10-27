@@ -1,9 +1,13 @@
-/* Self-hosted webfonts (SIL OFL 1.1). Drop the .woff2 files into /fonts — see fonts/README.md. */
-@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url('../../fonts/vt323-v17-latin-regular.woff2') format('woff2')}
+/* Self-hosted webfonts: Bedstead (public domain) and Space Mono (SIL OFL 1.1) — see fonts/README.md.
+   Bedstead ships both weights so it can also be the body face inside the Screen frame. Its own metrics
+   (ascent 800, descent 200, caps 700) sit capitals high in the line box; 90%/20% centres them and keeps
+   descenders inside. Safari ignores the overrides and keeps the font's own metrics. */
+@font-face{font-family:'Bedstead';font-style:normal;font-weight:400;font-display:swap;src:url('../../fonts/bedstead-3.261-regular.woff2') format('woff2');ascent-override:90%;descent-override:20%}
+@font-face{font-family:'Bedstead';font-style:normal;font-weight:700;font-display:swap;src:url('../../fonts/bedstead-3.261-bold.woff2') format('woff2');ascent-override:90%;descent-override:20%}
 @font-face{font-family:'Space Mono';font-style:normal;font-weight:400;font-display:swap;src:url('../../fonts/space-mono-v15-latin-regular.woff2') format('woff2')}
 @font-face{font-family:'Space Mono';font-style:normal;font-weight:700;font-display:swap;src:url('../../fonts/space-mono-v15-latin-700.woff2') format('woff2')}
 :root{
---cf-font-display:'VT323',monospace;
+--cf-font-display:'Bedstead',monospace;
 --cf-font-mono:'Space Mono','Courier New',monospace;
 --cf-font-body:var(--cf-font-mono);
 --cf-text-display-xl:72px;
@@ -18,4 +22,6 @@
 --cf-leading-relaxed:1.7;
 --cf-tracking-normal:0;
 --cf-tracking-wide:0.08em;
+--cf-weight-regular:400;
+--cf-weight-bold:700;
 }

@@ -10,10 +10,8 @@
 <link rel="stylesheet" href="../src/index.css">
 
 <style>
-/* Self-host the library's faces from the .ttf shipped in /fonts (the library's
-   own @font-face points at .woff2 you add during setup; these provide the same
-   families so the demo renders authentically with no network + no build). */
-@font-face{font-family:'VT323';font-weight:400;font-display:swap;src:url('../fonts/VT323-Regular.ttf') format('truetype')}
+/* Bedstead comes from the library's own @font-face; Space Mono is self-hosted
+   from the .ttf in /fonts for the demo chrome (no network, no build). */
 @font-face{font-family:'Space Mono';font-weight:400;font-display:swap;src:url('../fonts/SpaceMono-Regular.ttf') format('truetype')}
 @font-face{font-family:'Space Mono';font-weight:700;font-display:swap;src:url('../fonts/SpaceMono-Bold.ttf') format('truetype')}
 
@@ -33,7 +31,7 @@ a{color:var(--doc-cyan)}
 .masthead{border:2px solid var(--doc-line-2);background:#000}
 .mast-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px clamp(16px,3vw,28px)}
 .mast-page{font-weight:700;color:var(--doc-cyan);letter-spacing:.1em;font-size:clamp(14px,2vw,18px)}
-.mast-title{font-family:'VT323',monospace;color:#fff;margin:0;font-size:clamp(44px,10vw,104px);line-height:.8;letter-spacing:.02em}
+.mast-title{font-family:'Bedstead',monospace;font-weight:400;color:#fff;margin:0;font-size:clamp(28px,8vw,104px);line-height:.8;letter-spacing:.02em}
 .mast-meta{font-weight:700;color:var(--doc-yellow);letter-spacing:.12em;font-size:clamp(11px,1.6vw,15px);text-align:right}
 .colorbar{display:grid;grid-template-columns:repeat(8,1fr);height:14px}
 .colorbar span{display:block}
@@ -46,7 +44,7 @@ a{color:var(--doc-cyan)}
 main{margin-top:clamp(28px,5vw,56px);display:flex;flex-direction:column;gap:clamp(34px,6vw,72px)}
 .ex-head{border-left:3px solid var(--doc-yellow);padding-left:16px;margin-bottom:20px}
 .ex-page{font-weight:700;font-size:12px;letter-spacing:.22em;color:var(--doc-cyan);text-transform:uppercase}
-.ex-title{font-family:'VT323',monospace;color:#fff;margin:2px 0 8px;font-size:clamp(28px,4.4vw,44px);line-height:.95;text-wrap:balance}
+.ex-title{font-family:'Bedstead',monospace;font-weight:400;color:#fff;margin:2px 0 8px;font-size:clamp(28px,4.4vw,44px);line-height:.95;text-wrap:balance}
 .ex-note{margin:0;color:var(--doc-dim);max-width:78ch;font-size:14px}
 
 .ex-body{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:stretch}
@@ -76,7 +74,7 @@ main{margin-top:clamp(28px,5vw,56px);display:flex;flex-direction:column;gap:clam
 .pane-result .screen .cf-page__footer{margin-top:12px}
 
 .cheat{margin-top:clamp(34px,6vw,64px);border:1px solid var(--doc-line-2)}
-.cheat h2{font-family:'VT323',monospace;font-size:30px;color:#fff;margin:0;padding:14px 18px;border-bottom:1px solid var(--doc-line);background:#0a0d11}
+.cheat h2{font-family:'Bedstead',monospace;font-weight:400;font-size:30px;color:#fff;margin:0;padding:14px 18px;border-bottom:1px solid var(--doc-line);background:#0a0d11}
 .cheat-row{display:grid;grid-template-columns:minmax(140px,180px) minmax(150px,1fr) 2fr;gap:16px;
   padding:11px 18px;border-bottom:1px solid var(--doc-line);align-items:baseline;font-size:13.5px}
 .cheat-row:last-child{border-bottom:0}
