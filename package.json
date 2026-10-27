@@ -4,6 +4,10 @@
   "description": "Ceefax / teletext-inspired, framework-agnostic CSS-first design system.",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/peamlo/ceefax-ui.git"
+  },
   "sideEffects": [
     "*.css",
     "./src/elements/*.js"

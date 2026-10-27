@@ -163,6 +163,14 @@ check('sideEffects keeps CSS and elements', () => {
     );
 });
 
+// npm rejects a provenance publish unless repository.url names the repo that
+// built it (#49) — and a --dry-run never reaches that check.
+check('repository.url matches GitHub (provenance)', () => {
+  const url = pkg.repository?.url ?? '';
+  if (!/^(git\+)?https:\/\/github\.com\/peamlo\/ceefax-ui(\.git)?$/.test(url))
+    throw new Error(`expected git+https://github.com/peamlo/ceefax-ui.git; got ${JSON.stringify(url)}`);
+});
+
 // 8. publint over the tarball consumers install, not a fresh pack of the repo.
 check('publint', () => {
   try {
