@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.0](https://github.com/peamlo/ceefax-ui/compare/v0.3.1...v0.4.0) (2026-10-27)
+
+
+### Features
+
+* **components:** add cf-notice flashing alert ([#80](https://github.com/peamlo/ceefax-ui/issues/80)) ([4dc0b51](https://github.com/peamlo/ceefax-ui/commit/4dc0b5152b077bafe6006e94c115779b66dca43d))
+* **fonts:** replace VT323 with Bedstead for display type ([#86](https://github.com/peamlo/ceefax-ui/issues/86)) ([439ebb0](https://github.com/peamlo/ceefax-ui/commit/439ebb0c6325f1c42a68c792305fcea8edd86362))
+
 ## [0.3.1](https://github.com/peamlo/ceefax-ui/compare/v0.3.0...v0.3.1) (2026-10-27)
 
 
