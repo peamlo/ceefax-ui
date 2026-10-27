@@ -111,5 +111,5 @@ A throwaway published copy of the Storybook built from exactly one pull-request 
 _Avoid_: preview environment, deploy preview, review app, staging
 
 **Release PR**:
-The one pull request release-please keeps open while `main` has unreleased `feat`, `fix` or `perf` work. It holds the next version and the changelog, and merging it is the only manual step of a release.
+The one pull request kept open, and kept up to date, while `main` has changes consumers would get. It holds the next version and its changelog, and merging it is the only manual step of a release.
 _Avoid_: version-bump PR, release branch

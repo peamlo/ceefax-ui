@@ -53,7 +53,7 @@ jobs:
       - run: npm run build
       - run: npm run assert-package
         env:
-          FORCE_COLOR: '1'
+          FORCE_COLOR: '1' # the Actions log renders ANSI colour but isn't a TTY
       - run: |
           if [ "$DRY_RUN" = true ]; then set -- --dry-run; fi
           npm publish --provenance --access public "$@"

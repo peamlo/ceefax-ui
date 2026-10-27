@@ -98,12 +98,13 @@ PRs merge into `main` via **squash only** (merge-commit and rebase are disabled)
 
 ## Releasing
 
-Never bump `version` or publish by hand. See `docs/adr/0013-release-please-and-trusted-publishing.md`.
+Don't bump `version` in a PR or run `npm publish` locally. Why and how: `docs/adr/0013-release-please-and-trusted-publishing.md`.
 
-- After every merge to `main`, release-please (`.github/workflows/release-please.yml`) keeps one **release PR**, `chore(release): <version>`, open whenever there is unreleased `feat`, `fix` or `perf` work. It holds the version bump and the `CHANGELOG.md` entry. Other commit types don't release and don't appear in the changelog. On 0.x, `feat` and breaking changes bump the minor version, `fix`/`perf` the patch.
+- After every merge to `main`, release-please (`.github/workflows/release-please.yml`) keeps one **release PR**, `chore(release): <version>`, open while there is releasable work (`feat`, `fix`, `perf` or any breaking change; bump rules in `release-please-config.json`). It holds the version bump and the `CHANGELOG.md` entry.
 - Merging the release PR tags `v<version>` and creates the GitHub release. The tag starts `.github/workflows/release.yml`, which builds, runs `assert-package` and publishes to npm with provenance through trusted publishing (no npm token).
-- Fallback: pushing a `v*` tag that matches `package.json` publishes it the same way. To test the pipeline without publishing, run the `release` workflow from the Actions tab with **dry-run** ticked.
-- Config: `release-please-config.json` and `.release-please-manifest.json`. One-time setup: a GitHub App with `contents: write` and `pull-requests: write` on this repo (`RELEASE_APP_CLIENT_ID` variable + `RELEASE_APP_PRIVATE_KEY` secret), and an npm trusted publisher for `@peamlo/ceefax-ui` → `peamlo/ceefax-ui` / `release.yml`.
+- Fallback if release-please misbehaves: push a `v*` tag matching `package.json` on `main` and `release.yml` publishes it the same way.
+- Dry run: run the `release` workflow from the Actions tab with **dry-run** ticked. It proves the build and tarball gate only, not the OIDC login: the first real tag is the first real test of the trusted publisher.
+- One-time setup: a GitHub App with `contents: write` and `pull-requests: write` on this repo only (`RELEASE_APP_CLIENT_ID` variable + `RELEASE_APP_PRIVATE_KEY` secret); an npm trusted publisher for `@peamlo/ceefax-ui` → `peamlo/ceefax-ui` / `release.yml`; then revoke every existing npm automation or publish token.
 
 ## Agent skills
 
