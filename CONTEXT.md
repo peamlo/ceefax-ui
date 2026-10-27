@@ -52,6 +52,10 @@ _Avoid_: highlight, active style
 The persistent `▸` marker shown on `[aria-current="page"]` — "you are on this page." Distinct from inversion.
 _Avoid_: active indicator, highlight
 
+**Notice**:
+The alert component (`cf-notice`): a thick-bordered block with a short capitalised **flag** (`cf-notice__flag`) that flashes for a few seconds like teletext flash text, then holds solid. Danger by default, warning with `data-variant="yellow"`. A note, not a live-region alert; the flag's word is always repeated in the body.
+_Avoid_: alert, toast, banner, callout
+
 **Custom element**:
 A logic-bearing standard Web Component (e.g. `<cf-loader>`), shipped under the opt-in `./elements` export — separate from the runtime-free CSS core.
 _Avoid_: widget, framework component

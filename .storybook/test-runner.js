@@ -87,6 +87,31 @@ async function assertScreenFrame(page) {
   await page.setViewportSize({ width: 1280, height: 720 });
 }
 
+// Contract (#19): the notice flag flashes for ~5s then holds visible, never under reduced
+// motion, and never with data-blink="off". Needs emulated media, which play() cannot set.
+// Leaves the flag solid (animation finished) so axe audits the resting state.
+async function assertNoticeBlink(page, name) {
+  const flagAnimations = () =>
+    document.querySelector('.cf-notice__flag').getAnimations().map((a) => {
+      const { duration, iterations } = a.effect.getComputedTiming();
+      return { duration, iterations };
+    });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  expect(await page.evaluate(flagAnimations)).toEqual([]);
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  if (name === 'Blink off (data-blink="off")') {
+    expect(await page.evaluate(flagAnimations)).toEqual([]);
+    return;
+  }
+  expect(await page.evaluate(flagAnimations)).toEqual([{ duration: 1000, iterations: 5 }]);
+  const opacityAfter = await page.evaluate(() => {
+    const flag = document.querySelector('.cf-notice__flag');
+    flag.getAnimations().forEach((a) => a.finish());
+    return getComputedStyle(flag).opacity;
+  });
+  expect(opacityAfter).toBe('1');
+}
+
 // `aaa` also enables axe's AAA contrast rule — the accessible theme's promise (#12).
 const axe = async (page, { aaa = false } = {}) => {
   await checkA11y(page, '#storybook-root', {
@@ -105,12 +130,18 @@ export default {
 
     if (title === 'Components/Button') await assertButtonContract(page, name);
     if (title === 'Components/Fastext bar') await assertFastextHover(page);
+    if (title === 'Components/Notice') await assertNoticeBlink(page, name);
 
     await injectAxe(page);
     await axe(page);
     // Every contract story must also pass axe — at AAA contrast — under the accessible theme.
     await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'accessible'));
     if (title === 'Components/Fastext bar') await assertAccessibleFastextHover(page);
+    // Contract (#19): danger follows the accessible theme's remap (amber, not red).
+    if (title === 'Components/Notice' && name === 'Danger') {
+      const c = await page.evaluate(() => getComputedStyle(document.querySelector('.cf-notice')).borderTopColor);
+      expect(c).toBe('rgb(255, 158, 77)');
+    }
     await axe(page, { aaa: true });
   },
 };
