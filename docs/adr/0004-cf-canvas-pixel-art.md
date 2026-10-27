@@ -35,7 +35,8 @@ elements, and the CSS core stays runtime-free.
 
 **Render with a real `<canvas>`** at the artwork's logical resolution, scaled up crisply
 with `image-rendering: pixelated`. Rendered size is fluid: capped at
-`--cf-content-max`, with enumerated `data-size` tiers and a `--cf-pixels-scale`
+`--cf-content-max` (since [ADR-0014](0014-screen-frame-is-the-authentic-mode.md): its own
+`40ch` cap, as `--cf-content-max` became a prose measure), with enumerated `data-size` tiers and a `--cf-pixels-scale`
 CSS-variable escape hatch — the same "enumerated `data-*` preset + `--cf-*` escape
 hatch" idiom the layout primitives use.
 
