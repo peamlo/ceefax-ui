@@ -48,7 +48,8 @@ jobs:
         with:
           ref: ${{ steps.pin.outputs.sha }}
           persist-credentials: false
-      # No npm cache: this runs in main's cache scope, and PR code must not write to it.
+      # No npm cache: this runs in main's cache scope. PR code can still reach the
+      # runtime token, so the residual guard is npm ci's lockfile integrity check.
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24'
@@ -83,11 +84,12 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: 4.151.3 # exact: npm code runs beside the token
           command: >-
             pages deploy site --project-name=ceefax-ui-preview --branch=pr-${{ env.PR }}
             --commit-hash=${{ needs.build.outputs.sha }} --commit-dirty=true
 
-  smoke:
+  publish:
     needs: [build, deploy]
     runs-on: ubuntu-latest
     permissions:
@@ -112,8 +114,9 @@ jobs:
           gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body "Storybook preview of ${SHA:0:7}: $URL"
 
   report:
-    needs: [build, deploy, smoke]
-    if: failure()
+    needs: [build, deploy, publish]
+    # A deploy cancelled by a newer queued `/preview` is not a failure; report it too.
+    if: failure() || contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write

@@ -7,6 +7,7 @@ name: preview-cleanup
 on:
   pull_request_target:
     types: [closed]
+    branches: [main] # the storybook-preview environment only allows main
 
 permissions: {}
 
