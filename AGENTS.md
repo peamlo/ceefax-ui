@@ -96,6 +96,15 @@ Every PR uses `.github/PULL_REQUEST_TEMPLATE.md`. Keep the repo self-documenting
 
 PRs merge into `main` via **squash only** (merge-commit and rebase are disabled). The squash commit title is the **PR title**, so the **PR title must be a Conventional Commit** — it becomes the commit on `main`. It's validated in CI by `.github/workflows/pr-title-lint.yml`, which runs the same `commitlint.config.js` as the local hook. See `docs/adr/0002-squash-only-conventional-pr-titles.md`.
 
+## Releasing
+
+Never bump `version` or publish by hand. See `docs/adr/0013-release-please-and-trusted-publishing.md`.
+
+- After every merge to `main`, release-please (`.github/workflows/release-please.yml`) keeps one **release PR**, `chore(release): <version>`, open whenever there is unreleased `feat`, `fix` or `perf` work. It holds the version bump and the `CHANGELOG.md` entry. Other commit types don't release and don't appear in the changelog. On 0.x, `feat` and breaking changes bump the minor version, `fix`/`perf` the patch.
+- Merging the release PR tags `v<version>` and creates the GitHub release. The tag starts `.github/workflows/release.yml`, which builds, runs `assert-package` and publishes to npm with provenance through trusted publishing (no npm token).
+- Fallback: pushing a `v*` tag that matches `package.json` publishes it the same way. To test the pipeline without publishing, run the `release` workflow from the Actions tab with **dry-run** ticked.
+- Config: `release-please-config.json` and `.release-please-manifest.json`. One-time setup: a GitHub App with `contents: write` and `pull-requests: write` on this repo (`RELEASE_APP_CLIENT_ID` variable + `RELEASE_APP_PRIVATE_KEY` secret), and an npm trusted publisher for `@peamlo/ceefax-ui` → `peamlo/ceefax-ui` / `release.yml`.
+
 ## Agent skills
 
 Engineering skills from [mattpocock/skills](https://github.com/mattpocock/skills) are installed under `.agents/skills/` (editable; tracked in `skills-lock.json`). `.claude/skills` is a committed relative symlink to `.agents/skills` so Claude Code discovers them as `/slash` commands — `.agents/skills` stays the source of truth, don't de-duplicate the two dirs. See `docs/adr/0005-claude-skills-symlink-to-agents-skills.md`.
