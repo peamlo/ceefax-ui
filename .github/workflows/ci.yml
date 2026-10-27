@@ -58,3 +58,43 @@ jobs:
           allow-licenses: >-
             MIT, ISC, 0BSD, BSD-2-Clause, BSD-3-Clause, Apache-2.0, BlueOak-1.0.0,
             CC0-1.0, CC-BY-4.0, MPL-2.0, Python-2.0, Unlicense, WTFPL
+
+  # Docs gate (issue #53): repo-internal Markdown links and anchors resolve
+  # (lychee, offline, so a third-party site can't flake it), the ADR and review
+  # indexes list every file (ADRs in numeric order), and Markdown style is
+  # linted with a relaxed ruleset. Advisory: not in the `main protection`
+  # ruleset, so skipping it on code-only PRs never blocks a merge.
+  docs-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      docs: ${{ steps.diff.outputs.docs }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      # Pushes to main always check; PRs only when docs or their checks change.
+      - id: diff
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          if [ -z "$BASE_REF" ] || ! git diff --quiet "origin/$BASE_REF...HEAD" -- \
+              '*.md' docs lychee.toml .markdownlint-cli2.jsonc scripts/check-doc-indexes.mjs; then
+            echo docs=true >> "$GITHUB_OUTPUT"
+          fi
+
+  docs:
+    needs: docs-changes
+    if: needs.docs-changes.outputs.docs == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: node scripts/check-doc-indexes.mjs
+      - uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
+        with:
+          args: --no-progress '**/*.md' # settings in lychee.toml
+      - uses: DavidAnson/markdownlint-cli2-action@696eb3f2509270d7b882d2aa68347bc676e7af34 # v25.0.0
+        with:
+          globs: '**/*.md' # settings in .markdownlint-cli2.jsonc

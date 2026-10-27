@@ -1,0 +1,11 @@
+// markdownlint, relaxed (issue #53): consistency without bikeshedding.
+{
+  "config": {
+    "MD013": false, // long lines: prose wraps in the editor
+    "MD033": false, // inline HTML: badges, images, <cf-*> examples
+    "MD041": false, // first line need not be an H1: PR template, CLAUDE.md pointer
+    "MD060": false  // table pipe alignment: churn on every cell edit
+  },
+  // CHANGELOG.md is written by release-please; .agents/skills is vendored.
+  "ignores": ["node_modules/**", "CHANGELOG.md", ".agents/**", ".claude/**", "dist/**", "storybook-static/**"]
+}
