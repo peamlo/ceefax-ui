@@ -145,10 +145,9 @@ export const Framed = {
     const body = page.querySelector('.cf-page__body');
     const r = page.getBoundingClientRect();
     await expect(Math.abs(r.width / r.height - 4 / 3)).toBeLessThan(0.02);
-    // Type scales with the frame: body is 16px at a 1024px-wide frame; deprecated caption tracks small.
+    // Type scales with the frame: body is 16px at a 1024px-wide frame.
     const cs = getComputedStyle(page);
     await expect(parseFloat(cs.fontSize)).toBeCloseTo((r.width * 16) / 1024, 1);
-    await expect(cs.getPropertyValue('--cf-text-caption')).toBe(cs.getPropertyValue('--cf-text-small'));
     await expect(body.scrollHeight).toBeGreaterThan(body.clientHeight);
     const [header, footer] = ['header', 'footer'].map((t) => page.querySelector(t));
     const [h0, f0] = [header, footer].map((n) => n.getBoundingClientRect().top);

@@ -16,7 +16,6 @@
 --cf-text-subheading:24px;
 --cf-text-body:16px;
 --cf-text-small:12px;   /* the one 4px-grid exception; the rest sit on an 8px grid */
---cf-text-caption:var(--cf-text-small); /* deprecated: use --cf-text-small; removed in a future major */
 --cf-leading-tight:1.15;
 --cf-leading-normal:1.5;
 --cf-leading-relaxed:1.7;

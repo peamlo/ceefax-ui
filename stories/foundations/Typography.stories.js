@@ -16,7 +16,6 @@ const SCALE = [
   ['subheading', 'cf-text-subheading', 'Space Mono,monospace', '24px'],
   ['body', 'cf-text-body', 'Space Mono,monospace', '16px'],
   ['small', 'cf-text-small', 'Space Mono,monospace', '12px'],
-  ['caption (deprecated → small)', 'cf-text-caption', 'Space Mono,monospace', '12px'],
 ];
 
 const LEADING = ['cf-leading-tight', 'cf-leading-normal', 'cf-leading-relaxed'];
@@ -56,8 +55,6 @@ export const Scale = {
   render: ScaleRender,
   play: async () => {
     for (const [, token, , px] of SCALE) await expect(css('--' + token)).toBe(px);
-    // Deprecated alias: still resolves, always to small.
-    await expect(css('--cf-text-caption')).toBe(css('--cf-text-small'));
   },
 };
 

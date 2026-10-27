@@ -22,7 +22,6 @@
     --_w:min(100vw,calc(100dvh*var(--_r)));
     --cf-text-body:calc(var(--_w)*.015625);    /* 16px at a 1024px-wide frame */
     --cf-text-small:calc(var(--_w)*.01171875); /* 12px */
-    --cf-text-caption:var(--cf-text-small);    /* deprecated alias; re-declared so it tracks the frame's small */
     --cf-text-heading:calc(var(--_w)*.03125);  /* 32px */
     width:var(--_w);aspect-ratio:var(--_r);margin-inline:auto;overflow:hidden}
   .cf-page[data-frame]:has(.cf-page__body){min-height:0;grid-template-rows:auto minmax(0,1fr) auto}

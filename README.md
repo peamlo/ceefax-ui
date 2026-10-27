@@ -127,7 +127,7 @@ Colour tokens come in two tiers, both under the `cf` namespace:
 
 Use the semantic aliases in your own CSS so it follows the active theme; reach for `--cf-base-*` only when you deliberately want the authentic colour whatever the theme (e.g. pixel art). The library's own component and layout stylesheets, and the variant seam, use semantic aliases only — CI enforces it.
 
-Type follows web conventions on an 8px grid: `--cf-text-small` 12 · `body` 16 · `subheading` 24 · `heading` 32 · `display-lg` 48 · `display-xl` 72 (px). `--cf-text-caption` is deprecated: it is an alias of `small` and will be removed in a future major. `--cf-content-max` is a prose reading measure (~65ch); only the Screen frame is one teletext page (40 cells) wide, and inside it the type scales with the frame.
+Type follows web conventions on an 8px grid: `--cf-text-small` 12 · `body` 16 · `subheading` 24 · `heading` 32 · `display-lg` 48 · `display-xl` 72 (px). `--cf-content-max` is a prose reading measure (~65ch); only the Screen frame is one teletext page (40 cells) wide, and inside it the type scales with the frame.
 
 Spacing is `ch`-based; radius is always `0`.
 
