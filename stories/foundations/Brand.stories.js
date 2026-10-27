@@ -1,3 +1,4 @@
+import { expect } from 'storybook/test';
 import { page } from './_tokens.js';
 // <cf-loader> is registered globally by the import in .storybook/preview.js.
 
@@ -24,7 +25,7 @@ export const Wordmark = () => {
 // block-cursor blink (steps(1)), gated behind prefers-reduced-motion. Never
 // use eased fades or slides anywhere else.
 // ---------------------------------------------------------------------------
-export const LoadingCaret = () => {
+const loaderDemo = () => {
   const d = page('<p style="max-width:60ch;color:var(--cf-fg-dim)">The one sanctioned animation. ' +
     'Hard <code>steps(1)</code> blink — no easing — for a "loading page…" state. ' +
     'Respects <code>prefers-reduced-motion</code>.</p>');
@@ -33,6 +34,38 @@ export const LoadingCaret = () => {
   demo.innerHTML = '<cf-loader>LOADING PAGE 102…</cf-loader>';
   d.appendChild(demo);
   return d;
+};
+
+// The loader reads --cf-fg and --cf-font-mono through its shadow root (#73): override them on
+// an ancestor, under both themes, and the loader follows.
+export const LoadingCaret = {
+  render: loaderDemo,
+  play: async ({ canvasElement }) => {
+    const el = canvasElement.querySelector('cf-loader');
+    const host = el.parentElement;
+    const probe = document.createElement('span');
+    probe.style.cssText = 'color:var(--cf-fg);font-family:var(--cf-font-mono)';
+    host.appendChild(probe);
+    const follows = async () => {
+      await expect(getComputedStyle(el).color).toBe(getComputedStyle(probe).color);
+      await expect(getComputedStyle(el).fontFamily).toBe(getComputedStyle(probe).fontFamily);
+    };
+    try {
+      await follows();
+      host.dataset.theme = 'accessible';
+      await follows();
+      delete host.dataset.theme;
+      host.style.setProperty('--cf-fg', 'rgb(1, 2, 3)');
+      host.style.setProperty('--cf-font-mono', 'serif');
+      await expect(getComputedStyle(el).color).toBe('rgb(1, 2, 3)');
+      await follows();
+    } finally {
+      probe.remove();
+      host.style.removeProperty('--cf-fg');
+      host.style.removeProperty('--cf-font-mono');
+      delete host.dataset.theme;
+    }
+  },
 };
 
 // ---------------------------------------------------------------------------

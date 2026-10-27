@@ -39,4 +39,4 @@ jobs:
             stories/Fastext stories/Canvas stories/PaletteDrift \
             stories/VariantColours stories/TokenLayering \
             stories/AccessibleTheme stories/Notice \
-            stories/layout/Page
+            stories/layout/Page stories/foundations/Brand
