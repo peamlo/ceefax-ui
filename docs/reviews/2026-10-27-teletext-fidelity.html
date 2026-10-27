@@ -1,0 +1,138 @@
+<title>Teletext Fidelity Review</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=VT323&display=swap">
+<style>
+/* Layout: one 40-column "teletext page" per section, stacked like Ceefax pages P100→P113. Single dark look, by choice. */
+:root{
+  color-scheme:dark;
+  --k:#000;--w:#fff;--y:#ff0;--c:#0ff;--g:#0f0;--r:#f00;--b:#0000ff;--m:#f0f;
+  --dim:#b3ffb3;--rule:#222;
+  --display:'VT323',ui-monospace,monospace;
+  --body:'Space Mono','Courier New',ui-monospace,monospace;
+}
+body{background:var(--k);color:var(--w);font-family:var(--body);font-size:16px;line-height:1.55;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+main{max-width:46rem;margin:0 auto;padding-block:24px 64px;display:grid;gap:40px}
+a{color:var(--c)} a:hover,a:focus-visible{background:var(--c);color:var(--k);outline:none}
+.hdr{display:flex;flex-wrap:wrap;gap:4px 16px;justify-content:space-between;font-size:14px;color:var(--w);border-bottom:2px solid var(--rule);padding-bottom:6px}
+.hdr b{color:var(--y);font-weight:400}
+.band{background:var(--b);color:var(--y);font-family:var(--display);font-size:56px;line-height:1;padding:10px 14px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;text-wrap:balance}
+.band small{font-size:22px;color:var(--w)}
+.mos{display:inline-flex;gap:0;line-height:0}
+.cell{display:inline-grid;grid-template:repeat(3,1fr)/repeat(2,1fr);width:14px;height:21px}
+.cell i{display:block}.cell i.on{background:currentColor}
+h2{font-family:var(--display);font-weight:400;font-size:34px;line-height:1.05;margin:0;color:var(--y);text-wrap:balance}
+h2 .pg{color:var(--w);font-size:22px;margin-right:10px}
+section{display:grid;gap:12px;min-width:0}
+p{margin:0;max-width:65ch}
+.dim{color:var(--dim)}
+.tag{display:inline-block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:1px 6px;color:var(--k);background:var(--g)}
+.tag.amend{background:var(--m)}.tag.later{background:var(--c)}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+.tw{overflow-x:auto}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{color:var(--c);font-weight:400}
+td:first-child{color:var(--y);white-space:nowrap}
+code{color:var(--g);font-family:var(--body);font-size:.92em}
+.thanks{border:2px solid var(--y);padding:14px 16px;display:grid;gap:8px}
+.fast{display:grid;grid-template-columns:repeat(4,1fr);gap:0;font-size:14px}
+.fast a{color:var(--k);text-decoration:none;padding:6px 8px;text-align:center}
+.fast a:nth-child(1){background:var(--r)}.fast a:nth-child(2){background:var(--g)}.fast a:nth-child(3){background:var(--y)}.fast a:nth-child(4){background:var(--c)}
+.fast a:hover,.fast a:focus-visible{background:var(--w)}
+@media (max-width:480px){.band{font-size:40px}.fast{grid-template-columns:repeat(2,1fr)}}
+</style>
+
+<main>
+  <div class="hdr" aria-label="Page header"><span><b>P100</b> CEEFAX-UI 100</span><span>Tue 27 Oct 2026</span></div>
+
+  <header class="band">
+    <span class="mos" aria-hidden="true" data-m="63,63,47 63,61,0"></span>
+    <span>TELETEXT FIDELITY<br><small>Review · 27 October 2026</small></span>
+  </header>
+
+  <section>
+    <p>A dated snapshot of a design session that compared ceefax-ui with the real thing, using the zxnet teletext site and wiki as ground truth. It records what is missing between today's look and an authentic teletext page, and what was decided for each gap. Like every review here, it does not stay current: the GitHub issues it spawns are canonical.</p>
+    <p class="dim">The rule behind every decision: <strong style="color:var(--w)">styled by default, strict teletext only inside the Screen frame.</strong> Outside the frame, web standards win (readable body text, fluid layout). Inside it, authenticity wins, unless the Accessible theme also applies.</p>
+  </section>
+
+  <section class="thanks" id="thanks">
+    <h2><span class="pg">P101</span>With thanks</h2>
+    <p>This review would not exist without <a href="https://zxnet.co.uk/teletext/">Teletext Stuff at zxnet.co.uk</a> by ZXGuesser and the contributors to the <a href="https://teletext.wiki.zxnet.co.uk/wiki/Main_Page">Teletext Wiki</a>. Their viewer, editor, gallery and spec pages showed how teletext actually looked and behaved. Thanks also to Ben Harris for <a href="https://bjh21.me.uk/bedstead/">Bedstead</a>, the public-domain SAA5050 font this review proposes adopting.</p>
+    <p class="dim">Summaries and archive links for every page used: <code>docs/reference/zxnet-teletext.md</code>.</p>
+  </section>
+
+  <section>
+    <h2><span class="pg">P102</span>Where the gaps were</h2>
+    <div class="tw"><table>
+      <thead><tr><th>Gap</th><th>Teletext has</th><th>ceefax-ui had</th></tr></thead>
+      <tbody>
+        <tr><td>Glyphs</td><td>SAA5050 character ROM</td><td>VT323 + Space Mono (terminal, not teletext)</td></tr>
+        <tr><td>Grid</td><td>40×25 fixed cells</td><td>40ch max width, fluid layout</td></tr>
+        <tr><td>Mosaics</td><td>2×3 block characters inline with text</td><td>Only <code>&lt;cf-canvas&gt;</code></td></tr>
+        <tr><td>Attributes</td><td>Double height, flash, conceal</td><td>Only the loader blinks</td></tr>
+        <tr><td>Header row</td><td><code>P100 CEEFAX 100 Tue 27 Oct 12:34/56</code></td><td>Empty header slot</td></tr>
+        <tr><td>Palette</td><td>Exactly 8 colours</td><td>Two off-palette aliases</td></tr>
+        <tr><td>Screen</td><td>CRT glow, scanlines</td><td>Flat render</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2><span class="pg">P103</span>Decisions</h2>
+    <div class="tw"><table>
+      <thead><tr><th>Area</th><th>Decision</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Fidelity</td><td>Teletext-styled by default; strict only inside the Screen frame (<code>data-frame</code>).</td><td><span class="tag">new</span></td></tr>
+        <tr><td>Font</td><td>Bedstead for display text everywhere and for body text in the frame; Space Mono body elsewhere; VT323 dropped. Public domain; licence notes go in the fonts README.</td><td><span class="tag">new</span></td></tr>
+        <tr><td>Frame grid</td><td>40 fixed columns, body still scrolls. Subpages come later as an opt-in element.</td><td><span class="tag">new</span> <span class="tag later">later</span></td></tr>
+        <tr><td>Mosaics</td><td><code>cf-mosaic</code> text mosaics: decorative by default, <code>role="img"</code> when meaningful. Two colours per cell. Separated style via <code>data-mosaic="separated"</code>.</td><td><span class="tag">new</span></td></tr>
+        <tr><td>Canvas</td><td><code>&lt;cf-canvas&gt;</code> keeps free colour. Mosaic output and deprecation deferred; if both stay, apply the two-colour limit then.</td><td><span class="tag later">later</span></td></tr>
+        <tr><td>Type scale</td><td>small 12 · body 16 · subheading 24 · heading 32 · display-lg 48 · display-xl 72. <code>caption</code> retired as an alias of small (breaking).</td><td><span class="tag">new</span></td></tr>
+        <tr><td>Measure</td><td><code>--cf-content-max</code> becomes about 65ch; the frame stays 40 cells; canvas gets its own 40ch cap.</td><td><span class="tag">new</span></td></tr>
+        <tr><td>Header row</td><td><code>cf-header-row</code> in CSS with a static <code>&lt;time&gt;</code>; it alone shows the page number. Live clock later.</td><td><span class="tag">new</span> <span class="tag later">later</span></td></tr>
+        <tr><td>Flash</td><td>Runs about 5 seconds, then holds (WCAG 2.2.2). Lives in <code>cf-notice</code>.</td><td><span class="tag amend">amends #19</span></td></tr>
+        <tr><td>Title band</td><td><code>cf-band</code> drops its page number.</td><td><span class="tag amend">amends #21</span></td></tr>
+        <tr><td>Page entry</td><td>Navigation writes <code>P1--</code> into the header row.</td><td><span class="tag amend">amends #23</span></td></tr>
+        <tr><td>Palette</td><td>In the frame, <code>bg-2</code> → authentic blue and <code>fg-dim</code> → authentic green. The Accessible theme wins.</td><td><span class="tag">new</span></td></tr>
+        <tr><td>CRT</td><td><code>data-frame="crt"</code>: scanlines and a faint glow. Off under forced colours and the Accessible theme. No flicker, no curvature.</td><td><span class="tag">new</span></td></tr>
+      </tbody>
+    </table></div>
+    <p class="dim">Also flagged: <code>&lt;cf-loader&gt;</code> blinks indefinitely, which may need its own WCAG 2.2.2 check.</p>
+  </section>
+
+  <section>
+    <h2><span class="pg">P104</span>Mosaics, in one row</h2>
+    <p>Each block below is one character: a 2×3 pattern in a single cell, coloured with CSS like text. This is what <code>cf-mosaic</code> puts next to words.</p>
+    <div style="background:var(--k);border:1px solid var(--rule);padding:10px;overflow-x:auto">
+      <div style="display:flex;align-items:center;gap:8px;color:var(--r)"><span class="mos" aria-hidden="true" data-m="63,63,63,63,47"></span><span style="color:var(--y);font-family:var(--display);font-size:28px">NEWS</span></div>
+      <div style="color:var(--c);margin-top:4px"><span class="mos" aria-hidden="true" data-m="12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12"></span></div>
+      <div style="display:flex;align-items:end;gap:8px;margin-top:4px"><span>Rain moves east</span><span class="mos" style="color:var(--g)" role="img" aria-label="Rainfall rising" data-m="48,60,63,63"></span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="pg">P105</span>How to use this</h2>
+    <p>Each decision becomes a GitHub issue that carries its own ADR, glossary and Storybook updates. The first Screen frame ticket writes the shared ADR ("Screen frame is the authentic mode"); later tickets reference or amend it. Glossary terms added in this session: Cell, Subpage, Mosaic, Header row, Title band.</p>
+  </section>
+
+  <nav class="fast" aria-label="Fastext">
+    <a href="https://zxnet.co.uk/teletext/">zxnet</a>
+    <a href="https://teletext.wiki.zxnet.co.uk/wiki/Main_Page">Wiki</a>
+    <a href="https://bjh21.me.uk/bedstead/">Bedstead</a>
+    <a href="https://github.com/peamlo/ceefax-ui/issues">Issues</a>
+  </nav>
+</main>
+
+<script>
+document.querySelectorAll('[data-m]').forEach(el=>{
+  el.dataset.m.split(' ').forEach((row,ri)=>{
+    const line=document.createElement('span');line.style.display='flex';
+    row.split(',').forEach(n=>{
+      const c=document.createElement('span');c.className='cell';
+      [1,2,4,8,16,32].forEach(b=>{const i=document.createElement('i');if(n&b)i.className='on';c.appendChild(i)});
+      line.appendChild(c)});
+    if(ri===0&&el.dataset.m.includes(' ')){el.style.flexDirection='column'}
+    el.appendChild(line)});
+});
+</script>

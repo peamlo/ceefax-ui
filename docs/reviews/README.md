@@ -13,3 +13,6 @@ and Mermaid from a CDN).
 - [2026-10-25 — CI checks](./2026-10-25-ci-checks.html): security, static checks, bundling,
   token exposure, accessibility, dead code. All checks are free for a public repo; ranked for a
   solo maintainer.
+- [2026-10-27 — Teletext fidelity](./2026-10-27-teletext-fidelity.html): gaps between ceefax-ui and
+  authentic teletext, and the decision for each, with thanks to zxnet.co.uk and the Teletext Wiki
+  (see [`docs/reference/zxnet-teletext.md`](../reference/zxnet-teletext.md)).
