@@ -103,3 +103,9 @@ _Avoid_: layout, page component, template component
 **Screen frame**:
 The opt-in `data-frame` variant of the page shell: a 4:3 teletext set, as wide as fits the viewport and centred, with the type tokens scaled to the frame, header and footer pinned and only the body scrolling. Full-bleed below one narrow-viewport breakpoint. Presentational only; the ratio is tunable with `--cf-frame-ratio`.
 _Avoid_: viewport, TV wrapper, `cf-screen`
+
+## Project tooling
+
+**Storybook preview**:
+A throwaway published copy of the Storybook built from exactly one pull-request commit, made only when someone asks for it and deleted when the pull request closes or merges. It never follows later pushes: once the pull request has newer commits, the preview is **stale**, and asking again makes a new one.
+_Avoid_: preview environment, deploy preview, review app, staging

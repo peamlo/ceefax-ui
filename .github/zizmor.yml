@@ -6,3 +6,10 @@ rules:
     config:
       policies:
         '*': hash-pin
+  # Storybook previews need repo secrets on fork and Dependabot PRs, which only
+  # these two triggers provide. Accepted under ADR-0012: no job holding the
+  # Cloudflare token checks out or runs PR code. Every other workflow stays linted.
+  dangerous-triggers:
+    ignore:
+      - preview.yml
+      - preview-cleanup.yml
