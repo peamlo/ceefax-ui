@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 9 9" shape-rendering="crispEdges">
-<!-- Wordmark initial: the SAA5050 (Bedstead) 5×7 "P" in black on the accent yellow. Pixel paths, not text: favicons can't load web fonts. -->
+<!-- Wordmark initial: the SAA5050 (Bedstead) 5×7 "C" in black on the accent yellow. Pixel paths, not text: favicons can't load web fonts. -->
 <rect width="9" height="9" fill="#ff0"/>
-<path fill="#000" d="M2 1h4v1H2zM2 2h1v6H2zM6 2h1v2H6zM3 4h3v1H3z"/>
+<path fill="#000" d="M3 1h3v1H3zM2 2h1v5H2zM6 2h1v1H6zM6 6h1v1H6zM3 7h3v1H3z"/>
 </svg>
