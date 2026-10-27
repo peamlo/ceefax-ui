@@ -8,7 +8,8 @@
 - `space-mono-v15-latin-700.woff2`
 
 The npm package ships only these `.woff2` files and `OFL.txt` from this folder (the built
-`dist/*.css` point here); the OTFs and TTFs stay in the repo as the regeneration sources.
+`dist/*.css` point here). The Space Mono TTFs stay in the repo as its regeneration sources (the demo
+loads them too); Bedstead is regenerated from its upstream release zip.
 
 ## Licences
 
@@ -27,16 +28,17 @@ Both faces are free for commercial use and self-hosting.
 
 ## Regenerating
 
-The `.woff2` files are compressed from the sources here, so regenerate them if a source changes:
+The `.woff2` files are compressed from the OTFs in Bedstead's release zip and the Space Mono TTFs here:
 
 ```sh
 pip install fonttools brotli
-fonttools ttLib.woff2 compress -o bedstead-3.261-regular.woff2 Bedstead.otf
-fonttools ttLib.woff2 compress -o bedstead-3.261-bold.woff2 Bedstead-Bold.otf
+curl -fsSLO https://bjh21.me.uk/bedstead/bedstead-3.261.zip && unzip -q bedstead-3.261.zip
+fonttools ttLib.woff2 compress -o bedstead-3.261-regular.woff2 bedstead-3.261/bedstead.otf
+fonttools ttLib.woff2 compress -o bedstead-3.261-bold.woff2 bedstead-3.261/bedstead-bold.otf
+rm -r bedstead-3.261 bedstead-3.261.zip
 fonttools ttLib.woff2 compress -o space-mono-v15-latin-regular.woff2 SpaceMono-Regular.ttf
 fonttools ttLib.woff2 compress -o space-mono-v15-latin-700.woff2 SpaceMono-Bold.ttf
 ```
 
-To move to a newer Bedstead, download the release zip from the source above, replace the two
-OTFs, rename the `.woff2` files to the new version (and their `@font-face` URLs), and update the
-version here.
+To move to a newer Bedstead, change the version in the zip URL and file names above, rename the
+`.woff2` files (and their `@font-face` URLs), and update the version here.
