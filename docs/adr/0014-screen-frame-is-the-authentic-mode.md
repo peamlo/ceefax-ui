@@ -39,8 +39,8 @@ Space Mono ships under. Source, version and this reasoning are recorded in
 
 ## Consequences
 
-- VT323 is removed from the package. Anyone naming `'VT323'` directly loses it; the
-  `--cf-font-display` token now resolves to Bedstead.
+- VT323 is removed from the package and `--cf-font-display` now resolves to Bedstead. Nothing
+  consumed VT323 by name yet, so this is not a breaking change.
 - Later fidelity tickets decide per rule whether it applies everywhere (a look) or only in the
   frame (a constraint), using this split.
 - **Deferred:** if `<cf-canvas>` is kept alongside `cf-mosaic`, decide whether it takes the
