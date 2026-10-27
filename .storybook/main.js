@@ -6,10 +6,10 @@ export default {
   framework: '@storybook/html-vite',
   stories: ['../stories/**/*.stories.@(js|mjs|ts)'],
   staticDirs: ['../public'], // public/favicon.svg → the manager's tab icon
+  // Controls, interactions and play() are core since Storybook 9; docs is its own addon.
   addons: [
-    '@storybook/addon-essentials',
-    '@storybook/addon-a11y',        // live WCAG checks — flags the known contrast failures
-    '@storybook/addon-interactions', // play() functions to script Tab/focus
+    '@storybook/addon-docs',
+    '@storybook/addon-a11y', // live WCAG checks — flags the known contrast failures
   ],
   // The root postcss.config.js uses postcss-url { url: 'rebase' } for the library
   // build. Vite would otherwise inherit it and run postcss-url over Storybook's

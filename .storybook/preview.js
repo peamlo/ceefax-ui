@@ -8,7 +8,7 @@ import '../src/elements/cf-loader.js';
 const formatHtml = (code) =>
   beautifyHtml(code, { indent_size: 2, wrap_line_length: 0, preserve_newlines: false });
 
-/** @type { import('@storybook/html').Preview } */
+/** @type { import('@storybook/html-vite').Preview } */
 export default {
   // Toolbar switch for the opt-in accessible theme (#12): the same one attribute a
   // consumer sets on <html>, so every story can be read under either theme.
@@ -26,7 +26,7 @@ export default {
       },
     },
   },
-  initialGlobals: { theme: 'authentic' },
+  initialGlobals: { theme: 'authentic', backgrounds: { value: 'ceefax' } },
   decorators: [
     (story, { globals }) => {
       if (globals.theme === 'accessible') document.documentElement.dataset.theme = 'accessible';
@@ -41,8 +41,10 @@ export default {
       },
     },
     backgrounds: {
-      default: 'ceefax',
-      values: [{ name: 'ceefax', value: '#000000' }, { name: 'blue', value: '#100b8a' }],
+      options: {
+        ceefax: { name: 'ceefax', value: '#000000' },
+        blue: { name: 'blue', value: '#100b8a' },
+      },
     },
     controls: { expanded: true },
     options: {

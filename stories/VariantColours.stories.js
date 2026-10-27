@@ -1,4 +1,4 @@
-import { expect } from '@storybook/test';
+import { expect } from 'storybook/test';
 
 // A contract story with no component of its own: it pins the computed colour a consumer
 // sees for every (component × variant) pair, so the variant→colour mapping can move

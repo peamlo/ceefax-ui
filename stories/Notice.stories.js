@@ -1,4 +1,4 @@
-import { expect, within } from '@storybook/test';
+import { expect, within } from 'storybook/test';
 
 // cf-notice (#19): a thick-bordered note whose flag flashes like teletext flash text for
 // ~5s, then holds solid. The flag's word is always repeated in the body, so neither the
