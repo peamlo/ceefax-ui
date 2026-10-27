@@ -19,3 +19,4 @@ Each ADR records **one** decision that was hard to reverse, surprising without c
 - [0009 — The 4:3 screen frame is a `data-frame` variant of the page shell](./0009-screen-frame-data-attr.md)
 - [0010 — The accessible theme remaps a `--cf-variant-*` alias tier, never the base colours](./0010-accessible-theme-variant-alias-tier.md)
 - [0011 — Pixel canvas art follows the theme through `--cf-variant-*`](./0011-pixel-canvas-follows-theme.md)
+- [0012 — Storybook previews are comment-triggered, and no job holding the token runs PR code](./0012-comment-triggered-storybook-previews.md)
