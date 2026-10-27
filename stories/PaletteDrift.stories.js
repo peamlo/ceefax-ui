@@ -1,4 +1,4 @@
-import { expect } from '@storybook/test';
+import { expect } from 'storybook/test';
 import { CEEFAX_PALETTE } from '../src/tokens/palette.js';
 
 // A contract story with no component of its own: it exists so the palette-drift guard
@@ -9,13 +9,24 @@ import { CEEFAX_PALETTE } from '../src/tokens/palette.js';
 const css = (name) =>
   getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
+// Compare colours, not strings: the CSS minifier may rewrite #000000 as #000 or #ff0000
+// as red. The browser resolves either spelling to the same rgb() on a probe element.
+const rgb = (value) => {
+  const probe = document.createElement('i');
+  probe.style.color = value;
+  document.body.append(probe);
+  const out = getComputedStyle(probe).color;
+  probe.remove();
+  return out;
+};
+
 // [token, palette.js hex, live CSS value, in sync?] — read at call time, since the
 // CSS side only exists once the stylesheet is applied.
 const compare = () =>
   CEEFAX_PALETTE.map(({ name, hex }) => {
     const token = '--cf-base-' + name;
     const live = css(token);
-    return { token, hex, live, ok: live.toLowerCase() === hex.toLowerCase() };
+    return { token, hex, live, ok: live !== '' && rgb(live) === rgb(hex) };
   });
 
 export default { title: 'Foundations/Palette drift' };
@@ -45,8 +56,8 @@ export const Guard = {
     return el;
   },
   play: async () => {
-    for (const { hex, live } of compare()) {
-      await expect(live.toLowerCase()).toBe(hex.toLowerCase());
+    for (const { token, hex, live } of compare()) {
+      await expect({ token, live: live && rgb(live) }).toEqual({ token, live: rgb(hex) });
     }
   },
 };

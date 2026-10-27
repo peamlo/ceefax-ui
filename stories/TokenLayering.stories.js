@@ -1,4 +1,4 @@
-import { expect } from '@storybook/test';
+import { expect } from 'storybook/test';
 
 // A contract story with no component of its own: it pins the token layering rule — component
 // and layout stylesheets — and the variant seam in base.css — reference only `--cf-*`
