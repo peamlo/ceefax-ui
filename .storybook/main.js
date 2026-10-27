@@ -5,6 +5,7 @@ import autoprefixer from 'autoprefixer';
 export default {
   framework: '@storybook/html-vite',
   stories: ['../stories/**/*.stories.@(js|mjs|ts)'],
+  staticDirs: ['../public'], // public/favicon.svg → the manager's tab icon
   addons: [
     '@storybook/addon-essentials',
     '@storybook/addon-a11y',        // live WCAG checks — flags the known contrast failures
