@@ -1,6 +1,6 @@
 /* Center — a horizontally centred, width-constrained column. The reading measure
-   for prose (docs, blog). Defaults to one teletext page wide (--cf-content-max).
-   DX: data-max="content" (default) | "layout" (two pages) · escape hatch: --cf-center-max. */
+   for prose (docs, blog). Defaults to a comfortable prose measure (--cf-content-max, ~65ch).
+   DX: data-max="content" (default) | "layout" (wider) · escape hatch: --cf-center-max. */
 .cf-center{
   box-sizing:content-box;
   max-width:var(--cf-center-max,var(--cf-content-max));

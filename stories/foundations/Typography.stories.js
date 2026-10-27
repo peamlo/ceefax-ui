@@ -1,3 +1,4 @@
+import { expect } from '@storybook/test';
 import { css, page } from './_tokens.js';
 
 export default { title: 'Foundations/Typography' };
@@ -7,14 +8,15 @@ const FAMILIES = [
   ['Body / Mono', 'cf-font-mono', 'Space Mono,monospace', 'Everything you actually read.'],
 ];
 
+// Web conventions on an 8px grid (ADR-0014); small is the one 4px-grid exception.
 const SCALE = [
-  ['display-xl', 'cf-text-display-xl', 'Bedstead,monospace'],
-  ['display-lg', 'cf-text-display-lg', 'Bedstead,monospace'],
-  ['heading', 'cf-text-heading', 'Bedstead,monospace'],
-  ['subheading', 'cf-text-subheading', 'Space Mono,monospace'],
-  ['body', 'cf-text-body', 'Space Mono,monospace'],
-  ['small', 'cf-text-small', 'Space Mono,monospace'],
-  ['caption', 'cf-text-caption', 'Space Mono,monospace'],
+  ['display-xl', 'cf-text-display-xl', 'Bedstead,monospace', '72px'],
+  ['display-lg', 'cf-text-display-lg', 'Bedstead,monospace', '48px'],
+  ['heading', 'cf-text-heading', 'Bedstead,monospace', '32px'],
+  ['subheading', 'cf-text-subheading', 'Space Mono,monospace', '24px'],
+  ['body', 'cf-text-body', 'Space Mono,monospace', '16px'],
+  ['small', 'cf-text-small', 'Space Mono,monospace', '12px'],
+  ['caption (deprecated → small)', 'cf-text-caption', 'Space Mono,monospace', '12px'],
 ];
 
 const LEADING = ['cf-leading-tight', 'cf-leading-normal', 'cf-leading-relaxed'];
@@ -35,7 +37,7 @@ export const Families = () => {
   return d;
 };
 
-export const Scale = () => {
+const ScaleRender = () => {
   const d = page();
   SCALE.forEach(([label, token, family]) => {
     const size = css('--' + token);
@@ -50,6 +52,15 @@ export const Scale = () => {
   return d;
 };
 
+export const Scale = {
+  render: ScaleRender,
+  play: async () => {
+    for (const [, token, , px] of SCALE) await expect(css('--' + token)).toBe(px);
+    // Deprecated alias: still resolves, always to small.
+    await expect(css('--cf-text-caption')).toBe(css('--cf-text-small'));
+  },
+};
+
 export const Leading = () => {
   const d = page();
   LEADING.forEach((token) => {
@@ -58,7 +69,7 @@ export const Leading = () => {
     block.style.cssText = 'margin-bottom:20px';
     block.innerHTML =
       '<code style="color:var(--cf-info);font-size:13px">' + token + ' · ' + value + '</code>' +
-      '<p style="max-width:50ch;font-size:19px;line-height:' + value + ';margin:4px 0 0">' +
+      '<p style="max-width:50ch;font-size:var(--cf-text-body);line-height:' + value + ';margin:4px 0 0">' +
       'The quick brown fox jumps over the lazy dog. Teletext pages wrapped tight to a fixed grid.</p>';
     d.appendChild(block);
   });

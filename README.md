@@ -110,7 +110,7 @@ yyyyyyyyyyyyyyyyyyyy
 
 - **Palette codes:** `k` black · `r` red · `g` green · `y` yellow · `b` blue · `m` magenta · `c` cyan · `w` white · `.` (or space) transparent. Colours are the authentic values by default and follow the [accessible theme](#accessible-theme) like `data-variant` blocks (black and white never change); unknown codes render transparent (with a dev-console warning). Free per-pixel colour — no one-colour-per-cell limit.
 - **Grid** dimensions are inferred from the text (ragged rows pad with transparent; common leading indentation is stripped — use `.` for intentional left-edge transparent pixels).
-- **Sizing** is fluid and crisp (`image-rendering: pixelated`), capped at `--cf-content-max`. Pick a tier with `data-size` (`sm`/`md`/`lg`/`full`) or set an exact scale with the `--cf-pixels-scale` escape hatch (`style="--cf-pixels-scale: 8"` = 8 CSS px per pixel).
+- **Sizing** is fluid and crisp (`image-rendering: pixelated`), capped at one teletext page (`40ch`), not the wider `--cf-content-max` prose measure. Pick a tier with `data-size` (`sm`/`md`/`lg`/`full`) or set an exact scale with the `--cf-pixels-scale` escape hatch (`style="--cf-pixels-scale: 8"` = 8 CSS px per pixel).
 - **Accessibility:** provide `alt` for a meaningful image (→ `role="img"` + `aria-label`); omit it to mark the canvas decorative (`aria-hidden`).
 - **Live edits** re-render automatically (the future paint-it-yourself editor builds on this).
 
@@ -126,6 +126,8 @@ Colour tokens come in two tiers, both under the `cf` namespace:
 - **Semantic aliases** — every other `--cf-*` colour (`--cf-bg`, `--cf-fg`, `--cf-link`, `--cf-danger`, …). They say what a colour is *for*, and they are what themes remap.
 
 Use the semantic aliases in your own CSS so it follows the active theme; reach for `--cf-base-*` only when you deliberately want the authentic colour whatever the theme (e.g. pixel art). The library's own component and layout stylesheets, and the variant seam, use semantic aliases only — CI enforces it.
+
+Type follows web conventions on an 8px grid: `--cf-text-small` 12 · `body` 16 · `subheading` 24 · `heading` 32 · `display-lg` 48 · `display-xl` 72 (px). `--cf-text-caption` is deprecated: it is an alias of `small` and will be removed in a future major. `--cf-content-max` is a prose reading measure (~65ch); only the Screen frame is one teletext page (40 cells) wide, and inside it the type scales with the frame.
 
 Spacing is `ch`-based; radius is always `0`.
 

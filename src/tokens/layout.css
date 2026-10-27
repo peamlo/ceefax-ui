@@ -1,5 +1,5 @@
 :root{
---cf-content-max:40ch;   /* one teletext page */
+--cf-content-max:65ch;   /* a comfortable prose measure; only the Screen frame is 40 cells */
 --cf-layout-max:82ch;    /* two pages side by side */
 --cf-border-thin:2px;
 --cf-border-thick:4px;

@@ -1,9 +1,10 @@
+import { expect } from '@storybook/test';
 import { css, page } from './_tokens.js';
 
 export default { title: 'Foundations/Layout' };
 
 const TOKENS = [
-  ['cf-content-max', 'one teletext page'],
+  ['cf-content-max', 'prose reading measure (only the Screen frame is 40 cells)'],
   ['cf-layout-max', 'two pages side by side'],
   ['cf-border-thin', 'default border'],
   ['cf-border-thick', 'heavy border'],
@@ -12,7 +13,7 @@ const TOKENS = [
   ['cf-footer-row', 'footer band height'],
 ];
 
-export const Tokens = () => {
+const TokensRender = () => {
   const d = page();
   TOKENS.forEach(([token, note]) => {
     const row = document.createElement('div');
@@ -33,4 +34,11 @@ export const Tokens = () => {
     'layout-max · ' + css('--cf-layout-max') + '</div>';
   d.appendChild(demo);
   return d;
+};
+
+export const Tokens = {
+  render: TokensRender,
+  play: async () => {
+    await expect(css('--cf-content-max')).toBe('65ch');
+  },
 };

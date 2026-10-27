@@ -89,10 +89,11 @@ class CfCanvas extends HTMLElement {
             display:block;
             /* Escape hatch: --cf-pixels-scale sets an exact N px per logical pixel.
                When unset, --_scale-w resolves to the guaranteed-invalid value and
-               the fluid fallback (100% / content-max cap) is used instead. */
+               the fluid fallback (100% / 40ch cap) is used instead. The cap is one
+               teletext page, not --cf-content-max, so pixel art doesn't stretch to the prose measure. */
             --_scale-w:calc(var(--cf-pixels-scale) * var(--cf-canvas-cols,0) * 1px);
             width:var(--_scale-w, 100%);
-            max-width:var(--_scale-w, var(--cf-content-max, 40ch));
+            max-width:var(--_scale-w, 40ch);
             height:auto;
             image-rendering:crisp-edges;  /* Firefox fallback */
             image-rendering:pixelated;    /* preferred where supported (wins) */
@@ -101,7 +102,7 @@ class CfCanvas extends HTMLElement {
           /* Fluid size tiers: enumerated data-* presets + a --cf-* escape-hatch var. */
           :host([data-size="sm"]) canvas{max-width:var(--_scale-w, 16ch)}
           :host([data-size="md"]) canvas{max-width:var(--_scale-w, 24ch)}
-          :host([data-size="lg"]) canvas{max-width:var(--_scale-w, var(--cf-content-max, 40ch))}
+          :host([data-size="lg"]) canvas{max-width:var(--_scale-w, 40ch)}
           :host([data-size="full"]) canvas{max-width:var(--_scale-w, var(--cf-layout-max, 82ch))}
         </style>
         <canvas></canvas>`;

@@ -41,6 +41,14 @@ Space Mono ships under. Source, version and this reasoning are recorded in
 
 - VT323 is removed from the package and `--cf-font-display` now resolves to Bedstead. Nothing
   consumed VT323 by name yet, so this is not a breaking change.
+- **Web conventions outside the frame** ([#71](https://github.com/peamlo/ceefax-ui/issues/71)).
+  The type scale sits on an 8px grid (small 12 · body 16 · subheading 24 · heading 32 ·
+  display-lg 48 · display-xl 72; small is the one 4px exception) and `--cf-content-max` is a
+  ~65ch prose measure, not one teletext page. Only the Screen frame is 40 cells wide; it keeps
+  scaling the type with its width. `<cf-canvas>` keeps its own 40ch cap so pixel art doesn't
+  stretch to the prose measure (amends the cap in [ADR-0004](0004-cf-canvas-pixel-art.md)).
+  `--cf-text-caption` is retired as a deprecated alias of `small`. Public tokens changed value,
+  so this is a breaking change.
 - Later fidelity tickets decide per rule whether it applies everywhere (a look) or only in the
   frame (a constraint), using this split.
 - **Deferred:** if `<cf-canvas>` is kept alongside `cf-mosaic`, decide whether it takes the

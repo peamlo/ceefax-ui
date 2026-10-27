@@ -97,7 +97,7 @@ The layout primitive for responsive columns. Collapses on its **own** available 
 _Avoid_: row/col system, flexgrid
 
 **Center**:
-The layout primitive for a horizontally centred, width-constrained reading column (defaults to one teletext page wide).
+The layout primitive for a horizontally centred, width-constrained reading column (defaults to a comfortable prose measure; only the Screen frame is one teletext page — 40 cells — wide).
 _Avoid_: container, wrapper, measure
 
 **Sidebar**:
