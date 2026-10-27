@@ -3,13 +3,17 @@
 // every dated docs/reviews/*.html|md is linked from docs/reviews/README.md.
 // Link targets resolving is lychee's job; this only checks the lists.
 import { readdirSync, readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 const errors = [];
 
 function check(dir, pattern, ordered) {
-  const files = readdirSync(dir).filter((f) => pattern.test(f)).sort();
-  const index = readFileSync(`${dir}/README.md`, 'utf8');
-  const linked = [...index.matchAll(/\]\(\.\/([^)#]+)/g)].map((m) => m[1]);
+  const files = readdirSync(resolve(root, dir)).filter((f) => pattern.test(f)).sort();
+  const index = readFileSync(resolve(root, dir, 'README.md'), 'utf8');
+  const linked = [...index.matchAll(/\]\((?:\.\/)?([^)#]+)/g)].map((m) => m[1]);
   for (const f of files) {
     if (!linked.includes(f)) errors.push(`${dir}/README.md: missing ${f}`);
   }
