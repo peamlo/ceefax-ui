@@ -1,6 +1,11 @@
 /* Button — one class, colour variant via [data-variant], size via [data-size], state via native/ARIA.
-   Focus = hover = instant colour inversion. No modifier classes for state. */
-.cf-btn{
+   Focus = hover = instant colour inversion. No modifier classes for state.
+   EXPERIMENTAL (#26, classless spike — not a supported API, removed if rejected): every
+   rule also matches a bare <button> inside an opt-in .cf-root, via the :where(.cf-root …)
+   selector beside each .cf-btn one. :where() gives it zero specificity so any class wins;
+   :not([class^="cf-"],[class*=" cf-"]) leaves ceefax-ui components to their own rules. */
+.cf-btn,
+:where(.cf-root button:not([class^="cf-"],[class*=" cf-"])){
 --_fg:var(--cf-fg);--_bg:var(--cf-bg);--_bd:var(--cf-fg);
 font-family:var(--cf-font-mono);font-size:var(--cf-text-body);font-weight:700;
 letter-spacing:var(--cf-tracking-wide);text-transform:uppercase;line-height:1;
@@ -8,16 +13,20 @@ padding:.4em 2ch;border:var(--cf-border-thin) solid var(--_bd);border-radius:var
 background:var(--_bg);color:var(--_fg);cursor:pointer;display:inline-block;
 transition:transform 60ms linear;-webkit-tap-highlight-color:transparent;
 }
-.cf-btn[data-size="sm"]{font-size:var(--cf-text-small);padding:.2em 1.5ch}
-.cf-btn[data-size="lg"]{font-size:var(--cf-text-heading);padding:.6em 3ch}
+.cf-btn[data-size="sm"],:where(.cf-root button[data-size="sm"]:not([class^="cf-"],[class*=" cf-"])){font-size:var(--cf-text-small);padding:.2em 1.5ch}
+.cf-btn[data-size="lg"],:where(.cf-root button[data-size="lg"]:not([class^="cf-"],[class*=" cf-"])){font-size:var(--cf-text-heading);padding:.6em 3ch}
 /* fastext colour blocks — always paired with a redundant text label in markup.
    Colour comes from the variant seam (base.css); the button decides it paints
    fill + ink + border. Ghost has no seam colour, so its rule must stay below. */
-.cf-btn[data-variant]{--_bg:var(--_variant,var(--cf-bg));--_fg:var(--_variant-ink,var(--cf-fg));--_bd:var(--_variant,var(--cf-fg))}
-.cf-btn[data-variant="ghost"]{--_bg:transparent;--_fg:var(--cf-link);--_bd:transparent}
+.cf-btn[data-variant],:where(.cf-root button[data-variant]:not([class^="cf-"],[class*=" cf-"])){--_bg:var(--_variant,var(--cf-bg));--_fg:var(--_variant-ink,var(--cf-fg));--_bd:var(--_variant,var(--cf-fg))}
+.cf-btn[data-variant="ghost"],:where(.cf-root button[data-variant="ghost"]:not([class^="cf-"],[class*=" cf-"])){--_bg:transparent;--_fg:var(--cf-link);--_bd:transparent}
 /* inversion on hover + keyboard focus */
-.cf-btn:hover,.cf-btn:focus-visible{background:var(--_fg);color:var(--_bg);border-color:var(--_fg);outline:none}
-.cf-btn[data-variant="ghost"]:hover,.cf-btn[data-variant="ghost"]:focus-visible{background:transparent;color:var(--cf-link-hover);border-color:transparent;text-decoration:underline;text-underline-offset:3px}
-.cf-btn:active{transform:scale(.96)}
-.cf-btn:disabled,.cf-btn[aria-disabled="true"]{opacity:.4;cursor:default;transform:none}
-.cf-btn:disabled:hover,.cf-btn[aria-disabled="true"]:hover{background:var(--_bg);color:var(--_fg);border-color:var(--_bd)}
+.cf-btn:hover,.cf-btn:focus-visible,
+:where(.cf-root button:not([class^="cf-"],[class*=" cf-"]):is(:hover,:focus-visible)){background:var(--_fg);color:var(--_bg);border-color:var(--_fg);outline:none}
+.cf-btn[data-variant="ghost"]:hover,.cf-btn[data-variant="ghost"]:focus-visible,
+:where(.cf-root button[data-variant="ghost"]:not([class^="cf-"],[class*=" cf-"]):is(:hover,:focus-visible)){background:transparent;color:var(--cf-link-hover);border-color:transparent;text-decoration:underline;text-underline-offset:3px}
+.cf-btn:active,:where(.cf-root button:not([class^="cf-"],[class*=" cf-"]):active){transform:scale(.96)}
+.cf-btn:disabled,.cf-btn[aria-disabled="true"],
+:where(.cf-root button:not([class^="cf-"],[class*=" cf-"]):is(:disabled,[aria-disabled="true"])){opacity:.4;cursor:default;transform:none}
+.cf-btn:disabled:hover,.cf-btn[aria-disabled="true"]:hover,
+:where(.cf-root button:not([class^="cf-"],[class*=" cf-"]):is(:disabled,[aria-disabled="true"]):hover){background:var(--_bg);color:var(--_fg);border-color:var(--_bd)}

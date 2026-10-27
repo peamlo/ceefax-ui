@@ -40,6 +40,41 @@ async function assertButtonContract(page, name) {
   }
 }
 
+// Contract (#26, experimental): a bare element inside .cf-root reacts to real focus and
+// hover exactly as its class form. The Classless stories render [bare, class form] in one
+// .cf-root, so Tab focuses the bare one, Tab again the class one; then hover each.
+const PAIR = ['.cf-root > :nth-child(1)', '.cf-root > :nth-child(2)'];
+const look = (sel) => {
+  const cs = getComputedStyle(document.querySelector(sel));
+  return { backgroundColor: cs.backgroundColor, color: cs.color, borderTopColor: cs.borderTopColor, textDecorationLine: cs.textDecorationLine };
+};
+
+async function assertClasslessPair(page, name) {
+  if (!['Button', 'Button (disabled)', 'Link'].includes(name)) return;
+  const resting = await page.evaluate(look, PAIR[0]);
+  if (name !== 'Button (disabled)') {
+    const focused = [];
+    for (const sel of PAIR) {
+      await page.keyboard.press('Tab');
+      focused.push(await page.evaluate(look, sel));
+    }
+    expect(focused[0]).toEqual(focused[1]);
+    expect(focused[0]).not.toEqual(resting); // focus did invert
+  }
+  // drop focus, or the class-form element would be hovered AND still focused
+  await page.evaluate(() => document.activeElement.blur());
+  const hovered = [];
+  for (const sel of PAIR) {
+    await page.hover(sel);
+    hovered.push(await page.evaluate(look, sel));
+  }
+  expect(hovered[0]).toEqual(hovered[1]);
+  // disabled suppresses the inversion; otherwise hover must change the look
+  if (name === 'Button (disabled)') expect(hovered[0]).toEqual(resting);
+  else expect(hovered[0]).not.toEqual(resting);
+  await page.mouse.move(0, 0);
+}
+
 // Contract: hovering a fastext key inverts it — the page background behind the key's own
 // colour as text. One key is enough, and deliberately so: the per-colour part (which
 // colour each name resolves to) is pinned for all four by the Foundations/Variant colours
@@ -105,6 +140,7 @@ export default {
 
     if (title === 'Components/Button') await assertButtonContract(page, name);
     if (title === 'Components/Fastext bar') await assertFastextHover(page);
+    if (title === 'Components/Classless (experimental)') await assertClasslessPair(page, name);
 
     await injectAxe(page);
     await axe(page);

@@ -38,5 +38,5 @@ jobs:
             stories/Button stories/Link stories/Card \
             stories/Fastext stories/Canvas stories/PaletteDrift \
             stories/VariantColours stories/TokenLayering \
-            stories/AccessibleTheme \
+            stories/AccessibleTheme stories/Classless \
             stories/layout/Page
