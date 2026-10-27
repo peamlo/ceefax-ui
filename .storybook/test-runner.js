@@ -87,6 +87,37 @@ async function assertScreenFrame(page) {
   await page.setViewportSize({ width: 1280, height: 720 });
 }
 
+// Contract (#19): the notice flag flashes for ~5s then holds visible, never under reduced
+// motion, and never with data-blink="off". Needs emulated media, which play() cannot set.
+// Leaves the flag solid (animation finished) so axe audits the resting state.
+async function assertNoticeBlink(page) {
+  // The animated properties too: opacity, never visibility, keeps the flag in the a11y tree.
+  const flagAnimations = () =>
+    document.querySelector('.cf-notice__flag').getAnimations().map((a) => {
+      const { duration, iterations } = a.effect.getComputedTiming();
+      const props = [...new Set(a.effect.getKeyframes().flatMap((k) => Object.keys(k)))]
+        .filter((k) => !['offset', 'computedOffset', 'easing', 'composite'].includes(k));
+      return { duration, iterations, props };
+    });
+  // animation-name, not just getAnimations(): a leaked animation that already finished
+  // (no fill) would also leave getAnimations() empty.
+  const animationName = () => getComputedStyle(document.querySelector('.cf-notice__flag')).animationName;
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  expect(await page.evaluate(animationName)).toBe('none');
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  if (await page.evaluate(() => document.querySelector('.cf-notice').dataset.blink === 'off')) {
+    expect(await page.evaluate(animationName)).toBe('none');
+    return;
+  }
+  expect(await page.evaluate(flagAnimations)).toEqual([{ duration: 1000, iterations: 5, props: ['opacity'] }]);
+  const opacityAfter = await page.evaluate(() => {
+    const flag = document.querySelector('.cf-notice__flag');
+    flag.getAnimations().forEach((a) => a.finish());
+    return getComputedStyle(flag).opacity;
+  });
+  expect(opacityAfter).toBe('1');
+}
+
 // `aaa` also enables axe's AAA contrast rule — the accessible theme's promise (#12).
 const axe = async (page, { aaa = false } = {}) => {
   await checkA11y(page, '#storybook-root', {
@@ -105,6 +136,7 @@ export default {
 
     if (title === 'Components/Button') await assertButtonContract(page, name);
     if (title === 'Components/Fastext bar') await assertFastextHover(page);
+    if (title === 'Components/Notice') await assertNoticeBlink(page);
 
     await injectAxe(page);
     await axe(page);

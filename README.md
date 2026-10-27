@@ -4,6 +4,8 @@ A Ceefax / teletext-inspired, **framework-agnostic, CSS-first** design system. S
 
 ## Install
 
+Published on npm as [`@peamlo/ceefax-ui`](https://www.npmjs.com/package/@peamlo/ceefax-ui).
+
 ```sh
 npm install @peamlo/ceefax-ui
 ```
@@ -70,9 +72,25 @@ not a mockup.
 | `cf-link` | `<a>` | `variant="nav"` | `[aria-current="page"]` |
 | `cf-card` | any block | `variant` red/green/yellow/blue/cyan/magenta | — |
 | `cf-fastext` / `cf-fastext__key` | `<ul>` / `<a>` | `variant` red/green/yellow/blue | `:focus-visible` |
+| `cf-notice` / `cf-notice__flag` | block + `role="note"` / `<strong>` | `variant` red (default, danger)/yellow (warning)/green (success)/blue/cyan/magenta · `blink="off"` | flash (reduced-motion aware) |
 | `cf-page` + `data-frame` | `<section>` with `header`/`main`/`footer` | `frame` (4:3 screen; `--cf-frame-ratio` to change) | — |
 | `<cf-loader>` | Web Component | — | blink (reduced-motion aware) |
 | `<cf-canvas>` | Web Component | `size` sm/md/lg/full | `alt` → `role="img"` |
+
+### Notice (`cf-notice`)
+
+For something the reader mustn't miss: a thick border and a short capitalised flag that flashes like teletext flash text, once a second for about 5 seconds, then holds solid. Danger (red) is the default; `data-variant="yellow"` is a warning and `data-variant="green"` a success (usually with `data-blink="off"`: good news rarely needs a flash). The other variant colours work too. The body is free content.
+
+```html
+<div class="cf-notice" role="note">
+  <strong class="cf-notice__flag">Mismatch</strong>
+  <p>Mismatch: the plan says €75,000 but the contract says €70,000.</p>
+</div>
+```
+
+- **`role="note"`, not `role="alert"`:** a static notice shouldn't interrupt a screen reader on page load.
+- **Repeat the flag in the body.** The flag is one terse word; the body must carry its meaning too, so neither the colour nor the flash is the only cue.
+- **One flashing notice per screen.** Put `data-blink="off"` on the others. The flash is always off under `prefers-reduced-motion: reduce`.
 
 ### Pixel canvas (`<cf-canvas>`)
 
@@ -147,8 +165,8 @@ Storybook uses `@storybook/html-vite` + the a11y addon, with interactions built 
 
 ## Fonts
 
-VT323 + Space Mono, self-hosted under SIL OFL 1.1. See [`fonts/README.md`](./fonts/README.md) to drop in the `.woff2` files.
+Both self-hosted. [Bedstead](https://bjh21.me.uk/bedstead/), a recreation of the SAA5050 teletext character set (public domain), is the display face: headings, card titles and fastext keys. Space Mono (SIL OFL 1.1) is the body face. Sources, versions and licences: [`fonts/README.md`](./fonts/README.md).
 
 ## License
 
-MIT (code) · SIL OFL 1.1 (bundled fonts).
+MIT (code) · Bedstead public domain, Space Mono SIL OFL 1.1 (bundled fonts).

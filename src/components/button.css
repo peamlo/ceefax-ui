@@ -2,7 +2,7 @@
    Focus = hover = instant colour inversion. No modifier classes for state. */
 .cf-btn{
 --_fg:var(--cf-fg);--_bg:var(--cf-bg);--_bd:var(--cf-fg);
-font-family:var(--cf-font-mono);font-size:var(--cf-text-body);font-weight:700;
+font-family:var(--cf-font-mono);font-size:var(--cf-text-body);font-weight:var(--cf-weight-bold);
 letter-spacing:var(--cf-tracking-wide);text-transform:uppercase;line-height:1;
 padding:.4em 2ch;border:var(--cf-border-thin) solid var(--_bd);border-radius:var(--cf-radius);
 background:var(--_bg);color:var(--_fg);cursor:pointer;display:inline-block;

@@ -44,7 +44,8 @@ const UNMAPPED = 'RED';
 const BORDER = { borderTopColor: WHITE, borderTopWidth: '2px', borderTopStyle: 'solid' };
 
 // How each component looks with no variant (base), with a palette variant (paint), and
-// with any variant of its own that is not a palette colour (extra).
+// with any variant of its own that is not a palette colour (extra). `base` may take the
+// palette when the default itself follows the theme.
 // `bar` is the class of the container the component only works inside.
 const COMPONENTS = {
   btn: {
@@ -70,13 +71,21 @@ const COMPONENTS = {
     base: { backgroundColor: TRANSPARENT, color: BLACK },
     paint: (colour, ink) => ({ backgroundColor: colour, color: ink }),
   },
+  // With no variant (or a typo) a notice is danger, which tracks red in every theme.
+  notice: {
+    tag: 'div',
+    className: 'cf-notice',
+    base: (p) => ({ borderTopColor: p.red[0], borderTopWidth: '4px' }),
+    paint: (colour) => ({ borderTopColor: colour }),
+  },
 };
 
 // The computed values a consumer sees for one pair under one palette.
 const look = (kind, variant, palette) => {
   const c = COMPONENTS[kind];
   if (c.extra?.[variant]) return c.extra[variant](palette);
-  return palette[variant] ? c.paint(...palette[variant]) : c.base;
+  if (palette[variant]) return c.paint(...palette[variant]);
+  return typeof c.base === 'function' ? c.base(palette) : c.base;
 };
 
 // Every component × (no variant, a typo, each palette colour, its own extras).

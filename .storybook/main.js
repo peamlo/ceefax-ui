@@ -5,6 +5,7 @@ import autoprefixer from 'autoprefixer';
 export default {
   framework: '@storybook/html-vite',
   stories: ['../stories/**/*.stories.@(js|mjs|ts)'],
+  staticDirs: ['../public'], // public/favicon.svg → the manager's tab icon
   // Controls, interactions and play() are core since Storybook 9; docs is its own addon.
   addons: [
     '@storybook/addon-docs',

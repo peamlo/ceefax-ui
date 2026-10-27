@@ -28,6 +28,10 @@ _Avoid_: swatch, colour chip
 A run-time condition of an element (disabled, focused, current). Always expressed with native or ARIA attributes (`disabled`, `:focus-visible`, `[aria-current]`, `[aria-pressed]`) — never with a class.
 _Avoid_: state class, `cf-btn--active`, `is-active`
 
+**Display face**:
+The typeface for headings, card titles and fastext keys: Bedstead, a recreation of the SAA5050 chip that drew real teletext characters. Body text stays in Space Mono.
+_Avoid_: VT323, heading font, title font
+
 **Fastext**:
 The four coloured navigation keys (red / green / yellow / blue) from teletext, and their component (`cf-fastext`). A domain term, not a generic nav bar.
 _Avoid_: colour buttons, quick links
@@ -51,6 +55,10 @@ _Avoid_: highlight, active style
 **Selected caret**:
 The persistent `▸` marker shown on `[aria-current="page"]` — "you are on this page." Distinct from inversion.
 _Avoid_: active indicator, highlight
+
+**Notice**:
+The component for something the reader mustn't miss (`cf-notice`): a thick-bordered block with a short capitalised **flag** (`cf-notice__flag`) that flashes for a few seconds like teletext flash text, then holds solid. Danger by default, warning with `data-variant="yellow"`, success with `data-variant="green"`. A note, not a live-region alert; the flag's word is always repeated in the body.
+_Avoid_: toast, banner, callout, live region
 
 **Custom element**:
 A logic-bearing standard Web Component (e.g. `<cf-loader>`), shipped under the opt-in `./elements` export — separate from the runtime-free CSS core.
@@ -103,3 +111,13 @@ _Avoid_: layout, page component, template component
 **Screen frame**:
 The opt-in `data-frame` variant of the page shell: a 4:3 teletext set, as wide as fits the viewport and centred, with the type tokens scaled to the frame, header and footer pinned and only the body scrolling. Full-bleed below one narrow-viewport breakpoint. Presentational only; the ratio is tunable with `--cf-frame-ratio`.
 _Avoid_: viewport, TV wrapper, `cf-screen`
+
+## Project tooling
+
+**Storybook preview**:
+A throwaway published copy of the Storybook built from exactly one pull-request commit, made only when someone asks for it and deleted when the pull request closes or merges. It never follows later pushes: once the pull request has newer commits, the preview is **stale**, and asking again makes a new one.
+_Avoid_: preview environment, deploy preview, review app, staging
+
+**Release PR**:
+The one pull request kept open, and kept up to date, while `main` has changes consumers would get. It holds the next version and its changelog, and merging it is the only manual step of a release.
+_Avoid_: version-bump PR, release branch

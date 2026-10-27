@@ -43,7 +43,7 @@ export default {
     backgrounds: {
       options: {
         ceefax: { name: 'ceefax', value: '#000000' },
-        white: { name: 'white', value: '#ffffff' },
+        blue: { name: 'blue', value: '#100b8a' },
       },
     },
     controls: { expanded: true },

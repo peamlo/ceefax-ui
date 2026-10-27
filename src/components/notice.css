@@ -1,0 +1,13 @@
+/* Notice — a thick-bordered note the reader mustn't miss. Danger by default; any
+   data-variant follows the variant seam (base.css), so "yellow" is the warning colour and "green" success.
+   The flag repeats a word from the body, so neither its colour nor its flash is the only cue. */
+.cf-notice{--_tone:var(--cf-danger);display:block;border:var(--cf-border-thick) solid var(--_tone);border-radius:var(--cf-radius);background:var(--cf-bg);color:var(--cf-fg);padding:var(--cf-space-3);font-family:var(--cf-font-mono);line-height:var(--cf-leading-relaxed)}
+.cf-notice[data-variant]{--_tone:var(--_variant,var(--cf-danger))}
+:where(.cf-notice > :last-child){margin-block-end:0}
+.cf-notice__flag{display:block;width:fit-content;color:var(--_tone);font-weight:var(--cf-weight-bold);text-transform:uppercase;letter-spacing:var(--cf-tracking-wide)}
+/* Teletext flash: 1s period (well under WCAG 2.3.1's 3/s), five times, then solid (WCAG 2.2.2).
+   opacity, not visibility, keeps the flag in the accessibility tree while it flashes. */
+@media (prefers-reduced-motion:no-preference){
+  .cf-notice:not([data-blink="off"]) .cf-notice__flag{animation:cf-flash 1s steps(1,end) 5}
+}
+@keyframes cf-flash{50%{opacity:0}}
