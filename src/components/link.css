@@ -4,7 +4,7 @@
 .cf-link:hover{color:var(--cf-link-hover);text-decoration:underline}
 .cf-link:focus-visible{outline:none;background:var(--cf-link);color:var(--cf-bg);text-decoration:none}
 .cf-link:visited{color:var(--cf-link-visited)}
-.cf-link[data-variant="nav"]{display:inline-flex;align-items:baseline;gap:var(--cf-space-2);font-weight:700;letter-spacing:var(--cf-tracking-wide);text-transform:uppercase;text-decoration:none}
+.cf-link[data-variant="nav"]{display:inline-flex;align-items:baseline;gap:var(--cf-space-2);font-weight:var(--cf-weight-bold);letter-spacing:var(--cf-tracking-wide);text-transform:uppercase;text-decoration:none}
 .cf-link[data-variant="nav"] .cf-link__page{color:var(--cf-accent)}
 .cf-link[data-variant="nav"]:hover{text-decoration:none;color:var(--cf-link-hover)}
 /* selected / "you are here" — persistent, distinct from transient focus */

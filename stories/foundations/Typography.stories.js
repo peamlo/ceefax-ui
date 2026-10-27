@@ -19,6 +19,8 @@ const SCALE = [
 
 const LEADING = ['cf-leading-tight', 'cf-leading-normal', 'cf-leading-relaxed'];
 
+const WEIGHTS = ['cf-weight-regular', 'cf-weight-bold'];
+
 export const Families = () => {
   const d = page();
   FAMILIES.forEach(([label, token, family, note]) => {
@@ -59,6 +61,23 @@ export const Leading = () => {
       '<p style="max-width:50ch;font-size:19px;line-height:' + value + ';margin:4px 0 0">' +
       'The quick brown fox jumps over the lazy dog. Teletext pages wrapped tight to a fixed grid.</p>';
     d.appendChild(block);
+  });
+  return d;
+};
+
+// Both families ship exactly these two weights; anything else is synthesised by the browser.
+export const Weights = () => {
+  const d = page();
+  WEIGHTS.forEach((token) => {
+    const value = css('--' + token);
+    const row = document.createElement('div');
+    row.style.cssText = 'border-bottom:1px solid #222;padding:12px 0';
+    row.innerHTML =
+      '<code style="color:var(--cf-info);font-size:13px">' + token + ' · ' + value + '</code>' +
+      FAMILIES.map(([, , family]) =>
+        '<div style="font-family:' + family + ';font-weight:' + value + ';font-size:32px;line-height:1.2">Ceefax P100</div>'
+      ).join('');
+    d.appendChild(row);
   });
   return d;
 };
