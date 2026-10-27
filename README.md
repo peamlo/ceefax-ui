@@ -72,14 +72,14 @@ not a mockup.
 | `cf-link` | `<a>` | `variant="nav"` | `[aria-current="page"]` |
 | `cf-card` | any block | `variant` red/green/yellow/blue/cyan/magenta | — |
 | `cf-fastext` / `cf-fastext__key` | `<ul>` / `<a>` | `variant` red/green/yellow/blue | `:focus-visible` |
-| `cf-notice` / `cf-notice__flag` | block + `role="note"` / `<strong>` | `variant` red (default) / yellow · `blink="off"` | flash (reduced-motion aware) |
+| `cf-notice` / `cf-notice__flag` | block + `role="note"` / `<strong>` | `variant` red (default, danger)/green/yellow (warning)/blue/cyan/magenta · `blink="off"` | flash (reduced-motion aware) |
 | `cf-page` + `data-frame` | `<section>` with `header`/`main`/`footer` | `frame` (4:3 screen; `--cf-frame-ratio` to change) | — |
 | `<cf-loader>` | Web Component | — | blink (reduced-motion aware) |
 | `<cf-canvas>` | Web Component | `size` sm/md/lg/full | `alt` → `role="img"` |
 
 ### Notice (`cf-notice`)
 
-An alert the reader mustn't miss: a thick border and a short capitalised flag that flashes like teletext flash text, once a second for about 5 seconds, then holds solid. Danger (red) is the default; `data-variant="yellow"` is a warning. The body is free content.
+For something the reader mustn't miss: a thick border and a short capitalised flag that flashes like teletext flash text, once a second for about 5 seconds, then holds solid. Danger (red) is the default; `data-variant="yellow"` is a warning, and the other variant colours work too. The body is free content.
 
 ```html
 <div class="cf-notice" role="note">

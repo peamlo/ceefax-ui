@@ -1,6 +1,6 @@
 import { expect, within } from '@storybook/test';
 
-// cf-notice (#19): a thick-bordered alert whose flag flashes like teletext flash text for
+// cf-notice (#19): a thick-bordered note whose flag flashes like teletext flash text for
 // ~5s, then holds solid. The flag's word is always repeated in the body, so neither the
 // flash nor the colour is the only cue. Only one blinking notice per screen.
 // The blink itself needs emulated media, so it is asserted in .storybook/test-runner.js.
@@ -17,9 +17,9 @@ const notice = ({ variant, blink, flag, body }) => {
 // Contract: a note (not an alert), and the flag's word is repeated in the body.
 const assertNote = async ({ canvasElement }) => {
   const el = within(canvasElement).getByRole('note');
-  const flag = el.querySelector('.cf-notice__flag').textContent.trim().toLowerCase();
-  const body = el.textContent.replace(el.querySelector('.cf-notice__flag').textContent, '').toLowerCase();
-  await expect(body).toContain(flag);
+  const flag = el.querySelector('.cf-notice__flag').textContent;
+  const body = el.textContent.replace(flag, '').toLowerCase();
+  await expect(body).toContain(flag.trim().toLowerCase());
 };
 const border = (canvasElement) => getComputedStyle(canvasElement.querySelector('.cf-notice')).borderTopColor;
 
@@ -57,7 +57,7 @@ export const Warning = {
 };
 
 export const BlinkOff = {
-  name: 'Blink off (data-blink="off")',
+  name: 'Blink off',
   args: { blink: 'off', flag: 'DEADLINE', body: '<p>Deadline: send the form by 31 October.</p>' },
   play: assertNote,
 };

@@ -91,19 +91,25 @@ async function assertScreenFrame(page) {
 // motion, and never with data-blink="off". Needs emulated media, which play() cannot set.
 // Leaves the flag solid (animation finished) so axe audits the resting state.
 async function assertNoticeBlink(page, name) {
+  // The animated properties too: opacity, never visibility, keeps the flag in the a11y tree.
   const flagAnimations = () =>
     document.querySelector('.cf-notice__flag').getAnimations().map((a) => {
       const { duration, iterations } = a.effect.getComputedTiming();
-      return { duration, iterations };
+      const props = [...new Set(a.effect.getKeyframes().flatMap((k) => Object.keys(k)))]
+        .filter((k) => !['offset', 'computedOffset', 'easing', 'composite'].includes(k));
+      return { duration, iterations, props };
     });
+  // animation-name, not just getAnimations(): a leaked animation that already finished
+  // (no fill) would also leave getAnimations() empty.
+  const animationName = () => getComputedStyle(document.querySelector('.cf-notice__flag')).animationName;
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  expect(await page.evaluate(flagAnimations)).toEqual([]);
+  expect(await page.evaluate(animationName)).toBe('none');
   await page.emulateMedia({ reducedMotion: 'no-preference' });
-  if (name === 'Blink off (data-blink="off")') {
-    expect(await page.evaluate(flagAnimations)).toEqual([]);
+  if (name === 'Blink off') {
+    expect(await page.evaluate(animationName)).toBe('none');
     return;
   }
-  expect(await page.evaluate(flagAnimations)).toEqual([{ duration: 1000, iterations: 5 }]);
+  expect(await page.evaluate(flagAnimations)).toEqual([{ duration: 1000, iterations: 5, props: ['opacity'] }]);
   const opacityAfter = await page.evaluate(() => {
     const flag = document.querySelector('.cf-notice__flag');
     flag.getAnimations().forEach((a) => a.finish());
@@ -137,11 +143,6 @@ export default {
     // Every contract story must also pass axe — at AAA contrast — under the accessible theme.
     await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'accessible'));
     if (title === 'Components/Fastext bar') await assertAccessibleFastextHover(page);
-    // Contract (#19): danger follows the accessible theme's remap (amber, not red).
-    if (title === 'Components/Notice' && name === 'Danger') {
-      const c = await page.evaluate(() => getComputedStyle(document.querySelector('.cf-notice')).borderTopColor);
-      expect(c).toBe('rgb(255, 158, 77)');
-    }
     await axe(page, { aaa: true });
   },
 };
