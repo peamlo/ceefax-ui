@@ -4,16 +4,17 @@ import { page } from './_tokens.js';
 export default { title: 'Foundations/Brand' };
 
 // ---------------------------------------------------------------------------
-// Wordmark — the name in VT323 on a colour block. There is no logo; do not
+// Wordmark — the name in the display face on a colour block. There is no logo; do not
 // invent one (see the design system README, Iconography).
 // ---------------------------------------------------------------------------
 export const Wordmark = () => {
   const d = page('<p style="max-width:60ch;color:var(--cf-fg-dim)">No logo or mark exists. ' +
-    'The brand is the name set in VT323 on a flat colour block.</p>');
+    'The brand is the name set in the display face on a flat colour block. ' +
+    'The favicon (<code>public/favicon.svg</code>) is its initial: a pixel C.</p>');
   const block = document.createElement('div');
   block.style.cssText = 'display:inline-block;background:var(--cf-accent);color:var(--cf-on-variant);padding:8px 16px;' +
-    'font-family:VT323,monospace;font-size:64px;line-height:1;letter-spacing:.02em';
-  block.textContent = 'PAGE100';
+    'font-family:var(--cf-font-display);font-size:64px;line-height:1;letter-spacing:.02em';
+  block.textContent = 'CEEFAX-UI';
   d.appendChild(block);
   return d;
 };
