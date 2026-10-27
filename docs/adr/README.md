@@ -20,3 +20,4 @@ Each ADR records **one** decision that was hard to reverse, surprising without c
 - [0010 — The accessible theme remaps a `--cf-variant-*` alias tier, never the base colours](./0010-accessible-theme-variant-alias-tier.md)
 - [0011 — Pixel canvas art follows the theme through `--cf-variant-*`](./0011-pixel-canvas-follows-theme.md)
 - [0012 — Storybook previews are comment-triggered, and no job holding the token runs PR code](./0012-comment-triggered-storybook-previews.md)
+- [0013 — Releases go through a release-please PR, and npm publishing uses trusted publishing](./0013-release-please-and-trusted-publishing.md)

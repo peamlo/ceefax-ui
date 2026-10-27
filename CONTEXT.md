@@ -109,3 +109,7 @@ _Avoid_: viewport, TV wrapper, `cf-screen`
 **Storybook preview**:
 A throwaway published copy of the Storybook built from exactly one pull-request commit, made only when someone asks for it and deleted when the pull request closes or merges. It never follows later pushes: once the pull request has newer commits, the preview is **stale**, and asking again makes a new one.
 _Avoid_: preview environment, deploy preview, review app, staging
+
+**Release PR**:
+The one pull request kept open, and kept up to date, while `main` has changes consumers would get. It holds the next version and its changelog, and merging it is the only manual step of a release.
+_Avoid_: version-bump PR, release branch

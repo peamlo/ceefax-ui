@@ -96,6 +96,16 @@ Every PR uses `.github/PULL_REQUEST_TEMPLATE.md`. Keep the repo self-documenting
 
 PRs merge into `main` via **squash only** (merge-commit and rebase are disabled). The squash commit title is the **PR title**, so the **PR title must be a Conventional Commit** — it becomes the commit on `main`. It's validated in CI by `.github/workflows/pr-title-lint.yml`, which runs the same `commitlint.config.js` as the local hook. See `docs/adr/0002-squash-only-conventional-pr-titles.md`.
 
+## Releasing
+
+Don't bump `version` in a PR or run `npm publish` locally. Why and how: `docs/adr/0013-release-please-and-trusted-publishing.md`.
+
+- After every merge to `main`, release-please (`.github/workflows/release-please.yml`) keeps one **release PR**, `chore(release): <version>`, open while there is releasable work (`feat`, `fix`, `perf` or any breaking change; bump rules in `release-please-config.json`). It holds the version bump and the `CHANGELOG.md` entry.
+- Merging the release PR tags `v<version>` and creates the GitHub release. The tag starts `.github/workflows/release.yml`, which builds, runs `assert-package` and publishes to npm with provenance through trusted publishing (no npm token).
+- Fallback if release-please misbehaves: push a `v*` tag matching `package.json` on `main` and `release.yml` publishes it the same way.
+- Dry run: run the `release` workflow from the Actions tab with **dry-run** ticked. It proves the build and tarball gate only, not the OIDC login: the first real tag is the first real test of the trusted publisher.
+- One-time setup: a GitHub App with `contents: write` and `pull-requests: write` on this repo only (`RELEASE_APP_CLIENT_ID` variable + `RELEASE_APP_PRIVATE_KEY` secret); an npm trusted publisher for `@peamlo/ceefax-ui` → `peamlo/ceefax-ui` / `release.yml`; then revoke every existing npm automation or publish token.
+
 ## Agent skills
 
 Engineering skills from [mattpocock/skills](https://github.com/mattpocock/skills) are installed under `.agents/skills/` (editable; tracked in `skills-lock.json`). `.claude/skills` is a committed relative symlink to `.agents/skills` so Claude Code discovers them as `/slash` commands — `.agents/skills` stays the source of truth, don't de-duplicate the two dirs. See `docs/adr/0005-claude-skills-symlink-to-agents-skills.md`.
