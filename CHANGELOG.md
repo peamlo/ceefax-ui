@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/peamlo/ceefax-ui/compare/v0.3.0...v0.3.1) (2026-10-27)
+
+
+### Bug Fixes
+
+* **package:** add repository field so npm accepts the provenance ([#83](https://github.com/peamlo/ceefax-ui/issues/83)) ([75b6a56](https://github.com/peamlo/ceefax-ui/commit/75b6a5605aea4e5139fce04c44d56f5ff85b8137))
+
 ## [0.3.0](https://github.com/peamlo/ceefax-ui/compare/v0.2.0...v0.3.0) (2026-10-27)
 
 
