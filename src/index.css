@@ -8,6 +8,7 @@
 @import "./components/link.css";
 @import "./components/card.css";
 @import "./components/fastext.css";
+@import "./components/notice.css";
 @import "./layout/_shared.css";
 @import "./layout/stack.css";
 @import "./layout/cluster.css";
