@@ -1,4 +1,4 @@
-import { expect } from '@storybook/test';
+import { expect } from 'storybook/test';
 import { css, page } from './_tokens.js';
 
 export default { title: 'Foundations/Typography' };
