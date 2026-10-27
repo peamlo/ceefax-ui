@@ -13,6 +13,14 @@ Issues and PRDs for this repo live as GitHub issues on `peamlo/ceefax-ui`. Use t
 
 Infer the repo from `git remote -v` — `gh` does this automatically when run inside a clone.
 
+## Project board
+
+Tickets are tracked on a Projects (v2) kanban board: [peamlo/projects/1](https://github.com/users/peamlo/projects/1). Columns: Backlog → Ready → In progress → In review → Done. Moving cards needs the `project` scope on `gh` (`gh auth refresh -s project`).
+
+- **Find a ticket's card**: `gh project item-list 1 --owner peamlo --format json --limit 500 --jq '.items[] | select(.content.number==<N>) | .id'`
+- **Move it**: `gh project item-edit --id <item> --project-id PVT_kwHOAIna8c4BkVoR --field-id PVTSSF_lAHOAIna8c4BkVoRzhjGi9w --single-select-option-id <option>`
+- **Status options**: Backlog `f75ad846`, Ready `61e4505c`, In progress `47fc9ee4`, In review `df73e18b`, Done `98236657`
+
 ## Pull requests as a triage surface
 
 **PRs as a request surface: no.** _(Set to `yes` if this repo treats external PRs as feature requests; `/triage` reads this flag.)_
