@@ -36,8 +36,8 @@ const loaderDemo = () => {
   return d;
 };
 
-// The loader reads --cf-fg and --cf-font-mono through its shadow root (#73): override them on
-// an ancestor, under both themes, and the loader follows.
+// The loader reads --cf-fg and --cf-font-mono through its shadow root (#73). The accessible
+// theme leaves --cf-fg white, so the proof is the ancestor override: a hardcoded colour fails it.
 export const LoadingCaret = {
   render: loaderDemo,
   play: async ({ canvasElement }) => {

@@ -53,7 +53,9 @@ The Foundations/Layout **documentation** stories are deliberately *not* in the C
 They are out of #8's scope (they assert no contract claim — they are visual token/layout
 demos) and, more practically, they currently destabilise the test-runner: several hang
 for ~60s with a "most likely because of a navigation" error and time out, reproducibly,
-even at `--maxWorkers=1` and on the CI runner. Scoping by path (rather than a tag +
+even at `--maxWorkers=1` and on the CI runner. The one exception is Foundations/Brand,
+which carries a contract claim (`<cf-loader>` follows `--cf-fg`, #73) and runs cleanly, so
+it is in the gate by path like the contract stories. Scoping by path (rather than a tag +
 `--includeTags`, which reports every other story as "skipped") keeps the run and its
 output limited to what it actually gates. Making the whole story catalogue runnable
 under the test-runner is tracked separately; when fixed, the path filter is dropped and

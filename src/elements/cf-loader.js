@@ -1,7 +1,8 @@
 // <cf-loader>LOADING PAGE 102…</cf-loader>
 // The one interactive widget: a hard on/off block-cursor blink.
 // Framework-agnostic custom element. Blink gated behind prefers-reduced-motion.
-// Colour and font read the tokens (custom properties inherit into the shadow root, #73).
+// Colour and font read the tokens (custom properties inherit into the shadow root, #73);
+// the fallbacks mirror the token defaults for use without tokens.css.
 class CfLoader extends HTMLElement {
   connectedCallback() {
     this.setAttribute('role', 'status');
