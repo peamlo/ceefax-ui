@@ -35,7 +35,7 @@ export const Overview = () => {
   foundations.style.cssText = ul;
   foundations.innerHTML =
     `<li><strong style="${key}">Colors</strong> — the fixed palette and the semantic aliases on top of it.</li>` +
-    `<li><strong style="${key}">Typography</strong> — VT323 display, Space Mono body, and the type scale.</li>` +
+    `<li><strong style="${key}">Typography</strong> — Bedstead display, Space Mono body, and the type scale.</li>` +
     `<li><strong style="${key}">Spacing</strong> — a ch-based scale that tracks the monospaced grid.</li>` +
     `<li><strong style="${key}">Layout</strong> — page widths, borders, and header/footer bands.</li>`;
   root.appendChild(heading('Foundations'));

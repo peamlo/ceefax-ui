@@ -1,9 +1,11 @@
-/* Self-hosted webfonts (SIL OFL 1.1). Drop the .woff2 files into /fonts — see fonts/README.md. */
-@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url('../../fonts/vt323-v17-latin-regular.woff2') format('woff2')}
+/* Self-hosted webfonts: Bedstead (public domain) and Space Mono (SIL OFL 1.1) — see fonts/README.md.
+   Bedstead ships both weights so it can also be the body face inside the Screen frame. */
+@font-face{font-family:'Bedstead';font-style:normal;font-weight:400;font-display:swap;src:url('../../fonts/bedstead-3.261-regular.woff2') format('woff2')}
+@font-face{font-family:'Bedstead';font-style:normal;font-weight:700;font-display:swap;src:url('../../fonts/bedstead-3.261-bold.woff2') format('woff2')}
 @font-face{font-family:'Space Mono';font-style:normal;font-weight:400;font-display:swap;src:url('../../fonts/space-mono-v15-latin-regular.woff2') format('woff2')}
 @font-face{font-family:'Space Mono';font-style:normal;font-weight:700;font-display:swap;src:url('../../fonts/space-mono-v15-latin-700.woff2') format('woff2')}
 :root{
---cf-font-display:'VT323',monospace;
+--cf-font-display:'Bedstead',monospace;
 --cf-font-mono:'Space Mono','Courier New',monospace;
 --cf-font-body:var(--cf-font-mono);
 --cf-text-display-xl:72px;

@@ -165,8 +165,8 @@ Storybook uses `@storybook/html-vite` + the a11y and interactions addons, so sto
 
 ## Fonts
 
-VT323 + Space Mono, self-hosted under SIL OFL 1.1. See [`fonts/README.md`](./fonts/README.md) to drop in the `.woff2` files.
+Both self-hosted. [Bedstead](https://bjh21.me.uk/bedstead/), a recreation of the SAA5050 teletext character set (public domain), is the display face: headings, card titles and fastext keys. Space Mono (SIL OFL 1.1) is the body face. Sources, versions and licences: [`fonts/README.md`](./fonts/README.md).
 
 ## License
 
-MIT (code) · SIL OFL 1.1 (bundled fonts).
+MIT (code) · Bedstead public domain, Space Mono SIL OFL 1.1 (bundled fonts).

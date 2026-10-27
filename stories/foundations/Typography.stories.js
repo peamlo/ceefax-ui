@@ -3,14 +3,14 @@ import { css, page } from './_tokens.js';
 export default { title: 'Foundations/Typography' };
 
 const FAMILIES = [
-  ['Display', 'cf-font-display', 'VT323,monospace', 'Big page numbers and headings.'],
+  ['Display', 'cf-font-display', 'Bedstead,monospace', 'Headings, card titles and fastext keys.'],
   ['Body / Mono', 'cf-font-mono', 'Space Mono,monospace', 'Everything you actually read.'],
 ];
 
 const SCALE = [
-  ['display-xl', 'cf-text-display-xl', 'VT323,monospace'],
-  ['display-lg', 'cf-text-display-lg', 'VT323,monospace'],
-  ['heading', 'cf-text-heading', 'VT323,monospace'],
+  ['display-xl', 'cf-text-display-xl', 'Bedstead,monospace'],
+  ['display-lg', 'cf-text-display-lg', 'Bedstead,monospace'],
+  ['heading', 'cf-text-heading', 'Bedstead,monospace'],
   ['subheading', 'cf-text-subheading', 'Space Mono,monospace'],
   ['body', 'cf-text-body', 'Space Mono,monospace'],
   ['small', 'cf-text-small', 'Space Mono,monospace'],

@@ -28,6 +28,10 @@ _Avoid_: swatch, colour chip
 A run-time condition of an element (disabled, focused, current). Always expressed with native or ARIA attributes (`disabled`, `:focus-visible`, `[aria-current]`, `[aria-pressed]`) — never with a class.
 _Avoid_: state class, `cf-btn--active`, `is-active`
 
+**Display face**:
+The typeface for headings, card titles and fastext keys: Bedstead, a recreation of the SAA5050 chip that drew real teletext characters. Body text stays in Space Mono.
+_Avoid_: VT323, heading font, title font
+
 **Fastext**:
 The four coloured navigation keys (red / green / yellow / blue) from teletext, and their component (`cf-fastext`). A domain term, not a generic nav bar.
 _Avoid_: colour buttons, quick links
