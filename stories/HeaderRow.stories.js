@@ -166,6 +166,8 @@ export const InScreenFrame = {
     const header = page.querySelector(':scope > header.cf-page__header.cf-header-row');
     await assertRow(header, args.page);
     await expect(topOf(part(header, 'time'))).toBe(topOf(part(header, 'page')));
+    // One cell high, like the broadcast row: the frame's body size, 1/24 of its width.
+    await expect(parseFloat(getComputedStyle(header).fontSize)).toBeCloseTo(page.getBoundingClientRect().width / 24, 1);
     await assertColours(header);
   },
 };

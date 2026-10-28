@@ -85,6 +85,13 @@ async function assertScreenFrame(page) {
   expect(aspectRatio).toBe('auto');
   expect(width).toBeGreaterThanOrEqual(380); // viewport minus scrollbar, i.e. full-bleed
   expect(fontFamily).toMatch(/^"?Space Mono/); // no grid, no Bedstead body text
+  // A width-bound frame (taller viewport than 4:3): the 40-character row still fills the body.
+  await page.setViewportSize({ width: 900, height: 1000 });
+  const [rowW, spanW] = await page.evaluate(() => {
+    const row = document.querySelector('.cf-page__body p > span').parentElement;
+    return [row.getBoundingClientRect().width, row.firstChild.getBoundingClientRect().width];
+  });
+  expect(Math.abs(rowW - spanW)).toBeLessThan(0.5);
   await page.setViewportSize({ width: 1280, height: 720 });
 }
 
