@@ -28,7 +28,7 @@ const compare = () =>
     return { token, hex, live, ok: live !== '' && rgb(live) === rgb(hex) };
   });
 
-export default { title: 'Foundations/Palette drift' };
+export default { title: 'Foundations/Palette drift', tags: ['contract'] };
 
 // The canvas shows the live result of the same comparison play() asserts — never a
 // static claim.

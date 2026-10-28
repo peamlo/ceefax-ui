@@ -1,6 +1,7 @@
-# Runs the Storybook test-runner against a built Storybook: the story play()
-# functions (contract interaction assertions) + the axe a11y pass on Components/*.
-# Per ADR-0002 this is a HARD gate — the `main protection` ruleset requires
+# Runs the story test gate: the stories tagged `contract`, in Vitest browser mode (Chromium),
+# through the Storybook Vitest addon. Each story's play() carries its contract assertions;
+# addon-a11y runs axe on the Components/* and Layout/Page screen-frame stories, once per theme
+# (vitest.config.js). Per ADR-0002 this is a HARD gate — the `main protection` ruleset requires
 # `test-storybook`, so a red run blocks merge. See ADR-0006.
 name: storybook-tests
 
@@ -26,18 +27,4 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: npm run build-storybook
-      - name: Serve Storybook and run the test-runner
-        # Scoped to the contract stories (issue #8's tested modules) by file path.
-        # The Foundations/Layout documentation stories are out of scope and currently
-        # destabilise the test-runner (60s "navigation" hangs) — see ADR-0006. Foundations/Brand
-        # is the exception: it asserts <cf-loader> follows the tokens (#73).
-        run: |
-          npx --no -- http-server storybook-static -p 6006 --silent &
-          npx --no -- wait-on http://127.0.0.1:6006
-          npm run test-storybook -- \
-            stories/Button stories/Link stories/Card \
-            stories/Fastext stories/Canvas stories/PaletteDrift \
-            stories/VariantColours stories/TokenLayering \
-            stories/AccessibleTheme stories/Notice stories/HeaderRow stories/Scrollbar stories/Table \
-            stories/layout/Page stories/foundations/Brand
+      - run: npm run test-storybook

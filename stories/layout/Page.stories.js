@@ -1,9 +1,11 @@
 import { expect } from 'storybook/test';
 import { el } from './_demo.js';
+import { atViewport, realInput } from '../_real-input.js';
+import { withAccessibleTheme } from '../_theme.js';
 
 export default {
   title: 'Layout/Page',
-  tags: ['autodocs'],
+  tags: ['autodocs', 'contract'],
   parameters: {
     docs: {
       description: {
@@ -166,13 +168,39 @@ const expectGrid = async (page, cells) => {
   for (const left of lefts) await expect(left).toBeCloseTo(lefts[0], 0);
 };
 
+// Contract (#74): the Accessible theme wins over the frame's authentic colours, so the two
+// off-palette aliases keep the theme's values (bg-2 has no theme remap: the default deep blue).
+const expectAccessibleFrame = (page) =>
+  withAccessibleTheme(async () => {
+    const [dim, bg2] = [...page.querySelectorAll('.cf-page__body span[style]')].map((n) => getComputedStyle(n));
+    await expect(dim.color).toBe('rgb(179, 179, 179)'); // the theme's #b3b3b3
+    await expect(bg2.backgroundColor).toBe('rgb(16, 11, 138)'); // #100b8a, the default
+  });
+
+// Contract: below the narrow breakpoint the 4:3 frame is dropped and the page is full-bleed,
+// with no grid and no Bedstead body text. In a width-bound frame (a viewport taller than 4:3)
+// the 40-character row still fills the body. Needs a real viewport resize.
+const expectFrameAtViewports = async (io, page) => {
+  await atViewport(io, 400, 800, async () => {
+    const cs = getComputedStyle(page);
+    await expect(cs.aspectRatio).toBe('auto');
+    await expect(page.getBoundingClientRect().width).toBeGreaterThanOrEqual(380); // viewport minus scrollbar
+    await expect(cs.fontFamily).toMatch(/^"?Space Mono/);
+  });
+  await atViewport(io, 900, 1000, async () => {
+    const row = page.querySelector('.cf-page__body p > span').parentElement;
+    const [rowW, spanW] = [row, row.firstChild].map((n) => n.getBoundingClientRect().width);
+    await expect(spanW).toBeLessThanOrEqual(rowW + 0.01); // never wraps at 39
+    await expect(rowW - spanW).toBeLessThan(40); // short by under 1px per cell (whole-pixel cells)
+  });
+};
+
 // Use the Storybook viewport toolbar to see the frame go full-bleed below 40em.
-// The narrow-viewport and accessible-theme checks run in .storybook/test-runner.js postVisit,
-// which needs a real viewport resize and a theme switch that play() cannot do.
 export const Framed = {
   name: 'Screen frame (data-frame)',
   parameters: {
     layout: 'fullscreen',
+    a11y: { test: 'error' }, // in the axe gate under both themes (ADR-0006)
     docs: {
       description: {
         story:
@@ -201,7 +229,7 @@ export const Framed = {
     },
   },
   render: framedPage,
-  // Test-runner default viewport is wide (1280×720), so the frame is 4:3 with side bars.
+  // The Vitest default viewport is wide (1200×900), so the frame is 4:3 with side bars.
   play: async ({ canvasElement, args }) => {
     await document.fonts.load("1em 'Bedstead Cell'"); // measure Bedstead, not the fallback monospace
     const page = canvasElement.querySelector('.cf-page');
@@ -246,15 +274,27 @@ export const Framed = {
     await expect(body.scrollTop).toBeGreaterThan(0);
     await expect(header.getBoundingClientRect().top).toBe(h0);
     await expect(footer.getBoundingClientRect().top).toBe(f0);
+    await expectAccessibleFrame(page);
+
+    const io = realInput();
+    if (io) await expectFrameAtViewports(io, page);
   },
 };
 
-// The CRT look: the same Screen frame with `data-frame="crt"`. Its off-switches (forced colours,
-// Accessible theme) are asserted in .storybook/test-runner.js postVisit: play() can't emulate media.
+// The CRT look: the same Screen frame with `data-frame="crt"`. Its forced-colours off-switch
+// needs emulated media, so it runs where Vitest provides real input.
 export const CrtFramed = {
   name: 'Screen frame, CRT look (data-frame="crt")',
   parameters: {
     layout: 'fullscreen',
+    a11y: {
+      test: 'error', // in the axe gate under both themes (ADR-0006)
+      // The scanline overlay is an absolutely positioned ::after with a background-image, which
+      // axe treats as an unknown background and skips contrast for (incomplete, not a violation).
+      // Ignore pseudo-elements so contrast is really measured with the glow on: the scanlines are
+      // a texture, not a background. A run option, so it merges with axe's check defaults.
+      options: { checks: { 'color-contrast': { options: { ignorePseudo: true } } } },
+    },
     docs: {
       description: {
         story:
@@ -293,5 +333,26 @@ export const CrtFramed = {
     await expect(getComputedStyle(page, '::after').content).toBe('none');
     await expect(glow('p')).toBe('none');
     page.dataset.frame = 'crt';
+    await expectAccessibleFrame(page);
+
+    // Contract (#76): no scanlines and no glow under the Accessible theme or forced colours.
+    // The theme remaps aliases only (ADR-0010): both effects stay in place but paint transparent.
+    await withAccessibleTheme(async () => {
+      const cs = getComputedStyle(page);
+      for (const token of ['--cf-crt-scanline', '--cf-crt-glow']) {
+        await expect(cs.getPropertyValue(token)).toBe('transparent');
+      }
+    });
+    const io = realInput();
+    if (!io) return;
+    await expect(getComputedStyle(page, '::after').content).toBe('""');
+    await io.commands.emulateMedia({ forcedColors: 'active' });
+    try {
+      await expect(getComputedStyle(page, '::after').content).toBe('none');
+      await expect(glow('p')).toBe('none');
+    } finally {
+      await io.commands.emulateMedia({ forcedColors: 'none' });
+    }
+    await expectFrameAtViewports(io, page);
   },
 };
