@@ -1,0 +1,13 @@
+// knip (issue #52): unused files, exports and dependencies, in CI's advisory `dead-code` job.
+// Entries are explicit: the package `exports` (read from package.json), the Storybook config
+// (main.js, found by the plugin) with the preview and the stories, and the scripts CI runs.
+// The demo is HTML, which knip doesn't read.
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": ["scripts/*.mjs"],
+  "storybook": {
+    "entry": [".storybook/{preview,test-runner}.js", "stories/**/*.stories.js"],
+  },
+  // Run as `npm exec publint` inside assert-package.mjs, which knip can't see.
+  "ignoreDependencies": ["publint"],
+}
