@@ -27,7 +27,9 @@ function reachable(file, seen = new Set()) {
   if (seen.has(file)) return seen;
   seen.add(file);
   if (file.endsWith('.js'))
-    for (const [, spec] of readFileSync(file, 'utf8').matchAll(/^\s*(?:import|export)\b[^'"]*['"](\.{1,2}\/[^'"]+)['"]/gm))
+    for (const [, spec] of readFileSync(file, 'utf8').matchAll(
+      /^\s*(?:import|export)\b[^'"]*['"](\.{1,2}\/[^'"]+)['"]/gm,
+    ))
       reachable(resolve(dirname(file), spec), seen);
   return seen;
 }
@@ -64,7 +66,8 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     const size = now[key];
     const limit = BUDGETS[key];
     const delta = size === undefined ? '—' : was[key] === undefined ? 'new' : sign(size - was[key]);
-    const status = size === undefined ? '❌ missing' : limit === undefined ? '❌ no budget' : size > limit ? '❌ over' : '✅';
+    const status =
+      size === undefined ? '❌ missing' : limit === undefined ? '❌ no budget' : size > limit ? '❌ over' : '✅';
     return `| \`${key}\` | ${size ?? '—'} B | ${base ? `${delta} | ` : ''}${limit ?? '—'} B | ${status} |`;
   });
   console.log(

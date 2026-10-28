@@ -17,11 +17,17 @@
    proportional share): when the grid is wide the share wins → exactly N columns;
    when it narrows the fixed floor wins → auto-fill drops columns. A purely
    proportional min would keep N columns at every width and merely cram them. */
-.cf-grid{
-  display:grid;
-  gap:var(--cf-gap,var(--cf-space-3));
-  grid-template-columns:repeat(auto-fill,minmax(min(var(--cf-grid-min,100%),100%),1fr));
+.cf-grid {
+  display: grid;
+  gap: var(--cf-gap, var(--cf-space-3));
+  grid-template-columns: repeat(auto-fill, minmax(min(var(--cf-grid-min, 100%), 100%), 1fr));
 }
-.cf-grid[data-cols="2"]{--cf-grid-min:max(var(--cf-grid-floor,20ch),calc((100% - 1 * var(--cf-gap,var(--cf-space-3))) / 2))}
-.cf-grid[data-cols="3"]{--cf-grid-min:max(var(--cf-grid-floor,20ch),calc((100% - 2 * var(--cf-gap,var(--cf-space-3))) / 3))}
-.cf-grid[data-cols="4"]{--cf-grid-min:max(var(--cf-grid-floor,20ch),calc((100% - 3 * var(--cf-gap,var(--cf-space-3))) / 4))}
+.cf-grid[data-cols='2'] {
+  --cf-grid-min: max(var(--cf-grid-floor, 20ch), calc((100% - 1 * var(--cf-gap, var(--cf-space-3))) / 2));
+}
+.cf-grid[data-cols='3'] {
+  --cf-grid-min: max(var(--cf-grid-floor, 20ch), calc((100% - 2 * var(--cf-gap, var(--cf-space-3))) / 3));
+}
+.cf-grid[data-cols='4'] {
+  --cf-grid-min: max(var(--cf-grid-floor, 20ch), calc((100% - 3 * var(--cf-gap, var(--cf-space-3))) / 4));
+}

@@ -20,9 +20,7 @@ export default {
 const card = (variant, title, body) => {
   const a = el('article', 'cf-card');
   if (variant) a.dataset.variant = variant;
-  a.innerHTML =
-    '<h3 class="cf-card__title">' + title + '</h3>' +
-    '<p class="cf-card__body">' + body + '</p>';
+  a.innerHTML = '<h3 class="cf-card__title">' + title + '</h3>' + '<p class="cf-card__body">' + body + '</p>';
   return a;
 };
 
@@ -46,11 +44,7 @@ export const TeletextPage = {
     const header = el('header', 'cf-page__header cf-cluster');
     header.style.justifyContent = 'space-between';
     header.style.padding = '0 var(--cf-space-3)';
-    header.append(
-      el('span', null, '100'),
-      el('strong', null, 'CEEFAX'),
-      el('time', null, '16:02:55'),
-    );
+    header.append(el('span', null, '100'), el('strong', null, 'CEEFAX'), el('time', null, '16:02:55'));
 
     // Body — the two-page grid of index cards.
     const body = el('main', 'cf-page__body cf-grid');
@@ -109,7 +103,12 @@ const framedPage = () => {
   const nav = el('nav');
   nav.setAttribute('aria-label', 'Fastext');
   const ul = el('ul', 'cf-fastext');
-  ul.append(fastextKey('red', 'NEWS'), fastextKey('green', 'SPORT'), fastextKey('yellow', 'WEATHER'), fastextKey('blue', 'INDEX'));
+  ul.append(
+    fastextKey('red', 'NEWS'),
+    fastextKey('green', 'SPORT'),
+    fastextKey('yellow', 'WEATHER'),
+    fastextKey('blue', 'INDEX'),
+  );
   nav.append(ul);
   footer.append(nav);
 

@@ -28,7 +28,9 @@ const PALETTE_CODES = CEEFAX_PALETTE.map((p) => p.code); // for the unknown-code
 // Transparent pixels: '.' is the explicit code; leading whitespace is treated as source
 // indentation and stripped, so use '.' for intentional left-edge transparency.
 export function parseCharGrid(text) {
-  const raw = String(text ?? '').replace(/\r\n?/g, '\n').split('\n');
+  const raw = String(text ?? '')
+    .replace(/\r\n?/g, '\n')
+    .split('\n');
 
   // Drop leading/trailing blank lines (from HTML formatting around the content);
   // interior blank lines are kept as intentional all-transparent rows.
@@ -223,8 +225,7 @@ class CfCanvas extends HTMLElement {
     const colors = [null];
     for (const p of CEEFAX_PALETTE) {
       const token =
-        cs.getPropertyValue(`--cf-variant-${p.name}`).trim() ||
-        cs.getPropertyValue(`--cf-base-${p.name}`).trim();
+        cs.getPropertyValue(`--cf-variant-${p.name}`).trim() || cs.getPropertyValue(`--cf-base-${p.name}`).trim();
       colors.push(token || p.hex);
     }
     return colors;

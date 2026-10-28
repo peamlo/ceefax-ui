@@ -5,18 +5,44 @@
    These selectors only *set* custom properties — inert unless a primitive reads them. */
 
 /* Gap scale — mirrors the spacing tokens (--cf-space-0 … --cf-space-8). */
-[data-gap="0"]{--cf-gap:var(--cf-space-0)}
-[data-gap="1"]{--cf-gap:var(--cf-space-1)}
-[data-gap="2"]{--cf-gap:var(--cf-space-2)}
-[data-gap="3"]{--cf-gap:var(--cf-space-3)}
-[data-gap="4"]{--cf-gap:var(--cf-space-4)}
-[data-gap="5"]{--cf-gap:var(--cf-space-5)}
-[data-gap="6"]{--cf-gap:var(--cf-space-6)}
-[data-gap="7"]{--cf-gap:var(--cf-space-7)}
-[data-gap="8"]{--cf-gap:var(--cf-space-8)}
+[data-gap='0'] {
+  --cf-gap: var(--cf-space-0);
+}
+[data-gap='1'] {
+  --cf-gap: var(--cf-space-1);
+}
+[data-gap='2'] {
+  --cf-gap: var(--cf-space-2);
+}
+[data-gap='3'] {
+  --cf-gap: var(--cf-space-3);
+}
+[data-gap='4'] {
+  --cf-gap: var(--cf-space-4);
+}
+[data-gap='5'] {
+  --cf-gap: var(--cf-space-5);
+}
+[data-gap='6'] {
+  --cf-gap: var(--cf-space-6);
+}
+[data-gap='7'] {
+  --cf-gap: var(--cf-space-7);
+}
+[data-gap='8'] {
+  --cf-gap: var(--cf-space-8);
+}
 
 /* Cross-axis alignment — consumed by cf-cluster (and any flex primitive). */
-[data-align="start"]{--cf-align:flex-start}
-[data-align="center"]{--cf-align:center}
-[data-align="end"]{--cf-align:flex-end}
-[data-align="baseline"]{--cf-align:baseline}
+[data-align='start'] {
+  --cf-align: flex-start;
+}
+[data-align='center'] {
+  --cf-align: center;
+}
+[data-align='end'] {
+  --cf-align: flex-end;
+}
+[data-align='baseline'] {
+  --cf-align: baseline;
+}

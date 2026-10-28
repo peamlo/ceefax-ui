@@ -1,8 +1,39 @@
 /* Fastext bar — the coloured "remote key" nav. Colour is NEVER the sole cue:
    every key carries a redundant text label in the markup. */
-.cf-fastext{display:flex;gap:var(--cf-space-1);margin:0;padding:0;list-style:none;font-family:var(--cf-font-display);font-weight:var(--cf-weight-regular);text-transform:uppercase;letter-spacing:var(--cf-tracking-wide)}
-.cf-fastext__key{flex:1 1 0;display:flex;align-items:center;gap:var(--cf-space-2);padding:.4em 2ch;color:var(--cf-on-variant);text-decoration:none;border:var(--cf-border-thin) solid transparent;white-space:nowrap}
+.cf-fastext {
+  display: flex;
+  gap: var(--cf-space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--cf-font-display);
+  font-weight: var(--cf-weight-regular);
+  text-transform: uppercase;
+  letter-spacing: var(--cf-tracking-wide);
+}
+.cf-fastext__key {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  gap: var(--cf-space-2);
+  padding: 0.4em 2ch;
+  color: var(--cf-on-variant);
+  text-decoration: none;
+  border: var(--cf-border-thin) solid transparent;
+  white-space: nowrap;
+}
 /* Colour comes from the variant seam (base.css); the key paints its background. */
-.cf-fastext__key[data-variant]{background:var(--_variant,transparent);color:var(--_variant-ink,var(--cf-on-variant))}
-.cf-fastext__key:hover,.cf-fastext__key:focus-visible{outline:none;background:var(--cf-bg);border-color:currentColor}
-.cf-fastext__key[data-variant]:hover,.cf-fastext__key[data-variant]:focus-visible{color:var(--_variant,var(--cf-on-variant))}
+.cf-fastext__key[data-variant] {
+  background: var(--_variant, transparent);
+  color: var(--_variant-ink, var(--cf-on-variant));
+}
+.cf-fastext__key:hover,
+.cf-fastext__key:focus-visible {
+  outline: none;
+  background: var(--cf-bg);
+  border-color: currentColor;
+}
+.cf-fastext__key[data-variant]:hover,
+.cf-fastext__key[data-variant]:focus-visible {
+  color: var(--_variant, var(--cf-on-variant));
+}

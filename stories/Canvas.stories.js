@@ -71,11 +71,7 @@ export default {
 // Pixel-art header text built from a tiny 5x5 font — the classic teletext masthead:
 // yellow ink, black drop shadow, blue band, just like the Ceefax P100 header.
 export const HeaderText = {
-  render: () =>
-    stage(
-      pixels(masthead('CEEFAX-UI'), { alt: 'ceefax-ui', 'data-size': 'full' }),
-      '720px',
-    ),
+  render: () => stage(pixels(masthead('CEEFAX-UI'), { alt: 'ceefax-ui', 'data-size': 'full' }), '720px'),
 };
 
 // The same word with just a drop shadow on the transparent page (no band) —
@@ -142,7 +138,16 @@ export const ScaleEscapeHatch = {
 // The colour each SWATCH column (k r g y b m c w) is drawn in, per theme. Black and white
 // have no variant token, so the accessible theme leaves them alone (#12, ADR-0011).
 const AUTHENTIC = ['0,0,0', '255,0,0', '0,255,0', '255,255,0', '0,0,255', '255,0,255', '0,255,255', '255,255,255'];
-const ACCESSIBLE = ['0,0,0', '255,158,77', '51,224,192', '255,255,0', '102,179,255', '224,160,208', '153,230,255', '255,255,255'];
+const ACCESSIBLE = [
+  '0,0,0',
+  '255,158,77',
+  '51,224,192',
+  '255,255,0',
+  '102,179,255',
+  '224,160,208',
+  '153,230,255',
+  '255,255,255',
+];
 
 const drawn = (el) => {
   const ctx = el.shadowRoot.querySelector('canvas').getContext('2d');
@@ -173,8 +178,7 @@ export const AllColours = {
 
 // Unknown codes render transparent and log a single console.warn (see the console).
 export const UnknownCodes = {
-  render: () =>
-    stage(pixels('.rXr.\nrZZZr\n.rrr.', { alt: 'heart with unknown codes X and Z' }), '240px'),
+  render: () => stage(pixels('.rXr.\nrZZZr\n.rrr.', { alt: 'heart with unknown codes X and Z' }), '240px'),
   // parseCharGrid self-check (the pure source adapter). Run here rather than in node
   // because importing cf-canvas.js registers a custom element (needs a DOM).
   play: async () => {
@@ -182,9 +186,21 @@ export const UnknownCodes = {
     const g = parseCharGrid('.rXr.\nrZZZr\n.rrr.');
     await expect({ width: g.width, height: g.height }).toEqual({ width: 5, height: 3 });
     await expect(Array.from(g.cells)).toEqual([
-      0, 2, 0, 2, 0, // .rXr.  (X unknown -> 0)
-      2, 0, 0, 0, 2, // rZZZr  (Z unknown -> 0)
-      0, 2, 2, 2, 0, // .rrr.
+      0,
+      2,
+      0,
+      2,
+      0, // .rXr.  (X unknown -> 0)
+      2,
+      0,
+      0,
+      0,
+      2, // rZZZr  (Z unknown -> 0)
+      0,
+      2,
+      2,
+      2,
+      0, // .rrr.
     ]);
     await expect(g.unknown.sort()).toEqual(['X', 'Z']);
     // Leading source indentation is stripped; interior blank rows are kept.

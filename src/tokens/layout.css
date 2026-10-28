@@ -1,10 +1,10 @@
-:root{
---cf-content-max:65ch;   /* a comfortable prose measure; only the Screen frame is 40 cells */
---cf-layout-max:82ch;    /* two pages side by side */
---cf-border-thin:2px;
---cf-border-thick:4px;
---cf-radius:0px;         /* teletext is square. always 0. */
---cf-header-row:2.6em;
---cf-footer-row:2.6em;
---cf-sidebar-side:20ch;  /* default width of the cf-sidebar rail */
+:root {
+  --cf-content-max: 65ch; /* a comfortable prose measure; only the Screen frame is 40 cells */
+  --cf-layout-max: 82ch; /* two pages side by side */
+  --cf-border-thin: 2px;
+  --cf-border-thick: 4px;
+  --cf-radius: 0px; /* teletext is square. always 0. */
+  --cf-header-row: 2.6em;
+  --cf-footer-row: 2.6em;
+  --cf-sidebar-side: 20ch; /* default width of the cf-sidebar rail */
 }

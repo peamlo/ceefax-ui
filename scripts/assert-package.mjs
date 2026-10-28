@@ -8,15 +8,7 @@
 import { execFileSync } from 'node:child_process';
 import { createServer } from 'node:http';
 import { createRequire } from 'node:module';
-import {
-  existsSync,
-  mkdirSync,
-  mkdtempSync,
-  readdirSync,
-  readFileSync,
-  realpathSync,
-  statSync,
-} from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, extname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -28,8 +20,7 @@ import { measure, overBudget } from './size.mjs';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const FONT_EXT = new Set(['.woff2', '.woff', '.ttf', '.otf']);
 
-const npm = (args, cwd) =>
-  execFileSync('npm', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] });
+const npm = (args, cwd) => execFileSync('npm', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] });
 
 const kB = (bytes) => `${(bytes / 1024).toFixed(1)} kB`;
 let passed = 0;
@@ -62,16 +53,13 @@ const toPosix = (path) => path.split(sep).join('/');
 const tagOf = (subpath) => subpath.split('/').pop();
 
 // Flatten an `exports` value (string or nested conditions) to its target strings.
-const targets = (value) =>
-  typeof value === 'string' ? [value] : Object.values(value ?? {}).flatMap(targets);
+const targets = (value) => (typeof value === 'string' ? [value] : Object.values(value ?? {}).flatMap(targets));
 
 // 1. Pack. --ignore-scripts: the build already ran, and lifecycle output would
 //    corrupt the --json on stdout.
 // realpath: macOS's tmpdir is a symlink, and require.resolve returns real paths.
 const work = realpathSync(mkdtempSync(join(tmpdir(), 'ceefax-pack-')));
-const [packed] = JSON.parse(
-  npm(['pack', '--json', '--ignore-scripts', '--pack-destination', work], root),
-);
+const [packed] = JSON.parse(npm(['pack', '--json', '--ignore-scripts', '--pack-destination', work], root));
 const tarball = join(work, packed.filename);
 console.log(
   `\n📦 ${styleText('bold', packed.filename)} ${styleText('dim', `· ${packed.files.length} files · ${kB(packed.size)} packed`)}\n`,
@@ -133,8 +121,7 @@ check('font url()s resolve', () => {
       if (/^(data:|https?:|\/\/|#)/.test(ref)) continue;
       count++;
       const target = join(dirname(join(pkgDir, css)), ref.split(/[?#]/)[0]);
-      if (!target.startsWith(pkgDir + sep) || !existsSync(target))
-        broken.push(`${css}: url(${ref})`);
+      if (!target.startsWith(pkgDir + sep) || !existsSync(target)) broken.push(`${css}: url(${ref})`);
     }
   }
   if (broken.length) throw new Error(broken.join('\n'));
@@ -148,8 +135,7 @@ check('fonts ship once, woff2 only', () => {
   const problems = fonts.filter((f) => extname(f) !== '.woff2').map((f) => `not woff2: ${f}`);
   const seen = new Map();
   for (const f of fonts) seen.set(basename(f), [...(seen.get(basename(f)) ?? []), f]);
-  for (const [name, paths] of seen)
-    if (paths.length > 1) problems.push(`duplicate ${name}: ${paths.join(', ')}`);
+  for (const [name, paths] of seen) if (paths.length > 1) problems.push(`duplicate ${name}: ${paths.join(', ')}`);
   if (problems.length) throw new Error(problems.join('\n'));
   return `${fonts.length} fonts`;
 });
@@ -159,9 +145,7 @@ check('sideEffects keeps CSS and elements', () => {
   const { sideEffects } = pkg;
   const required = ['*.css', './src/elements/*.js'];
   if (!Array.isArray(sideEffects) || required.some((r) => !sideEffects.includes(r)))
-    throw new Error(
-      `expected an array including ${required.join(', ')}; got ${JSON.stringify(sideEffects)}`,
-    );
+    throw new Error(`expected an array including ${required.join(', ')}; got ${JSON.stringify(sideEffects)}`);
 });
 
 // npm rejects a provenance publish unless repository.url names the repo that
@@ -176,8 +160,11 @@ check('repository.url matches GitHub (provenance)', () => {
 check('size budgets (brotli)', () => {
   const sizes = measure(pkgDir);
   const over = overBudget(sizes);
-  if (over.length) throw new Error(`${over.join('\n')}\nraise the budget in scripts/size.mjs if the growth is deliberate`);
-  return Object.entries(sizes).map(([k, b]) => `${k} ${b} B`).join(', ');
+  if (over.length)
+    throw new Error(`${over.join('\n')}\nraise the budget in scripts/size.mjs if the growth is deliberate`);
+  return Object.entries(sizes)
+    .map(([k, b]) => `${k} ${b} B`)
+    .join(', ');
 });
 
 // 8. publint over the tarball consumers install, not a fresh pack of the repo.
@@ -255,4 +242,6 @@ try {
   server.close();
 }
 
-console.log(`\n${styleText(['green', 'bold'], `✨ ${pkg.name}@${pkg.version} is good to publish`)} ${styleText('dim', `· ${passed} checks passed`)}`);
+console.log(
+  `\n${styleText(['green', 'bold'], `✨ ${pkg.name}@${pkg.version} is good to publish`)} ${styleText('dim', `· ${passed} checks passed`)}`,
+);

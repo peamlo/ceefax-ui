@@ -56,19 +56,19 @@ type(optional-scope): description
 
 ### Types
 
-| Type | Use for |
-|------|---------|
-| `feat` | A new feature |
-| `fix` | A bug fix |
-| `docs` | Documentation only |
-| `style` | Formatting/whitespace, no code-behaviour change |
+| Type       | Use for                                                 |
+| ---------- | ------------------------------------------------------- |
+| `feat`     | A new feature                                           |
+| `fix`      | A bug fix                                               |
+| `docs`     | Documentation only                                      |
+| `style`    | Formatting/whitespace, no code-behaviour change         |
 | `refactor` | Code change that neither fixes a bug nor adds a feature |
-| `perf` | Performance improvement |
-| `test` | Adding or fixing tests |
-| `build` | Build system or dependencies |
-| `ci` | CI configuration |
-| `chore` | Maintenance that doesn't fit above |
-| `revert` | Reverts a previous commit |
+| `perf`     | Performance improvement                                 |
+| `test`     | Adding or fixing tests                                  |
+| `build`    | Build system or dependencies                            |
+| `ci`       | CI configuration                                        |
+| `chore`    | Maintenance that doesn't fit above                      |
+| `revert`   | Reverts a previous commit                               |
 
 ### Rules
 

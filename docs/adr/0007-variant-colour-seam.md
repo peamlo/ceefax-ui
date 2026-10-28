@@ -14,7 +14,7 @@ hiding it (issue #7).
 **The name→colour mapping lives once, in `src/base.css`.** A `[data-variant]` value
 resolves to two inherited custom properties — `--_variant` (the authentic colour) and
 `--_variant-ink` (the readable foreground on it) — and each component reads them to
-express only *how* it paints: the button fills background + ink + border, the card
+express only _how_ it paints: the button fills background + ink + border, the card
 paints the border, the fastext key paints its background. Adding an authentic colour is
 now one line; a new component opts into variants by reading `--_variant`, with no
 mapping to copy.
@@ -36,13 +36,13 @@ colours and leaves the `--cf-*` semantic aliases untouched, so the accessible th
   inside a red card would turn red. The guard is the component's own attribute selector.
 - **Every read needs a `var()` fallback.** A name the seam has no row for — a consumer
   typo, or a look-only variant — sets neither property. An unresolved `var()` inside the
-  `border` *shorthand* is invalid at computed-value time and resets every border
+  `border` _shorthand_ is invalid at computed-value time and resets every border
   longhand, which turned a typo into an invisible, border-less button. Each component
   therefore reads `var(--_variant, <its own default>)`. This also fixed a latent bug in
   the card, which previously fell back to `currentColor` and would have diverged from
   `--cf-border` as soon as the accessible theme remapped it.
 - **Non-colour variants stay local and stay last.** `ghost` (button) and `nav` (link)
-  get no `--_variant`; a component rule matching one must sit *after* the component's
+  get no `--_variant`; a component rule matching one must sit _after_ the component's
   generic `[data-variant]` rule, since both have the same specificity and order decides.
 - **The accepted variant surface widened.** Because a component matches `[data-variant]`
   rather than enumerating names, every component with variants now accepts all six

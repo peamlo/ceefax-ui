@@ -6,8 +6,7 @@ import { CEEFAX_PALETTE } from '../src/tokens/palette.js';
 // sync with the CSS tokens (src/tokens/colors.css) — this fails the build if the
 // hand-synced pair diverges. Kept in its own file (not on Foundations/Colors) so the
 // CI run can include it without the heavier Colors swatch stories.
-const css = (name) =>
-  getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
 // Compare colours, not strings: the CSS minifier may rewrite #000000 as #000 or #ff0000
 // as red. The browser resolves either spelling to the same rgb() on a probe element.
@@ -47,9 +46,7 @@ export const Guard = {
     const list = document.createElement('ul');
     for (const { token, hex, live, ok } of rows) {
       const li = document.createElement('li');
-      li.textContent = ok
-        ? `${token} ${hex} ✓`
-        : `${token}: palette.js ${hex} ≠ CSS ${live || '(unset)'} ✗`;
+      li.textContent = ok ? `${token} ${hex} ✓` : `${token}: palette.js ${hex} ≠ CSS ${live || '(unset)'} ✗`;
       list.append(li);
     }
     el.append(status, list);

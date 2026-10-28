@@ -9,16 +9,29 @@ const AAA = 7;
 
 // Colours drawn ON the page background.
 const ON_BG = [
-  'cf-fg', 'cf-fg-dim', 'cf-border',
-  'cf-link', 'cf-link-hover', 'cf-link-visited',
-  'cf-accent', 'cf-accent-2', 'cf-info', 'cf-warning', 'cf-danger', 'cf-success',
-  'cf-variant-red', 'cf-variant-green', 'cf-variant-yellow',
-  'cf-variant-blue', 'cf-variant-magenta', 'cf-variant-cyan',
+  'cf-fg',
+  'cf-fg-dim',
+  'cf-border',
+  'cf-link',
+  'cf-link-hover',
+  'cf-link-visited',
+  'cf-accent',
+  'cf-accent-2',
+  'cf-info',
+  'cf-warning',
+  'cf-danger',
+  'cf-success',
+  'cf-variant-red',
+  'cf-variant-green',
+  'cf-variant-yellow',
+  'cf-variant-blue',
+  'cf-variant-magenta',
+  'cf-variant-cyan',
 ];
 const VARIANTS = ['red', 'green', 'yellow', 'blue', 'magenta', 'cyan'];
 
 // WCAG 2.x relative luminance and contrast ratio.
-const channel = (c) => (c /= 255) <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+const channel = (c) => ((c /= 255) <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
 const luminance = (rgb) => {
   const [r, g, b] = rgb.match(/\d+/g).map(Number).map(channel);
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;

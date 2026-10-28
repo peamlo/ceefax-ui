@@ -15,7 +15,7 @@ export default {
     nav.setAttribute('aria-label', 'Fastext');
     const ul = document.createElement('ul');
     ul.className = 'cf-fastext';
-    KEYS.forEach(k => {
+    KEYS.forEach((k) => {
       const li = document.createElement('li');
       const a = document.createElement('a');
       a.className = 'cf-fastext__key';

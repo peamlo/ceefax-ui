@@ -1,0 +1,8 @@
+# Generated, vendored or snapshot files: not ours to format.
+CHANGELOG.md
+package-lock.json
+.agents/
+.claude/
+dist/
+storybook-static/
+docs/reviews/

@@ -1,7 +1,6 @@
 // Shared helpers so every Foundations page reads its values live from the design
 // tokens on :root — this documentation can never drift from src/tokens/*.css.
-export const css = (name) =>
-  getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+export const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
 // A white page container in the Space Mono body face.
 export const page = (html = '') => {

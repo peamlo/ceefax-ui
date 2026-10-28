@@ -4,9 +4,18 @@
 
    Structural only — the teletext look comes from the tokens, not from baked markup.
    Gated with :has() so a bare `cf-page` (the flat canvas from base.css) is unaffected. */
-.cf-page:has(.cf-page__body){display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr auto;min-height:100vh}
-.cf-page__header{min-height:var(--cf-header-row)}
-.cf-page__footer{min-height:var(--cf-footer-row)}
+.cf-page:has(.cf-page__body) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
+}
+.cf-page__header {
+  min-height: var(--cf-header-row);
+}
+.cf-page__footer {
+  min-height: var(--cf-footer-row);
+}
 
 /* Screen frame — opt-in `data-frame` on the page shell: a 4:3 teletext set, as wide as
    fits the viewport and centred, with the type tokens scaled to the frame so the layout
@@ -16,14 +25,23 @@
    (full-bleed, fixed type). The breakpoint is a literal: @media can't read custom props.
    --_w is the frame width, so type scales without container queries (cqw can't resolve
    against the element that is itself the container). */
-@media (min-width:40em){
-  .cf-page[data-frame]{
-    --_r:var(--cf-frame-ratio,1.3333);
-    --_w:min(100vw,calc(100dvh*var(--_r)));
-    --cf-text-body:calc(var(--_w)*.015625);    /* 16px at a 1024px-wide frame */
-    --cf-text-small:calc(var(--_w)*.01171875); /* 12px */
-    --cf-text-heading:calc(var(--_w)*.03125);  /* 32px */
-    width:var(--_w);aspect-ratio:var(--_r);margin-inline:auto;overflow:hidden}
-  .cf-page[data-frame]:has(.cf-page__body){min-height:0;grid-template-rows:auto minmax(0,1fr) auto}
-  .cf-page[data-frame] .cf-page__body{overflow:auto}
+@media (min-width: 40em) {
+  .cf-page[data-frame] {
+    --_r: var(--cf-frame-ratio, 1.3333);
+    --_w: min(100vw, calc(100dvh * var(--_r)));
+    --cf-text-body: calc(var(--_w) * 0.015625); /* 16px at a 1024px-wide frame */
+    --cf-text-small: calc(var(--_w) * 0.01171875); /* 12px */
+    --cf-text-heading: calc(var(--_w) * 0.03125); /* 32px */
+    width: var(--_w);
+    aspect-ratio: var(--_r);
+    margin-inline: auto;
+    overflow: hidden;
+  }
+  .cf-page[data-frame]:has(.cf-page__body) {
+    min-height: 0;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+  .cf-page[data-frame] .cf-page__body {
+    overflow: auto;
+  }
 }
