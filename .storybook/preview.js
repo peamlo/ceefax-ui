@@ -33,6 +33,17 @@ export default {
       return story();
     },
   ],
+  // The accessible-theme axe pass (#12, ADR-0006): the `accessible` Vitest project sets the
+  // `axeTheme` global. play() has asserted under the authentic theme; now switch to the
+  // accessible theme and enable AAA contrast for addon-a11y's audit. Storybook runs afterEach
+  // finalizers in reverse, so this one (preview) runs before the addon's.
+  afterEach: ({ globals, parameters }) => {
+    if (globals.axeTheme !== 'accessible') return;
+    document.documentElement.dataset.theme = 'accessible';
+    const { a11y = {} } = parameters;
+    const rules = { ...a11y.options?.rules, 'color-contrast-enhanced': { enabled: true } };
+    parameters.a11y = { ...a11y, options: { ...a11y.options, rules } };
+  },
   parameters: {
     docs: {
       source: {

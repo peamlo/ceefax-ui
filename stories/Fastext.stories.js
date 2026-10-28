@@ -1,4 +1,5 @@
 import { expect, within } from 'storybook/test';
+import { colours, realInput, unhover } from './_real-input.js';
 
 // The authentic on-screen palette: the 4th key is cyan, because blue text on black fails contrast.
 const KEYS = [
@@ -8,9 +9,28 @@ const KEYS = [
   { colour: 'cyan', label: 'A–Z' },
 ];
 
+// Contract: hovering a fastext key inverts it. A text key fills with its colour in its ink;
+// a banded key drops to the page background with its text in the band colour. Asserted
+// against the key's own resting colours, so it holds for either look and any theme. One key
+// per story is enough: which colour each name resolves to is pinned for every colour by the
+// Foundations/Variant colours matrix, so what is left for real input to prove is that the
+// hover rule fires. No story's first key is blue, so a text key's ink is black.
+const BLACK = 'rgb(0, 0, 0)';
+const assertHover = async (io, key) => {
+  const rest = colours(key);
+  await io.userEvent.hover(key);
+  const banded = rest.backgroundColor !== 'rgba(0, 0, 0, 0)';
+  await expect(colours(key)).toEqual(
+    banded ? { backgroundColor: BLACK, color: rest.backgroundColor } : { backgroundColor: rest.color, color: BLACK },
+  );
+  // Leave nothing hovered: the axe pass audits the resting state, not a transient inversion.
+  await unhover(io, key);
+};
+
 export default {
   title: 'Components/Fastext bar',
-  tags: ['autodocs'],
+  tags: ['autodocs', 'contract'],
+  parameters: { a11y: { test: 'error' } }, // in the axe gate under both themes (ADR-0006)
   args: { keys: 4, look: 'text' },
   argTypes: {
     keys: { control: { type: 'inline-radio' }, options: [1, 2, 3, 4] },
@@ -49,6 +69,20 @@ export default {
     const widths = keys.map((k) => k.getBoundingClientRect().width);
     for (const w of widths) await expect(Math.abs(w - bar / keys.length)).toBeLessThanOrEqual(1);
     await expect(Math.abs(widths.reduce((a, b) => a + b) - bar)).toBeLessThanOrEqual(1);
+
+    const io = realInput();
+    if (!io) return;
+    await assertHover(io, keys[0]);
+    // #12: under the accessible theme the inversion follows the theme's colours, ink still black.
+    const root = document.documentElement;
+    const theme = root.dataset.theme;
+    root.dataset.theme = 'accessible';
+    try {
+      await assertHover(io, keys[0]);
+    } finally {
+      if (theme) root.dataset.theme = theme;
+      else delete root.dataset.theme;
+    }
   },
 };
 

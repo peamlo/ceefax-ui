@@ -65,7 +65,8 @@ function label(text) {
 
 export default {
   title: 'Components/Pixel canvas',
-  tags: ['autodocs'],
+  tags: ['autodocs', 'contract'],
+  parameters: { a11y: { test: 'error' } }, // in the axe gate under both themes (ADR-0006)
 };
 
 // Pixel-art header text built from a tiny 5x5 font — the classic teletext masthead:

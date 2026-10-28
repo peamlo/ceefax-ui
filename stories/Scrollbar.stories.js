@@ -125,9 +125,9 @@ const labelled = (text, el) => {
   return fig;
 };
 
-export default { title: 'Foundations/Scrollbar' };
+export default { title: 'Foundations/Scrollbar', tags: ['contract'] };
 
-// One story (ADR-0006: a Foundations file with several stories hangs the test-runner).
+// One story (ADR-0006: a Foundations file with several stories hung the old test-runner).
 export const Variants = {
   name: 'Variants, inheritance and scope',
   render: () => {

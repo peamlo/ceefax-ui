@@ -2,7 +2,8 @@ import { expect, within } from 'storybook/test';
 
 export default {
   title: 'Components/Link',
-  tags: ['autodocs'],
+  tags: ['autodocs', 'contract'],
+  parameters: { a11y: { test: 'error' } }, // in the axe gate under both themes (ADR-0006)
   render: ({ label, variant, page, current, href }) => {
     const a = document.createElement('a');
     a.className = 'cf-link';

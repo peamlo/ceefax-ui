@@ -2,7 +2,7 @@ import { expect } from 'storybook/test';
 import { page } from './_tokens.js';
 // <cf-loader> is registered globally by the import in .storybook/preview.js.
 
-export default { title: 'Foundations/Brand' };
+export default { title: 'Foundations/Brand', tags: ['contract'] };
 
 // ---------------------------------------------------------------------------
 // Wordmark — the name in the display face on a colour block. There is no logo; do not
