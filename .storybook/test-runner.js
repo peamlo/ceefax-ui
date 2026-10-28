@@ -87,6 +87,23 @@ async function assertScreenFrame(page) {
   await page.setViewportSize({ width: 1280, height: 720 });
 }
 
+// Contract (#72): at phone width the header row wraps inside the page shell, keeping the
+// page number visible and nothing spilling sideways. Restores the wide viewport.
+async function assertHeaderRowNarrow(page) {
+  await page.setViewportSize({ width: 320, height: 640 });
+  const { pageVisible, fits } = await page.evaluate(() => {
+    const row = document.querySelector('.cf-header-row');
+    const r = row.querySelector('.cf-header-row__page').getBoundingClientRect();
+    return {
+      pageVisible: r.width > 0 && r.left >= 0 && r.right <= innerWidth,
+      fits: row.scrollWidth <= row.clientWidth,
+    };
+  });
+  expect(pageVisible).toBe(true);
+  expect(fits).toBe(true);
+  await page.setViewportSize({ width: 1280, height: 720 });
+}
+
 // Contract (#19): the notice flag flashes for ~5s then holds visible, never under reduced
 // motion, and never with data-blink="off". Needs emulated media, which play() cannot set.
 // Leaves the flag solid (animation finished) so axe audits the resting state.
@@ -141,6 +158,7 @@ export default {
     if (title === 'Components/Button') await assertButtonContract(page, name);
     if (title === 'Components/Fastext bar') await assertFastextHover(page);
     if (title === 'Components/Notice') await assertNoticeBlink(page);
+    if (title === 'Components/Header row' && name === 'In the Screen frame') await assertHeaderRowNarrow(page);
 
     await injectAxe(page);
     await axe(page);

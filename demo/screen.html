@@ -16,8 +16,13 @@
   <body>
     <!-- Resize the window: the page stays 4:3, type scales with it, and below 40em it goes full-bleed. -->
     <section class="cf-page" data-frame>
-      <header class="cf-page__header cf-cluster" style="justify-content: space-between; padding: 0 var(--cf-space-3)">
-        <span>100</span><strong>CEEFAX</strong><time>16:02</time>
+      <header class="cf-page__header cf-header-row">
+        <span class="cf-header-row__page">P100</span>
+        <span class="cf-header-row__service">CEEFAX</span>
+        <span class="cf-header-row__rolling">100</span>
+        <time class="cf-header-row__time" datetime="2026-10-28T16:02:00"
+          ><span class="cf-header-row__date">Oct28</span> 16:02:00</time
+        >
       </header>
 
       <main class="cf-page__body cf-stack" tabindex="0" style="padding: var(--cf-space-3)">
