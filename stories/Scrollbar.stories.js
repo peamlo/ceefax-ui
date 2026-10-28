@@ -55,6 +55,8 @@ const PROPS = [
 const THEMES = ['', 'accessible'];
 
 const prop = (el, name) => getComputedStyle(el).getPropertyValue(`--${name}`).trim();
+// A length as number + unit, so the minified build's `.75em` matches the source's `0.75em`.
+const norm = (v) => v.replace(/^(\d*\.?\d+)([a-z]+)$/, (_, n, u) => `${Number(n)}${u}`);
 
 // [label, actual, expected] for everything a variant resolves to at `el`.
 const resolution = (el, name) => {
@@ -73,7 +75,7 @@ const resolution = (el, name) => {
     });
   rows.push(['--_sb-ff-thumb', prop(el, '_sb-ff-thumb'), prop(el, v.thumb[0])]);
   rows.push(['--_sb-ff-track', prop(el, '_sb-ff-track'), prop(el, v.track[0])]);
-  for (const [p, want] of Object.entries(v.props)) rows.push([`--_sb-${p}`, prop(el, `_sb-${p}`), want]);
+  for (const [p, want] of Object.entries(v.props)) rows.push([`--_sb-${p}`, norm(prop(el, `_sb-${p}`)), norm(want)]);
   return rows;
 };
 
