@@ -103,8 +103,10 @@ jobs:
   # Dead code (issue #52): knip reports unused files, exports and dependencies
   # (config in knip.jsonc); the token report lists every --cf-* token with its
   # consumers in the job summary, warns on tokens only a Foundations story shows,
-  # and fails on tokens neither consumed nor documented. Advisory: not in the
-  # `main protection` ruleset, so a false positive never blocks a merge.
+  # and fails on tokens neither consumed nor documented. It also runs the
+  # scripts' own node:test files (the token report's verdicts, ADR-0006).
+  # Advisory: not in the `main protection` ruleset, so a false positive never
+  # blocks a merge.
   dead-code:
     runs-on: ubuntu-latest
     steps:

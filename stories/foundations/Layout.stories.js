@@ -11,6 +11,7 @@ const TOKENS = [
   ['cf-radius', 'always 0 — teletext is square'],
   ['cf-header-row', 'header band height'],
   ['cf-footer-row', 'footer band height'],
+  ['cf-sidebar-side', 'default width of the cf-sidebar rail'],
 ];
 
 const TokensRender = () => {

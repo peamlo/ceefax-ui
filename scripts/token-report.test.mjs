@@ -1,6 +1,6 @@
 // The token report's verdicts on a fixture tree (issue #52): a consumed token passes,
 // an unconsumed one shown in a Foundations story warns, one in neither fails.
-//   node --test scripts/
+//   node --test 'scripts/*.test.mjs'
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
@@ -21,12 +21,12 @@ test('verdict per token: consumed → ok, documented only → warn, neither → 
   const root = fixture({
     'src/tokens/colors.css': ':root { --cf-used: red; --cf-shown: blue; --cf-orphan: green; --cf-orphan-2: 0 }',
     'src/components/x.css': '.cf-x { color: var(--cf-used); }',
-    'stories/foundations/Colors.stories.js': "const NAMES = ['cf-shown', 'cf-orphan-2-not'];",
+    'stories/foundations/Colors.stories.js': "const NAMES = ['cf-shown', 'cf-orphan-2-not']; s = 'var(--cf-shown)';",
   });
   const verdicts = Object.fromEntries(tokenReport(root).map((r) => [r.token, r.verdict]));
   assert.deepEqual(verdicts, {
     '--cf-used': 'ok',
-    '--cf-shown': 'warn',
+    '--cf-shown': 'warn', // a Foundations story's own var() is documentation, not a use
     '--cf-orphan': 'error', // a longer name in a story or var() doesn't count
     '--cf-orphan-2': 'error',
   });
