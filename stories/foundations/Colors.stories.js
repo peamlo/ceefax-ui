@@ -90,7 +90,7 @@ export const Bands = () => {
   const d = page(
     '<p style="max-width:60ch;color:var(--cf-fg-dim)"><code>data-band</code> names the background; ' +
       '<code>data-variant</code> on the same element names the ink, else the readable default is used. ' +
-      'Default-theme contrast is yours to choose: pick a passing pair.</p>',
+      'Default-theme contrast is yours to choose: pick a passing pair. A ✕ cell fails AA, so use the default ink there.</p>',
   );
   d.appendChild(heading('Bands · band × ink'));
   const table = document.createElement('table');
@@ -109,7 +109,7 @@ export const Bands = () => {
     tr.append(th(band));
     for (const ink of ['', ...COLOURS]) {
       const td = tr.insertCell();
-      td.style.cssText = 'padding:6px 1ch;vertical-align:top';
+      td.style.cssText = 'padding:6px 1ch;vertical-align:top;white-space:nowrap';
       cells.push([td, band, ink]);
     }
   }
@@ -127,7 +127,7 @@ export const Bands = () => {
       strip.setAttribute('aria-hidden', 'true');
       strip.style.cssText = 'display:block;height:6px;margin-bottom:4px';
       const warn = document.createElement('span');
-      warn.textContent = `✕ ${r}, use the default ink`;
+      warn.textContent = `✕ ${r}`;
       td.append(strip, warn);
     }
   });
