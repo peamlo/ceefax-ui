@@ -121,8 +121,12 @@ The optional structural template (`cf-page` with `cf-page__header` / `__body` / 
 _Avoid_: layout, page component, template component
 
 **Screen frame**:
-The opt-in `data-frame` variant of the page shell: a 4:3 teletext set, as wide as fits the viewport and centred, with the type tokens scaled to the frame, header and footer pinned and only the body scrolling. Full-bleed below one narrow-viewport breakpoint. Presentational only; the ratio is tunable with `--cf-frame-ratio`.
+The opt-in `data-frame` variant of the page shell: a 4:3 teletext set, as wide as fits the viewport and centred, with the type tokens scaled to the frame, header and footer pinned and only the body scrolling. Full-bleed below one narrow-viewport breakpoint. Presentational only; the ratio is tunable with `--cf-frame-ratio`. It is the authentic mode: text sits on the Cell grid, 40 to a row. Inside it only the eight authentic colours appear, unless the Accessible theme also applies, which wins.
 _Avoid_: viewport, TV wrapper, `cf-screen`
+
+**Cell**:
+One character position on the teletext grid, 40 to a row. Inside the Screen frame, text and mosaics snap to cells; outside it, layout stays fluid and only the look is teletext.
+_Avoid_: character box, tile, column
 
 ## Project tooling
 

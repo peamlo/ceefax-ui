@@ -83,10 +83,16 @@ export const TeletextPage = {
     page.append(header, body, footer);
     return page;
   },
+  // Outside the Screen frame body text stays Space Mono: the grid and Bedstead are the frame's.
+  play: async ({ canvasElement }) => {
+    const body = canvasElement.querySelector('.cf-card__body');
+    await expect(getComputedStyle(body).fontFamily).toMatch(/^"?Space Mono/);
+  },
 };
 
 // The contract markup: the page shell plus the presentational `data-frame` variant.
-// The body is the scroll region, so it is made focusable.
+// The body is the scroll region, so it is made focusable. No inline padding: inside the
+// frame a row is 40 cells edge to edge, as on a set.
 const framedPage = () => {
   const page = el('section', 'cf-page');
   page.dataset.frame = '';
@@ -95,10 +101,21 @@ const framedPage = () => {
 
   const body = el('main', 'cf-page__body cf-stack');
   body.tabIndex = 0;
-  body.style.padding = 'var(--cf-space-3)';
+  body.style.paddingBlock = 'var(--cf-space-3)';
   body.append(el('h1', null, 'NEWS'));
+  // A 40-character row: it exactly fills the body's width, so text wraps at 40.
+  body.append(el('p', null, '<span>0123456789012345678901234567890123456789</span>'));
+  // The two off-palette aliases, snapped to authentic blue and green inside the frame.
+  body.append(
+    el(
+      'p',
+      null,
+      '<span style="color:var(--cf-fg-dim)">Updated 16:02</span> ' +
+        '<span style="background:var(--cf-bg-2)">Secondary background</span>',
+    ),
+  );
   for (let i = 1; i <= 30; i++) {
-    body.append(el('p', null, `Headline ${i} — the type scales with the frame, so lines stay the same width.`));
+    body.append(el('p', null, `Headline ${i}: forty cells to a row, as on a set.`));
   }
   const end = el('p', null, 'End of page');
   end.id = 'end';
@@ -136,6 +153,9 @@ export const Framed = {
           'teletext set: a centred 4:3 box on a black canvas, type scaled to the box, header and footer pinned and ' +
           'only the body scrolling. Omit it and you get the plain full-viewport page above.\n\n' +
           '- **Wide monitor:** 4:3 with side bars, so line lengths stay readable.\n' +
+          '- **40 cells to a row:** inside the frame the type is sized so 40 Bedstead cells fill the width of the ' +
+          'body (inside its scrollbar, if it has one), every line is one cell high, and only the eight authentic ' +
+          'colours appear (unless the Accessible theme applies, which wins).\n' +
           '- **Below 40em (phones):** the frame is dropped and the page is full-bleed at normal type sizes.\n' +
           '- **Keyboard:** give the body `tabindex="0"` so the scroll region is reachable; `#hash` links scroll inside it.\n' +
           '- **Other ratios:** set `--cf-frame-ratio` (default `1.3333`).\n\n' +
@@ -150,9 +170,25 @@ export const Framed = {
     const body = page.querySelector('.cf-page__body');
     const r = page.getBoundingClientRect();
     await expect(Math.abs(r.width / r.height - 4 / 3)).toBeLessThan(0.02);
-    // Type scales with the frame: body is 16px at a 1024px-wide frame.
-    const cs = getComputedStyle(page);
-    await expect(parseFloat(cs.fontSize)).toBeCloseTo((r.width * 16) / 1024, 1);
+    // 40 cells to the frame's width: a Bedstead cell is 0.6em, so 1em is width / 24.
+    await expect(parseFloat(getComputedStyle(page).fontSize)).toBeCloseTo(r.width / 24, 1);
+    // A 40-character line exactly fills the body's row (measured inside any scrollbar),
+    // one cell high, set in Bedstead.
+    const row = body.querySelector('p > span').parentElement;
+    const cs = getComputedStyle(row);
+    await expect(row.querySelector('span').getBoundingClientRect().width).toBeCloseTo(
+      row.getBoundingClientRect().width,
+      0,
+    );
+    await expect(body.scrollWidth).toBe(body.clientWidth); // nothing spills sideways
+    await expect(row.getBoundingClientRect().height).toBeCloseTo(parseFloat(cs.fontSize), 0);
+    await expect(cs.fontFamily).toMatch(/^"?Bedstead/);
+    const fastext = page.querySelector('.cf-fastext');
+    await expect(fastext.scrollWidth).toBeLessThanOrEqual(fastext.clientWidth);
+    // Only the authentic eight: the off-palette aliases snap to blue and green.
+    const [dim, bg2] = [...body.querySelectorAll('span[style]')].map((n) => getComputedStyle(n));
+    await expect(dim.color).toBe('rgb(0, 255, 0)');
+    await expect(bg2.backgroundColor).toBe('rgb(0, 0, 255)');
     await expect(body.scrollHeight).toBeGreaterThan(body.clientHeight);
     const [header, footer] = ['header', 'footer'].map((t) => page.querySelector(t));
     const [h0, f0] = [header, footer].map((n) => n.getBoundingClientRect().top);
@@ -160,5 +196,39 @@ export const Framed = {
     await expect(body.scrollTop).toBeGreaterThan(0);
     await expect(header.getBoundingClientRect().top).toBe(h0);
     await expect(footer.getBoundingClientRect().top).toBe(f0);
+  },
+};
+
+// The Accessible theme wins over the frame's authentic colours: the two aliases keep the
+// theme's values (bg-2 has no theme remap, so it stays the default deep blue). The grid
+// still applies.
+export const FramedAccessible = {
+  name: 'Screen frame + Accessible theme',
+  parameters: {
+    layout: 'fullscreen',
+    docs: {
+      description: {
+        story:
+          'With `data-theme="accessible"` on the frame or any ancestor, the theme wins: `--cf-fg-dim` and ' +
+          '`--cf-bg-2` keep the theme values instead of snapping to authentic green and blue. The 40-cell grid ' +
+          'and Bedstead still apply.',
+      },
+    },
+  },
+  render: () => {
+    const page = framedPage();
+    page.dataset.theme = 'accessible';
+    return page;
+  },
+  play: async ({ canvasElement }) => {
+    const body = canvasElement.querySelector('.cf-page__body');
+    const [dim, bg2] = [...body.querySelectorAll('span[style]')].map((n) => getComputedStyle(n));
+    await expect(dim.color).toBe('rgb(179, 179, 179)'); // the theme's #b3b3b3
+    await expect(bg2.backgroundColor).toBe('rgb(16, 11, 138)'); // #100b8a, the default
+    const row = body.querySelector('p > span').parentElement;
+    await expect(row.querySelector('span').getBoundingClientRect().width).toBeCloseTo(
+      row.getBoundingClientRect().width,
+      0,
+    );
   },
 };

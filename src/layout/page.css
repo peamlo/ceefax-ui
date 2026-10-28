@@ -18,24 +18,49 @@
 }
 
 /* Screen frame — opt-in `data-frame` on the page shell: a 4:3 teletext set, as wide as
-   fits the viewport and centred, with the type tokens scaled to the frame so the layout
-   reads the same at any size. Header/footer stay pinned; only the body scrolls (give it
+   fits the viewport and centred. Header/footer stay pinned; only the body scrolls (give it
    tabindex="0" so keyboard users can reach it). Ratio escape hatch: --cf-frame-ratio.
    Below the one breakpoint a 4:3 box would be tiny, so the frame simply isn't applied
    (full-bleed, fixed type). The breakpoint is a literal: @media can't read custom props.
-   --_w is the frame width, so type scales without container queries (cqw can't resolve
-   against the element that is itself the container). */
+   The authentic mode (ADR-0014): a row is 40 cells (--_cell, one cell's width), every
+   line is one cell high, with no tracking, and all text is set in Bedstead, whose cell is 0.6em × 1em, so
+   1em = cell / 0.6. The type scale keeps its ratios in cells (body 1, heading 2,
+   display-lg 3 cells high). 'Bedstead Cell' is Bedstead at its own metrics, so a line box
+   is exactly its cell and colour runs and mosaics tile. Colours: tokens/colors.css.
+   --_w is the frame width (type scales without container queries on the frame itself:
+   cqw can't resolve against the element that is itself the container). The body's rows
+   are sized against its own content box instead, so a scrollbar or padding never wraps
+   a 40-cell line at 39: its children re-read the tokens at the body's --_cell. */
+@property --_cell {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0;
+}
 @media (min-width: 40em) {
   .cf-page[data-frame] {
     --_r: var(--cf-frame-ratio, 1.3333);
     --_w: min(100vw, calc(100dvh * var(--_r)));
-    --cf-text-body: calc(var(--_w) * 0.015625); /* 16px at a 1024px-wide frame */
-    --cf-text-small: calc(var(--_w) * 0.01171875); /* 12px */
-    --cf-text-heading: calc(var(--_w) * 0.03125); /* 32px */
+    --_cell: calc(var(--_w) / 40);
+    --cf-font-display: 'Bedstead Cell', 'Bedstead', monospace;
+    --cf-font-mono: var(--cf-font-display);
+    --cf-font-body: var(--cf-font-display);
+    --cf-leading-tight: 1;
+    --cf-leading-normal: 1;
+    --cf-leading-relaxed: 1;
+    --cf-tracking-wide: 0; /* tracking would push text off its cells */
     width: var(--_w);
     aspect-ratio: var(--_r);
     margin-inline: auto;
     overflow: hidden;
+  }
+  .cf-page[data-frame],
+  .cf-page[data-frame] .cf-page__body > * {
+    --cf-text-small: calc(var(--_cell) / 0.6 * 0.75);
+    --cf-text-body: calc(var(--_cell) / 0.6);
+    --cf-text-subheading: calc(var(--_cell) / 0.6 * 1.5);
+    --cf-text-heading: calc(var(--_cell) / 0.6 * 2);
+    --cf-text-display-lg: calc(var(--_cell) / 0.6 * 3);
+    --cf-text-display-xl: calc(var(--_cell) / 0.6 * 4.5);
   }
   .cf-page[data-frame]:has(.cf-page__body) {
     min-height: 0;
@@ -43,5 +68,15 @@
   }
   .cf-page[data-frame] .cf-page__body {
     overflow: auto;
+    scrollbar-gutter: stable; /* reserved up front, or cqi would ignore an auto scrollbar */
+    container-type: inline-size;
+  }
+  .cf-page[data-frame] .cf-page__body > * {
+    --_cell: calc(100cqi / 40);
+  }
+  /* Zero specificity, so a component's own size still wins; bare headings keep their
+     browser em sizes. */
+  :where(.cf-page[data-frame] .cf-page__body > :not(h1, h2, h3, h4, h5, h6)) {
+    font-size: var(--cf-text-body);
   }
 }

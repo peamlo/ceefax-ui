@@ -55,3 +55,26 @@ Space Mono ships under. Source, version and this reasoning are recorded in
 - **Deferred:** if `<cf-canvas>` is kept alongside `cf-mosaic`, decide whether it takes the
   two-colours-per-cell limit inside the frame. Until then
   [ADR-0004](0004-cf-canvas-pixel-art.md) stands: free per-pixel colour.
+
+## Amendment: the cell grid and colour rules ([#74](https://github.com/peamlo/ceefax-ui/issues/74))
+
+**The cell grid.** Inside the frame a row is 40 **cells**. Bedstead's cell is 0.6em wide and 1em
+tall (its own ascent and descent), so the type is sized to `cell / 0.6` and every line height is
+1: a line box is exactly one cell, which is what lets colour runs and mosaics tile. The frame
+sets text in a second face, `Bedstead Cell`: the same files with no metric overrides, because the
+overrides that centre capitals outside the frame make the glyph box 1.1em tall. All text is
+Bedstead in the frame (Space Mono's 0.612em advance would drift off the grid), and tracking is 0.
+The type scale keeps its ratios, counted in cells: body 1, heading 2 and display-lg 3 cells high,
+with small, subheading and display-xl at 0.75, 1.5 and 4.5, where nothing needs to tile.
+
+**Rows are measured inside the body.** The body is the scroll region, and a classic scrollbar
+takes about one cell, so a grid sized to the frame would wrap a 40-character line at 39. The
+header and footer take their cells from the frame width; the body's children take theirs from the
+body's own content box (a size container, its scrollbar gutter reserved up front so the
+measurement is stable). Inline padding on the body narrows the cells too, so a framed body should
+carry none.
+
+**Authentic colours only.** The two off-palette aliases snap inside the frame, remapped like a
+theme: `--cf-bg-2` to blue and `--cf-fg-dim` to green, never touching `--cf-base-*`. When the
+Accessible theme applies to the frame or an ancestor it wins and the aliases keep its values. Like
+the rest of the frame, none of this applies below the 40em breakpoint.
