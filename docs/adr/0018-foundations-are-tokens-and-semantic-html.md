@@ -28,6 +28,8 @@ background via `data-band`, the Screen frame) and for component-specific present
 ## Consequences
 
 - No new typography API. Docs show token-based overrides.
+- `cf-table` is the first component written fully in `:where()`. The older components keep
+  their class selectors until they are next changed; moving them is not part of this decision.
 - Colour and band stay attributes because they map to teletext's own control codes, not
   general typography.
 - A later need for shared text presets should be met with tokens or semantic elements first.

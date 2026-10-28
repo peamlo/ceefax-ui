@@ -5,16 +5,15 @@ import { bandSample } from './_bands.js';
 // cf-table__scroll region. The stories render the exact contract markup; play() asserts
 // what a consumer sees (roles, text, computed styles), never a private --_* property.
 
-// One body row: position, the team as the row header with dot leaders, then end-aligned figures.
-const row = ([pos, team, ...figures], attrs = '') =>
-  `<tr${attrs}><td>${pos}</td><th scope="row" data-leader>${team}</th>` +
-  figures.map((f) => `<td data-align="end">${f}</td>`).join('') +
-  '</tr>';
+// End-aligned figure headers and cells.
+const figureHeads = (heads) => heads.map((h) => `<th scope="col" data-align="end">${h}</th>`).join('');
+const figureCells = (figures) => figures.map((f) => `<td data-align="end">${f}</td>`).join('');
 
-const LEAGUE_HEAD =
-  '<tr><th scope="col">Pos</th><th scope="col">Team</th>' +
-  ['P', 'W', 'D', 'L', 'GD', 'Pts'].map((h) => `<th scope="col" data-align="end">${h}</th>`).join('') +
-  '</tr>';
+// One body row: position, the team as the row header with a dot leader, then figures.
+const row = ([pos, team, ...figures], attrs = '') =>
+  `<tr${attrs}><td>${pos}</td><th scope="row" data-leader>${team}</th>${figureCells(figures)}</tr>`;
+
+const LEAGUE_HEAD = `<tr><th scope="col">Pos</th><th scope="col">Team</th>${figureHeads(['P', 'W', 'D', 'L', 'GD', 'Pts'])}</tr>`;
 
 // Three groups, as a broadcast page draws them: champion, Champions League places, the rest.
 const LEAGUE = [
@@ -61,6 +60,9 @@ const league = (attrs = '', current) =>
 const cells = (root) => [...root.querySelectorAll('th, td')];
 const style = (el) => getComputedStyle(el);
 const px = (v) => parseFloat(v);
+// One --cf-row in px for this cell (the token is in em).
+const rowHeight = (cell) =>
+  px(getComputedStyle(document.documentElement).getPropertyValue('--cf-row')) * px(style(cell).fontSize);
 // What a row's (or a cell's) colour layer paints: its cells carry it.
 const paint = (el) => {
   const cs = style(el.matches('tr') ? el.firstElementChild : el);
@@ -102,7 +104,8 @@ const assertSemantics = async (canvasElement) => {
 // Contract: a rule only between groups — on the first-row cells of every later <tbody>
 // and the <tfoot>, nowhere else, and never under a row.
 const assertGroupRules = async (tableEl) => {
-  const ruled = new Set(tableEl.querySelectorAll(':is(tbody + tbody, tbody + tfoot) > tr:first-child > *'));
+  const groups = [...tableEl.tBodies, ...(tableEl.tFoot ? [tableEl.tFoot] : [])].slice(1);
+  const ruled = new Set(groups.flatMap((g) => [...g.rows[0].cells]));
   await expect(ruled.size).toBeGreaterThan(0);
   for (const cell of cells(tableEl)) {
     const cs = style(cell);
@@ -178,11 +181,22 @@ export const League = {
 };
 
 // Contract: the aria-current row is announced as current and painted as an accent band with
-// its ink, over the stripe or zone it sits in; data-band on it recolours the band.
+// its ink, over the stripe or zone it sits in, in both themes; a cell that names its own
+// colour keeps the band, and data-band on the row recolours it.
 const assertCurrentRow = async (canvasElement) => {
   const current = within(canvasElement).getByRole('row', { current: true });
   await expect(current.getAttribute('aria-current')).toBe('true');
-  for (const cell of current.cells) await expect(paint(cell)).toEqual({ bg: 'rgb(255, 255, 0)', fg: 'rgb(0, 0, 0)' }); // --cf-accent, --cf-on-variant
+  const accent = { bg: 'rgb(255, 255, 0)', fg: 'rgb(0, 0, 0)' }; // --cf-accent, --cf-on-variant
+  for (const cell of current.cells) await expect(paint(cell)).toEqual(accent);
+  const themed = await accessible(canvasElement, () => ({
+    cells: [...current.cells].map(paint),
+    yellow: reference(canvasElement, 'yellow'), // the accent is the yellow variant there
+  }));
+  for (const c of themed.cells) await expect(c).toEqual({ bg: themed.yellow.bg, fg: 'rgb(0, 0, 0)' });
+  const cell = current.cells[2];
+  cell.dataset.variant = 'red';
+  await expect(paint(cell)).toEqual(accent);
+  delete cell.dataset.variant;
   current.dataset.band = 'magenta';
   await expect(paint(current)).toEqual(reference(canvasElement, 'magenta'));
   current.dataset.band = 'not-a-colour'; // an unknown band keeps the accent: never a text-only current row
@@ -236,6 +250,13 @@ export const Zones = {
     await expect(authentic.title).toEqual({ bg: 'rgb(0, 0, 255)', fg: 'rgb(255, 255, 0)' });
     // The current row wins over its zone.
     await assertCurrentRow(canvasElement);
+    // A row's own setting wins over its zone, and over the row stripe.
+    zone.rows[0].dataset.band = 'green';
+    await expect(paint(zone.rows[0])).toEqual(reference(canvasElement, 'green'));
+    delete zone.rows[0].dataset.band;
+    plain.rows[0].dataset.variant = 'yellow';
+    await expect(paint(plain.rows[0])).toEqual({ bg: NONE, fg: reference(canvasElement, '', 'yellow').fg });
+    delete plain.rows[0].dataset.variant;
     // An unknown band renders no band.
     zone.dataset.band = 'not-a-colour';
     await expect(paint(zone.rows[0]).bg).toBe(NONE);
@@ -271,19 +292,27 @@ export const BandStripes = {
           ([home, score, away]) =>
             `<tr><th scope="row">${home}</th><td data-align="end">${score}</td><td>${away}</td></tr>`,
         ).join('') +
-        '</tbody>',
+        '</tbody><tfoot><tr><th scope="row">Goals</th><td data-align="end">15</td><td>in 5 matches</td></tr></tfoot>',
     }),
   play: async ({ canvasElement }) => {
     const tableEl = await assertSemantics(canvasElement);
     const read = () => {
       const [odd, even] = [...tableEl.tBodies[0].rows].map(paint);
-      return { odd, even, blue: reference(canvasElement, 'blue'), head: paint(tableEl.tHead.rows[0]) };
+      return {
+        odd,
+        even,
+        blue: reference(canvasElement, 'blue'),
+        head: paint(tableEl.tHead.rows[0]),
+        foot: paint(tableEl.tFoot.rows[0]),
+      };
     };
     const authentic = read();
     await expect(authentic.odd).toEqual(authentic.blue);
     await expect(authentic.odd.bg).toBe('rgb(0, 0, 255)'); // --cf-variant-blue
     await expect(authentic.even.bg).toBe(NONE);
+    // The header and footer are never striped.
     await expect(authentic.head.bg).toBe(NONE);
+    await expect(authentic.foot.bg).toBe(NONE);
     // Under the Accessible theme the band changes and its ink is black.
     const themed = await accessible(canvasElement, read);
     await expect(themed.odd).toEqual(themed.blue);
@@ -374,7 +403,7 @@ export const BandRowsTextColumns = {
   },
 };
 
-// data-stripe-cols="band" for a dense table of figures. A highlighted row and a banded group
+// data-stripe-cols="band" for a dense table of figures. The current row and a banded group
 // cross the columns, and both keep their own colours. colspan isn't supported here: it shifts
 // the count.
 const RETURNS = [
@@ -390,18 +419,13 @@ export const ColumnBands = {
       caption: 'Returns by year',
       attrs: ' data-stripe-cols="band"',
       body:
-        '<thead><tr><th scope="col">Fund</th>' +
-        ['2021', '2022', '2023', '2024', '2025'].map((y) => `<th scope="col" data-align="end">${y}</th>`).join('') +
-        '</tr></thead><tbody>' +
+        `<thead><tr><th scope="col">Fund</th>${figureHeads(['2021', '2022', '2023', '2024', '2025'])}</tr></thead><tbody>` +
         RETURNS.map(
           ([name, ...figs]) =>
-            `<tr${name === 'Your plan' ? ' aria-current="true"' : ''}><th scope="row">${name}</th>` +
-            figs.map((f) => `<td data-align="end">${f}</td>`).join('') +
-            '</tr>',
+            `<tr${name === 'Your plan' ? ' aria-current="true"' : ''}><th scope="row">${name}</th>${figureCells(figs)}</tr>`,
         ).join('') +
         '</tbody><tbody data-band="cyan"><tr><th scope="row">Benchmark</th>' +
-        ['+20,1%', '-14,0%', '+16,9%', '+22,0%', '+5,8%'].map((f) => `<td data-align="end">${f}</td>`).join('') +
-        '</tr></tbody>',
+        `${figureCells(['+20,1%', '-14,0%', '+16,9%', '+22,0%', '+5,8%'])}</tr></tbody>`,
     }),
   play: async ({ canvasElement }) => {
     const tableEl = await assertSemantics(canvasElement);
@@ -427,8 +451,8 @@ export const ColumnBands = {
   },
 };
 
-// Dot leaders, as on WDR's Bundesliga page: data-leader on the name column runs dots up to
-// the figures, which sit at the table's end. The dots are decoration; readers hear the name.
+// Dot leaders, as on WDR's Bundesliga page: data-leader on the name column runs a dot leader
+// up to the figures, which sit at the table's end. It's decoration; readers hear the name.
 const BUNDESLIGA = [
   [1, 'Leverkusen', 34, '89:24', 90],
   [2, 'Stuttgart', 34, '78:39', 73],
@@ -443,9 +467,8 @@ export const Leaders = {
     table({
       caption: 'Bundesliga · Abschlusstabelle',
       body:
-        '<thead><tr><th scope="col">Pl.</th><th scope="col">Verein</th>' +
-        ['Sp.', 'Tore', 'Pkt.'].map((h) => `<th scope="col" data-align="end">${h}</th>`).join('') +
-        `</tr></thead><tbody>${BUNDESLIGA.map((r) => row(r)).join('')}</tbody>`,
+        `<thead><tr><th scope="col">Pl.</th><th scope="col">Verein</th>${figureHeads(['Sp.', 'Tore', 'Pkt.'])}</tr></thead>` +
+        `<tbody>${BUNDESLIGA.map((r) => row(r)).join('')}</tbody>`,
     }),
   play: async ({ canvasElement }) => {
     const tableEl = await assertSemantics(canvasElement);
@@ -490,14 +513,16 @@ export const InScreenFrame = {
     return page;
   },
   play: async ({ canvasElement }) => {
+    // The frame (and its one-line rule) applies from 40em up; the test viewport must be that wide.
+    await expect(matchMedia('(min-width: 40em)').matches).toBe(true);
     const tableEl = await assertSemantics(canvasElement);
     for (const el of [tableEl.querySelector('caption'), ...cells(tableEl)])
       await expect(style(el).whiteSpace).toBe('nowrap');
     for (const tr of tableEl.querySelectorAll('tbody tr')) {
-      // One line high, plus the group rule on a group's first row.
-      const cs = style(tr.firstElementChild);
-      const height = tr.getBoundingClientRect().height - px(cs.borderTopWidth);
-      await expect(Math.abs(height - px(cs.lineHeight))).toBeLessThan(1);
+      // One --cf-row high, plus the group rule on a group's first row.
+      const cell = tr.firstElementChild;
+      const height = tr.getBoundingClientRect().height - px(style(cell).borderTopWidth);
+      await expect(Math.abs(height - rowHeight(cell))).toBeLessThan(1);
     }
   },
 };
@@ -513,9 +538,7 @@ export const Wide = {
     table({
       caption: 'Fund comparison',
       body:
-        '<thead><tr><th scope="col">Fund</th><th scope="col">Notes</th>' +
-        ['Fee', '1y', '3y', '5y', '10y', 'Min.'].map((h) => `<th scope="col" data-align="end">${h}</th>`).join('') +
-        '</tr></thead><tbody>' +
+        `<thead><tr><th scope="col">Fund</th><th scope="col">Notes</th>${figureHeads(['Fee', '1y', '3y', '5y', '10y', 'Min.'])}</tr></thead><tbody>` +
         [
           ['World index', LONG, '0,12%', '+18,2%', '+24,9%', '+61,0%', '+142,3%', '1.290€'],
           [
@@ -529,12 +552,7 @@ export const Wide = {
             '500€',
           ],
         ]
-          .map(
-            ([name, notes, ...figs]) =>
-              `<tr><th scope="row">${name}</th><td>${notes}</td>` +
-              figs.map((f) => `<td data-align="end">${f}</td>`).join('') +
-              '</tr>',
-          )
+          .map(([name, notes, ...figs]) => `<tr><th scope="row">${name}</th><td>${notes}</td>${figureCells(figs)}</tr>`)
           .join('') +
         '</tbody>',
     }),
@@ -543,6 +561,6 @@ export const Wide = {
     // The long text cell wraps: its row is taller than one row height.
     const notes = tableEl.querySelector('tbody td');
     await expect(style(notes).whiteSpace).toBe('normal');
-    await expect(notes.parentElement.getBoundingClientRect().height).toBeGreaterThan(px(style(notes).lineHeight) * 1.5);
+    await expect(notes.parentElement.getBoundingClientRect().height).toBeGreaterThan(rowHeight(notes) * 1.5);
   },
 };

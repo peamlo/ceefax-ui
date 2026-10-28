@@ -50,8 +50,8 @@
   font-size: var(--cf-text-small);
 }
 /* Dot leaders (WDR's `München.....`): the leader cell takes the table's spare width, so the
-   figures sit at its end, and dots run from the name to them. Out of flow, so they never
-   widen the column; the cell clips them. Decoration: empty alt text, so a screen reader hears
+   figures sit at its end, and the dot leader runs from the name to them. Out of flow, so it
+   never widens the column; the cell clips it. Decoration: empty alt text, so a screen reader hears
    only the name (older browsers drop the alt declaration and keep the first). One leader
    column per table. */
 :where(.cf-table [data-leader]) {
@@ -106,17 +106,18 @@
 }
 /* Zones and bands (ADR-0017) on any part: data-variant is its text colour, data-band its band
    with data-variant as the ink. A part's own setting replaces what it inherits, background
-   included. An unknown band leaves both unset, so it renders no band. */
-:where(.cf-table :is(caption, thead, tbody, tfoot, tr, th, td)[data-variant]) {
+   included; an unknown band renders no band. */
+:where(.cf-table :is(caption, thead, tbody, tr, th, td)[data-variant]) {
   --_bg: transparent;
-  --_ink: var(--_variant);
+  --_ink: var(--_variant, currentcolor);
 }
-:where(.cf-table :is(caption, thead, tbody, tfoot, tr, th, td)[data-band]) {
-  --_bg: var(--_band);
-  --_ink: var(--_band-ink, var(--_variant));
+:where(.cf-table :is(caption, thead, tbody, tr, th, td)[data-band]) {
+  --_bg: var(--_band, transparent);
+  --_ink: var(--_band-ink, var(--_variant, currentcolor));
 }
 /* The current row (state, so ARIA): always a band, never colour on text alone. Accent by
-   default; data-band on the row picks another. */
+   default; data-band on the row picks another. Its cells take the row's pair even when
+   they name their own, so no cell breaks the band. */
 :where(.cf-table tr[aria-current='true']) {
   --_bg: var(--cf-accent);
   --_ink: var(--cf-on-variant);
@@ -124,6 +125,10 @@
 :where(.cf-table tr[aria-current='true'][data-band]) {
   --_bg: var(--_band, var(--cf-accent));
   --_ink: var(--_band-ink, var(--cf-on-variant));
+}
+:where(.cf-table tr[aria-current='true'] > :is(th, td)) {
+  --_bg: inherit;
+  --_ink: inherit;
 }
 /* The Screen frame is the authentic mode (ADR-0014): every cell and the caption on one
    line. Only where the frame applies; the breakpoint is page.css's literal. */
