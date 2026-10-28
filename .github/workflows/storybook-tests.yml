@@ -30,7 +30,8 @@ jobs:
       - name: Serve Storybook and run the test-runner
         # Scoped to the contract stories (issue #8's tested modules) by file path.
         # The Foundations/Layout documentation stories are out of scope and currently
-        # destabilise the test-runner (60s "navigation" hangs) — see ADR-0006.
+        # destabilise the test-runner (60s "navigation" hangs) — see ADR-0006. Foundations/Brand
+        # is the exception: it asserts <cf-loader> follows the tokens (#73).
         run: |
           npx --no -- http-server storybook-static -p 6006 --silent &
           npx --no -- wait-on http://127.0.0.1:6006
@@ -39,4 +40,4 @@ jobs:
             stories/Fastext stories/Canvas stories/PaletteDrift \
             stories/VariantColours stories/TokenLayering \
             stories/AccessibleTheme stories/Notice \
-            stories/layout/Page
+            stories/layout/Page stories/foundations/Brand

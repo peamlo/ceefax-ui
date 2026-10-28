@@ -1,6 +1,8 @@
 // <cf-loader>LOADING PAGE 102…</cf-loader>
 // The one interactive widget: a hard on/off block-cursor blink.
 // Framework-agnostic custom element. Blink gated behind prefers-reduced-motion.
+// Colour and font read the tokens (custom properties inherit into the shadow root, #73);
+// the fallbacks mirror the token defaults for use without tokens.css.
 class CfLoader extends HTMLElement {
   connectedCallback() {
     this.setAttribute('role', 'status');
@@ -9,7 +11,7 @@ class CfLoader extends HTMLElement {
     const root = this.attachShadow({ mode: 'open' });
     root.innerHTML = `
       <style>
-        :host{display:inline-flex;align-items:center;gap:.6ch;font-family:'Space Mono','Courier New',monospace;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.08em}
+        :host{display:inline-flex;align-items:center;gap:.6ch;font-family:var(--cf-font-mono,'Space Mono','Courier New',monospace);font-weight:700;color:var(--cf-fg,#fff);text-transform:uppercase;letter-spacing:.08em}
         .cursor{display:inline-block;width:1ch;height:1.05em;background:currentColor}
         @media (prefers-reduced-motion: no-preference){
           .cursor{animation:cf-blink 1s steps(1,end) infinite}
