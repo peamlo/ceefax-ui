@@ -96,7 +96,11 @@ const pairs = (palette) =>
 
 // --_variant inherits, so a variant ancestor must not colour a descendant that did not
 // ask for one. Rendered inside a red card.
-const NESTED = [['btn', ''], ['btn', 'ghost'], ['card', '']];
+const NESTED = [
+  ['btn', ''],
+  ['btn', 'ghost'],
+  ['card', ''],
+];
 
 const build = ([kind, variant], i) => {
   const c = COMPONENTS[kind];

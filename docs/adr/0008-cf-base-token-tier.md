@@ -42,7 +42,7 @@ free for #12's block-colour tier, so each prefix holds one kind of token.
 - "Base" also names the base stylesheet (`src/base.css`). Accepted: the token is always
   `--cf-base-<colour>`, and the glossary calls out the difference.
 - **An explicit exception to ADR-0006**, which aims assertions at rendered DOM and
-  computed styles, never internals. The guard reads stylesheet *source*, because the rule
+  computed styles, never internals. The guard reads stylesheet _source_, because the rule
   is about what the source names — rendered output can't show which tier a colour came
   through. Rendered colours stay pinned by `Foundations/Variant colours`.
 - The fastext key's ink fallbacks now read `--cf-on-variant` instead of naming black.

@@ -1,283 +1,586 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ceefax-ui — layout demo</title>
-<link rel="icon" href="../public/favicon.svg">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ceefax-ui — layout demo</title>
+    <link rel="icon" href="../public/favicon.svg" />
 
-<!-- Consume the library the real way: one stylesheet, then plain class="…". -->
-<link rel="stylesheet" href="../src/index.css">
+    <!-- Consume the library the real way: one stylesheet, then plain class="…". -->
+    <link rel="stylesheet" href="../src/index.css" />
 
-<style>
-/* Bedstead comes from the library's own @font-face; Space Mono is self-hosted
-   from the .ttf in /fonts for the demo chrome (no network, no build). */
-@font-face{font-family:'Space Mono';font-weight:400;font-display:swap;src:url('../fonts/SpaceMono-Regular.ttf') format('truetype')}
-@font-face{font-family:'Space Mono';font-weight:700;font-display:swap;src:url('../fonts/SpaceMono-Bold.ttf') format('truetype')}
+    <style>
+      /* Bedstead comes from the library's own @font-face; Space Mono is self-hosted
+         from the .ttf in /fonts for the demo chrome (no network, no build). */
+      @font-face {
+        font-family: 'Space Mono';
+        font-weight: 400;
+        font-display: swap;
+        src: url('../fonts/SpaceMono-Regular.ttf') format('truetype');
+      }
+      @font-face {
+        font-family: 'Space Mono';
+        font-weight: 700;
+        font-display: swap;
+        src: url('../fonts/SpaceMono-Bold.ttf') format('truetype');
+      }
 
-/* ---- demo chrome (namespaced --doc-*, never overrides the library) ---- */
-:root{
-  --doc-bg:#05070a; --doc-code:#0c1014; --doc-line:#1b2530; --doc-line-2:#243040;
-  --doc-text:#d9e2ec; --doc-dim:#7f8b9b;
-  --doc-cyan:#00ffff; --doc-yellow:#ffff00; --doc-green:#00ff00;
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--doc-bg);color:var(--doc-text);
-  font-family:'Space Mono','Courier New',monospace;font-size:15px;line-height:1.6;
-  -webkit-font-smoothing:antialiased}
-.wrap{max-width:1120px;margin:0 auto;padding:clamp(20px,4vw,56px) clamp(16px,4vw,40px)}
-a{color:var(--doc-cyan)}
+      /* ---- demo chrome (namespaced --doc-*, never overrides the library) ---- */
+      :root {
+        --doc-bg: #05070a;
+        --doc-code: #0c1014;
+        --doc-line: #1b2530;
+        --doc-line-2: #243040;
+        --doc-text: #d9e2ec;
+        --doc-dim: #7f8b9b;
+        --doc-cyan: #00ffff;
+        --doc-yellow: #ffff00;
+        --doc-green: #00ff00;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--doc-bg);
+        color: var(--doc-text);
+        font-family: 'Space Mono', 'Courier New', monospace;
+        font-size: 15px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: clamp(20px, 4vw, 56px) clamp(16px, 4vw, 40px);
+      }
+      a {
+        color: var(--doc-cyan);
+      }
 
-.masthead{border:2px solid var(--doc-line-2);background:#000}
-.mast-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px clamp(16px,3vw,28px)}
-.mast-page{font-weight:700;color:var(--doc-cyan);letter-spacing:.1em;font-size:clamp(14px,2vw,18px)}
-.mast-title{font-family:'Bedstead',monospace;font-weight:400;color:#fff;margin:0;font-size:clamp(28px,8vw,104px);line-height:.8;letter-spacing:.02em}
-.mast-meta{font-weight:700;color:var(--doc-yellow);letter-spacing:.12em;font-size:clamp(11px,1.6vw,15px);text-align:right}
-.colorbar{display:grid;grid-template-columns:repeat(8,1fr);height:14px}
-.colorbar span{display:block}
-.colorbar span:first-child{box-shadow:inset 0 0 0 1px #222}
-.mast-theme{margin:0;padding:12px clamp(16px,3vw,28px);border-top:1px solid var(--doc-line);font-weight:700;letter-spacing:.1em;color:var(--doc-text);cursor:pointer;display:block}
-.mast-theme input{accent-color:var(--doc-yellow);margin-right:1ch}
-.mast-sub{margin:0;padding:18px clamp(16px,3vw,28px);color:var(--doc-dim);border-top:1px solid var(--doc-line);max-width:74ch}
-.mast-sub b{color:var(--doc-text);font-weight:700}
+      .masthead {
+        border: 2px solid var(--doc-line-2);
+        background: #000;
+      }
+      .mast-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px clamp(16px, 3vw, 28px);
+      }
+      .mast-page {
+        font-weight: 700;
+        color: var(--doc-cyan);
+        letter-spacing: 0.1em;
+        font-size: clamp(14px, 2vw, 18px);
+      }
+      .mast-title {
+        font-family: 'Bedstead', monospace;
+        font-weight: 400;
+        color: #fff;
+        margin: 0;
+        font-size: clamp(28px, 8vw, 104px);
+        line-height: 0.8;
+        letter-spacing: 0.02em;
+      }
+      .mast-meta {
+        font-weight: 700;
+        color: var(--doc-yellow);
+        letter-spacing: 0.12em;
+        font-size: clamp(11px, 1.6vw, 15px);
+        text-align: right;
+      }
+      .colorbar {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        height: 14px;
+      }
+      .colorbar span {
+        display: block;
+      }
+      .colorbar span:first-child {
+        box-shadow: inset 0 0 0 1px #222;
+      }
+      .mast-theme {
+        margin: 0;
+        padding: 12px clamp(16px, 3vw, 28px);
+        border-top: 1px solid var(--doc-line);
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        color: var(--doc-text);
+        cursor: pointer;
+        display: block;
+      }
+      .mast-theme input {
+        accent-color: var(--doc-yellow);
+        margin-right: 1ch;
+      }
+      .mast-sub {
+        margin: 0;
+        padding: 18px clamp(16px, 3vw, 28px);
+        color: var(--doc-dim);
+        border-top: 1px solid var(--doc-line);
+        max-width: 74ch;
+      }
+      .mast-sub b {
+        color: var(--doc-text);
+        font-weight: 700;
+      }
 
-main{margin-top:clamp(28px,5vw,56px);display:flex;flex-direction:column;gap:clamp(34px,6vw,72px)}
-.ex-head{border-left:3px solid var(--doc-yellow);padding-left:16px;margin-bottom:20px}
-.ex-page{font-weight:700;font-size:12px;letter-spacing:.22em;color:var(--doc-cyan);text-transform:uppercase}
-.ex-title{font-family:'Bedstead',monospace;font-weight:400;color:#fff;margin:2px 0 8px;font-size:clamp(28px,4.4vw,44px);line-height:.95;text-wrap:balance}
-.ex-note{margin:0;color:var(--doc-dim);max-width:78ch;font-size:14px}
+      main {
+        margin-top: clamp(28px, 5vw, 56px);
+        display: flex;
+        flex-direction: column;
+        gap: clamp(34px, 6vw, 72px);
+      }
+      .ex-head {
+        border-left: 3px solid var(--doc-yellow);
+        padding-left: 16px;
+        margin-bottom: 20px;
+      }
+      .ex-page {
+        font-weight: 700;
+        font-size: 12px;
+        letter-spacing: 0.22em;
+        color: var(--doc-cyan);
+        text-transform: uppercase;
+      }
+      .ex-title {
+        font-family: 'Bedstead', monospace;
+        font-weight: 400;
+        color: #fff;
+        margin: 2px 0 8px;
+        font-size: clamp(28px, 4.4vw, 44px);
+        line-height: 0.95;
+        text-wrap: balance;
+      }
+      .ex-note {
+        margin: 0;
+        color: var(--doc-dim);
+        max-width: 78ch;
+        font-size: 14px;
+      }
 
-.ex-body{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:stretch}
-.pane{margin:0;border:1px solid var(--doc-line-2);display:flex;flex-direction:column;min-width:0}
-.pane figcaption{font-size:11px;font-weight:700;letter-spacing:.18em;color:var(--doc-dim);
-  padding:9px 14px;border-bottom:1px solid var(--doc-line);display:flex;align-items:center;gap:7px;background:#0a0d11}
-.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
-.dot-r{background:#ff5f56}.dot-y{background:#ffbd2e}.dot-g{background:#27c93f}
-.pane figcaption .dot+.dot{margin-left:-3px}
-.pane-result figcaption{color:var(--doc-green)}
-.pane-code pre{margin:0;overflow-x:auto;background:var(--doc-code);padding:16px 18px;flex:1}
-.pane-code code{font-family:'Space Mono',monospace;font-size:12.5px;line-height:1.65;color:#c7d2df;white-space:pre;tab-size:2}
-.t-tag{color:var(--doc-cyan)}
-.t-attr{color:var(--doc-yellow)}
-.t-str{color:#8bffa8}
-.t-com{color:#5a6b7a;font-style:italic}
+      .ex-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        align-items: stretch;
+      }
+      .pane {
+        margin: 0;
+        border: 1px solid var(--doc-line-2);
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+      .pane figcaption {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        color: var(--doc-dim);
+        padding: 9px 14px;
+        border-bottom: 1px solid var(--doc-line);
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        background: #0a0d11;
+      }
+      .dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+      .dot-r {
+        background: #ff5f56;
+      }
+      .dot-y {
+        background: #ffbd2e;
+      }
+      .dot-g {
+        background: #27c93f;
+      }
+      .pane figcaption .dot + .dot {
+        margin-left: -3px;
+      }
+      .pane-result figcaption {
+        color: var(--doc-green);
+      }
+      .pane-code pre {
+        margin: 0;
+        overflow-x: auto;
+        background: var(--doc-code);
+        padding: 16px 18px;
+        flex: 1;
+      }
+      .pane-code code {
+        font-family: 'Space Mono', monospace;
+        font-size: 12.5px;
+        line-height: 1.65;
+        color: #c7d2df;
+        white-space: pre;
+        tab-size: 2;
+      }
+      .t-tag {
+        color: var(--doc-cyan);
+      }
+      .t-attr {
+        color: var(--doc-yellow);
+      }
+      .t-str {
+        color: #8bffa8;
+      }
+      .t-com {
+        color: #5a6b7a;
+        font-style: italic;
+      }
 
-.pane-result .screen{flex:1;background:#000;padding:18px;position:relative;overflow:hidden;
-  min-height:220px;display:flex;flex-direction:column;justify-content:center}
-.pane-result .screen::after{content:'';position:absolute;inset:0;pointer-events:none;
-  background:repeating-linear-gradient(rgba(0,0,0,0) 0 2px, rgba(0,0,0,.30) 2px 3px);mix-blend-mode:multiply;opacity:.7}
-/* keep the page shell content-sized inside a demo panel (library sets 100vh) */
-.pane-result .screen .cf-page:has(.cf-page__body){min-height:0}
-.pane-result .screen .cf-page__header{align-items:center;color:var(--cf-fg);
-  border-bottom:2px solid var(--cf-border);padding-bottom:6px;margin-bottom:10px;font-family:var(--cf-font-mono)}
-.pane-result .screen .cf-page__header strong{font-family:var(--cf-font-display);font-size:26px;letter-spacing:.04em;color:#fff}
-.pane-result .screen .cf-page__footer{margin-top:12px}
+      .pane-result .screen {
+        flex: 1;
+        background: #000;
+        padding: 18px;
+        position: relative;
+        overflow: hidden;
+        min-height: 220px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .pane-result .screen::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: repeating-linear-gradient(rgba(0, 0, 0, 0) 0 2px, rgba(0, 0, 0, 0.3) 2px 3px);
+        mix-blend-mode: multiply;
+        opacity: 0.7;
+      }
+      /* keep the page shell content-sized inside a demo panel (library sets 100vh) */
+      .pane-result .screen .cf-page:has(.cf-page__body) {
+        min-height: 0;
+      }
+      .pane-result .screen .cf-page__header {
+        align-items: center;
+        color: var(--cf-fg);
+        border-bottom: 2px solid var(--cf-border);
+        padding-bottom: 6px;
+        margin-bottom: 10px;
+        font-family: var(--cf-font-mono);
+      }
+      .pane-result .screen .cf-page__header strong {
+        font-family: var(--cf-font-display);
+        font-size: 26px;
+        letter-spacing: 0.04em;
+        color: #fff;
+      }
+      .pane-result .screen .cf-page__footer {
+        margin-top: 12px;
+      }
 
-.cheat{margin-top:clamp(34px,6vw,64px);border:1px solid var(--doc-line-2)}
-.cheat h2{font-family:'Bedstead',monospace;font-weight:400;font-size:30px;color:#fff;margin:0;padding:14px 18px;border-bottom:1px solid var(--doc-line);background:#0a0d11}
-.cheat-row{display:grid;grid-template-columns:minmax(140px,180px) minmax(150px,1fr) 2fr;gap:16px;
-  padding:11px 18px;border-bottom:1px solid var(--doc-line);align-items:baseline;font-size:13.5px}
-.cheat-row:last-child{border-bottom:0}
-.cheat-row code{font-weight:700;color:var(--doc-yellow)}
-.cheat-val{color:var(--doc-text)}
-.cheat-desc{color:var(--doc-dim)}
+      .cheat {
+        margin-top: clamp(34px, 6vw, 64px);
+        border: 1px solid var(--doc-line-2);
+      }
+      .cheat h2 {
+        font-family: 'Bedstead', monospace;
+        font-weight: 400;
+        font-size: 30px;
+        color: #fff;
+        margin: 0;
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--doc-line);
+        background: #0a0d11;
+      }
+      .cheat-row {
+        display: grid;
+        grid-template-columns: minmax(140px, 180px) minmax(150px, 1fr) 2fr;
+        gap: 16px;
+        padding: 11px 18px;
+        border-bottom: 1px solid var(--doc-line);
+        align-items: baseline;
+        font-size: 13.5px;
+      }
+      .cheat-row:last-child {
+        border-bottom: 0;
+      }
+      .cheat-row code {
+        font-weight: 700;
+        color: var(--doc-yellow);
+      }
+      .cheat-val {
+        color: var(--doc-text);
+      }
+      .cheat-desc {
+        color: var(--doc-dim);
+      }
 
-footer{margin-top:clamp(30px,5vw,56px)}
-.foot-note{color:var(--doc-dim);font-size:13px;margin:14px 0 0;text-align:center}
-.foot-note b{color:var(--doc-green);font-weight:700}
+      footer {
+        margin-top: clamp(30px, 5vw, 56px);
+      }
+      .foot-note {
+        color: var(--doc-dim);
+        font-size: 13px;
+        margin: 14px 0 0;
+        text-align: center;
+      }
+      .foot-note b {
+        color: var(--doc-green);
+        font-weight: 700;
+      }
 
-@media (max-width:820px){
-  .ex-body{grid-template-columns:1fr}
-  .cheat-row{grid-template-columns:1fr;gap:2px;padding:12px 16px}
-}
-</style>
-</head>
-<body>
-<div class="wrap">
+      @media (max-width: 820px) {
+        .ex-body {
+          grid-template-columns: 1fr;
+        }
+        .cheat-row {
+          grid-template-columns: 1fr;
+          gap: 2px;
+          padding: 12px 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="masthead">
+        <div class="mast-row">
+          <span class="mast-page">P100</span>
+          <h1 class="mast-title">CEEFAX·UI</h1>
+          <span class="mast-meta">LAYOUT<br />DEMO</span>
+        </div>
+        <div class="colorbar" data-colorbar></div>
+        <label class="mast-theme"
+          ><input type="checkbox" data-theme-switch />ACCESSIBLE THEME
+          <span style="color: var(--doc-dim); font-weight: 400"
+            >— sets <code>data-theme="accessible"</code> on &lt;html&gt;; the bar above is <code>--cf-base-*</code>, so
+            it never changes</span
+          ></label
+        >
+        <p class="mast-sub">
+          A quick view of what the library delivers. The <b>class markup you write</b> is on the left; the
+          <b>real library stylesheet</b> (<code>../src/index.css</code>) renders it on the right. One import, then plain
+          <code>class="…"</code> — identical in Astro, Svelte, or hand-written HTML.
+        </p>
+      </header>
 
-  <header class="masthead">
-    <div class="mast-row">
-      <span class="mast-page">P100</span>
-      <h1 class="mast-title">CEEFAX·UI</h1>
-      <span class="mast-meta">LAYOUT<br>DEMO</span>
+      <main>
+        <article
+          class="ex"
+          data-page="100"
+          data-title="The page shell"
+          data-note="cf-page stacks header · body · footer bands. Because it is gated with :has(), a bare cf-page stays the plain flat canvas — no breaking change."
+        >
+          <script type="text/plain">
+            <!-- one import: @peamlo/ceefax-ui — then plain class="…" -->
+            <section class="cf-page">
+              <header class="cf-page__header cf-cluster" style="justify-content:space-between">
+                <span>100</span><strong>CEEFAX</strong><time>16:02</time>
+              </header>
+
+              <main class="cf-page__body cf-grid" data-cols="2" data-gap="2">
+                <article class="cf-card" data-variant="red">
+                  <h3 class="cf-card__title">NOTICIAS</h3>
+                  <p class="cf-card__body">Nacional 102 · Deportes 135</p>
+                </article>
+                <article class="cf-card" data-variant="green">
+                  <h3 class="cf-card__title">DEPORTES</h3>
+                  <p class="cf-card__body">Fútbol 201 · Motor 230</p>
+                </article>
+              </main>
+
+              <footer class="cf-page__footer">
+                <nav aria-label="Fastext">
+                  <ul class="cf-fastext">
+                    <li><a class="cf-fastext__key" data-variant="red" href="#">NEWS</a></li>
+                    <li><a class="cf-fastext__key" data-variant="green" href="#">SPORT</a></li>
+                    <li><a class="cf-fastext__key" data-variant="yellow" href="#">TV</a></li>
+                    <li><a class="cf-fastext__key" data-variant="blue" href="#">A–Z</a></li>
+                  </ul>
+                </nav>
+              </footer>
+            </section>
+          </script>
+        </article>
+
+        <article
+          class="ex"
+          data-page="200"
+          data-title="Grid — collapses on its own width"
+          data-note='data-cols="3" means up to 3 columns, dropping to fewer as the grid itself narrows — query-free, so it behaves even nested inside a sidebar. Swap to style="--cf-grid-min:16ch" for an intrinsic card wall.'
+        >
+          <script type="text/plain">
+            <ul class="cf-grid" data-cols="3" data-gap="2"
+                style="list-style:none;padding:0;margin:0">
+              <li><article class="cf-card" data-variant="cyan">
+                <h3 class="cf-card__title">P101</h3>
+                <p class="cf-card__body">Headlines</p></article></li>
+              <li><article class="cf-card" data-variant="yellow">
+                <h3 class="cf-card__title">P155</h3>
+                <p class="cf-card__body">Weather</p></article></li>
+              <li><article class="cf-card" data-variant="green">
+                <h3 class="cf-card__title">P300</h3>
+                <p class="cf-card__body">Sport</p></article></li>
+              <li><article class="cf-card" data-variant="magenta">
+                <h3 class="cf-card__title">P400</h3>
+                <p class="cf-card__body">Travel</p></article></li>
+              <li><article class="cf-card" data-variant="red">
+                <h3 class="cf-card__title">P500</h3>
+                <p class="cf-card__body">Finance</p></article></li>
+              <li><article class="cf-card" data-variant="blue">
+                <h3 class="cf-card__title">P888</h3>
+                <p class="cf-card__body">Subtitles</p></article></li>
+            </ul>
+          </script>
+        </article>
+
+        <article
+          class="ex"
+          data-page="300"
+          data-title="Sidebar + nav state"
+          data-note='A fixed rail (20ch, tune with --cf-sidebar-side) beside a fluid main that wraps under it when space runs out — no media query. aria-current="page" gives the persistent ▸ caret; you never write an is-active class.'
+        >
+          <script type="text/plain">
+            <section class="cf-sidebar" data-gap="3">
+              <nav class="cf-sidebar__side" aria-label="Sections">
+                <ul class="cf-stack" data-gap="1"
+                    style="list-style:none;padding:0;margin:0">
+                  <li><a class="cf-link" href="#" aria-current="page">POSTS</a></li>
+                  <li><a class="cf-link" href="#">TAGS</a></li>
+                  <li><a class="cf-link" href="#">ARCHIVE</a></li>
+                </ul>
+              </nav>
+
+              <main class="cf-sidebar__main">
+                <article class="cf-card">
+                  <h3 class="cf-card__title">Latest</h3>
+                  <p class="cf-card__body">The rail keeps 20ch; main fills the
+                  rest and drops below the rail when the row gets tight.</p>
+                </article>
+              </main>
+            </section>
+          </script>
+        </article>
+
+        <article
+          class="ex"
+          data-page="400"
+          data-title="Reading column — stack · cluster · center"
+          data-note="cf-center caps the measure at a comfortable prose width; cf-stack gives the vertical rhythm; cf-cluster wraps the tags and the button row. Continuous values drop to a CSS var — never a new class."
+        >
+          <script type="text/plain">
+            <article class="cf-center cf-stack" data-gap="4">
+              <h1 class="cf-card__title"
+                  style="font-size:var(--cf-text-display-lg)">Teletext lives</h1>
+
+              <ul class="cf-cluster" data-gap="1"
+                  style="list-style:none;padding:0;margin:0">
+                <li><a class="cf-link" href="#">#retro</a></li>
+                <li><a class="cf-link" href="#">#css</a></li>
+                <li><a class="cf-link" href="#">#a11y</a></li>
+              </ul>
+
+              <p class="cf-card__body">A constrained reading measure — one page
+              wide. Rhythm from cf-stack, tags clustered inline.</p>
+
+              <div class="cf-cluster" data-gap="2">
+                <button class="cf-btn" data-variant="green">Read ▸</button>
+                <button class="cf-btn" data-variant="ghost">Share</button>
+              </div>
+            </article>
+          </script>
+        </article>
+      </main>
+
+      <section class="cheat">
+        <h2>The whole config vocabulary</h2>
+        <div class="cheat-row">
+          <code>data-gap</code><span class="cheat-val">0 – 8</span
+          ><span class="cheat-desc">spacing step (shared by every primitive)</span>
+        </div>
+        <div class="cheat-row">
+          <code>data-cols</code><span class="cheat-val">2 · 3 · 4</span
+          ><span class="cheat-desc">grid: up to N columns, then collapse</span>
+        </div>
+        <div class="cheat-row">
+          <code>data-align</code><span class="cheat-val">start · center · end · baseline</span
+          ><span class="cheat-desc">cluster cross-axis</span>
+        </div>
+        <div class="cheat-row">
+          <code>data-side</code><span class="cheat-val">right</span
+          ><span class="cheat-desc">sidebar: rail on the trailing edge</span>
+        </div>
+        <div class="cheat-row">
+          <code>data-max</code><span class="cheat-val">content · layout</span
+          ><span class="cheat-desc">center: one page vs two</span>
+        </div>
+        <div class="cheat-row">
+          <code>data-variant</code><span class="cheat-val">red · green · yellow · blue · …</span
+          ><span class="cheat-desc">component colour (card, btn, key)</span>
+        </div>
+        <div class="cheat-row">
+          <code>--cf-grid-min</code><span class="cheat-val">e.g. 16ch</span
+          ><span class="cheat-desc">escape hatch → intrinsic auto-fit grid</span>
+        </div>
+        <div class="cheat-row">
+          <code>--cf-sidebar-side</code><span class="cheat-val">e.g. 30ch</span
+          ><span class="cheat-desc">escape hatch → rail width</span>
+        </div>
+      </section>
+
+      <footer>
+        <div class="colorbar" data-colorbar></div>
+        <p class="foot-note">
+          Rendered live by the real <b>@peamlo/ceefax-ui</b> stylesheet — the result panels are the library, not a
+          mockup. The 4:3 <code>data-frame</code> variant sizes to the viewport, so it has its own page:
+          <a href="screen.html">screen.html</a>.
+        </p>
+      </footer>
     </div>
-    <div class="colorbar" data-colorbar></div>
-    <label class="mast-theme"><input type="checkbox" data-theme-switch>ACCESSIBLE THEME <span style="color:var(--doc-dim);font-weight:400">— sets <code>data-theme="accessible"</code> on &lt;html&gt;; the bar above is <code>--cf-base-*</code>, so it never changes</span></label>
-    <p class="mast-sub">A quick view of what the library delivers. The <b>class markup you write</b> is on the left; the <b>real library stylesheet</b> (<code>../src/index.css</code>) renders it on the right. One import, then plain <code>class="…"</code> — identical in Astro, Svelte, or hand-written HTML.</p>
-  </header>
 
-  <main>
+    <script type="module">
+      // Demo-only tooling (not part of the shipped library). Each example's markup
+      // lives once in its <script type="text/plain">; we render it both as the live
+      // result and as highlighted source, so the two panels can never drift.
+      const COLORS = ['black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'];
+      for (const bar of document.querySelectorAll('[data-colorbar]')) {
+        bar.innerHTML = COLORS.map((c) => `<span style="background:var(--cf-base-${c})"></span>`).join('');
+      }
 
-    <article class="ex" data-page="100" data-title="The page shell"
-      data-note="cf-page stacks header · body · footer bands. Because it is gated with :has(), a bare cf-page stays the plain flat canvas — no breaking change.">
-      <script type="text/plain">
-<!-- one import: @peamlo/ceefax-ui — then plain class="…" -->
-<section class="cf-page">
-  <header class="cf-page__header cf-cluster" style="justify-content:space-between">
-    <span>100</span><strong>CEEFAX</strong><time>16:02</time>
-  </header>
+      // The theme switch is the one attribute a consumer would set on <html> (#12).
+      const themeSwitch = document.querySelector('[data-theme-switch]');
+      themeSwitch.addEventListener('change', () => {
+        if (themeSwitch.checked) document.documentElement.dataset.theme = 'accessible';
+        else delete document.documentElement.dataset.theme;
+      });
 
-  <main class="cf-page__body cf-grid" data-cols="2" data-gap="2">
-    <article class="cf-card" data-variant="red">
-      <h3 class="cf-card__title">NOTICIAS</h3>
-      <p class="cf-card__body">Nacional 102 · Deportes 135</p>
-    </article>
-    <article class="cf-card" data-variant="green">
-      <h3 class="cf-card__title">DEPORTES</h3>
-      <p class="cf-card__body">Fútbol 201 · Motor 230</p>
-    </article>
-  </main>
+      const dedent = (t) => {
+        t = t.replace(/^\n/, '').replace(/\s+$/, '');
+        const lines = t.split('\n');
+        const indent = Math.min(...lines.filter((l) => l.trim()).map((l) => l.match(/^ */)[0].length));
+        return lines.map((l) => l.slice(indent)).join('\n');
+      };
 
-  <footer class="cf-page__footer">
-    <nav aria-label="Fastext">
-      <ul class="cf-fastext">
-        <li><a class="cf-fastext__key" data-variant="red" href="#">NEWS</a></li>
-        <li><a class="cf-fastext__key" data-variant="green" href="#">SPORT</a></li>
-        <li><a class="cf-fastext__key" data-variant="yellow" href="#">TV</a></li>
-        <li><a class="cf-fastext__key" data-variant="blue" href="#">A–Z</a></li>
-      </ul>
-    </nav>
-  </footer>
-</section>
-      </script>
-    </article>
+      // HTML syntax highlighter — palette is the authentic broadcast colours.
+      const hl = (src) => {
+        let s = src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const comments = [];
+        s = s.replace(/&lt;!--[\s\S]*?--&gt;/g, (m) => {
+          comments.push(m);
+          return `${comments.length - 1}`;
+        });
+        s = s.replace(/(&lt;\/?)([a-zA-Z][\w-]*)/g, (m, a, b) => `${a}t-tag${b}`);
+        s = s.replace(/([\w-]+)=("[^"]*")/g, (m, n, v) => `t-attr${n}=t-str${v}`);
+        s = s.replace(/(\d+)/g, (m, i) => `t-com${comments[+i]}`);
+        return s.replace(/([a-z-]+)/g, (m, c) => `<span class="${c}">`).replace(//g, '</span>');
+      };
 
-    <article class="ex" data-page="200" data-title="Grid — collapses on its own width"
-      data-note='data-cols="3" means up to 3 columns, dropping to fewer as the grid itself narrows — query-free, so it behaves even nested inside a sidebar. Swap to style="--cf-grid-min:16ch" for an intrinsic card wall.'>
-      <script type="text/plain">
-<ul class="cf-grid" data-cols="3" data-gap="2"
-    style="list-style:none;padding:0;margin:0">
-  <li><article class="cf-card" data-variant="cyan">
-    <h3 class="cf-card__title">P101</h3>
-    <p class="cf-card__body">Headlines</p></article></li>
-  <li><article class="cf-card" data-variant="yellow">
-    <h3 class="cf-card__title">P155</h3>
-    <p class="cf-card__body">Weather</p></article></li>
-  <li><article class="cf-card" data-variant="green">
-    <h3 class="cf-card__title">P300</h3>
-    <p class="cf-card__body">Sport</p></article></li>
-  <li><article class="cf-card" data-variant="magenta">
-    <h3 class="cf-card__title">P400</h3>
-    <p class="cf-card__body">Travel</p></article></li>
-  <li><article class="cf-card" data-variant="red">
-    <h3 class="cf-card__title">P500</h3>
-    <p class="cf-card__body">Finance</p></article></li>
-  <li><article class="cf-card" data-variant="blue">
-    <h3 class="cf-card__title">P888</h3>
-    <p class="cf-card__body">Subtitles</p></article></li>
-</ul>
-      </script>
-    </article>
-
-    <article class="ex" data-page="300" data-title="Sidebar + nav state"
-      data-note='A fixed rail (20ch, tune with --cf-sidebar-side) beside a fluid main that wraps under it when space runs out — no media query. aria-current="page" gives the persistent ▸ caret; you never write an is-active class.'>
-      <script type="text/plain">
-<section class="cf-sidebar" data-gap="3">
-  <nav class="cf-sidebar__side" aria-label="Sections">
-    <ul class="cf-stack" data-gap="1"
-        style="list-style:none;padding:0;margin:0">
-      <li><a class="cf-link" href="#" aria-current="page">POSTS</a></li>
-      <li><a class="cf-link" href="#">TAGS</a></li>
-      <li><a class="cf-link" href="#">ARCHIVE</a></li>
-    </ul>
-  </nav>
-
-  <main class="cf-sidebar__main">
-    <article class="cf-card">
-      <h3 class="cf-card__title">Latest</h3>
-      <p class="cf-card__body">The rail keeps 20ch; main fills the
-      rest and drops below the rail when the row gets tight.</p>
-    </article>
-  </main>
-</section>
-      </script>
-    </article>
-
-    <article class="ex" data-page="400" data-title="Reading column — stack · cluster · center"
-      data-note="cf-center caps the measure at a comfortable prose width; cf-stack gives the vertical rhythm; cf-cluster wraps the tags and the button row. Continuous values drop to a CSS var — never a new class.">
-      <script type="text/plain">
-<article class="cf-center cf-stack" data-gap="4">
-  <h1 class="cf-card__title"
-      style="font-size:var(--cf-text-display-lg)">Teletext lives</h1>
-
-  <ul class="cf-cluster" data-gap="1"
-      style="list-style:none;padding:0;margin:0">
-    <li><a class="cf-link" href="#">#retro</a></li>
-    <li><a class="cf-link" href="#">#css</a></li>
-    <li><a class="cf-link" href="#">#a11y</a></li>
-  </ul>
-
-  <p class="cf-card__body">A constrained reading measure — one page
-  wide. Rhythm from cf-stack, tags clustered inline.</p>
-
-  <div class="cf-cluster" data-gap="2">
-    <button class="cf-btn" data-variant="green">Read ▸</button>
-    <button class="cf-btn" data-variant="ghost">Share</button>
-  </div>
-</article>
-      </script>
-    </article>
-
-  </main>
-
-  <section class="cheat">
-    <h2>The whole config vocabulary</h2>
-    <div class="cheat-row"><code>data-gap</code><span class="cheat-val">0 – 8</span><span class="cheat-desc">spacing step (shared by every primitive)</span></div>
-    <div class="cheat-row"><code>data-cols</code><span class="cheat-val">2 · 3 · 4</span><span class="cheat-desc">grid: up to N columns, then collapse</span></div>
-    <div class="cheat-row"><code>data-align</code><span class="cheat-val">start · center · end · baseline</span><span class="cheat-desc">cluster cross-axis</span></div>
-    <div class="cheat-row"><code>data-side</code><span class="cheat-val">right</span><span class="cheat-desc">sidebar: rail on the trailing edge</span></div>
-    <div class="cheat-row"><code>data-max</code><span class="cheat-val">content · layout</span><span class="cheat-desc">center: one page vs two</span></div>
-    <div class="cheat-row"><code>data-variant</code><span class="cheat-val">red · green · yellow · blue · …</span><span class="cheat-desc">component colour (card, btn, key)</span></div>
-    <div class="cheat-row"><code>--cf-grid-min</code><span class="cheat-val">e.g. 16ch</span><span class="cheat-desc">escape hatch → intrinsic auto-fit grid</span></div>
-    <div class="cheat-row"><code>--cf-sidebar-side</code><span class="cheat-val">e.g. 30ch</span><span class="cheat-desc">escape hatch → rail width</span></div>
-  </section>
-
-  <footer>
-    <div class="colorbar" data-colorbar></div>
-    <p class="foot-note">Rendered live by the real <b>@peamlo/ceefax-ui</b> stylesheet — the result panels are the library, not a mockup. The 4:3 <code>data-frame</code> variant sizes to the viewport, so it has its own page: <a href="screen.html">screen.html</a>.</p>
-  </footer>
-
-</div>
-
-<script type="module">
-// Demo-only tooling (not part of the shipped library). Each example's markup
-// lives once in its <script type="text/plain">; we render it both as the live
-// result and as highlighted source, so the two panels can never drift.
-const COLORS = ['black','red','green','yellow','blue','magenta','cyan','white'];
-for (const bar of document.querySelectorAll('[data-colorbar]')) {
-  bar.innerHTML = COLORS.map(c => `<span style="background:var(--cf-base-${c})"></span>`).join('');
-}
-
-// The theme switch is the one attribute a consumer would set on <html> (#12).
-const themeSwitch = document.querySelector('[data-theme-switch]');
-themeSwitch.addEventListener('change', () => {
-  if (themeSwitch.checked) document.documentElement.dataset.theme = 'accessible';
-  else delete document.documentElement.dataset.theme;
-});
-
-const dedent = (t) => {
-  t = t.replace(/^\n/, '').replace(/\s+$/, '');
-  const lines = t.split('\n');
-  const indent = Math.min(...lines.filter(l => l.trim()).map(l => l.match(/^ */)[0].length));
-  return lines.map(l => l.slice(indent)).join('\n');
-};
-
-// HTML syntax highlighter — palette is the authentic broadcast colours.
-const hl = (src) => {
-  let s = src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const comments = [];
-  s = s.replace(/&lt;!--[\s\S]*?--&gt;/g, (m) => { comments.push(m); return `${comments.length - 1}`; });
-  s = s.replace(/(&lt;\/?)([a-zA-Z][\w-]*)/g, (m, a, b) => `${a}t-tag${b}`);
-  s = s.replace(/([\w-]+)=("[^"]*")/g, (m, n, v) => `t-attr${n}=t-str${v}`);
-  s = s.replace(/(\d+)/g, (m, i) => `t-com${comments[+i]}`);
-  return s.replace(/([a-z-]+)/g, (m, c) => `<span class="${c}">`).replace(//g, '</span>');
-};
-
-for (const ex of document.querySelectorAll('.ex')) {
-  const holder = ex.querySelector('script[type="text/plain"]');
-  const src = dedent(holder.textContent);
-  holder.remove();
-  ex.innerHTML = `
+      for (const ex of document.querySelectorAll('.ex')) {
+        const holder = ex.querySelector('script[type="text/plain"]');
+        const src = dedent(holder.textContent);
+        holder.remove();
+        ex.innerHTML = `
     <div class="ex-head">
       <span class="ex-page">PAGE ${ex.dataset.page}</span>
       <h2 class="ex-title">${ex.dataset.title}</h2>
@@ -293,9 +596,9 @@ for (const ex of document.querySelectorAll('.ex')) {
         <div class="screen"></div>
       </figure>
     </div>`;
-  ex.querySelector('.pane-code code').innerHTML = hl(src);
-  ex.querySelector('.screen').innerHTML = src.replace(/<!--[\s\S]*?-->\n?/g, '');
-}
-</script>
-</body>
+        ex.querySelector('.pane-code code').innerHTML = hl(src);
+        ex.querySelector('.screen').innerHTML = src.replace(/<!--[\s\S]*?-->\n?/g, '');
+      }
+    </script>
+  </body>
 </html>

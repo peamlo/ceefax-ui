@@ -15,11 +15,11 @@ not be made with confidence. This is issue #8.
 Two questions had genuine alternatives:
 
 1. **What is the test surface?** A separate unit harness (jsdom + vitest) was an
-   option, but the contract is *rendered-DOM / computed-CSS / ARIA* behaviour — it
+   option, but the contract is _rendered-DOM / computed-CSS / ARIA_ behaviour — it
    needs a real browser, and jsdom does not do layout, `:focus-visible`, or axe
    contrast. The stories already build the exact contract markup.
 2. **Where do assertions that need real input live?** CSS `:hover` and
-   `:focus-visible` only respond to a *real* pointer/keyboard; the synthetic
+   `:focus-visible` only respond to a _real_ pointer/keyboard; the synthetic
    in-page `userEvent` cannot produce them, so a `play()` cannot observe the
    button's inversion.
 
@@ -49,7 +49,7 @@ modules (button, link, card, fastext, `<cf-canvas>`) plus the palette-drift guar
 Per [ADR-0002](0002-squash-only-conventional-pr-titles.md) this is a **hard** gate: the
 `main protection` ruleset requires `test-storybook`, so a red run blocks merge.
 
-The Foundations/Layout **documentation** stories are deliberately *not* in the CI gate.
+The Foundations/Layout **documentation** stories are deliberately _not_ in the CI gate.
 They are out of #8's scope (they assert no contract claim — they are visual token/layout
 demos) and, more practically, they currently destabilise the test-runner: several hang
 for ~60s with a "most likely because of a navigation" error and time out, reproducibly,
@@ -68,7 +68,7 @@ the gate widens with no change to the stories.
 - The split is deliberate but surprising: **why is the button's inversion asserted in
   `test-runner.js` and not in `Button.stories.js`?** Because synthetic events can't
   trigger the CSS state; a `play()`-based hover test would fail on the enabled button
-  and pass *vacuously* on the disabled one. Real input has to come from Playwright.
+  and pass _vacuously_ on the disabled one. Real input has to come from Playwright.
 - New deps: `@storybook/test-runner`, `axe-playwright`, and Playwright browsers in
   CI. Since Storybook 9 the `play()` helpers (`expect`, `within`) come from core
   (`storybook/test`), so `@storybook/test` is no longer a separate package. Storybook
@@ -77,7 +77,7 @@ the gate widens with no change to the stories.
   test-runner stops pulling `uuid@8`.
 - **Exception — packaging:** `scripts/assert-package.mjs` (issue #45) drives
   Playwright outside the stories. It is not a parallel component harness: it
-  tests the *installed tarball* (exports resolve, elements register from a clean
+  tests the _installed tarball_ (exports resolve, elements register from a clean
   install), which no story can see. Component behaviour still belongs in stories.
 - Out of scope here, enabled by this: contrast under `[data-theme="accessible"]`
   (#12) reuses this surface; the Astro adapter (#9) proves its output against these

@@ -1,62 +1,62 @@
-:root{
-/* base — authentic broadcast palette. NEVER remapped. */
---cf-base-black:#000000;
---cf-base-red:#ff0000;
---cf-base-green:#00ff00;
---cf-base-yellow:#ffff00;
---cf-base-blue:#0000ff;
---cf-base-magenta:#ff00ff;
---cf-base-cyan:#00ffff;
---cf-base-white:#ffffff;
-/* semantic aliases — the ONLY colour tier component/layout CSS references
+:root {
+  /* base — authentic broadcast palette. NEVER remapped. */
+  --cf-base-black: #000000;
+  --cf-base-red: #ff0000;
+  --cf-base-green: #00ff00;
+  --cf-base-yellow: #ffff00;
+  --cf-base-blue: #0000ff;
+  --cf-base-magenta: #ff00ff;
+  --cf-base-cyan: #00ffff;
+  --cf-base-white: #ffffff;
+  /* semantic aliases — the ONLY colour tier component/layout CSS references
    (CI: Foundations/Token layering guard, ADR-0008). */
---cf-bg:var(--cf-base-black);
---cf-bg-2:#100b8a;       /* secondary background — deep teletext blue */
---cf-fg:var(--cf-base-white);
---cf-fg-dim:#b3ffb3;
---cf-link:var(--cf-base-cyan);
---cf-link-hover:var(--cf-base-yellow);
---cf-link-visited:var(--cf-base-magenta);
---cf-accent:var(--cf-base-yellow);
---cf-accent-2:var(--cf-base-green);
---cf-border:var(--cf-base-white);
---cf-info:var(--cf-base-cyan);
---cf-warning:var(--cf-base-yellow);
---cf-danger:var(--cf-base-red);
---cf-success:var(--cf-base-green);
-/* ink (readable foreground) on a variant block: light blocks, and dark ones (authentic blue) */
---cf-on-variant:var(--cf-base-black);
---cf-on-variant-dark:var(--cf-base-white);
-/* variant tier — the colour a [data-variant] name resolves to (the seam in base.css reads
+  --cf-bg: var(--cf-base-black);
+  --cf-bg-2: #100b8a; /* secondary background — deep teletext blue */
+  --cf-fg: var(--cf-base-white);
+  --cf-fg-dim: #b3ffb3;
+  --cf-link: var(--cf-base-cyan);
+  --cf-link-hover: var(--cf-base-yellow);
+  --cf-link-visited: var(--cf-base-magenta);
+  --cf-accent: var(--cf-base-yellow);
+  --cf-accent-2: var(--cf-base-green);
+  --cf-border: var(--cf-base-white);
+  --cf-info: var(--cf-base-cyan);
+  --cf-warning: var(--cf-base-yellow);
+  --cf-danger: var(--cf-base-red);
+  --cf-success: var(--cf-base-green);
+  /* ink (readable foreground) on a variant block: light blocks, and dark ones (authentic blue) */
+  --cf-on-variant: var(--cf-base-black);
+  --cf-on-variant-dark: var(--cf-base-white);
+  /* variant tier — the colour a [data-variant] name resolves to (the seam in base.css reads
    these). Defaults to the authentic colour; a theme remaps these, never --cf-base-*. */
---cf-variant-red:var(--cf-base-red);
---cf-variant-green:var(--cf-base-green);
---cf-variant-yellow:var(--cf-base-yellow);
---cf-variant-blue:var(--cf-base-blue);
---cf-variant-magenta:var(--cf-base-magenta);
---cf-variant-cyan:var(--cf-base-cyan);
+  --cf-variant-red: var(--cf-base-red);
+  --cf-variant-green: var(--cf-base-green);
+  --cf-variant-yellow: var(--cf-base-yellow);
+  --cf-variant-blue: var(--cf-base-blue);
+  --cf-variant-magenta: var(--cf-base-magenta);
+  --cf-variant-cyan: var(--cf-base-cyan);
 }
 /* Accessible theme (opt-in, #12): CVD-optimised, every colour >=7:1 (AAA) on black.
    danger/success sit on the blue-yellow axis (amber vs teal) so they survive red-green
    colour-blindness. Remaps ONLY aliases; --cf-base-* stay authentic. Works on <html> or
    any subtree. Guarded by the Foundations/Accessible theme story. */
-[data-theme="accessible"]{
---cf-variant-red:#ff9e4d;
---cf-variant-green:#33e0c0;
---cf-variant-yellow:#ffff00;
---cf-variant-blue:#66b3ff;
---cf-variant-magenta:#e0a0d0;
---cf-variant-cyan:#99e6ff;
---cf-link:var(--cf-variant-cyan);
---cf-link-hover:var(--cf-variant-yellow);
---cf-link-visited:var(--cf-variant-magenta);
---cf-accent:var(--cf-variant-yellow);
---cf-accent-2:var(--cf-variant-green);
---cf-info:var(--cf-variant-cyan);
---cf-warning:var(--cf-variant-yellow);
---cf-danger:var(--cf-variant-red);
---cf-success:var(--cf-variant-green);
---cf-fg-dim:#b3b3b3;
-/* every accessible block is light, so the ink on blue is black like the rest */
---cf-on-variant-dark:var(--cf-on-variant);
+[data-theme='accessible'] {
+  --cf-variant-red: #ff9e4d;
+  --cf-variant-green: #33e0c0;
+  --cf-variant-yellow: #ffff00;
+  --cf-variant-blue: #66b3ff;
+  --cf-variant-magenta: #e0a0d0;
+  --cf-variant-cyan: #99e6ff;
+  --cf-link: var(--cf-variant-cyan);
+  --cf-link-hover: var(--cf-variant-yellow);
+  --cf-link-visited: var(--cf-variant-magenta);
+  --cf-accent: var(--cf-variant-yellow);
+  --cf-accent-2: var(--cf-variant-green);
+  --cf-info: var(--cf-variant-cyan);
+  --cf-warning: var(--cf-variant-yellow);
+  --cf-danger: var(--cf-variant-red);
+  --cf-success: var(--cf-variant-green);
+  --cf-fg-dim: #b3b3b3;
+  /* every accessible block is light, so the ink on blue is black like the rest */
+  --cf-on-variant-dark: var(--cf-on-variant);
 }

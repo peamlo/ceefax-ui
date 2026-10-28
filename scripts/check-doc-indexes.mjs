@@ -11,7 +11,9 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const errors = [];
 
 function check(dir, pattern, ordered) {
-  const files = readdirSync(resolve(root, dir)).filter((f) => pattern.test(f)).sort();
+  const files = readdirSync(resolve(root, dir))
+    .filter((f) => pattern.test(f))
+    .sort();
   const index = readFileSync(resolve(root, dir, 'README.md'), 'utf8');
   const linked = [...index.matchAll(/\]\((?:\.\/)?([^)#]+)/g)].map((m) => m[1]);
   for (const f of files) {

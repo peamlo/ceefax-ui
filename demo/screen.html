@@ -1,45 +1,50 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ceefax-ui — screen frame demo</title>
-<link rel="icon" href="../public/favicon.svg">
-<link rel="stylesheet" href="../src/index.css">
-<style>body{margin:0;background:#000}</style>
-</head>
-<body>
-<!-- Resize the window: the page stays 4:3, type scales with it, and below 40em it goes full-bleed. -->
-<section class="cf-page" data-frame>
-  <header class="cf-page__header cf-cluster" style="justify-content:space-between;padding:0 var(--cf-space-3)">
-    <span>100</span><strong>CEEFAX</strong><time>16:02</time>
-  </header>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ceefax-ui — screen frame demo</title>
+    <link rel="icon" href="../public/favicon.svg" />
+    <link rel="stylesheet" href="../src/index.css" />
+    <style>
+      body {
+        margin: 0;
+        background: #000;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Resize the window: the page stays 4:3, type scales with it, and below 40em it goes full-bleed. -->
+    <section class="cf-page" data-frame>
+      <header class="cf-page__header cf-cluster" style="justify-content: space-between; padding: 0 var(--cf-space-3)">
+        <span>100</span><strong>CEEFAX</strong><time>16:02</time>
+      </header>
 
-  <main class="cf-page__body cf-stack" tabindex="0" style="padding:var(--cf-space-3)">
-    <h1>NEWS</h1>
-    <p>Only this body scrolls; the header and fastext keys stay pinned.</p>
-    <p>Headline 1 — type scales with the frame, so lines keep the same width at any size.</p>
-    <p>Headline 2 — type scales with the frame, so lines keep the same width at any size.</p>
-    <p>Headline 3 — type scales with the frame, so lines keep the same width at any size.</p>
-    <p>Headline 4 — type scales with the frame, so lines keep the same width at any size.</p>
-    <p>Headline 5 — type scales with the frame, so lines keep the same width at any size.</p>
-    <p>Headline 6 — type scales with the frame, so lines keep the same width at any size.</p>
-    <p>Headline 7 — type scales with the frame, so lines keep the same width at any size.</p>
-    <p>Headline 8 — type scales with the frame, so lines keep the same width at any size.</p>
-    <p>Headline 9 — type scales with the frame, so lines keep the same width at any size.</p>
-    <p>Headline 10 — type scales with the frame, so lines keep the same width at any size.</p>
-  </main>
+      <main class="cf-page__body cf-stack" tabindex="0" style="padding: var(--cf-space-3)">
+        <h1>NEWS</h1>
+        <p>Only this body scrolls; the header and fastext keys stay pinned.</p>
+        <p>Headline 1 — type scales with the frame, so lines keep the same width at any size.</p>
+        <p>Headline 2 — type scales with the frame, so lines keep the same width at any size.</p>
+        <p>Headline 3 — type scales with the frame, so lines keep the same width at any size.</p>
+        <p>Headline 4 — type scales with the frame, so lines keep the same width at any size.</p>
+        <p>Headline 5 — type scales with the frame, so lines keep the same width at any size.</p>
+        <p>Headline 6 — type scales with the frame, so lines keep the same width at any size.</p>
+        <p>Headline 7 — type scales with the frame, so lines keep the same width at any size.</p>
+        <p>Headline 8 — type scales with the frame, so lines keep the same width at any size.</p>
+        <p>Headline 9 — type scales with the frame, so lines keep the same width at any size.</p>
+        <p>Headline 10 — type scales with the frame, so lines keep the same width at any size.</p>
+      </main>
 
-  <footer class="cf-page__footer">
-    <nav aria-label="Fastext">
-      <ul class="cf-fastext">
-        <li><a class="cf-fastext__key" data-variant="red" href="#">NEWS</a></li>
-        <li><a class="cf-fastext__key" data-variant="green" href="#">SPORT</a></li>
-        <li><a class="cf-fastext__key" data-variant="yellow" href="#">TV</a></li>
-        <li><a class="cf-fastext__key" data-variant="blue" href="#">A–Z</a></li>
-      </ul>
-    </nav>
-  </footer>
-</section>
-</body>
+      <footer class="cf-page__footer">
+        <nav aria-label="Fastext">
+          <ul class="cf-fastext">
+            <li><a class="cf-fastext__key" data-variant="red" href="#">NEWS</a></li>
+            <li><a class="cf-fastext__key" data-variant="green" href="#">SPORT</a></li>
+            <li><a class="cf-fastext__key" data-variant="yellow" href="#">TV</a></li>
+            <li><a class="cf-fastext__key" data-variant="blue" href="#">A–Z</a></li>
+          </ul>
+        </nav>
+      </footer>
+    </section>
+  </body>
 </html>

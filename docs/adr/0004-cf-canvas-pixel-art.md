@@ -4,7 +4,7 @@
 
 The library needs a way to render teletext-style **pixel art** — headers, logos and
 scenes like the classic Ceefax mosaics (palm tree, TELETEXTO logo, a tarot portrait).
-This is the first *richer, logic-bearing* component whose shipping mechanism
+This is the first _richer, logic-bearing_ component whose shipping mechanism
 [ADR-0001](0001-css-first-no-js-runtime.md) explicitly deferred ("it will get its own
 ADR when the first such component is actually needed"). It is also render-only for
 now: a **later** session adds a "paint it yourself" editor that must share the same
@@ -41,7 +41,7 @@ CSS-variable escape hatch — the same "enumerated `data-*` preset + `--cf-*` es
 hatch" idiom the layout primitives use.
 
 **Use free per-pixel colour** from the eight authentic `--ceefax-*` colours (read live,
-never remapped) — *not* the one-colour-per-cell hardware constraint.
+never remapped) — _not_ the one-colour-per-cell hardware constraint.
 
 **The artwork is the element's text content**: newline-separated rows of single-char
 [palette codes](../../CONTEXT.md) (`k r g y b m c w`, `.`/space = transparent). Parsing

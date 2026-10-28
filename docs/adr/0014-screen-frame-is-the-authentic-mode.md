@@ -4,14 +4,14 @@
 
 The [teletext-fidelity review](../reviews/2026-10-27-teletext-fidelity.html) found the library
 looks like teletext but follows few of its rules, starting with the glyphs: the display face
-was VT323, a DEC VT320 *terminal* font, not the SAA5050 character generator that drew real
+was VT323, a DEC VT320 _terminal_ font, not the SAA5050 character generator that drew real
 teletext. Being faithful everywhere would cost the web basics (readable body sizes, a prose
 measure, free colour), and most consumers build ordinary pages with a teletext look. So the
 fidelity work needs one rule for where the teletext constraints apply.
 
 ## Decision
 
-**Teletext-*styled* by default; teletext-*constrained* only inside the Screen frame**
+**Teletext-_styled_ by default; teletext-_constrained_ only inside the Screen frame**
 ([ADR-0009](0009-screen-frame-data-attr.md)). Outside the frame the library keeps the look
 (authentic colours, the display face, fastext) and follows web conventions for everything you
 read. Inside `.cf-page[data-frame]`, the teletext rules apply: the frame is where a page is

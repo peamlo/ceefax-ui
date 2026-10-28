@@ -1,14 +1,51 @@
 /* Link — one class. Current page via [aria-current="page"] (persistent caret).
    Focus = instant inversion. Nav style via [data-variant="nav"]. */
-.cf-link{font-family:var(--cf-font-mono);color:var(--cf-link);text-decoration:none;text-underline-offset:3px}
-.cf-link:hover{color:var(--cf-link-hover);text-decoration:underline}
-.cf-link:focus-visible{outline:none;background:var(--cf-link);color:var(--cf-bg);text-decoration:none}
-.cf-link:visited{color:var(--cf-link-visited)}
-.cf-link[data-variant="nav"]{display:inline-flex;align-items:baseline;gap:var(--cf-space-2);font-weight:var(--cf-weight-bold);letter-spacing:var(--cf-tracking-wide);text-transform:uppercase;text-decoration:none}
-.cf-link[data-variant="nav"] .cf-link__page{color:var(--cf-accent)}
-.cf-link[data-variant="nav"]:hover{text-decoration:none;color:var(--cf-link-hover)}
+.cf-link {
+  font-family: var(--cf-font-mono);
+  color: var(--cf-link);
+  text-decoration: none;
+  text-underline-offset: 3px;
+}
+.cf-link:hover {
+  color: var(--cf-link-hover);
+  text-decoration: underline;
+}
+.cf-link:focus-visible {
+  outline: none;
+  background: var(--cf-link);
+  color: var(--cf-bg);
+  text-decoration: none;
+}
+.cf-link:visited {
+  color: var(--cf-link-visited);
+}
+.cf-link[data-variant='nav'] {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--cf-space-2);
+  font-weight: var(--cf-weight-bold);
+  letter-spacing: var(--cf-tracking-wide);
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.cf-link[data-variant='nav'] .cf-link__page {
+  color: var(--cf-accent);
+}
+.cf-link[data-variant='nav']:hover {
+  text-decoration: none;
+  color: var(--cf-link-hover);
+}
 /* selected / "you are here" — persistent, distinct from transient focus */
-.cf-link[aria-current="page"]{color:var(--cf-link-hover)}
-.cf-link[aria-current="page"]::before{content:"\25B8\00A0";color:var(--cf-accent)}
-.cf-link[aria-current="page"]:focus-visible{color:var(--cf-bg)}
-.cf-link[aria-current="page"]:focus-visible::before{color:var(--cf-bg)}
+.cf-link[aria-current='page'] {
+  color: var(--cf-link-hover);
+}
+.cf-link[aria-current='page']::before {
+  content: '\25B8\00A0';
+  color: var(--cf-accent);
+}
+.cf-link[aria-current='page']:focus-visible {
+  color: var(--cf-bg);
+}
+.cf-link[aria-current='page']:focus-visible::before {
+  color: var(--cf-bg);
+}

@@ -9,8 +9,15 @@ export default {
     a.href = href || '#';
     if (variant === 'nav') {
       a.dataset.variant = 'nav';
-      if (page) { const s = document.createElement('span'); s.className = 'cf-link__page'; s.textContent = 'p.' + page; a.appendChild(s); }
-      const t = document.createElement('span'); t.textContent = label; a.appendChild(t);
+      if (page) {
+        const s = document.createElement('span');
+        s.className = 'cf-link__page';
+        s.textContent = 'p.' + page;
+        a.appendChild(s);
+      }
+      const t = document.createElement('span');
+      t.textContent = label;
+      a.appendChild(t);
     } else {
       a.textContent = label;
     }

@@ -93,12 +93,16 @@ async function assertScreenFrame(page) {
 async function assertNoticeBlink(page) {
   // The animated properties too: opacity, never visibility, keeps the flag in the a11y tree.
   const flagAnimations = () =>
-    document.querySelector('.cf-notice__flag').getAnimations().map((a) => {
-      const { duration, iterations } = a.effect.getComputedTiming();
-      const props = [...new Set(a.effect.getKeyframes().flatMap((k) => Object.keys(k)))]
-        .filter((k) => !['offset', 'computedOffset', 'easing', 'composite'].includes(k));
-      return { duration, iterations, props };
-    });
+    document
+      .querySelector('.cf-notice__flag')
+      .getAnimations()
+      .map((a) => {
+        const { duration, iterations } = a.effect.getComputedTiming();
+        const props = [...new Set(a.effect.getKeyframes().flatMap((k) => Object.keys(k)))].filter(
+          (k) => !['offset', 'computedOffset', 'easing', 'composite'].includes(k),
+        );
+        return { duration, iterations, props };
+      });
   // animation-name, not just getAnimations(): a leaked animation that already finished
   // (no fill) would also leave getAnimations() empty.
   const animationName = () => getComputedStyle(document.querySelector('.cf-notice__flag')).animationName;
