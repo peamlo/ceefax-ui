@@ -161,7 +161,7 @@ Every block colour is light, so the ink on a variant block is black — blue inc
 ```sh
 npm install
 npm run storybook      # framework-agnostic Storybook (HTML mode) — play with every variant
-npm run build          # PostCSS → dist/index.css + dist/tokens.css
+npm run build          # PostCSS + esbuild minify → dist/index.css + dist/tokens.css
 ```
 
 Storybook uses `@storybook/html-vite` + the a11y addon, with interactions built in, so stories show the exact HTML contract, run live WCAG checks, and can script keyboard/focus behaviour.

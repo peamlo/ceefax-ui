@@ -5,6 +5,8 @@
 # printed to the log. The `security` job (issue #46) lints workflows with zizmor and
 # reviews dependencies a PR adds. Both jobs are required by the `main protection`
 # ruleset — see ADR-0002. The advisory `docs` job (issue #53) checks the Markdown.
+# `package` also enforces the brotli size budgets (issue #47, ADR-0015); the
+# advisory `size-comment` job posts the size report, with deltas, on the PR.
 name: ci
 
 on:
@@ -33,6 +35,51 @@ jobs:
       - run: npm run assert-package
         env:
           FORCE_COLOR: '1' # the Actions log renders ANSI colour but isn't a TTY
+      # Size report vs the base branch, even when a budget failed above. The base
+      # build reuses this job's node_modules: a PostCSS + esbuild run, not a second npm ci.
+      - if: ${{ !cancelled() && github.event_name == 'pull_request' }}
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          git fetch --depth=1 origin "$BASE_REF"
+          git worktree add --detach "$RUNNER_TEMP/base" FETCH_HEAD
+          ln -s "$PWD/node_modules" "$RUNNER_TEMP/base/node_modules"
+          npm run build --prefix "$RUNNER_TEMP/base" > /dev/null
+          node scripts/size.mjs . "$RUNNER_TEMP/base" > size.md
+          cat size.md >> "$GITHUB_STEP_SUMMARY"
+      - if: ${{ !cancelled() && github.event_name == 'pull_request' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: size-report
+          path: size.md
+          retention-days: 1
+
+  # Posts (or updates) the size report comment. The only job with write access
+  # to PRs, and it never checks out or runs PR code. Advisory: not in the
+  # ruleset. Skipped on fork PRs, whose token can't comment.
+  size-comment:
+    needs: package
+    if: >-
+      !cancelled() && github.event_name == 'pull_request'
+      && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: size-report
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          id=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --paginate \
+            --jq '.[] | select(.body | startswith("<!-- size-report -->")) | .id' | tail -n 1)
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$id" -F body=@size.md > /dev/null
+          else
+            gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body-file size.md
+          fi
 
   # Supply-chain gate (issue #46): zizmor lints the workflows (unpinned actions,
   # template injection, excess permissions) and dependency review flags any
