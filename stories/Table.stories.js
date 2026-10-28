@@ -344,6 +344,89 @@ export const Summary = {
   },
 };
 
+// Column stripes: data-stripe-cols gives the row stripes' two looks cell by cell. Here band
+// rows cross text columns: where they cross the row wins, and the header follows the columns.
+export const BandRowsTextColumns = {
+  name: 'Band rows, text columns',
+  render: () => league(' data-stripe-rows="band" data-stripe-cols="text"', 'Liverpool'),
+  play: async ({ canvasElement }) => {
+    const tableEl = await assertSemantics(canvasElement);
+    const read = () => {
+      const rest = tableEl.tBodies[2];
+      return {
+        plain: [...rest.rows[1].cells].map(paint), // an even row: no row stripe
+        banded: [...rest.rows[0].cells].map(paint), // an odd row: the band stripe
+        head: [...tableEl.tHead.rows[0].cells].map(paint),
+        blue: reference(canvasElement, 'blue'),
+      };
+    };
+    const authentic = read();
+    for (const cells of [authentic.plain, authentic.head]) {
+      await expect(cells[0].fg).toBe('rgb(0, 255, 255)'); // --cf-info
+      await expect(cells[1].fg).toBe('rgb(255, 255, 255)'); // --cf-fg
+      for (const [i, c] of cells.entries()) await expect(c.fg).toBe(cells[i % 2].fg);
+    }
+    for (const c of authentic.banded) await expect(c).toEqual(authentic.blue);
+    await assertCurrentRow(canvasElement);
+    const themed = await accessible(canvasElement, read);
+    await expect(themed.plain[0].fg).not.toBe(authentic.plain[0].fg);
+    for (const c of themed.banded) await expect(c).toEqual({ bg: themed.blue.bg, fg: 'rgb(0, 0, 0)' });
+  },
+};
+
+// data-stripe-cols="band" for a dense table of figures. A highlighted row and a banded group
+// cross the columns, and both keep their own colours. colspan isn't supported here: it shifts
+// the count.
+const RETURNS = [
+  ['World index', '+21,8%', '-12,7%', '+18,1%', '+25,3%', '+6,2%'],
+  ['Euro bonds', '-3,1%', '-17,2%', '+7,2%', '+2,6%', '+1,4%'],
+  ['Your plan', '+14,9%', '-13,8%', '+14,3%', '+18,4%', '+4,9%'],
+  ['Cash', '-0,5%', '+0,2%', '+3,3%', '+3,6%', '+2,1%'],
+];
+export const ColumnBands = {
+  name: 'Column bands',
+  render: () =>
+    table({
+      caption: 'Returns by year',
+      attrs: ' data-stripe-cols="band"',
+      body:
+        '<thead><tr><th scope="col">Fund</th>' +
+        ['2021', '2022', '2023', '2024', '2025'].map((y) => `<th scope="col" data-align="end">${y}</th>`).join('') +
+        '</tr></thead><tbody>' +
+        RETURNS.map(
+          ([name, ...figs]) =>
+            `<tr${name === 'Your plan' ? ' aria-current="true"' : ''}><th scope="row">${name}</th>` +
+            figs.map((f) => `<td data-align="end">${f}</td>`).join('') +
+            '</tr>',
+        ).join('') +
+        '</tbody><tbody data-band="cyan"><tr><th scope="row">Benchmark</th>' +
+        ['+20,1%', '-14,0%', '+16,9%', '+22,0%', '+5,8%'].map((f) => `<td data-align="end">${f}</td>`).join('') +
+        '</tr></tbody>',
+    }),
+  play: async ({ canvasElement }) => {
+    const tableEl = await assertSemantics(canvasElement);
+    const read = () => ({
+      plain: [...tableEl.tBodies[0].rows[0].cells].map(paint),
+      head: [...tableEl.tHead.rows[0].cells].map(paint),
+      zone: [...tableEl.tBodies[1].rows[0].cells].map(paint),
+      blue: reference(canvasElement, 'blue'),
+      cyan: reference(canvasElement, 'cyan'),
+    });
+    const authentic = read();
+    // Odd columns on the blue band, even ones bare, in the body and the header alike.
+    for (const cells of [authentic.plain, authentic.head])
+      for (const [i, c] of cells.entries()) await expect(c.bg).toBe(i % 2 ? NONE : authentic.blue.bg);
+    await expect(authentic.plain[0]).toEqual(authentic.blue);
+    // The banded group and the current row keep their own colours across every column.
+    for (const c of authentic.zone) await expect(c).toEqual(authentic.cyan);
+    await assertCurrentRow(canvasElement);
+    // Under the Accessible theme the column band changes and its ink is black.
+    const themed = await accessible(canvasElement, read);
+    await expect(themed.plain[0].bg).not.toBe(authentic.plain[0].bg);
+    for (const c of [themed.plain[0], themed.head[0], ...themed.zone]) await expect(c.fg).toBe('rgb(0, 0, 0)');
+  },
+};
+
 // Inside the Screen frame, the authentic mode (ADR-0014): every cell and the caption stay on
 // one line and every body row is one row high.
 export const InScreenFrame = {
