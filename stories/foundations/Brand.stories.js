@@ -25,13 +25,14 @@ export const Wordmark = () => {
 // block-cursor blink (steps(1)), gated behind prefers-reduced-motion. Never
 // use eased fades or slides anywhere else.
 // ---------------------------------------------------------------------------
-const loaderDemo = () => {
+const loaderDemo = ({ fg }) => {
   const d = page('<p style="max-width:60ch;color:var(--cf-fg-dim)">The one sanctioned animation. ' +
     'Hard <code>steps(1)</code> blink — no easing — for a "loading page…" state. ' +
     'Respects <code>prefers-reduced-motion</code>.</p>');
   const demo = document.createElement('div');
   demo.style.cssText = 'font-size:24px;margin-top:8px';
   demo.innerHTML = '<cf-loader>LOADING PAGE 102…</cf-loader>';
+  if (fg) d.style.setProperty('--cf-fg', fg); // the fg control: the loader follows the token
   d.appendChild(demo);
   return d;
 };
@@ -40,6 +41,8 @@ const loaderDemo = () => {
 // theme leaves --cf-fg white, so the proof is the ancestor override: a hardcoded colour fails it.
 export const LoadingCaret = {
   render: loaderDemo,
+  args: { fg: '' },
+  argTypes: { fg: { control: 'color', description: 'Overrides `--cf-fg` around the loader' } },
   play: async ({ canvasElement }) => {
     const el = canvasElement.querySelector('cf-loader');
     const host = el.parentElement;
