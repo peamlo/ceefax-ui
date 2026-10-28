@@ -198,7 +198,7 @@ export const Matrix = {
       group.style.cssText = row;
       if (theme !== 'authentic') group.dataset.theme = theme;
       for (const [band, ink] of cases) {
-        const s = bandSample(band, ink, `${band || 'none'}/${ink || 'default'}`.toUpperCase());
+        const s = bandSample(band, ink, `${band || 'none'}/${ink || 'default'}`);
         s.dataset.bandCase = String(b++);
         group.appendChild(s);
       }

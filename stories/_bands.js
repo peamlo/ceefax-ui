@@ -5,7 +5,7 @@
 export const COLOURS = ['red', 'green', 'yellow', 'blue', 'cyan', 'magenta'];
 
 const CSS = `
-.band-sample { color: var(--cf-fg); padding: 0 1ch; }
+.band-sample { color: var(--cf-fg); font-family: var(--cf-font-body); padding: 0 1ch; }
 .band-sample[data-variant] { color: var(--_variant, var(--cf-fg)); }
 .band-sample[data-band] {
   background: var(--_band, transparent);
