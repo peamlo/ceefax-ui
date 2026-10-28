@@ -10,13 +10,14 @@ import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { brotliCompressSync } from 'node:zlib';
 
-// Bytes, brotli. Raising one is a deliberate, one-line change.
+// Bytes, brotli. Sized to the open roadmap (ADR-0015), so they catch accidents,
+// not planned components. Raising one is a deliberate, one-line change.
 export const BUDGETS = {
-  './css': 2600,
-  './tokens': 820,
-  './elements': 5000,
-  './elements/cf-loader': 660,
-  './elements/cf-canvas': 4150,
+  './css': 5000,
+  './tokens': 1200,
+  './elements': 6500,
+  './elements/cf-loader': 1000,
+  './elements/cf-canvas': 5000,
 };
 
 const brotli = (file) => brotliCompressSync(readFileSync(file)).length;
