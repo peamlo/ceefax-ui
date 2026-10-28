@@ -138,8 +138,8 @@ Every scroll container inside the page shell (`.cf-page` and everything in it) g
 
 - **It inherits,** so the nearest `data-scrollbar` wins: set it once on `.cf-page`, override it on one scroller. An unknown value keeps the inherited look.
 - **Hover or drag inverts the thumb** (and fastext's buttons), like every other Inversion.
-- **Colours are the semantic aliases,** so the Accessible theme, or an alias you override on a scroller, recolours the bar. Sizes are in `em`, so the bar scales with the Screen frame.
-- **Firefox only takes two colours and a width:** it shows the variant's thumb and track colours, with no square shape, pattern, buttons or hover. Chrome and Safari show the full look.
+- **Colours are the semantic aliases,** so the Accessible theme, or an alias you override, recolours the bar. Put the theme or the override on `.cf-page` or on the element that carries `data-scrollbar` (`<pre data-scrollbar="thin" style="--cf-accent: …">`): that is where the bar's colours are resolved. Sizes are in `em`, so the bar scales with the Screen frame.
+- **Firefox only takes two colours and a width:** it shows the variant's thumb and track colours, with no square shape, pattern, buttons or hover. Chrome and Safari show the full look; fastext's step buttons are on vertical bars only.
 
 ### Pixel canvas (`<cf-canvas>`)
 

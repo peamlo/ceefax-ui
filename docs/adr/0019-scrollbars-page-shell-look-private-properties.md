@@ -16,9 +16,9 @@ standard properties are set on the element.
 - Variants are a presentational `data-scrollbar` attribute (`fastext`, `mosaic`, `thin`;
   **block** by default). Each variant sets inherited private `--_sb-*` properties that a
   single rule set reads, the same pattern as the variant seam
-  ([ADR-0007](0007-variant-colour-seam.md)). Every variant sets every property, so the nearest
-  attribute wins with nothing leaking from an outer one, and an unknown value sets nothing,
-  so the element keeps what it inherited.
+  ([ADR-0007](0007-variant-colour-seam.md)). Every variant sets every property a nested
+  variant could show, so the nearest attribute wins with nothing leaking from an outer one,
+  and an unknown value sets nothing, so the element keeps what it inherited.
 - Standard properties are set only under `@supports not selector(::-webkit-scrollbar)`, so
   Chrome keeps the shaped bar and Firefox gets the variant's two flat colours.
 - Sizes are in `em`, so the bar scales with the Screen frame. `thin` is the exception: it
@@ -26,6 +26,9 @@ standard properties are set on the element.
 - Colours are existing semantic aliases. The exception is the fastext arrow glyph: an inline
   SVG that can't read custom properties, left at SVG's default black, which is the readable
   ink on the cyan button in every shipped theme.
+- `Foundations/Scrollbar` asserts the `--_sb-*` properties: an explicit exception to
+  [ADR-0006](0006-stories-are-the-test-surface.md)'s "never a private `--_var`", because
+  browsers don't expose the computed style of `::-webkit-scrollbar-*` to JS.
 
 ## Considered options
 
@@ -43,6 +46,11 @@ standard properties are set on the element.
 - Firefox shows two flat colours, no shape, no hover.
 - A classic scrollbar takes width from its container. Inside the Screen frame that narrows
   the body by roughly one cell, which matters for the 40-cell grid (#74).
+- A custom property resolves its `var()` where it is declared, so the aliases resolve on
+  `.cf-page` or the `[data-scrollbar]` element and inherit as finished colours. An alias
+  override or a `data-theme` recolours the bar only on one of those elements, not on a
+  plain scroller inside them. Re-resolving on every scroller needs `@scope` proximity
+  instead of inheritance; not done here.
 - Fastext's step buttons are designed for vertical bars only; a horizontal fastext bar has
   none.
 - Adding a variant costs one rule. Pinned by `Foundations/Scrollbar`;

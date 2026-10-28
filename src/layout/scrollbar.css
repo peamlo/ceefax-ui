@@ -2,7 +2,10 @@
    teletext bar, nothing outside it is touched. The same pattern as the variant seam
    (ADR-0007): the default and each [data-scrollbar] row set inherited --_sb-* properties,
    one rule set below reads them, so the nearest attribute wins and an unknown value keeps
-   what it inherited. Every row sets every property, so nothing leaks into a nested row.
+   what it inherited. Every row sets every property a nested row could show, so nothing
+   leaks into it (the button colours only show where fastext turns the buttons on).
+   The aliases resolve where a row is declared (.cf-page or the [data-scrollbar] element),
+   so that is where an alias override or a theme must sit to recolour the bar.
    --_sb-thumb/-hot/-track hold full `background` values (mosaic's patterns fit the same
    slot); --_sb-ff-* are the flat pair Firefox gets. Sizes are em, so the bar scales with
    the Screen frame's type. Default: block, a square foreground thumb. */

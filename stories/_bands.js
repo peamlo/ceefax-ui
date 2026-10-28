@@ -44,6 +44,16 @@ export const contrast = (a, b) => {
   return (hi + 0.05) / (lo + 0.05);
 };
 
+// Resolve a token to its rendered rgb() inside `root`.
+export const resolve = (root, token) => {
+  const probe = document.createElement('span');
+  probe.style.color = `var(--${token})`;
+  root.append(probe);
+  const rgb = getComputedStyle(probe).color;
+  probe.remove();
+  return rgb;
+};
+
 // The painted ink and band of a sample rendered inside `root`, and their ratio.
 export const measureBand = (root, band, ink) => {
   const el = bandSample(band, ink);

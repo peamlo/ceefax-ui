@@ -1,5 +1,5 @@
 import { expect } from 'storybook/test';
-import { contrast } from './_bands.js';
+import { contrast, resolve } from './_bands.js';
 
 // A contract story for the page-shell scrollbars (#107, ADR-0019). Browsers don't expose
 // the computed style of ::-webkit-scrollbar-*, so it asserts the inherited --_sb-*
@@ -21,6 +21,8 @@ const VARIANTS = {
     thumb: ['cf-accent'],
     hot: ['cf-fg'],
     track: ['cf-bg-2'],
+    btn: ['cf-info'],
+    btnHot: ['cf-fg'],
     props: { size: '1em', btn: 'block', 'ff-width': 'auto' },
   },
   mosaic: {
@@ -36,7 +38,7 @@ const VARIANTS = {
     props: { size: '11px', btn: 'none', 'ff-width': 'thin' },
   },
 };
-const SLOTS = { thumb: 'thumb', hot: 'thumb-hot', track: 'track' };
+const SLOTS = { thumb: 'thumb', hot: 'thumb-hot', track: 'track', btn: 'btn-bg', btnHot: 'btn-hot' };
 const PROPS = [
   'size',
   'thumb',
@@ -54,29 +56,21 @@ const THEMES = ['', 'accessible'];
 
 const prop = (el, name) => getComputedStyle(el).getPropertyValue(`--${name}`).trim();
 
-// Resolve an alias to its rendered rgb() at `el`, for contrast.
-const rgb = (el, alias) => {
-  const probe = document.createElement('span');
-  probe.style.color = `var(--${alias})`;
-  el.append(probe);
-  const c = getComputedStyle(probe).color;
-  probe.remove();
-  return c;
-};
-
 // [label, actual, expected] for everything a variant resolves to at `el`.
 const resolution = (el, name) => {
   const v = VARIANTS[name];
-  const rows = Object.entries(SLOTS).map(([slot, p]) => {
-    const got = prop(el, `_sb-${p}`);
-    const want = v[slot].map((a) => prop(el, a));
-    // A flat slot is its alias; a pattern contains every alias it's built from.
-    return [
-      `--_sb-${p}`,
-      want.length === 1 ? got : want.every((w) => got.includes(w)),
-      want.length === 1 ? want[0] : true,
-    ];
-  });
+  const rows = Object.entries(SLOTS)
+    .filter(([slot]) => v[slot])
+    .map(([slot, p]) => {
+      const got = prop(el, `_sb-${p}`);
+      const want = v[slot].map((a) => prop(el, a));
+      // A flat slot is its alias; a pattern contains every alias it's built from.
+      return [
+        `--_sb-${p}`,
+        want.length === 1 ? got : want.every((w) => got.includes(w)),
+        want.length === 1 ? want[0] : true,
+      ];
+    });
   rows.push(['--_sb-ff-thumb', prop(el, '_sb-ff-thumb'), prop(el, v.thumb[0])]);
   rows.push(['--_sb-ff-track', prop(el, '_sb-ff-track'), prop(el, v.track[0])]);
   for (const [p, want] of Object.entries(v.props)) rows.push([`--_sb-${p}`, prop(el, `_sb-${p}`), want]);
@@ -86,8 +80,8 @@ const resolution = (el, name) => {
 // [label, ratio] for thumb and hot thumb on the track, dominant colours.
 const ratios = (el, name) => {
   const v = VARIANTS[name];
-  const track = rgb(el, v.track[0]);
-  return ['thumb', 'hot'].map((slot) => [`${slot} on track`, contrast(rgb(el, v[slot][0]), track)]);
+  const track = resolve(el, v.track[0]);
+  return ['thumb', 'hot'].map((slot) => [`${slot} on track`, contrast(resolve(el, v[slot][0]), track)]);
 };
 
 const scroller = (variant) => {
@@ -114,6 +108,8 @@ const NESTED = [
   ['thin in fastext', 'thin'],
   ['plain in fastext', 'fastext'],
   ['typo in mosaic', 'mosaic'],
+  // An alias overridden on the [data-scrollbar] element, where the row resolves it.
+  ['thin with its own --cf-accent', 'thin'],
 ];
 // Outside .cf-page nothing is set, data-scrollbar or not (the OS bar shows).
 const OUTSIDE = ['outside .cf-page', 'data-scrollbar outside .cf-page'];
@@ -148,6 +144,9 @@ export const Variants = {
     fastext.append(tag(scroller('thin'), NESTED[0][0]), tag(scroller(), NESTED[1][0]));
     const mosaic = page('mosaic');
     mosaic.append(tag(scroller('FASTEXT'), NESTED[2][0]));
+    const recoloured = tag(scroller('thin'), NESTED[3][0]);
+    recoloured.style.setProperty('--cf-accent', 'var(--cf-success)');
+    mosaic.append(recoloured);
     const nested = document.createElement('div');
     nested.style.cssText = 'display:flex;gap:1ch';
     nested.append(fastext, mosaic);
