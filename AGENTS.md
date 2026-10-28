@@ -18,9 +18,10 @@ Read this, then `CONTEXT.md` (the glossary) and any relevant `docs/adr/` before 
 ```sh
 npm install
 npm run storybook      # framework-agnostic Storybook (HTML mode) — every variant + live a11y checks
-npm run build          # PostCSS → dist/index.css + dist/tokens.css
+npm run build          # PostCSS + esbuild minify → dist/index.css + dist/tokens.css
 npm run build-storybook
-npm run assert-package # after build: pack, clean-install and assert the tarball (CI `package` job)
+npm run assert-package # after build: pack, clean-install and assert the tarball, size budgets included (CI `package` job)
+node scripts/size.mjs . # brotli size per entry point vs its budget (ADR-0015)
 node scripts/check-doc-indexes.mjs # every ADR/review is in its index (CI `docs` job, with lychee + markdownlint)
 ```
 

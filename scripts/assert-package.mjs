@@ -23,6 +23,7 @@ import { fileURLToPath } from 'node:url';
 // styleText drops the colour when stdout isn't a TTY or NO_COLOR is set.
 import { styleText } from 'node:util';
 import { chromium } from 'playwright';
+import { measure, overBudget } from './size.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const FONT_EXT = new Set(['.woff2', '.woff', '.ttf', '.otf']);
@@ -169,6 +170,14 @@ check('repository.url matches GitHub (provenance)', () => {
   const url = pkg.repository?.url ?? '';
   if (!/^(git\+)?https:\/\/github\.com\/peamlo\/ceefax-ui(\.git)?$/.test(url))
     throw new Error(`expected git+https://github.com/peamlo/ceefax-ui.git; got ${JSON.stringify(url)}`);
+});
+
+// Compressed bytes per entry point stay within budget (#47, ADR-0015).
+check('size budgets (brotli)', () => {
+  const sizes = measure(pkgDir);
+  const over = overBudget(sizes);
+  if (over.length) throw new Error(`${over.join('\n')}\nraise the budget in scripts/size.mjs if the growth is deliberate`);
+  return Object.entries(sizes).map(([k, b]) => `${k} ${b} B`).join(', ');
 });
 
 // 8. publint over the tarball consumers install, not a fresh pack of the repo.

@@ -28,7 +28,7 @@
     "./fonts/*": "./fonts/*"
   },
   "scripts": {
-    "build": "postcss src/index.css -o dist/index.css && postcss src/tokens/_index.css -o dist/tokens.css",
+    "build": "postcss src/index.css -o dist/index.css && postcss src/tokens/_index.css -o dist/tokens.css && esbuild dist/index.css dist/tokens.css --minify --outdir=dist --allow-overwrite --log-level=warning",
     "demo": "npx --yes serve .",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
@@ -49,6 +49,7 @@
     "@storybook/test-runner": "^0.26.0",
     "autoprefixer": "^10.4.0",
     "axe-playwright": "^2.0.0",
+    "esbuild": "^0.28.2",
     "http-server": "^14.1.1",
     "husky": "^9.1.7",
     "js-beautify": "^2.0.3",
