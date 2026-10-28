@@ -17,30 +17,71 @@
       fallback. Without one, an unresolved var() in a `border` shorthand would reset
       every border longhand and leave an invisible, border-less element;
    3. a component rule for a look-only variant must come AFTER its own generic
-      [data-variant] rule to win on order — both have the same specificity. */
+      [data-variant] rule to win on order — both have the same specificity.
+   Bands (ADR-0017): [data-band] names a part's background, --_band, and --_band-ink is
+   the ink on it — the colour [data-variant] names on the same element (--_ink-pick, via
+   the --cf-ink-* tier a theme can collapse), else the readable default. Band and ink are
+   independent rows, so a colour costs one line per tier, never 6 × 6. A banded element
+   first clears what it inherited, so a band never leaks into a nested band with a typo
+   or a banded part with no ink of its own; the rows below win on order. */
+:where([data-band]) {
+  --_band: initial;
+  --_band-ink: initial;
+  --_ink-pick: initial;
+}
 :where([data-variant='red']) {
   --_variant: var(--cf-variant-red);
   --_variant-ink: var(--cf-on-variant);
+  --_ink-pick: var(--cf-ink-red);
 }
 :where([data-variant='green']) {
   --_variant: var(--cf-variant-green);
   --_variant-ink: var(--cf-on-variant);
+  --_ink-pick: var(--cf-ink-green);
 }
 :where([data-variant='yellow']) {
   --_variant: var(--cf-variant-yellow);
   --_variant-ink: var(--cf-on-variant);
+  --_ink-pick: var(--cf-ink-yellow);
 }
 :where([data-variant='blue']) {
   --_variant: var(--cf-variant-blue);
   --_variant-ink: var(--cf-on-variant-dark);
+  --_ink-pick: var(--cf-ink-blue);
 }
 :where([data-variant='cyan']) {
   --_variant: var(--cf-variant-cyan);
   --_variant-ink: var(--cf-on-variant);
+  --_ink-pick: var(--cf-ink-cyan);
 }
 :where([data-variant='magenta']) {
   --_variant: var(--cf-variant-magenta);
   --_variant-ink: var(--cf-on-variant);
+  --_ink-pick: var(--cf-ink-magenta);
+}
+:where([data-band='red']) {
+  --_band: var(--cf-variant-red);
+  --_band-ink: var(--_ink-pick, var(--cf-on-variant));
+}
+:where([data-band='green']) {
+  --_band: var(--cf-variant-green);
+  --_band-ink: var(--_ink-pick, var(--cf-on-variant));
+}
+:where([data-band='yellow']) {
+  --_band: var(--cf-variant-yellow);
+  --_band-ink: var(--_ink-pick, var(--cf-on-variant));
+}
+:where([data-band='blue']) {
+  --_band: var(--cf-variant-blue);
+  --_band-ink: var(--_ink-pick, var(--cf-on-variant-dark));
+}
+:where([data-band='cyan']) {
+  --_band: var(--cf-variant-cyan);
+  --_band-ink: var(--_ink-pick, var(--cf-on-variant));
+}
+:where([data-band='magenta']) {
+  --_band: var(--cf-variant-magenta);
+  --_band-ink: var(--_ink-pick, var(--cf-on-variant));
 }
 /* Optional page shell: flat-black teletext canvas. */
 .cf-page {

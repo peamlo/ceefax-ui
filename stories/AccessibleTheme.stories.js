@@ -1,8 +1,10 @@
 import { expect } from 'storybook/test';
+import { COLOURS, contrast, measureBand } from './_bands.js';
 
 // A contract story with no component of its own: it guards the accessible theme's
 // promise (#12) — every colour it ships clears WCAG AAA (≥7:1) against the page
-// background, and the ink on every variant block clears it against that block. Tokens
+// background, and the ink on every variant block and every band (#98) clears it against
+// that block or band. Tokens
 // are resolved inside a [data-theme="accessible"] subtree; ink pairs are read off
 // rendered variant buttons, so they follow whatever pairing the seam declares.
 const AAA = 7;
@@ -28,18 +30,7 @@ const ON_BG = [
   'cf-variant-magenta',
   'cf-variant-cyan',
 ];
-const VARIANTS = ['red', 'green', 'yellow', 'blue', 'magenta', 'cyan'];
-
-// WCAG 2.x relative luminance and contrast ratio.
-const channel = (c) => ((c /= 255) <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
-const luminance = (rgb) => {
-  const [r, g, b] = rgb.match(/\d+/g).map(Number).map(channel);
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-};
-const contrast = (a, b) => {
-  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
-  return (hi + 0.05) / (lo + 0.05);
-};
+const VARIANTS = COLOURS;
 
 // Resolve a token to its rendered rgb() inside the themed subtree.
 const resolve = (root, token) => {
@@ -68,8 +59,19 @@ const measure = (root) => {
   return [
     ...ON_BG.map((t) => ({ label: `--${t} on --cf-bg`, fg: resolve(root, t), bg })),
     ...VARIANTS.map((v) => block(root, v)),
-  ].map((row) => ({ ...row, ratio: contrast(row.fg, row.bg) }));
+  ]
+    .map((row) => ({ ...row, ratio: contrast(row.fg, row.bg) }))
+    .concat(bands(root));
 };
+
+// Every band × ink (the default one included) — the theme sends every band's ink to black.
+const bands = (root) =>
+  COLOURS.flatMap((band) =>
+    ['', ...COLOURS].map((ink) => ({
+      label: `data-band="${band}"${ink ? ` data-variant="${ink}"` : ''}`,
+      ...measureBand(root, band, ink),
+    })),
+  );
 
 export default { title: 'Foundations/Accessible theme' };
 

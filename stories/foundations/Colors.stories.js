@@ -1,4 +1,5 @@
 import { css, page, heading, resolveColor } from './_tokens.js';
+import { COLOURS, bandSample, measureBand } from '../_bands.js';
 
 export default { title: 'Foundations/Colors' };
 
@@ -35,6 +36,12 @@ const SEMANTIC = [
   'cf-variant-blue',
   'cf-variant-magenta',
   'cf-variant-cyan',
+  'cf-ink-red',
+  'cf-ink-green',
+  'cf-ink-yellow',
+  'cf-ink-blue',
+  'cf-ink-magenta',
+  'cf-ink-cyan',
 ];
 
 // Light values need black text to stay legible on the swatch.
@@ -71,6 +78,59 @@ export const Palette = () => {
   const d = page();
   d.appendChild(heading('Base palette · never remapped'));
   d.appendChild(swatchGrid(BASE));
+  return d;
+};
+
+// Every band × ink (#98, ADR-0017). A cell that passes AA shows the live banded text and
+// its ratio; one that fails keeps the page colours (so axe stays green) and says so, over
+// an aria-hidden strip of the band. Ratios come from the live colours, so the grid
+// follows the toolbar theme — under Accessible every cell passes.
+const AA = 4.5;
+export const Bands = () => {
+  const d = page(
+    '<p style="max-width:60ch;color:var(--cf-fg-dim)"><code>data-band</code> names the background; ' +
+      '<code>data-variant</code> on the same element names the ink, else the readable default is used. ' +
+      'Default-theme contrast is yours to choose: pick a passing pair.</p>',
+  );
+  d.appendChild(heading('Bands · band × ink'));
+  const table = document.createElement('table');
+  table.style.cssText = 'border-collapse:collapse;font-size:13px;text-align:left';
+  const th = (text) => {
+    const c = document.createElement('th');
+    c.style.cssText = 'padding:6px 1ch;font-weight:normal;color:var(--cf-fg-dim)';
+    c.textContent = text;
+    return c;
+  };
+  const head = table.createTHead().insertRow();
+  head.append(th('band ↓ · ink →'), ...['default', ...COLOURS].map(th));
+  const cells = [];
+  for (const band of COLOURS) {
+    const tr = table.insertRow();
+    tr.append(th(band));
+    for (const ink of ['', ...COLOURS]) {
+      const td = tr.insertCell();
+      td.style.cssText = 'padding:6px 1ch;vertical-align:top';
+      cells.push([td, band, ink]);
+    }
+  }
+  d.appendChild(table);
+  // Measure once attached, so the theme's custom properties resolve.
+  requestAnimationFrame(() => {
+    for (const [td, band, ink] of cells) {
+      const { ratio } = measureBand(td, band, ink);
+      const r = `${ratio.toFixed(1)}:1`;
+      if (ratio >= AA) {
+        td.append(bandSample(band, ink, `TELETEXT ${r}`));
+        continue;
+      }
+      const strip = bandSample(band, '', '');
+      strip.setAttribute('aria-hidden', 'true');
+      strip.style.cssText = 'display:block;height:6px;margin-bottom:4px';
+      const warn = document.createElement('span');
+      warn.textContent = `✕ ${r}, use the default ink`;
+      td.append(strip, warn);
+    }
+  });
   return d;
 };
 

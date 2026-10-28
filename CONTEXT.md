@@ -24,6 +24,14 @@ _Avoid_: variant mixin, colour map, theme lookup
 A surface filled with a presentational variant's colour — a fastext key, a coloured button. The readable foreground painted on it is its **ink** (black on light blocks, white on authentic blue; black on every block under the Accessible theme).
 _Avoid_: swatch, colour chip
 
+**Band**:
+A part of a component filled with a presentational colour behind its text, set with `data-band` — the teletext service name in yellow on blue. Only parts whose `data-variant` is a text colour take one; a variant block is already filled.
+_Avoid_: highlight, background variant, chip
+
+**Band ink**:
+The text colour on a band: the seam's readable ink by default, or the colour named by `data-variant` on the same element. Resolves through the `--cf-ink-*` aliases, which the Accessible theme sends to black.
+_Avoid_: band text colour, foreground override
+
 **State**:
 A run-time condition of an element (disabled, focused, current). Always expressed with native or ARIA attributes (`disabled`, `:focus-visible`, `[aria-current]`, `[aria-pressed]`) — never with a class.
 _Avoid_: state class, `cf-btn--active`, `is-active`
@@ -41,7 +49,7 @@ One of the eight original broadcast teletext colours, exposed as a `--cf-base-*`
 _Avoid_: brand colour, palette colour, `--ceefax-*` (the retired spelling)
 
 **Semantic alias**:
-Any other `--cf-*` colour token (e.g. `--cf-bg`, `--cf-danger`) — it maps meaning onto a colour (an authentic one by default; a theme may remap it). The only colour tier component, layout and Variant seam stylesheets reference. Includes the `--cf-variant-*` tier (the colour each `data-variant` name resolves to) and the `--cf-on-variant*` ink. Themes remap these; they never touch `--cf-base-*`.
+Any other `--cf-*` colour token (e.g. `--cf-bg`, `--cf-danger`) — it maps meaning onto a colour (an authentic one by default; a theme may remap it). The only colour tier component, layout and Variant seam stylesheets reference. Includes the `--cf-variant-*` tier (the colour each `data-variant` name resolves to), the `--cf-on-variant*` ink, and the `--cf-ink-*` tier (the colour a `data-variant` name paints as **Band ink**). Themes remap these; they never touch `--cf-base-*`.
 _Avoid_: theme variable, colour variable
 
 **Accessible theme**:
