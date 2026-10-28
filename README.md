@@ -279,7 +279,7 @@ npm run storybook      # framework-agnostic Storybook (HTML mode) — play with 
 npm run build          # PostCSS + esbuild minify → dist/index.css + dist/tokens.css
 ```
 
-Storybook uses `@storybook/html-vite` + the a11y addon, with interactions built in, so stories show the exact HTML contract, run live WCAG checks, and can script keyboard/focus behaviour.
+Storybook uses `@storybook/html-vite` + the a11y addon, with interactions built in, so stories show the exact HTML contract, run live WCAG checks, and can script keyboard/focus behaviour. `npm run test-storybook` runs the contract stories in Vitest browser mode (`@storybook/addon-vitest`), the CI gate.
 
 ## Fonts
 

@@ -32,8 +32,11 @@ const assertBlink = async ({ canvasElement }) => {
   // (no fill) would also leave getAnimations() empty.
   const animationName = () => getComputedStyle(flag).animationName;
   await io.commands.emulateMedia({ reducedMotion: 'reduce' });
-  await expect(animationName()).toBe('none');
-  await io.commands.emulateMedia({ reducedMotion: 'no-preference' });
+  try {
+    await expect(animationName()).toBe('none');
+  } finally {
+    await io.commands.emulateMedia({ reducedMotion: 'no-preference' });
+  }
   if (canvasElement.querySelector('.cf-notice').dataset.blink === 'off') {
     await expect(animationName()).toBe('none');
     return;

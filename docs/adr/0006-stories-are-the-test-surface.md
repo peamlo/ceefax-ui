@@ -49,7 +49,9 @@ no built Storybook. One mechanism, one surface:
   `.storybook/preview.js` then switches `<html>` to `data-theme="accessible"` and
   enables AAA contrast (`color-contrast-enhanced`, #12) after `play()` and before
   the addon's axe pass (Storybook runs `afterEach` finalizers in reverse, so the
-  preview's goes first). `play()` asserts under the authentic theme in both projects.
+  preview's goes first; it throws if axe has already run). `play()` asserts under the
+  authentic theme in both projects; a `play()` that checks an accessible-theme contract
+  (the fastext blue-key hover) sets the theme for that step and restores it.
 
 Assertions target the **highest seam** — rendered DOM and computed styles a consumer
 would see — never a private `--_var` or an internal selector.
@@ -57,9 +59,10 @@ would see — never a private `--_var` or an internal selector.
 The gate is the stories **tagged `contract`** — issue #8's tested modules (button,
 link, card, fastext, `<cf-canvas>`), the later components, the palette-drift, variant,
 token-layering and accessible-theme guards, the Layout/Page shell and Foundations/Brand
-(`<cf-loader>` follows `--cf-fg`, #73). The tag on the story file is the one list; the
-Vitest plugin ignores `test.include`, and the other story files are reported as skipped.
-Per [ADR-0002](0002-squash-only-conventional-pr-titles.md) this is a **hard** gate: the
+(`<cf-loader>` follows `--cf-fg`, #73). Two lists, both on the story files: the
+`contract` tag says which stories run (the Vitest plugin ignores `test.include`, and
+the other story files are reported as skipped), and `a11y.test: 'error'` says which of
+them axe gates. Per [ADR-0002](0002-squash-only-conventional-pr-titles.md) this is a **hard** gate: the
 `main protection` ruleset requires `test-storybook`, so a red run blocks merge.
 
 The Foundations/Layout **documentation** stories stay out of the gate: they assert no
