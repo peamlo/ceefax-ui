@@ -57,6 +57,7 @@ not a mockup.
 
 - **Never** write state-modifier classes (`cf-btn--disabled`, `cf-btn--active`). Use the real `disabled` attribute, `:focus-visible`, `[aria-current]`, `[aria-pressed]`.
 - **`data-variant`** is only for a presentational colour — any of the six named authentic colours (`red`/`green`/`yellow`/`blue`/`cyan`/`magenta`), plus the look-only `ghost` on a button and `nav` on a link. Each component decides how it paints that colour: the button fills, the card borders, the fastext key backgrounds. An unrecognised name renders the component's default, unstyled look. A **fastext bar** is still the four teletext keys (`red`/`green`/`yellow`/`blue`) — that is the domain, not a styling limit.
+- **`data-band`** sets a coloured **band** behind a text part, one of the same six colours. On a banded part `data-variant` names the ink; without it the band gets the readable default ink (black, white on blue). Only parts whose `data-variant` is a text colour take a band (none ship yet: the header row is first); blocks such as buttons and fastext keys never do. An unknown name renders no band. See [Bands](#bands).
 - No utility classes, no compound-class soup.
 
 ### States
@@ -130,6 +131,25 @@ Use the semantic aliases in your own CSS so it follows the active theme; reach f
 Type follows web conventions on an 8px grid: `--cf-text-small` 12 · `body` 16 · `subheading` 24 · `heading` 32 · `display-lg` 48 · `display-xl` 72 (px). `--cf-content-max` is a prose reading measure (~65ch); only the Screen frame is one teletext page (40 cells) wide, and inside it the type scales with the frame.
 
 Spacing is `ch`-based; radius is always `0`.
+
+## Bands
+
+```html
+<span class="cf-header-row__service" data-band="blue">TELETEXT</span>
+<!-- white on blue -->
+<span class="cf-header-row__service" data-band="blue" data-variant="yellow">TELETEXT</span>
+<!-- yellow on blue -->
+```
+
+In the default theme the ink is used as written, so contrast is yours to choose. The default ink always passes; a coloured ink passes WCAG AA only with blue on one side:
+
+| Band                        | Inks that pass AA (authentic)                             |
+| --------------------------- | --------------------------------------------------------- |
+| `blue`                      | default (white) · `yellow` 8.0 · `cyan` 6.9 · `green` 6.3 |
+| `yellow` · `cyan` · `green` | default (black) · `blue` 8.0 / 6.9 / 6.3                  |
+| `red` · `magenta`           | default (black) only                                      |
+
+Under the [accessible theme](#accessible-theme) every band's ink is black, whatever ink the markup names, so every band clears AAA. Storybook's `Foundations/Colors` → Bands shows the live grid of pairs and ratios. Bands are presentational only: the text and its semantics are unchanged.
 
 ## Accessible theme
 

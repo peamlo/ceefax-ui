@@ -35,6 +35,14 @@
   --cf-variant-blue: var(--cf-base-blue);
   --cf-variant-magenta: var(--cf-base-magenta);
   --cf-variant-cyan: var(--cf-base-cyan);
+  /* ink tier — the colour a [data-variant] name paints as the ink on a [data-band] (the
+   seam's --_ink-pick, ADR-0017). Defaults to the variant colour; a theme may remap it. */
+  --cf-ink-red: var(--cf-variant-red);
+  --cf-ink-green: var(--cf-variant-green);
+  --cf-ink-yellow: var(--cf-variant-yellow);
+  --cf-ink-blue: var(--cf-variant-blue);
+  --cf-ink-magenta: var(--cf-variant-magenta);
+  --cf-ink-cyan: var(--cf-variant-cyan);
 }
 /* Accessible theme (opt-in, #12): CVD-optimised, every colour >=7:1 (AAA) on black.
    danger/success sit on the blue-yellow axis (amber vs teal) so they survive red-green
@@ -59,4 +67,11 @@
   --cf-fg-dim: #b3b3b3;
   /* every accessible block is light, so the ink on blue is black like the rest */
   --cf-on-variant-dark: var(--cf-on-variant);
+  /* …and every band is light too, so each band's ink is black whatever the markup names */
+  --cf-ink-red: var(--cf-on-variant);
+  --cf-ink-green: var(--cf-on-variant);
+  --cf-ink-yellow: var(--cf-on-variant);
+  --cf-ink-blue: var(--cf-on-variant);
+  --cf-ink-magenta: var(--cf-on-variant);
+  --cf-ink-cyan: var(--cf-on-variant);
 }

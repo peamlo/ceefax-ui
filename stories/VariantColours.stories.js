@@ -1,4 +1,5 @@
 import { expect } from 'storybook/test';
+import { COLOURS, bandSample } from './_bands.js';
 
 // A contract story with no component of its own: it pins the computed colour a consumer
 // sees for every (component × variant) pair, so the variant→colour mapping can move
@@ -137,6 +138,35 @@ const GROUPS = [
     .map(([theme, palette]) => [theme, palette, pairs(palette)]),
 ];
 
+// Bands (#98, ADR-0017) on the story-only sample: background and ink for every band ×
+// (default ink, each colour, a typo), plus an unknown band. A named ink is used as written,
+// except under the accessible theme, which sends every band's ink to black.
+const BAND_INK = { authentic: (p, ink) => p[ink][0], accessible: () => BLACK };
+const bandCases = (theme, p) => [
+  ...COLOURS.flatMap((band) =>
+    ['', ...COLOURS, UNMAPPED].map((ink) => [
+      band,
+      ink,
+      { backgroundColor: p[band][0], color: p[ink] ? BAND_INK[theme](p, ink) : p[band][1] },
+    ]),
+  ),
+  [UNMAPPED, '', { backgroundColor: TRANSPARENT, color: WHITE }],
+  [UNMAPPED, 'yellow', { backgroundColor: TRANSPARENT, color: p.yellow[0] }],
+];
+// The band properties inherit, so inside a banded, inked host: a plain sample stays
+// unbanded, a banded one with no ink takes the default ink, and a typo band stays unbanded.
+const BAND_HOST = ['blue', 'yellow'];
+const NESTED_BANDS = [
+  ['', '', { backgroundColor: TRANSPARENT }],
+  ['green', '', { backgroundColor: PALETTES.authentic.green[0], color: BLACK }],
+  [UNMAPPED, '', { backgroundColor: TRANSPARENT }],
+];
+// [theme, cases, optional host] in render order; data-band-case indices run across all.
+const BAND_GROUPS = [
+  ...Object.entries(PALETTES).map(([theme, p]) => [theme, bandCases(theme, p)]),
+  ['authentic', NESTED_BANDS, BAND_HOST],
+];
+
 const row = 'display:flex;flex-wrap:wrap;align-items:flex-start;gap:1ch;width:100%';
 
 export default { title: 'Foundations/Variant colours' };
@@ -162,6 +192,18 @@ export const Matrix = {
       for (const c of cases) group.appendChild(build(c, i++));
       wrap.appendChild(group);
     }
+    let b = 0;
+    for (const [theme, cases, host] of BAND_GROUPS) {
+      const group = host ? bandSample(...host, '') : document.createElement('div');
+      group.style.cssText = row;
+      if (theme !== 'authentic') group.dataset.theme = theme;
+      for (const [band, ink] of cases) {
+        const s = bandSample(band, ink, `${band || 'none'}/${ink || 'default'}`);
+        s.dataset.bandCase = String(b++);
+        group.appendChild(s);
+      }
+      wrap.appendChild(group);
+    }
     return wrap;
   },
   play: async ({ canvasElement }) => {
@@ -169,6 +211,16 @@ export const Matrix = {
     for (const [, palette, cases] of GROUPS) {
       await assertCases(cases, palette, canvasElement, offset);
       offset += cases.length;
+    }
+    let b = 0;
+    for (const [, cases] of BAND_GROUPS) {
+      for (const [band, ink, want] of cases) {
+        const cs = getComputedStyle(canvasElement.querySelector(`[data-band-case="${b++}"]`));
+        const label = `sample[data-band="${band}"][data-variant="${ink}"]`;
+        for (const [prop, value] of Object.entries(want)) {
+          await expect(`${label} ${prop} ${cs[prop]}`).toBe(`${label} ${prop} ${value}`);
+        }
+      }
     }
   },
 };
