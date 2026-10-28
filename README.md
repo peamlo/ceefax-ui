@@ -77,6 +77,7 @@ not a mockup.
 | `cf-fastext` / `cf-fastext__key`                                                          | `<ul>` / `<a>`                                                          | `variant` red/green/yellow/blue                                                                    | `:focus-visible`                         |
 | `cf-notice` / `cf-notice__flag`                                                           | block + `role="note"` / `<strong>`                                      | `variant` red (default, danger)/yellow (warning)/green (success)/blue/cyan/magenta · `blink="off"` | flash (reduced-motion aware)             |
 | `cf-header-row` / `cf-header-row__page` / `__service` / `__rolling` / `__time` / `__date` | `<header>` / `<span>` ×3 / `<time datetime>` / `<span>` in the `<time>` | `variant` on any part (text colour) · `band` on any part (background; `variant` is then the ink)   | —                                        |
+| `cf-table` / `cf-table__scroll`                                                           | `<table>` / `<div role="region">`                                       | `align="end"` on a cell · `side="bottom"` on the caption                                           | —                                        |
 | `cf-page` + `data-frame`                                                                  | `<section>` with `header`/`main`/`footer`                               | `frame` (4:3 screen; `--cf-frame-ratio` to change) · `scrollbar` fastext/mosaic/thin               | —                                        |
 | `<cf-loader>`                                                                             | Web Component                                                           | —                                                                                                  | blink (reduced-motion aware)             |
 | `<cf-canvas>`                                                                             | Web Component                                                           | `size` sm/md/lg/full                                                                               | `alt` → `role="img"`                     |
@@ -140,6 +141,48 @@ Every scroll container inside the page shell (`.cf-page` and everything in it) g
 - **Hover or drag inverts the thumb** (and fastext's buttons), like every other Inversion.
 - **Colours are the semantic aliases,** so the Accessible theme, or an alias you override, recolours the bar. Put the theme or the override on `.cf-page` or on the element that carries `data-scrollbar` (`<pre data-scrollbar="thin" style="--cf-accent: …">`): that is where the bar's colours are resolved. Sizes are in `em`, so the bar scales with the Screen frame.
 - **Firefox only takes two colours and a width:** it shows the variant's thumb and track colours, with no square shape, pattern, buttons or hover. Chrome and Safari show the full look; fastext's step buttons are on vertical bars only.
+
+### Table (`cf-table`)
+
+A native table set like a broadcast league table: one line per row, figures to the end, and no rule under every row. Group rows with native `<tbody>` elements; the only rule is the **group rule** between groups (and before `<tfoot>`). Wrap the table in its own scroll region, named from the caption, so a wide table scrolls by itself and never the page.
+
+```html
+<div class="cf-table__scroll" role="region" tabindex="0" aria-labelledby="t1">
+  <table class="cf-table">
+    <caption id="t1">
+      Premier League · final table
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Pos</th>
+        <th scope="col">Team</th>
+        <th scope="col" data-align="end">Pts</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <th scope="row">Man City</th>
+        <td data-align="end">91</td>
+      </tr>
+    </tbody>
+    <tbody>
+      <tr>
+        <td>2</td>
+        <th scope="row">Arsenal</th>
+        <td data-align="end">89</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+```
+
+- **The caption comes first** in markup, as HTML requires. It's drawn in the display face and accent colour, at the top; `data-side="bottom"` on the caption moves it under the table.
+- **`data-align="end"`** on a `th` or `td` end-aligns a figure, keeps it on one line and uses tabular digits. Pad compound figures (`22: 5`, `45-17`) yourself.
+- **The header** is bold foreground text with no rule; **`<tfoot>`** is bold, set apart by the group rule.
+- **`--cf-table-rule`** changes the group rule's colour (`--cf-accent-2` by default); `transparent` hides it.
+- **Wrapping follows the Screen frame** ([ADR-0014](docs/adr/0014-screen-frame-is-the-authentic-mode.md)): outside `.cf-page[data-frame]` text cells and the caption wrap like any web table; inside it every cell and the caption stay on one line. Figure cells never wrap.
+- **Typography is yours, through the tokens** ([ADR-0018](docs/adr/0018-foundations-are-tokens-and-semantic-html.md)): there are no typography attributes. The table's defaults are `:where()`, so your own CSS wins without `!important` (`.my-page caption { font-size: var(--cf-text-subheading) }`). `<strong>` and `<small>` in cells and the caption follow `--cf-weight-bold` and `--cf-text-small`.
 
 ### Pixel canvas (`<cf-canvas>`)
 
