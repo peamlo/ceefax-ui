@@ -74,6 +74,12 @@ body's own content box (a size container, its scrollbar gutter reserved up front
 measurement is stable). Inline padding on the body narrows the cells too, so a framed body should
 carry none.
 
+**Cells are whole pixels.** Some platforms (Linux Chromium in CI) round glyph advances to whole
+pixels, so a fractional cell can round up and wrap a 40-character line at 39. Where CSS `round()`
+is supported the cell snaps down to a whole pixel: the row falls short of the edge by under 1px
+per cell (under one cell in all), never past it. With a classic scrollbar the header's and body's
+cells then usually come out the same size, so their columns line up.
+
 **Authentic colours only.** The two off-palette aliases snap inside the frame, remapped like a
 theme: `--cf-bg-2` to blue and `--cf-fg-dim` to green, never touching `--cf-base-*`. When the
 Accessible theme applies to the frame or an ancestor it wins and the aliases keep its values. Like

@@ -139,6 +139,16 @@ const framedPage = () => {
   return page;
 };
 
+// A 40-character line fills its row: it never overflows (so it never wraps at 39), and it
+// falls short by under 1px per cell, the whole-pixel snap that keeps glyph advances exact.
+const expectRowFills = async (row) => {
+  const span = row.querySelector('span').getBoundingClientRect().width;
+  const width = row.getBoundingClientRect().width;
+  await expect(span).toBeLessThanOrEqual(width + 0.01);
+  await expect(width - span).toBeLessThan(40);
+  await expect(span / 40).toBeCloseTo(Math.round(span / 40), 2);
+};
+
 // Use the Storybook viewport toolbar to see the frame go full-bleed below 40em.
 // The narrow-viewport and accessible-theme checks run in .storybook/test-runner.js postVisit,
 // which needs a real viewport resize and a theme switch that play() cannot do.
@@ -170,16 +180,13 @@ export const Framed = {
     const body = page.querySelector('.cf-page__body');
     const r = page.getBoundingClientRect();
     await expect(Math.abs(r.width / r.height - 4 / 3)).toBeLessThan(0.02);
-    // 40 cells to the frame's width: a Bedstead cell is 0.6em, so 1em is width / 24.
-    await expect(parseFloat(getComputedStyle(page).fontSize)).toBeCloseTo(r.width / 24, 1);
-    // A 40-character line exactly fills the body's row (measured inside any scrollbar),
-    // one cell high, set in Bedstead.
+    // 40 cells to the frame's width (a whole-pixel cell): a Bedstead cell is 0.6em.
+    await expect(parseFloat(getComputedStyle(page).fontSize) * 0.6).toBeCloseTo(Math.floor(r.width / 40), 1);
+    // A 40-character line fills the body's row (measured inside any scrollbar), one cell
+    // high, set in Bedstead.
     const row = body.querySelector('p > span').parentElement;
     const cs = getComputedStyle(row);
-    await expect(row.querySelector('span').getBoundingClientRect().width).toBeCloseTo(
-      row.getBoundingClientRect().width,
-      0,
-    );
+    await expectRowFills(row);
     await expect(body.scrollWidth).toBe(body.clientWidth); // nothing spills sideways
     await expect(row.getBoundingClientRect().height).toBeCloseTo(parseFloat(cs.fontSize), 0);
     await expect(cs.fontFamily).toMatch(/^"?Bedstead/);
@@ -226,9 +233,6 @@ export const FramedAccessible = {
     await expect(dim.color).toBe('rgb(179, 179, 179)'); // the theme's #b3b3b3
     await expect(bg2.backgroundColor).toBe('rgb(16, 11, 138)'); // #100b8a, the default
     const row = body.querySelector('p > span').parentElement;
-    await expect(row.querySelector('span').getBoundingClientRect().width).toBeCloseTo(
-      row.getBoundingClientRect().width,
-      0,
-    );
+    await expectRowFills(row);
   },
 };

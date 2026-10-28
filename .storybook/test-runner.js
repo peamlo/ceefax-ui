@@ -91,7 +91,8 @@ async function assertScreenFrame(page) {
     const row = document.querySelector('.cf-page__body p > span').parentElement;
     return [row.getBoundingClientRect().width, row.firstChild.getBoundingClientRect().width];
   });
-  expect(Math.abs(rowW - spanW)).toBeLessThan(0.5);
+  expect(spanW).toBeLessThanOrEqual(rowW + 0.01); // never wraps at 39
+  expect(rowW - spanW).toBeLessThan(40); // short by under 1px per cell (whole-pixel cells)
   await page.setViewportSize({ width: 1280, height: 720 });
 }
 

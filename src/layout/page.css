@@ -30,7 +30,10 @@
    --_w is the frame width (type scales without container queries on the frame itself:
    cqw can't resolve against the element that is itself the container). The body's rows
    are sized against its own content box instead, so a scrollbar or padding never wraps
-   a 40-cell line at 39: its children re-read the tokens at the body's --_cell. */
+   a 40-cell line at 39: its children re-read the tokens at the body's --_cell.
+   The cell snaps down to a whole pixel where round() is supported: some platforms (Linux
+   Chromium) round glyph advances to whole pixels, and a fractional cell rounded up would
+   wrap at 39. The row then falls short of the edge by under 1px per cell. */
 /* Registered as a length so `100cqi` resolves to px where it is declared (against the body),
    not again on every descendant against whatever container is nearest. */
 @property --_cell {
@@ -76,6 +79,14 @@
   }
   .cf-page[data-frame] .cf-page__body > * {
     --_cell: calc(100cqi / 40);
+  }
+  @supports (width: round(down, 1.5px, 1px)) {
+    .cf-page[data-frame] {
+      --_cell: round(down, var(--_w) / 40, 1px);
+    }
+    .cf-page[data-frame] .cf-page__body > * {
+      --_cell: round(down, 100cqi / 40, 1px);
+    }
   }
   /* Zero specificity, so a component's own size still wins; bare headings keep their
      browser em sizes. */
