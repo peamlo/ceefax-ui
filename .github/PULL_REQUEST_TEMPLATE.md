@@ -32,7 +32,7 @@ Tick all that apply, or write "None — internal only".
 - [ ] Glossary updated (`CONTEXT.md`)
 - [ ] `AGENTS.md` / `README.md` updated
 - [ ] Storybook story added/updated
-- [ ] No docs needed (explain why): 
+- [ ] No docs needed (explain why):
 
 ## Testing
 

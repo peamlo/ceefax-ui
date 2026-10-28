@@ -59,6 +59,7 @@ not a mockup.
 - No utility classes, no compound-class soup.
 
 ### States
+
 - **Focus** (`:focus-visible`) → instant colour **inversion**. Transient; "the keyboard is here."
 - **Selected** (`[aria-current="page"]`) → persistent **▸ caret**. "You are on this page."
 - **Hover** → same inversion as focus (intentional).
