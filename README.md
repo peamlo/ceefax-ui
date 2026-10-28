@@ -77,7 +77,7 @@ not a mockup.
 | `cf-fastext` / `cf-fastext__key`                                                          | `<ul>` / `<a>`                                                          | `variant` red/green/yellow/blue                                                                    | `:focus-visible`                         |
 | `cf-notice` / `cf-notice__flag`                                                           | block + `role="note"` / `<strong>`                                      | `variant` red (default, danger)/yellow (warning)/green (success)/blue/cyan/magenta · `blink="off"` | flash (reduced-motion aware)             |
 | `cf-header-row` / `cf-header-row__page` / `__service` / `__rolling` / `__time` / `__date` | `<header>` / `<span>` ×3 / `<time datetime>` / `<span>` in the `<time>` | `variant` on any part (text colour) · `band` on any part (background; `variant` is then the ink)   | —                                        |
-| `cf-page` + `data-frame`                                                                  | `<section>` with `header`/`main`/`footer`                               | `frame` (4:3 screen; `--cf-frame-ratio` to change)                                                 | —                                        |
+| `cf-page` + `data-frame`                                                                  | `<section>` with `header`/`main`/`footer`                               | `frame` (4:3 screen; `--cf-frame-ratio` to change) · `scrollbar` fastext/mosaic/thin               | —                                        |
 | `<cf-loader>`                                                                             | Web Component                                                           | —                                                                                                  | blink (reduced-motion aware)             |
 | `<cf-canvas>`                                                                             | Web Component                                                           | `size` sm/md/lg/full                                                                               | `alt` → `role="img"`                     |
 
@@ -117,6 +117,29 @@ The single top line of a teletext page, in broadcast colours: the page you asked
 - **Band any part** with `data-band` (see [Bands](#bands)): `<span class="cf-header-row__service" data-band="blue" data-variant="yellow">Teletext</span>` is a broadcast-style yellow-on-blue service name. Without `data-variant` the band takes its readable default ink.
 - **The time is static.** Write the `<time datetime>` yourself (when the page was published, not "now"): `datetime` is the machine-readable ISO value, the text is what readers see, as `Oct28 15:23:19`. There is no JavaScript and no ticking clock.
 - **Narrow viewports** wrap the time onto a second line; the page number stays first.
+
+### Scrollbars
+
+Every scroll container inside the page shell (`.cf-page` and everything in it) gets a teletext scrollbar, with no CSS of your own. Nothing outside `.cf-page` is touched; for the whole document, put `cf-page` on `<body>`. Pick a look with `data-scrollbar`:
+
+| `data-scrollbar`      | Look                                                                         |
+| --------------------- | ---------------------------------------------------------------------------- |
+| _(none)_, the default | **block**: a square foreground thumb on the background, with a border rule   |
+| `fastext`             | a yellow thumb on a deep-blue track, with cyan ▲▼ step buttons               |
+| `mosaic`              | a checkered cyan thumb on a black track striped with the dim foreground      |
+| `thin`                | the browser's thin width, foreground on background, for dense UIs (sidebars) |
+
+```html
+<section class="cf-page" data-scrollbar="fastext">
+  …
+  <pre data-scrollbar="thin">…</pre>
+</section>
+```
+
+- **It inherits,** so the nearest `data-scrollbar` wins: set it once on `.cf-page`, override it on one scroller. An unknown value keeps the inherited look.
+- **Hover or drag inverts the thumb** (and fastext's buttons), like every other Inversion.
+- **Colours are the semantic aliases,** so the Accessible theme, or an alias you override on a scroller, recolours the bar. Sizes are in `em`, so the bar scales with the Screen frame.
+- **Firefox only takes two colours and a width:** it shows the variant's thumb and track colours, with no square shape, pattern, buttons or hover. Chrome and Safari show the full look.
 
 ### Pixel canvas (`<cf-canvas>`)
 

@@ -25,3 +25,4 @@ Each ADR records **one** decision that was hard to reverse, surprising without c
 - [0015 — `dist` is minified, and each entry point has a brotli size budget](./0015-minified-dist-and-brotli-size-budgets.md)
 - [0016 — Stylelint echoes the contract; the stories stay the gate](./0016-stylelint-echoes-the-contract.md)
 - [0017 — A band is a background attribute plus an ink alias tier the theme can collapse](./0017-bands-background-attribute-and-ink-tier.md)
+- [0019 — Scrollbars are a page-shell look, styled through inherited private properties](./0019-scrollbars-page-shell-look-private-properties.md)

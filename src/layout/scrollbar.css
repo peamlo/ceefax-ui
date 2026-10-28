@@ -1,0 +1,115 @@
+/* Scrollbars — a page-shell look (ADR-0019): every scroll container in .cf-page gets a
+   teletext bar, nothing outside it is touched. The same pattern as the variant seam
+   (ADR-0007): the default and each [data-scrollbar] row set inherited --_sb-* properties,
+   one rule set below reads them, so the nearest attribute wins and an unknown value keeps
+   what it inherited. Every row sets every property, so nothing leaks into a nested row.
+   --_sb-thumb/-hot/-track hold full `background` values (mosaic's patterns fit the same
+   slot); --_sb-ff-* are the flat pair Firefox gets. Sizes are em, so the bar scales with
+   the Screen frame's type. Default: block, a square foreground thumb. */
+:where(.cf-page) {
+  --_sb-size: 0.75em;
+  --_sb-thumb: var(--cf-fg);
+  --_sb-thumb-hot: var(--cf-accent);
+  --_sb-track: var(--cf-bg);
+  --_sb-rule: 1px solid var(--cf-border);
+  --_sb-btn: none;
+  --_sb-ff-thumb: var(--cf-fg);
+  --_sb-ff-track: var(--cf-bg);
+  --_sb-ff-width: auto;
+}
+:where(.cf-page[data-scrollbar='fastext'], .cf-page [data-scrollbar='fastext']) {
+  --_sb-size: 1em;
+  --_sb-thumb: var(--cf-accent);
+  --_sb-thumb-hot: var(--cf-fg);
+  --_sb-track: var(--cf-bg-2);
+  --_sb-rule: 0;
+  --_sb-btn: block;
+  --_sb-btn-bg: var(--cf-info);
+  --_sb-btn-hot: var(--cf-fg);
+  --_sb-ff-thumb: var(--cf-accent);
+  --_sb-ff-track: var(--cf-bg-2);
+  --_sb-ff-width: auto;
+}
+/* Sixel-like: three of every four cells lit, on a track striped with the dim foreground. */
+:where(.cf-page[data-scrollbar='mosaic'], .cf-page [data-scrollbar='mosaic']) {
+  --_sb-size: 0.75em;
+  --_sb-thumb: conic-gradient(var(--cf-bg) 0 25%, var(--cf-info) 0) 0 0 / 0.375em 0.375em;
+  --_sb-thumb-hot: conic-gradient(var(--cf-bg) 0 25%, var(--cf-accent) 0) 0 0 / 0.375em 0.375em;
+  --_sb-track: repeating-linear-gradient(var(--cf-bg) 0 0.25em, var(--cf-fg-dim) 0 0.3125em);
+  --_sb-rule: 0;
+  --_sb-btn: none;
+  --_sb-ff-thumb: var(--cf-info);
+  --_sb-ff-track: var(--cf-bg);
+  --_sb-ff-width: auto;
+}
+/* Chromium's native thin width, which the webkit path has to state. */
+:where(.cf-page[data-scrollbar='thin'], .cf-page [data-scrollbar='thin']) {
+  --_sb-size: 11px;
+  --_sb-thumb: var(--cf-fg);
+  --_sb-thumb-hot: var(--cf-accent);
+  --_sb-track: var(--cf-bg);
+  --_sb-rule: 0;
+  --_sb-btn: none;
+  --_sb-ff-thumb: var(--cf-fg);
+  --_sb-ff-track: var(--cf-bg);
+  --_sb-ff-width: thin;
+}
+
+/* Chrome and Safari: the full shapes. Chromium drops these whenever scrollbar-color or
+   scrollbar-width is set on the element, hence the @supports guard further down. */
+:where(.cf-page, .cf-page *)::-webkit-scrollbar {
+  width: var(--_sb-size);
+  height: var(--_sb-size);
+}
+:where(.cf-page, .cf-page *)::-webkit-scrollbar-track,
+:where(.cf-page, .cf-page *)::-webkit-scrollbar-corner {
+  background: var(--_sb-track);
+}
+/* The rule sits on the track's leading edge, the side that faces the content. */
+:where(.cf-page, .cf-page *)::-webkit-scrollbar-track:vertical {
+  border-inline-start: var(--_sb-rule);
+}
+:where(.cf-page, .cf-page *)::-webkit-scrollbar-track:horizontal {
+  border-block-start: var(--_sb-rule);
+}
+:where(.cf-page, .cf-page *)::-webkit-scrollbar-thumb {
+  background: var(--_sb-thumb);
+}
+/* Inversion while hovered or dragged: an instant swap, no transition. */
+:where(.cf-page, .cf-page *)::-webkit-scrollbar-thumb:hover,
+:where(.cf-page, .cf-page *)::-webkit-scrollbar-thumb:active {
+  background: var(--_sb-thumb-hot);
+}
+/* Fastext's ▲▼ step buttons. A button can't hold text, so each arrow is a pixel-art SVG
+   that declares no fill: SVG's default black, the ink on the light cyan button in every
+   shipped theme (ADR-0019). One button per end; horizontal bars get none, nothing for
+   them is designed. */
+:where(.cf-page, .cf-page *)::-webkit-scrollbar-button {
+  display: var(--_sb-btn);
+  width: var(--_sb-size);
+  height: var(--_sb-size);
+  background: var(--_sb-btn-bg) center / 100% no-repeat;
+}
+:where(.cf-page, .cf-page *)::-webkit-scrollbar-button:hover {
+  background-color: var(--_sb-btn-hot);
+}
+:where(.cf-page, .cf-page *)::-webkit-scrollbar-button:horizontal,
+:where(.cf-page, .cf-page *)::-webkit-scrollbar-button:start:increment,
+:where(.cf-page, .cf-page *)::-webkit-scrollbar-button:end:decrement {
+  display: none;
+}
+:where(.cf-page, .cf-page *)::-webkit-scrollbar-button:vertical:decrement {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8' shape-rendering='crispEdges'><path d='M3 2h2v1h1v1h1v2H1V4h1V3h1z'/></svg>");
+}
+:where(.cf-page, .cf-page *)::-webkit-scrollbar-button:vertical:increment {
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8' shape-rendering='crispEdges'><path d='M1 2h6v2H6v1H5v1H3V5H2V4H1z'/></svg>");
+}
+
+/* Firefox (no ::-webkit-scrollbar): two flat colours and a width keyword, no shape,
+   buttons or hover. */
+@supports not selector(::-webkit-scrollbar) {
+  :where(.cf-page, .cf-page *) {
+    scrollbar-color: var(--_sb-ff-thumb) var(--_sb-ff-track);
+    scrollbar-width: var(--_sb-ff-width);
+  }
+}
