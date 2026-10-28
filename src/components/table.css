@@ -10,6 +10,8 @@
   overflow-x: auto;
 }
 :where(.cf-table) {
+  --_bg: initial;
+  --_ink: initial;
   border-collapse: separate;
   border-spacing: 0;
   color: var(--cf-fg);
@@ -43,6 +45,28 @@
 }
 :where(.cf-table small) {
   font-size: var(--cf-text-small);
+}
+/* Colour. Row groups, rows and cells set --_bg and --_ink; only the cells paint them, so the
+   nearest setting wins by inheritance and, on one element, the later rule wins on order.
+   Unset (the table resets them, so a nested table starts clean), a cell is transparent and
+   inherits its colour. */
+:where(.cf-table :is(th, td)) {
+  background: var(--_bg, transparent);
+  color: var(--_ink, currentcolor);
+}
+/* Row stripes: body rows only, restarting in every <tbody>. `band` is the pair the seam
+   gives data-band="blue" (the Accessible theme collapses the ink to black). */
+:where(.cf-table[data-stripe-rows='text'] > tbody > tr:nth-child(odd)) {
+  --_bg: transparent;
+  --_ink: var(--cf-info);
+}
+:where(.cf-table[data-stripe-rows='text'] > tbody > tr:nth-child(even)) {
+  --_bg: transparent;
+  --_ink: var(--cf-fg);
+}
+:where(.cf-table[data-stripe-rows='band'] > tbody > tr:nth-child(odd)) {
+  --_bg: var(--cf-variant-blue);
+  --_ink: var(--cf-on-variant-dark);
 }
 /* The Screen frame is the authentic mode (ADR-0014): every cell and the caption on one
    line. Only where the frame applies; the breakpoint is page.css's literal. */

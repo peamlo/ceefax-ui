@@ -1,4 +1,5 @@
 import { expect, within } from 'storybook/test';
+import { bandSample } from './_bands.js';
 
 // cf-table (#22): a native <table> set like a broadcast league table, inside its own
 // cf-table__scroll region. The stories render the exact contract markup; play() asserts
@@ -56,6 +57,30 @@ const league = (attrs = '') =>
 const cells = (root) => [...root.querySelectorAll('th, td')];
 const style = (el) => getComputedStyle(el);
 const px = (v) => parseFloat(v);
+// What a row's (or a cell's) colour layer paints: its cells carry it.
+const paint = (el) => {
+  const cs = style(el.matches('tr') ? el.firstElementChild : el);
+  return { bg: cs.backgroundColor, fg: cs.color };
+};
+const NONE = 'rgba(0, 0, 0, 0)';
+// The same claim read once as authentic, once under the Accessible theme on the story's root.
+const accessible = async (canvasElement, read) => {
+  canvasElement.dataset.theme = 'accessible';
+  try {
+    return await read();
+  } finally {
+    delete canvasElement.dataset.theme;
+  }
+};
+// A data-band reference sample, measured in place (so it follows the theme), then removed.
+const reference = (root, band, ink) => {
+  const el = bandSample(band, ink);
+  root.append(el);
+  const cs = style(el);
+  const out = { bg: cs.backgroundColor, fg: cs.color };
+  el.remove();
+  return out;
+};
 
 // Contract: native table semantics, the caption first, and a region named from it.
 const assertSemantics = async (canvasElement) => {
@@ -99,9 +124,10 @@ export default {
   },
 };
 
-// A league table: caption, a header row, three groups and end-aligned figures.
+// A league table: caption, a header row, three groups and end-aligned figures. Rows
+// alternate text colour (Ceefax cyan/white) with data-stripe-rows="text".
 export const League = {
-  render: () => league(),
+  render: () => league(' data-stripe-rows="text"'),
   play: async ({ canvasElement }) => {
     const tableEl = await assertSemantics(canvasElement);
     await expect(within(canvasElement).getAllByRole('rowheader').length).toBe(8);
@@ -130,9 +156,61 @@ export const League = {
     const ruled = tableEl.querySelector('tbody + tbody > tr > td');
     const authentic = style(ruled).borderTopColor;
     await expect(authentic).toBe('rgb(0, 255, 0)');
-    canvasElement.dataset.theme = 'accessible';
-    await expect(style(ruled).borderTopColor).not.toBe(authentic);
-    delete canvasElement.dataset.theme;
+    await expect(await accessible(canvasElement, () => style(ruled).borderTopColor)).not.toBe(authentic);
+    // Text stripes: odd and even rows differ, every group starts on the same colour, no
+    // background, and the header is never striped.
+    const groups = [...tableEl.tBodies];
+    const [odd, even] = [...groups[2].rows].map(paint);
+    await expect(odd.fg).toBe('rgb(0, 255, 255)'); // --cf-info
+    await expect(even.fg).toBe('rgb(255, 255, 255)'); // --cf-fg
+    for (const g of groups) await expect(paint(g.rows[0])).toEqual(odd);
+    for (const tr of tableEl.querySelectorAll('tbody tr')) await expect(paint(tr).bg).toBe(NONE);
+    for (const th of tableEl.tHead.rows[0].cells) await expect(paint(th).fg).toBe(even.fg);
+    // Under the Accessible theme the stripe follows the remapped info colour.
+    await expect(await accessible(canvasElement, () => paint(groups[2].rows[0]).fg)).not.toBe(odd.fg);
+  },
+};
+
+// data-stripe-rows="band": odd rows on a blue band with the seam's readable ink, the pair
+// data-band="blue" gives. For very wide tables that need a stronger row guide.
+const RESULTS = [
+  ['Arsenal', '2-1', 'Chelsea'],
+  ['Brentford', '0-0', 'Fulham'],
+  ['Everton', '1-3', 'Liverpool'],
+  ['Man Utd', '2-2', 'Newcastle'],
+  ['Spurs', '4-0', 'Wolves'],
+];
+export const BandStripes = {
+  name: 'Band stripes',
+  render: () =>
+    table({
+      caption: 'Results · Saturday',
+      attrs: ' data-stripe-rows="band"',
+      body:
+        '<thead><tr><th scope="col">Home</th><th scope="col" data-align="end">Score</th><th scope="col">Away</th></tr></thead>' +
+        '<tbody>' +
+        RESULTS.map(
+          ([home, score, away]) =>
+            `<tr><th scope="row">${home}</th><td data-align="end">${score}</td><td>${away}</td></tr>`,
+        ).join('') +
+        '</tbody>',
+    }),
+  play: async ({ canvasElement }) => {
+    const tableEl = await assertSemantics(canvasElement);
+    const read = () => {
+      const [odd, even] = [...tableEl.tBodies[0].rows].map(paint);
+      return { odd, even, blue: reference(canvasElement, 'blue'), head: paint(tableEl.tHead.rows[0]) };
+    };
+    const authentic = read();
+    await expect(authentic.odd).toEqual(authentic.blue);
+    await expect(authentic.odd.bg).toBe('rgb(0, 0, 255)'); // --cf-variant-blue
+    await expect(authentic.even.bg).toBe(NONE);
+    await expect(authentic.head.bg).toBe(NONE);
+    // Under the Accessible theme the band changes and its ink is black.
+    const themed = await accessible(canvasElement, read);
+    await expect(themed.odd).toEqual(themed.blue);
+    await expect(themed.odd.bg).not.toBe(authentic.odd.bg);
+    await expect(themed.odd.fg).toBe('rgb(0, 0, 0)');
   },
 };
 
@@ -169,6 +247,9 @@ export const Summary = {
     const tableEl = await assertSemantics(canvasElement);
     await assertGroupRules(tableEl);
     for (const cell of tableEl.querySelectorAll('tfoot :is(th, td)')) await expect(style(cell).fontWeight).toBe('700');
+    // No data-stripe-rows: every body row the same colour, none on a background.
+    const rows = [...tableEl.tBodies[0].rows].map(paint);
+    for (const r of rows) await expect(r).toEqual({ bg: NONE, fg: rows[0].fg });
     const caption = tableEl.querySelector('caption');
     const cs = style(caption);
     await expect(cs.captionSide).toBe('bottom');

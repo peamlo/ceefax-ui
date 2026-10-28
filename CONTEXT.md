@@ -80,6 +80,10 @@ _Avoid_: data grid, grid table
 The line between two row groups (`<tbody>` or `<tfoot>`) of a table. It's the only rule a table draws; rows within a group have none.
 _Avoid_: row divider, separator, border row
 
+**Stripe**:
+Alternating rows (`data-stripe-rows`) or columns (`data-stripe-cols`) painted as text colour or as a band. A reading aid that any row setting overrides.
+_Avoid_: zebra, banding
+
 **Custom element**:
 A logic-bearing standard Web Component (e.g. `<cf-loader>`), shipped under the opt-in `./elements` export — separate from the runtime-free CSS core.
 _Avoid_: widget, framework component
