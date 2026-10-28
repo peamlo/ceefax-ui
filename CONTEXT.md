@@ -68,6 +68,10 @@ _Avoid_: active indicator, highlight
 The component for something the reader mustn't miss (`cf-notice`): a thick-bordered block with a short capitalised **flag** (`cf-notice__flag`) that flashes for a few seconds like teletext flash text, then holds solid. Danger by default, warning with `data-variant="yellow"`, success with `data-variant="green"`. A note, not a live-region alert; the flag's word is always repeated in the body.
 _Avoid_: toast, banner, callout, live region
 
+**Header row**:
+The single top line of a teletext page (`cf-header-row`) on a native `<header>`: the requested page number (`__page`), service name (`__service`), the rolling page number (`__rolling`, the page on air), then date and time (`__time`, a static `<time datetime>` the consumer writes, with the date in `__date`), in broadcast colours. `data-variant` on any part recolours its text; `data-band` sets any part on a band. The only place the page number appears. Static; a ticking clock, a page number that actually rolls, or page-number entry would be opt-in behaviour.
+_Avoid_: top bar, navbar, masthead, title band
+
 **Custom element**:
 A logic-bearing standard Web Component (e.g. `<cf-loader>`), shipped under the opt-in `./elements` export — separate from the runtime-free CSS core.
 _Avoid_: widget, framework component

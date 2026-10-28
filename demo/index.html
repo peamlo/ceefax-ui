@@ -262,18 +262,9 @@
         min-height: 0;
       }
       .pane-result .screen .cf-page__header {
-        align-items: center;
-        color: var(--cf-fg);
         border-bottom: 2px solid var(--cf-border);
         padding-bottom: 6px;
         margin-bottom: 10px;
-        font-family: var(--cf-font-mono);
-      }
-      .pane-result .screen .cf-page__header strong {
-        font-family: var(--cf-font-display);
-        font-size: 26px;
-        letter-spacing: 0.04em;
-        color: #fff;
       }
       .pane-result .screen .cf-page__footer {
         margin-top: 12px;
@@ -375,8 +366,11 @@
           <script type="text/plain">
             <!-- one import: @peamlo/ceefax-ui — then plain class="…" -->
             <section class="cf-page">
-              <header class="cf-page__header cf-cluster" style="justify-content:space-between">
-                <span>100</span><strong>CEEFAX</strong><time>16:02</time>
+              <header class="cf-page__header cf-header-row">
+                <span class="cf-header-row__page">P100</span>
+                <span class="cf-header-row__service">CEEFAX</span>
+                <span class="cf-header-row__rolling">100</span>
+                <time class="cf-header-row__time" datetime="2026-10-28T16:02:00"><span class="cf-header-row__date">Oct28</span> 16:02:00</time>
               </header>
 
               <main class="cf-page__body cf-grid" data-cols="2" data-gap="2">

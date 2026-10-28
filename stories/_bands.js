@@ -1,5 +1,5 @@
-// Story-only band samples (#98): no component opts into bands yet, so the band stories
-// style a plain element with the same opt-in a text-part component adds (ADR-0017) — its
+// Story-only band samples (#98): the band stories style a plain element with the same
+// opt-in a text-part component adds (ADR-0017; cf-header-row's parts are the first) — its
 // own [data-variant] text colour, then the [data-band] rule after it. Both read through
 // a fallback (ADR-0007 rule 2), so an unknown band renders unbanded.
 export const COLOURS = ['red', 'green', 'yellow', 'blue', 'cyan', 'magenta'];
@@ -22,10 +22,11 @@ const ensureStyle = () => {
 };
 
 // A <span class="band-sample" data-band data-variant>; empty values are left off.
-export const bandSample = (band, ink, text = 'TELETEXT') => {
+// `className` swaps the sample for a real opted-in part, e.g. cf-header-row__page.
+export const bandSample = (band, ink, text = 'TELETEXT', className = 'band-sample') => {
   ensureStyle();
   const el = document.createElement('span');
-  el.className = 'band-sample';
+  el.className = className;
   if (band) el.dataset.band = band;
   if (ink) el.dataset.variant = ink;
   el.textContent = text;

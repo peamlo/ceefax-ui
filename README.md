@@ -69,16 +69,17 @@ not a mockup.
 
 ## Components
 
-| Class                            | Element                                   | Variants (`data-*`)                                                                                | State                                    |
-| -------------------------------- | ----------------------------------------- | -------------------------------------------------------------------------------------------------- | ---------------------------------------- |
-| `cf-btn`                         | `<button>` / `<a>`                        | `variant` red/green/yellow/blue/ghost · `size` sm/md/lg                                            | `:disabled`, `:focus-visible`, `:active` |
-| `cf-link`                        | `<a>`                                     | `variant="nav"`                                                                                    | `[aria-current="page"]`                  |
-| `cf-card`                        | any block                                 | `variant` red/green/yellow/blue/cyan/magenta                                                       | —                                        |
-| `cf-fastext` / `cf-fastext__key` | `<ul>` / `<a>`                            | `variant` red/green/yellow/blue                                                                    | `:focus-visible`                         |
-| `cf-notice` / `cf-notice__flag`  | block + `role="note"` / `<strong>`        | `variant` red (default, danger)/yellow (warning)/green (success)/blue/cyan/magenta · `blink="off"` | flash (reduced-motion aware)             |
-| `cf-page` + `data-frame`         | `<section>` with `header`/`main`/`footer` | `frame` (4:3 screen; `--cf-frame-ratio` to change)                                                 | —                                        |
-| `<cf-loader>`                    | Web Component                             | —                                                                                                  | blink (reduced-motion aware)             |
-| `<cf-canvas>`                    | Web Component                             | `size` sm/md/lg/full                                                                               | `alt` → `role="img"`                     |
+| Class                                                                                     | Element                                                                 | Variants (`data-*`)                                                                                | State                                    |
+| ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| `cf-btn`                                                                                  | `<button>` / `<a>`                                                      | `variant` red/green/yellow/blue/ghost · `size` sm/md/lg                                            | `:disabled`, `:focus-visible`, `:active` |
+| `cf-link`                                                                                 | `<a>`                                                                   | `variant="nav"`                                                                                    | `[aria-current="page"]`                  |
+| `cf-card`                                                                                 | any block                                                               | `variant` red/green/yellow/blue/cyan/magenta                                                       | —                                        |
+| `cf-fastext` / `cf-fastext__key`                                                          | `<ul>` / `<a>`                                                          | `variant` red/green/yellow/blue                                                                    | `:focus-visible`                         |
+| `cf-notice` / `cf-notice__flag`                                                           | block + `role="note"` / `<strong>`                                      | `variant` red (default, danger)/yellow (warning)/green (success)/blue/cyan/magenta · `blink="off"` | flash (reduced-motion aware)             |
+| `cf-header-row` / `cf-header-row__page` / `__service` / `__rolling` / `__time` / `__date` | `<header>` / `<span>` ×3 / `<time datetime>` / `<span>` in the `<time>` | `variant` on any part (text colour) · `band` on any part (background; `variant` is then the ink)   | —                                        |
+| `cf-page` + `data-frame`                                                                  | `<section>` with `header`/`main`/`footer`                               | `frame` (4:3 screen; `--cf-frame-ratio` to change)                                                 | —                                        |
+| `<cf-loader>`                                                                             | Web Component                                                           | —                                                                                                  | blink (reduced-motion aware)             |
+| `<cf-canvas>`                                                                             | Web Component                                                           | `size` sm/md/lg/full                                                                               | `alt` → `role="img"`                     |
 
 ### Notice (`cf-notice`)
 
@@ -94,6 +95,28 @@ For something the reader mustn't miss: a thick border and a short capitalised fl
 - **`role="note"`, not `role="alert"`:** a static notice shouldn't interrupt a screen reader on page load.
 - **Repeat the flag in the body.** The flag is one terse word; the body must carry its meaning too, so neither the colour nor the flash is the only cue.
 - **One flashing notice per screen.** Put `data-blink="off"` on the others. The flash is always off under `prefers-reduced-motion: reduce`.
+
+### Header row (`cf-header-row`)
+
+The single top line of a teletext page, in broadcast colours: the page you asked for, the service name, the page on air, then the date and time. It is the **only** place the page number appears; screen titles stay ordinary headings. In the page shell, put both classes on the same `<header>`, no wrapper.
+
+```html
+<header class="cf-page__header cf-header-row">
+  <span class="cf-header-row__page">P455</span>
+  <span class="cf-header-row__service">CEEFAX</span>
+  <span class="cf-header-row__rolling">454</span>
+  <time class="cf-header-row__time" datetime="2026-10-28T15:23:19"
+    ><span class="cf-header-row__date">Oct28</span> 15:23:19</time
+  >
+</header>
+```
+
+- **The page number is real text,** never `aria-hidden` or colour alone, so a screen reader announces "P455".
+- **`__rolling` is the rolling page number,** the page on air. On a real set it rolls while the set searches for the page you asked for; here it's static, so it usually matches `__page` without the `P`.
+- **Colour any part** with `data-variant`, as on every component: it sets that part's text colour (`<span class="cf-header-row__date" data-variant="magenta">Oct28</span>`). Authentic blue text is hard to read on black (about 2.4:1); the Accessible theme lifts it.
+- **Band any part** with `data-band` (see [Bands](#bands)): `<span class="cf-header-row__service" data-band="blue" data-variant="yellow">Teletext</span>` is a broadcast-style yellow-on-blue service name. Without `data-variant` the band takes its readable default ink.
+- **The time is static.** Write the `<time datetime>` yourself (when the page was published, not "now"): `datetime` is the machine-readable ISO value, the text is what readers see, as `Oct28 15:23:19`. There is no JavaScript and no ticking clock.
+- **Narrow viewports** wrap the time onto a second line; the page number stays first.
 
 ### Pixel canvas (`<cf-canvas>`)
 
@@ -149,7 +172,7 @@ In the default theme the ink is used as written, so contrast is yours to choose.
 | `yellow` · `cyan` · `green` | default (black) · `blue` 8.0 / 6.9 / 6.3                  |
 | `red` · `magenta`           | default (black) only                                      |
 
-Under the [accessible theme](#accessible-theme) every band's ink is black, whatever ink the markup names, so every band clears AAA. Storybook's `Foundations/Colors` → Bands shows the live grid of pairs and ratios. Bands are presentational only: the text and its semantics are unchanged.
+Under the [accessible theme](#accessible-theme) every band's ink is black, whatever ink the markup names, so every band clears AAA. Storybook's `Foundations/Colors` → Bands shows the live grid of pairs and ratios. Bands are presentational only: the text and its semantics are unchanged. Parts that take a band today: every `cf-header-row` part.
 
 ## Accessible theme
 

@@ -1,0 +1,72 @@
+/* Header row — the single top line of a teletext page, colours as broadcast:
+   P455 Teletext on 4 454 Jul15 15:23:19
+   requested page (__page), service name (__service), the rolling page number (__rolling,
+   the page on air, which rolls while a set searches), then the consumer's static <time datetime> with
+   its date in __date. The only place the page number appears, as real text, never colour alone.
+   Each part has its broadcast colour (--_ink); data-variant on a part recolours its text through
+   the variant seam (base.css), e.g. <span class="cf-header-row__date" data-variant="magenta">.
+   Every part also opts into bands (ADR-0017): data-band sets it on a coloured background, and
+   data-variant beside it picks the ink, e.g. <span class="cf-header-row__service" data-band="blue"
+   data-variant="yellow">. After the [data-variant] rule so it wins on order.
+   A touch larger than body text, and scaled with it inside the Screen frame. Narrow viewports
+   wrap the time onto a second line, kept right; the page number leads and never shrinks. */
+.cf-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--cf-space-2);
+  padding-inline: var(--cf-space-2);
+  background: var(--cf-bg);
+  color: var(--cf-fg);
+  font-family: var(--cf-font-display);
+  font-size: calc(var(--cf-text-body) * 1.25);
+  line-height: var(--cf-leading-tight);
+  overflow-wrap: anywhere;
+}
+.cf-header-row__page,
+.cf-header-row__time {
+  --_ink: var(--cf-fg);
+}
+.cf-header-row__service {
+  --_ink: var(--cf-accent-2);
+}
+.cf-header-row__rolling,
+.cf-header-row__date {
+  --_ink: var(--cf-accent);
+}
+:is(
+  .cf-header-row__page,
+  .cf-header-row__service,
+  .cf-header-row__rolling,
+  .cf-header-row__time,
+  .cf-header-row__date
+) {
+  color: var(--_ink);
+}
+:is(
+  .cf-header-row__page,
+  .cf-header-row__service,
+  .cf-header-row__rolling,
+  .cf-header-row__time,
+  .cf-header-row__date
+)[data-variant] {
+  color: var(--_variant, var(--_ink));
+}
+:is(
+  .cf-header-row__page,
+  .cf-header-row__service,
+  .cf-header-row__rolling,
+  .cf-header-row__time,
+  .cf-header-row__date
+)[data-band] {
+  padding-inline: var(--cf-space-1);
+  background: var(--_band, transparent);
+  color: var(--_band-ink, var(--_variant, var(--_ink)));
+}
+.cf-header-row__page {
+  flex: none;
+  white-space: nowrap;
+}
+.cf-header-row__time {
+  margin-inline-start: auto;
+}

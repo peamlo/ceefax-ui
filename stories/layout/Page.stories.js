@@ -34,17 +34,25 @@ const fastextKey = (variant, label) => {
   return li;
 };
 
+// The page shell's header slot carries the header row on the same <header>, no wrapper.
+const headerRow = () =>
+  el(
+    'header',
+    'cf-page__header cf-header-row',
+    '<span class="cf-header-row__page">P100</span>' +
+      '<span class="cf-header-row__service">CEEFAX</span>' +
+      '<span class="cf-header-row__rolling">100</span>' +
+      '<time class="cf-header-row__time" datetime="2026-10-28T16:02:55"><span class="cf-header-row__date">Oct28</span> 16:02:55</time>',
+  );
+
 // The teletext page: cf-page shell (header band / grid body / fastext footer),
 // composed only from library classes on real landmark elements.
 export const TeletextPage = {
   render: () => {
     const page = el('section', 'cf-page');
 
-    // Header band — page number, masthead, clock, laid out as a cluster.
-    const header = el('header', 'cf-page__header cf-cluster');
-    header.style.justifyContent = 'space-between';
-    header.style.padding = '0 var(--cf-space-3)';
-    header.append(el('span', null, '100'), el('strong', null, 'CEEFAX'), el('time', null, '16:02:55'));
+    // Header band — the header row: page number, service, rolling page number, date and time.
+    const header = headerRow();
 
     // Body — the two-page grid of index cards.
     const body = el('main', 'cf-page__body cf-grid');
@@ -83,9 +91,7 @@ const framedPage = () => {
   const page = el('section', 'cf-page');
   page.dataset.frame = '';
 
-  const header = el('header', 'cf-page__header cf-cluster');
-  header.style.cssText = 'justify-content:space-between;padding:0 var(--cf-space-3)';
-  header.append(el('span', null, '100'), el('strong', null, 'CEEFAX'), el('time', null, '16:02:55'));
+  const header = headerRow();
 
   const body = el('main', 'cf-page__body cf-stack');
   body.tabIndex = 0;

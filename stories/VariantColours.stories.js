@@ -72,6 +72,13 @@ const COMPONENTS = {
     base: { backgroundColor: TRANSPARENT, color: BLACK },
     paint: (colour, ink) => ({ backgroundColor: colour, color: ink }),
   },
+  // A header-row part's data-variant is its text colour; the page part's default is --cf-fg.
+  headerPart: {
+    tag: 'span',
+    className: 'cf-header-row__page',
+    base: { color: WHITE },
+    paint: (colour) => ({ color: colour }),
+  },
   // With no variant (or a typo) a notice is danger, which tracks red in every theme.
   notice: {
     tag: 'div',
@@ -161,10 +168,14 @@ const NESTED_BANDS = [
   ['green', '', { backgroundColor: PALETTES.authentic.green[0], color: BLACK }],
   [UNMAPPED, '', { backgroundColor: TRANSPARENT }],
 ];
-// [theme, cases, optional host] in render order; data-band-case indices run across all.
+// The first component opted in (#72): a header-row page part, whose default ink is --cf-fg
+// like the sample's, so it must land on exactly the same cases.
+const HEADER_PART = 'cf-header-row__page';
+// [theme, cases, optional host, optional part class] in render order; data-band-case indices run across all.
 const BAND_GROUPS = [
   ...Object.entries(PALETTES).map(([theme, p]) => [theme, bandCases(theme, p)]),
   ['authentic', NESTED_BANDS, BAND_HOST],
+  ...Object.entries(PALETTES).map(([theme, p]) => [theme, bandCases(theme, p), null, HEADER_PART]),
 ];
 
 const row = 'display:flex;flex-wrap:wrap;align-items:flex-start;gap:1ch;width:100%';
@@ -193,12 +204,12 @@ export const Matrix = {
       wrap.appendChild(group);
     }
     let b = 0;
-    for (const [theme, cases, host] of BAND_GROUPS) {
+    for (const [theme, cases, host, part] of BAND_GROUPS) {
       const group = host ? bandSample(...host, '') : document.createElement('div');
       group.style.cssText = row;
       if (theme !== 'authentic') group.dataset.theme = theme;
       for (const [band, ink] of cases) {
-        const s = bandSample(band, ink, `${band || 'none'}/${ink || 'default'}`);
+        const s = bandSample(band, ink, `${band || 'none'}/${ink || 'default'}`, part);
         s.dataset.bandCase = String(b++);
         group.appendChild(s);
       }
@@ -213,10 +224,10 @@ export const Matrix = {
       offset += cases.length;
     }
     let b = 0;
-    for (const [, cases] of BAND_GROUPS) {
+    for (const [, cases, , part] of BAND_GROUPS) {
       for (const [band, ink, want] of cases) {
         const cs = getComputedStyle(canvasElement.querySelector(`[data-band-case="${b++}"]`));
-        const label = `sample[data-band="${band}"][data-variant="${ink}"]`;
+        const label = `${part ?? 'sample'}[data-band="${band}"][data-variant="${ink}"]`;
         for (const [prop, value] of Object.entries(want)) {
           await expect(`${label} ${prop} ${cs[prop]}`).toBe(`${label} ${prop} ${value}`);
         }
