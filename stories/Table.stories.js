@@ -46,12 +46,16 @@ const table = ({ caption, captionAttrs = '', attrs = '', body }) => {
   return region;
 };
 
-const league = (attrs = '') =>
+// `current` names the team whose row is aria-current="true" (your team).
+const league = (attrs = '', current) =>
   table({
     caption: 'Premier League · final table',
     attrs,
     body:
-      `<thead>${LEAGUE_HEAD}</thead>` + LEAGUE.map((g) => `<tbody>${g.map((r) => row(r)).join('')}</tbody>`).join(''),
+      `<thead>${LEAGUE_HEAD}</thead>` +
+      LEAGUE.map(
+        (g) => `<tbody>${g.map((r) => row(r, r[1] === current ? ' aria-current="true"' : '')).join('')}</tbody>`,
+      ).join(''),
   });
 
 const cells = (root) => [...root.querySelectorAll('th, td')];
@@ -125,9 +129,10 @@ export default {
 };
 
 // A league table: caption, a header row, three groups and end-aligned figures. Rows
-// alternate text colour (Ceefax cyan/white) with data-stripe-rows="text".
+// alternate text colour (Ceefax cyan/white) with data-stripe-rows="text", and your team's
+// row is aria-current="true": an accent band, announced as current.
 export const League = {
-  render: () => league(' data-stripe-rows="text"'),
+  render: () => league(' data-stripe-rows="text"', 'Liverpool'),
   play: async ({ canvasElement }) => {
     const tableEl = await assertSemantics(canvasElement);
     await expect(within(canvasElement).getAllByRole('rowheader').length).toBe(8);
@@ -164,10 +169,83 @@ export const League = {
     await expect(odd.fg).toBe('rgb(0, 255, 255)'); // --cf-info
     await expect(even.fg).toBe('rgb(255, 255, 255)'); // --cf-fg
     for (const g of groups) await expect(paint(g.rows[0])).toEqual(odd);
-    for (const tr of tableEl.querySelectorAll('tbody tr')) await expect(paint(tr).bg).toBe(NONE);
+    for (const tr of tableEl.querySelectorAll('tbody tr:not([aria-current])')) await expect(paint(tr).bg).toBe(NONE);
     for (const th of tableEl.tHead.rows[0].cells) await expect(paint(th).fg).toBe(even.fg);
     // Under the Accessible theme the stripe follows the remapped info colour.
     await expect(await accessible(canvasElement, () => paint(groups[2].rows[0]).fg)).not.toBe(odd.fg);
+    await assertCurrentRow(canvasElement);
+  },
+};
+
+// Contract: the aria-current row is announced as current and painted as an accent band with
+// its ink, over the stripe or zone it sits in; data-band on it recolours the band.
+const assertCurrentRow = async (canvasElement) => {
+  const current = within(canvasElement).getByRole('row', { current: true });
+  await expect(current.getAttribute('aria-current')).toBe('true');
+  for (const cell of current.cells) await expect(paint(cell)).toEqual({ bg: 'rgb(255, 255, 0)', fg: 'rgb(0, 0, 0)' }); // --cf-accent, --cf-on-variant
+  current.dataset.band = 'magenta';
+  await expect(paint(current)).toEqual(reference(canvasElement, 'magenta'));
+  current.dataset.band = 'not-a-colour'; // an unknown band keeps the accent: never a text-only current row
+  await expect(paint(current).bg).toBe('rgb(255, 255, 0)');
+  delete current.dataset.band;
+};
+
+// Zones (WDR-style): data-band on a <tbody> bands the whole group, data-variant colours its
+// text. Both override the row stripe. The caption and header take a band too, here yellow on
+// blue as on a broadcast title strip.
+export const Zones = {
+  render: () =>
+    table({
+      caption: 'Premier League · places',
+      captionAttrs: ' data-band="blue" data-variant="yellow"',
+      attrs: ' data-stripe-rows="band"',
+      body:
+        `<thead data-band="blue" data-variant="yellow">${LEAGUE_HEAD}</thead>` +
+        `<tbody data-band="cyan">${[...LEAGUE[0], ...LEAGUE[1]].map((r) => row(r, r[1] === 'Arsenal' ? ' aria-current="true"' : '')).join('')}</tbody>` +
+        `<tbody data-variant="green">${LEAGUE[2]
+          .slice(0, 2)
+          .map((r) => row(r))
+          .join('')}</tbody>` +
+        `<tbody>${LEAGUE[2]
+          .slice(2)
+          .map((r) => row(r))
+          .join('')}</tbody>`,
+    }),
+  play: async ({ canvasElement }) => {
+    const tableEl = await assertSemantics(canvasElement);
+    const [zone, green, plain] = tableEl.tBodies;
+    const read = () => ({
+      zone: [...zone.rows].filter((tr) => !tr.ariaCurrent).map(paint),
+      green: [...green.rows].map(paint),
+      caption: paint(tableEl.caption),
+      head: paint(tableEl.tHead.rows[0].cells[0]),
+      cyan: reference(canvasElement, 'cyan'),
+      title: reference(canvasElement, 'blue', 'yellow'),
+      greenText: reference(canvasElement, '', 'green').fg,
+    });
+    const authentic = read();
+    // Every row of the banded zone matches a data-band="cyan" sample, stripe or not.
+    for (const r of authentic.zone) await expect(r).toEqual(authentic.cyan);
+    // The variant zone: text in the variant colour, no band, no stripe.
+    for (const r of authentic.green) await expect(r).toEqual({ bg: NONE, fg: authentic.greenText });
+    // The plain group keeps the band stripe.
+    await expect(paint(plain.rows[0]).bg).toBe('rgb(0, 0, 255)');
+    // Caption and header: yellow on blue.
+    await expect(authentic.caption).toEqual(authentic.title);
+    await expect(authentic.head).toEqual(authentic.title);
+    await expect(authentic.title).toEqual({ bg: 'rgb(0, 0, 255)', fg: 'rgb(255, 255, 0)' });
+    // The current row wins over its zone.
+    await assertCurrentRow(canvasElement);
+    // An unknown band renders no band.
+    zone.dataset.band = 'not-a-colour';
+    await expect(paint(zone.rows[0]).bg).toBe(NONE);
+    zone.dataset.band = 'cyan';
+    // Under the Accessible theme the colours change and every band's ink is black.
+    const themed = await accessible(canvasElement, read);
+    await expect(themed.cyan.bg).not.toBe(authentic.cyan.bg);
+    await expect(themed.greenText).not.toBe(authentic.greenText);
+    for (const r of themed.zone) await expect(r).toEqual(themed.cyan);
+    for (const band of [themed.caption, themed.head, themed.zone[0]]) await expect(band.fg).toBe('rgb(0, 0, 0)');
   },
 };
 

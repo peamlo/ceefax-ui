@@ -23,7 +23,8 @@
   text-align: start;
 }
 :where(.cf-table caption) {
-  color: var(--cf-accent);
+  background: var(--_bg, transparent);
+  color: var(--_ink, var(--cf-accent));
   font-family: var(--cf-font-display);
 }
 :where(.cf-table caption[data-side='bottom']) {
@@ -46,27 +47,49 @@
 :where(.cf-table small) {
   font-size: var(--cf-text-small);
 }
-/* Colour. Row groups, rows and cells set --_bg and --_ink; only the cells paint them, so the
-   nearest setting wins by inheritance and, on one element, the later rule wins on order.
-   Unset (the table resets them, so a nested table starts clean), a cell is transparent and
-   inherits its colour. */
+/* Colour. Row groups, rows and cells set --_bg and --_ink; only cells and the caption paint
+   them, so the nearest setting wins by inheritance and, on one element, the later rule wins
+   on order: row stripe < data-variant < data-band < aria-current. A row group's setting
+   reaches its rows by inheritance, so the stripe skips a zone. Unset (the table resets them,
+   so a nested table starts clean), a cell is transparent and inherits its colour. */
 :where(.cf-table :is(th, td)) {
   background: var(--_bg, transparent);
   color: var(--_ink, currentcolor);
 }
 /* Row stripes: body rows only, restarting in every <tbody>. `band` is the pair the seam
-   gives data-band="blue" (the Accessible theme collapses the ink to black). */
-:where(.cf-table[data-stripe-rows='text'] > tbody > tr:nth-child(odd)) {
+   gives data-band="blue" (the Accessible theme collapses the ink to black). Not in a zone. */
+:where(.cf-table[data-stripe-rows='text'] > tbody:not([data-band], [data-variant]) > tr:nth-child(odd)) {
   --_bg: transparent;
   --_ink: var(--cf-info);
 }
-:where(.cf-table[data-stripe-rows='text'] > tbody > tr:nth-child(even)) {
+:where(.cf-table[data-stripe-rows='text'] > tbody:not([data-band], [data-variant]) > tr:nth-child(even)) {
   --_bg: transparent;
   --_ink: var(--cf-fg);
 }
-:where(.cf-table[data-stripe-rows='band'] > tbody > tr:nth-child(odd)) {
+:where(.cf-table[data-stripe-rows='band'] > tbody:not([data-band], [data-variant]) > tr:nth-child(odd)) {
   --_bg: var(--cf-variant-blue);
   --_ink: var(--cf-on-variant-dark);
+}
+/* Zones and bands (ADR-0017) on any part: data-variant is its text colour, data-band its band
+   with data-variant as the ink. A part's own setting replaces what it inherits, background
+   included. An unknown band leaves both unset, so it renders no band. */
+:where(.cf-table :is(caption, thead, tbody, tfoot, tr, th, td)[data-variant]) {
+  --_bg: transparent;
+  --_ink: var(--_variant);
+}
+:where(.cf-table :is(caption, thead, tbody, tfoot, tr, th, td)[data-band]) {
+  --_bg: var(--_band);
+  --_ink: var(--_band-ink, var(--_variant));
+}
+/* The current row (state, so ARIA): always a band, never colour on text alone. Accent by
+   default; data-band on the row picks another. */
+:where(.cf-table tr[aria-current='true']) {
+  --_bg: var(--cf-accent);
+  --_ink: var(--cf-on-variant);
+}
+:where(.cf-table tr[aria-current='true'][data-band]) {
+  --_bg: var(--_band, var(--cf-accent));
+  --_ink: var(--_band-ink, var(--cf-on-variant));
 }
 /* The Screen frame is the authentic mode (ADR-0014): every cell and the caption on one
    line. Only where the frame applies; the breakpoint is page.css's literal. */
