@@ -20,6 +20,8 @@ npm install
 npm run storybook      # framework-agnostic Storybook (HTML mode) — every variant + live a11y checks
 npm run build          # PostCSS + esbuild minify → dist/index.css + dist/tokens.css
 npm run build-storybook
+npm run lint           # Stylelint (the contract's mechanical rules) + ESLint + Prettier --check (CI `lint` job)
+npm run format         # fix what the three can fix; staged files are also fixed by the pre-commit hook
 npm run assert-package # after build: pack, clean-install and assert the tarball, size budgets included (CI `package` job)
 node scripts/size.mjs . # brotli size per entry point vs its budget (ADR-0015)
 node scripts/check-doc-indexes.mjs # every ADR/review is in its index (CI `docs` job, with lychee + markdownlint)

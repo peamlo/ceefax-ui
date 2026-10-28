@@ -173,7 +173,7 @@ check('publint', () => {
     npm(['exec', '--no', '--', 'publint', 'run', tarball, '--level', 'error'], root);
   } catch (err) {
     // publint reports on stdout, which npm() captures.
-    throw new Error(err.stdout?.trim() || err.message);
+    throw new Error(err.stdout?.trim() || err.message, { cause: err });
   }
 });
 

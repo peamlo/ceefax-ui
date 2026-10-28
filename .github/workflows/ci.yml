@@ -7,6 +7,7 @@
 # ruleset — see ADR-0002. The advisory `docs` job (issue #53) checks the Markdown.
 # `package` also enforces the brotli size budgets (issue #47, ADR-0015); the
 # advisory `size-comment` job posts the size report, with deltas, on the PR.
+# The `lint` job (issue #48) runs Stylelint, ESLint and Prettier.
 name: ci
 
 on:
@@ -80,6 +81,23 @@ jobs:
           else
             gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body-file size.md
           fi
+
+  # Contract lint (issue #48): Stylelint encodes the contract's mechanical rules
+  # (cf-* classes only, no state modifiers, colours via semantic aliases), ESLint
+  # covers the elements, stories and config, Prettier the formatting. `npm run lint`
+  # locally is the same check. To be made required once green on main.
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
 
   # Supply-chain gate (issue #46): zizmor lints the workflows (unpinned actions,
   # template injection, excess permissions) and dependency review flags any

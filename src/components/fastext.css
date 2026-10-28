@@ -31,7 +31,7 @@
 .cf-fastext__key:focus-visible {
   outline: none;
   background: var(--cf-bg);
-  border-color: currentColor;
+  border-color: currentcolor;
 }
 .cf-fastext__key[data-variant]:hover,
 .cf-fastext__key[data-variant]:focus-visible {
