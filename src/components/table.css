@@ -49,6 +49,23 @@
 :where(.cf-table small) {
   font-size: var(--cf-text-small);
 }
+/* Dot leaders (WDR's `München.....`): the leader cell takes the table's spare width, so the
+   figures sit at its end, and dots run from the name to them. Out of flow, so they never
+   widen the column; the cell clips them. Decoration: empty alt text, so a screen reader hears
+   only the name (older browsers drop the alt declaration and keep the first). One leader
+   column per table. */
+:where(.cf-table [data-leader]) {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+:where(.cf-table [data-leader])::after {
+  position: absolute;
+  content: '................................................................................................................................................................................................................................................';
+  content: '................................................................................................................................................................................................................................................' /
+    '';
+}
 /* Colour. Row groups, rows and cells set --_bg and --_ink; only cells and the caption paint
    them, so the nearest setting wins by inheritance and, on one element, the later rule wins
    on order: row stripe < data-variant < data-band < aria-current. A row group's setting

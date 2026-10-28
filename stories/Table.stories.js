@@ -5,9 +5,9 @@ import { bandSample } from './_bands.js';
 // cf-table__scroll region. The stories render the exact contract markup; play() asserts
 // what a consumer sees (roles, text, computed styles), never a private --_* property.
 
-// One body row: position, the team as the row header, then end-aligned figures.
+// One body row: position, the team as the row header with dot leaders, then end-aligned figures.
 const row = ([pos, team, ...figures], attrs = '') =>
-  `<tr${attrs}><td>${pos}</td><th scope="row">${team}</th>` +
+  `<tr${attrs}><td>${pos}</td><th scope="row" data-leader>${team}</th>` +
   figures.map((f) => `<td data-align="end">${f}</td>`).join('') +
   '</tr>';
 
@@ -424,6 +424,51 @@ export const ColumnBands = {
     const themed = await accessible(canvasElement, read);
     await expect(themed.plain[0].bg).not.toBe(authentic.plain[0].bg);
     for (const c of [themed.plain[0], themed.head[0], ...themed.zone]) await expect(c.fg).toBe('rgb(0, 0, 0)');
+  },
+};
+
+// Dot leaders, as on WDR's Bundesliga page: data-leader on the name column runs dots up to
+// the figures, which sit at the table's end. The dots are decoration; readers hear the name.
+const BUNDESLIGA = [
+  [1, 'Leverkusen', 34, '89:24', 90],
+  [2, 'Stuttgart', 34, '78:39', 73],
+  [3, 'München', 34, '94:45', 72],
+  [4, 'Leipzig', 34, '77:39', 65],
+  [5, 'Dortmund', 34, '68:43', 63],
+  [6, 'Frankfurt', 34, '51:50', 47],
+];
+export const Leaders = {
+  name: 'Dot leaders',
+  render: () =>
+    table({
+      caption: 'Bundesliga · Abschlusstabelle',
+      body:
+        '<thead><tr><th scope="col">Pl.</th><th scope="col">Verein</th>' +
+        ['Sp.', 'Tore', 'Pkt.'].map((h) => `<th scope="col" data-align="end">${h}</th>`).join('') +
+        `</tr></thead><tbody>${BUNDESLIGA.map((r) => row(r)).join('')}</tbody>`,
+    }),
+  play: async ({ canvasElement }) => {
+    const tableEl = await assertSemantics(canvasElement);
+    const region = tableEl.parentElement;
+    for (const [, team] of BUNDESLIGA) {
+      const cell = within(canvasElement).getByRole('rowheader', { name: team });
+      await expect(cell.hasAttribute('data-leader')).toBe(true);
+      await expect(cell.textContent).toBe(team);
+      const cs = style(cell);
+      await expect(cs.overflowX).toBe('hidden');
+      await expect(cs.whiteSpace).toBe('nowrap');
+      await expect(getComputedStyle(cell, '::after').content).toContain('.');
+      // The leader column is the widest, and the figures end at the table's end edge.
+      const tr = cell.parentElement;
+      const width = cell.getBoundingClientRect().width;
+      for (const other of tr.cells)
+        if (other !== cell) await expect(other.getBoundingClientRect().width).toBeLessThan(width);
+      await expect(
+        Math.abs(tr.lastElementChild.getBoundingClientRect().right - tableEl.getBoundingClientRect().right),
+      ).toBeLessThan(1);
+    }
+    // The leader column takes the spare width: the table fills its region.
+    await expect(Math.abs(tableEl.getBoundingClientRect().width - region.clientWidth)).toBeLessThan(1);
   },
 };
 

@@ -84,6 +84,10 @@ _Avoid_: row divider, separator, border row
 Alternating rows (`data-stripe-rows`) or columns (`data-stripe-cols`) painted as text colour or as a band. A reading aid that any row setting overrides.
 _Avoid_: zebra, banding
 
+**Dot leader**:
+The decorative run of dots that joins a name to its figures across one table column. Hidden from assistive tech.
+_Avoid_: filler, dots
+
 **Custom element**:
 A logic-bearing standard Web Component (e.g. `<cf-loader>`), shipped under the opt-in `./elements` export — separate from the runtime-free CSS core.
 _Avoid_: widget, framework component
