@@ -39,7 +39,7 @@ Storybook (`@storybook/html-vite` + the a11y addon; interactions/`play()` are co
 - `docs/adr/` — Architecture Decision Records (why, not how). Flag output that contradicts an ADR.
 - Storybook — live component behaviour and variants.
 - `docs/agents/` — how agents consume the issue tracker, triage labels, and domain docs (see below).
-- `docs/reference/` — external reference material (summaries + archive links, not mirrors), e.g. [zxnet teletext](docs/reference/zxnet-teletext.md) for authentic teletext behaviour and specs.
+- `docs/reference/` — external reference material (summaries + archive links, not mirrors), e.g. [zxnet teletext](docs/reference/zxnet-teletext.md) for authentic teletext behaviour and specs, [Antena 3 Teletexto](docs/reference/antena3-teletexto.md) for a live Spanish service.
 - `docs/reviews/` — dated, point-in-time reviews (e.g. CI checks). Snapshots, not living docs: the GitHub issues they spawn are canonical.
 
 ## Commit messages — Conventional Commits
