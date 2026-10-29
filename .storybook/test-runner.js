@@ -139,6 +139,22 @@ async function assertNoticeBlink(page) {
   expect(opacityAfter).toBe('1');
 }
 
+// Contract: the canvas is the teletext page, black even without the backgrounds addon's style.
+// Storybook can drop that style on load: a stale render of the same story runs
+// StoryStore.cleanupStory, which clears the hooks the live render shares, so the addon's
+// useEffect never fires and the canvas stays white. .storybook/preview-head.html paints
+// the canvas underneath; this reads it in exactly the state the race leaves behind.
+async function assertCanvasWithoutAddonStyle(page) {
+  const bg = await page.evaluate(() => {
+    const tag = document.getElementById('addon-backgrounds-color');
+    tag?.remove();
+    const colour = getComputedStyle(document.body).backgroundColor;
+    if (tag) document.head.append(tag);
+    return colour;
+  });
+  expect(bg).toBe('rgb(0, 0, 0)');
+}
+
 // `aaa` also enables axe's AAA contrast rule — the accessible theme's promise (#12).
 const axe = async (page, { aaa = false } = {}) => {
   await checkA11y(page, '#storybook-root', {
@@ -152,6 +168,7 @@ export default {
   async postVisit(page, context) {
     const { title, name } = await getStoryContext(page, context);
     const isFrame = title === 'Layout/Page' && name === 'Screen frame (data-frame)';
+    await assertCanvasWithoutAddonStyle(page);
     if (isFrame) await assertScreenFrame(page);
     if (!title.startsWith('Components/') && !isFrame) return;
 
