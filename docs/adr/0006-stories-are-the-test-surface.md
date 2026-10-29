@@ -58,8 +58,8 @@ would see — never a private `--_var` or an internal selector.
 
 The gate is the stories **tagged `contract`** — issue #8's tested modules (button,
 link, card, fastext, `<cf-canvas>`), the later components, the palette-drift, variant,
-token-layering and accessible-theme guards, the Layout/Page shell and Foundations/Brand
-(`<cf-loader>` follows `--cf-fg`, #73). Two lists, both on the story files: the
+token-layering, accessible-theme and scrollbar guards, the Layout/Page shell and
+Foundations/Brand (`<cf-loader>` follows `--cf-fg`, #73). Two lists, both on the story files: the
 `contract` tag says which stories run (the Vitest plugin ignores `test.include`, and
 the other story files are reported as skipped), and `a11y.test: 'error'` says which of
 them axe gates. Per [ADR-0002](0002-squash-only-conventional-pr-titles.md) this is a **hard** gate: the
