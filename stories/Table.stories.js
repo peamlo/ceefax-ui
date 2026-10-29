@@ -1,5 +1,6 @@
 import { expect, within } from 'storybook/test';
 import { bandSample } from './_bands.js';
+import { atViewport, realInput } from './_real-input.js';
 
 // cf-table (#22): a native <table> set like a broadcast league table, inside its own
 // cf-table__scroll region. The stories render the exact contract markup; play() asserts
@@ -117,8 +118,9 @@ const assertGroupRules = async (tableEl) => {
 
 export default {
   title: 'Components/Table',
-  tags: ['autodocs'],
+  tags: ['autodocs', 'contract'],
   parameters: {
+    a11y: { test: 'error' }, // in the axe gate under both themes (ADR-0006)
     docs: {
       description: {
         component:
@@ -529,7 +531,7 @@ export const InScreenFrame = {
 
 // Long text cells wrap like any web table outside the frame; figures never do. On a phone
 // the table is wider than the screen, so it scrolls inside its region and the page doesn't
-// (asserted at a real 320px viewport in .storybook/test-runner.js postVisit).
+// (asserted at a real 320px viewport, below).
 const LONG =
   'Global index fund tracking developed and emerging markets, rebalanced every quarter with dividends reinvested';
 export const Wide = {
@@ -562,5 +564,17 @@ export const Wide = {
     const notes = tableEl.querySelector('tbody td');
     await expect(style(notes).whiteSpace).toBe('normal');
     await expect(notes.parentElement.getBoundingClientRect().height).toBeGreaterThan(rowHeight(notes) * 1.5);
+
+    // Contract (#100): at phone width a wide table scrolls inside its region, never the page,
+    // and a real Tab reaches the region so keyboard users can scroll it. Needs real input.
+    const io = realInput();
+    if (!io) return;
+    await atViewport(io, 320, 640, async () => {
+      const region = canvasElement.querySelector('.cf-table__scroll');
+      await expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(innerWidth);
+      await expect(region.scrollWidth).toBeGreaterThan(region.clientWidth);
+      await io.userEvent.tab();
+      await expect(document.activeElement).toBe(region);
+    });
   },
 };
