@@ -153,3 +153,7 @@ _Avoid_: preview environment, deploy preview, review app, staging
 **Release PR**:
 The one pull request kept open, and kept up to date, while `main` has changes consumers would get. It holds the next version and its changelog, and merging it is the only manual step of a release.
 _Avoid_: version-bump PR, release branch
+
+**Demo**:
+A static page that uses the library the way a consumer would, one stylesheet and plain markup, to show the library as it is now. Stories test and document every variant; a demo shows the library in use. Demos are brought up to date before each Release PR merges.
+_Avoid_: showcase, example page, playground
