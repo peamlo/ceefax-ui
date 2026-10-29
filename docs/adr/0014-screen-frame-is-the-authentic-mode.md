@@ -84,8 +84,8 @@ is supported the cell snaps down to a whole pixel: the row falls short of the ed
 per cell (under one cell in all), never past it. With a classic scrollbar the header's and body's
 cells then usually come out the same size, so their columns line up.
 
-**Grid size.** 40 cells is the default and the teletext grid. `data-cells="80"` gives a denser,
-terminal-like grid for pages that need more on screen; it is the same mode with smaller cells, not
+**Grid size.** 40 cells is the default and the teletext grid. `data-cells="60"` and `"80"` give
+denser, terminal-like grids for pages that need more on screen; it is the same mode with smaller cells, not
 broadcast teletext. `--cf-frame-cells` takes any count, the [ADR-0003](0003-layout-primitives-data-attr-config.md)
 enum-plus-escape-hatch pattern (`data-cells` sets it). The whole-pixel snap costs more on a dense
 grid: at 80 cells in a small frame the row can end several cells short of the edge.

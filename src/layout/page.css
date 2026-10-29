@@ -25,7 +25,7 @@
    can't read custom props.
    The authentic mode (ADR-0014): a row is 40 cells (--_cell, one cell's width) inside a
    one-cell margin on each side, so header, body and footer start on the same column.
-   data-cells="80" makes a denser, terminal-like grid; --cf-frame-cells is the escape hatch
+   data-cells="60" and "80" make denser, terminal-like grids; --cf-frame-cells is the escape hatch
    for any count (ADR-0003: enum attribute + custom property).
    Every line is one cell high, with no tracking, and all text is set in Bedstead, whose
    cell is 0.6em × 1em, so 1em = cell / 0.6. The type scale keeps its ratios in cells
@@ -45,9 +45,12 @@
   inherits: true;
   initial-value: 0;
 }
-/* Grid size: 40 cells (teletext, the default) or 80. Set on the frame, read by its slots. */
+/* Grid size: 40 cells (teletext, the default), 60 or 80. Set on the frame, read by its slots. */
 .cf-page[data-cells='40'] {
   --cf-frame-cells: 40;
+}
+.cf-page[data-cells='60'] {
+  --cf-frame-cells: 60;
 }
 .cf-page[data-cells='80'] {
   --cf-frame-cells: 80;

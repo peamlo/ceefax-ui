@@ -141,7 +141,7 @@ The opt-in `data-frame` variant of the page shell: a 4:3 teletext set, as wide a
 _Avoid_: viewport, TV wrapper, `cf-screen`
 
 **Cell**:
-One character position on the teletext grid, 40 to a row (80 on the Screen frame's denser grid). Inside the Screen frame, text and mosaics snap to cells; outside it, layout stays fluid and only the look is teletext.
+One character position on the teletext grid, 40 to a row (60 or 80 on the Screen frame's denser grids). Inside the Screen frame, text and mosaics snap to cells; outside it, layout stays fluid and only the look is teletext.
 _Avoid_: character box, tile, column
 
 **Scrollbar variant**:

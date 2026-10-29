@@ -91,7 +91,7 @@ export const TeletextPage = {
 };
 
 // The contract markup: the page shell plus the presentational `data-frame` variant, and
-// `data-cells` for the denser 80-cell grid (40, the default, needs no attribute).
+// `data-cells` for the denser 60- and 80-cell grids (40, the default, needs no attribute).
 // The body is the scroll region, so it is made focusable.
 const ruler = (cells) => '0123456789'.repeat(cells / 10);
 const framedPage = ({ cells = 40 } = {}) => {
@@ -183,7 +183,7 @@ export const Framed = {
           '- **40 cells to a row:** inside the frame the type is sized so 40 Bedstead cells fill the width of the ' +
           'body (inside its scrollbar, if it has one), every line is one cell high, and only the eight authentic ' +
           'colours appear (unless the Accessible theme applies, which wins: toolbar → Theme).\n' +
-          '- **Grid size:** `data-cells="80"` for a denser, terminal-like grid (the `cells` control); ' +
+          '- **Grid size:** `data-cells="60"` or `"80"` for a denser, terminal-like grid (the `cells` control); ' +
           '`--cf-frame-cells` takes any count.\n' +
           '- **Below 40em (phones):** the frame is dropped and the page is full-bleed at normal type sizes.\n' +
           '- **Keyboard:** give the body `tabindex="0"` so the scroll region is reachable; `#hash` links scroll inside it.\n' +
@@ -196,7 +196,7 @@ export const Framed = {
   argTypes: {
     cells: {
       control: 'inline-radio',
-      options: [40, 80],
+      options: [40, 60, 80],
       description: 'Cells to a row: `data-cells` (40, the default, needs no attribute)',
     },
   },
@@ -223,11 +223,12 @@ export const Framed = {
     const [dim, bg2] = [...body.querySelectorAll('span[style]')].map((n) => getComputedStyle(n));
     await expect(dim.color).toBe('rgb(0, 255, 0)');
     await expect(bg2.backgroundColor).toBe('rgb(0, 0, 255)');
-    // The other grid sizes: data-cells="80", and the --cf-frame-cells escape hatch. Restored after.
+    // The other grid sizes: data-cells="60" and "80", and the --cf-frame-cells escape hatch. Restored after.
     const span = row.querySelector('span');
     for (const [cells, set] of [
+      [60, () => (page.dataset.cells = '60')],
       [80, () => (page.dataset.cells = '80')],
-      [60, () => page.style.setProperty('--cf-frame-cells', '60')],
+      [50, () => page.style.setProperty('--cf-frame-cells', '50')],
     ]) {
       set();
       span.textContent = ruler(cells);
