@@ -17,7 +17,7 @@
   border-collapse: separate;
   border-spacing: 0;
   color: var(--cf-fg);
-  font-family: var(--cf-font-body);
+  font-family: var(--cf-font-mono);
 }
 :where(.cf-table :is(caption, th, td)) {
   padding: 0 var(--cf-space-1);

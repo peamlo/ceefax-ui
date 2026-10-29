@@ -133,7 +133,7 @@ export const Variants = {
   render: () => {
     const wrap = document.createElement('div');
     wrap.style.cssText =
-      'display:flex;flex-direction:column;gap:2ch;font:14px var(--cf-font-body);color:var(--cf-fg);background:var(--cf-bg)';
+      'display:flex;flex-direction:column;gap:2ch;font:14px var(--cf-font-mono);color:var(--cf-fg);background:var(--cf-bg)';
 
     // The four looks, in each theme. A plain scroller inherits its page's variant.
     for (const theme of THEMES) {
