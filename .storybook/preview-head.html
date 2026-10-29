@@ -1,0 +1,14 @@
+<!--
+  The canvas is the teletext page: --cf-bg (black) underneath the backgrounds addon, whose
+  !important rule still wins whenever it applies (the `blue` option). Storybook sometimes
+  never applies it: on load, a stale render of the same story runs StoryStore.cleanupStory,
+  which clears the hooks the live render shares, so the addon's useEffect never fires and
+  the canvas stayed white. Same selectors as the addon: the story canvas, and docs blocks.
+  Pinned by assertCanvasWithoutAddonStyle in .storybook/test-runner.js.
+-->
+<style>
+  .sb-show-main,
+  .docs-story {
+    background: var(--cf-bg);
+  }
+</style>
