@@ -7,7 +7,8 @@
 # ruleset — see ADR-0002. The advisory `docs` job (issue #53) checks the Markdown.
 # `package` also enforces the brotli size budgets (issue #47, ADR-0015); the
 # advisory `size-comment` job posts the size report, with deltas, on the PR.
-# The `lint` job (issue #48) runs Stylelint, ESLint and Prettier.
+# The `lint` job (issue #48) runs Stylelint, ESLint and Prettier. The advisory
+# `dead-code` job (issue #52) runs knip and the token usage report.
 name: ci
 
 on:
@@ -98,6 +99,30 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint
+
+  # Dead code (issue #52): knip reports unused files, exports and dependencies
+  # (config in knip.jsonc); the token report lists every --cf-* token with its
+  # consumers in the job summary, warns on tokens only a Foundations story shows,
+  # and fails on tokens neither consumed nor documented. It also runs the
+  # scripts' own node:test files (the token report's verdicts, ADR-0006).
+  # Advisory: not in the `main protection` ruleset, so a false positive never
+  # blocks a merge.
+  dead-code:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npx knip
+      - if: ${{ !cancelled() }}
+        run: node --test 'scripts/*.test.mjs'
+      - if: ${{ !cancelled() }}
+        run: node scripts/token-report.mjs >> "$GITHUB_STEP_SUMMARY"
 
   # Supply-chain gate (issue #46): zizmor lints the workflows (unpinned actions,
   # template injection, excess permissions) and dependency review flags any
