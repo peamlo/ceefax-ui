@@ -124,6 +124,10 @@ _Avoid_: layout, page component, template component
 The opt-in `data-frame` variant of the page shell: a 4:3 teletext set, as wide as fits the viewport and centred, with the type tokens scaled to the frame, header and footer pinned and only the body scrolling. Full-bleed below one narrow-viewport breakpoint. Presentational only; the ratio is tunable with `--cf-frame-ratio`.
 _Avoid_: viewport, TV wrapper, `cf-screen`
 
+**Scrollbar variant**:
+The look of the scrollbars inside the Page shell, set with the presentational `data-scrollbar` attribute: `fastext`, `mosaic` or `thin`, with **block** (a square foreground thumb) when none is set. Inherited, so the nearest attribute wins. On hover or drag the thumb takes an Inversion. Firefox shows only the variant's two colours.
+_Avoid_: scrollbar theme, custom scrollbar, `cf-scrollbar`
+
 ## Project tooling
 
 **Storybook preview**:
