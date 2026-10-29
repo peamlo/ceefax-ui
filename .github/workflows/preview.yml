@@ -57,6 +57,10 @@ jobs:
       - run: npm run build-storybook
       # Same tree as pages.yml publishes.
       - run: cp -r demo src fonts public storybook-static/
+      # Without a top-level 404.html, Cloudflare Pages treats the site as a single-page app and
+      # answers every missing path with index.html: Storybook itself, whose relative module
+      # scripts then fail with "MIME type text/html" (recursively, as it re-frames itself).
+      - run: echo '<!doctype html><title>Not found</title><p>Not found</p>' > storybook-static/404.html
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: storybook
