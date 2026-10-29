@@ -35,7 +35,7 @@ const VARIANTS = {
     thumb: ['cf-fg'],
     hot: ['cf-accent'],
     track: ['cf-bg'],
-    props: { size: '11px', btn: 'none', 'ff-width': 'thin' },
+    props: { size: '0.5em', btn: 'none', 'ff-width': 'thin' },
   },
 };
 const SLOTS = { thumb: 'thumb', hot: 'thumb-hot', track: 'track', btn: 'btn-bg', btnHot: 'btn-hot' };
@@ -111,11 +111,19 @@ const NESTED = [
   ['plain in fastext', 'fastext'],
   ['typo in mosaic', 'mosaic'],
   // An alias overridden on the [data-scrollbar] element, where the row resolves it.
-  ['thin with its own --cf-accent', 'thin'],
+  ['thin, --cf-accent overridden', 'thin'],
 ];
 // Outside .cf-page nothing is set, data-scrollbar or not (the OS bar shows).
 const OUTSIDE = ['outside .cf-page', 'data-scrollbar outside .cf-page'];
 const tag = (el, c) => ((el.dataset.case = c), el);
+// A captioned case, so every scroller on the canvas says what it proves.
+const labelled = (text, el) => {
+  const fig = document.createElement('div');
+  const p = document.createElement('p');
+  p.textContent = text;
+  fig.append(p, tag(el, text));
+  return fig;
+};
 
 export default { title: 'Foundations/Scrollbar' };
 
@@ -124,7 +132,8 @@ export const Variants = {
   name: 'Variants, inheritance and scope',
   render: () => {
     const wrap = document.createElement('div');
-    wrap.style.cssText = 'display:flex;flex-direction:column;gap:2ch;font-size:14px';
+    wrap.style.cssText =
+      'display:flex;flex-direction:column;gap:2ch;font:14px var(--cf-font-body);color:var(--cf-fg);background:var(--cf-bg)';
 
     // The four looks, in each theme. A plain scroller inherits its page's variant.
     for (const theme of THEMES) {
@@ -143,23 +152,24 @@ export const Variants = {
     }
 
     const fastext = page('fastext');
-    fastext.append(tag(scroller('thin'), NESTED[0][0]), tag(scroller(), NESTED[1][0]));
+    fastext.append(labelled(NESTED[0][0], scroller('thin')), labelled(NESTED[1][0], scroller()));
     const mosaic = page('mosaic');
-    mosaic.append(tag(scroller('FASTEXT'), NESTED[2][0]));
-    const recoloured = tag(scroller('thin'), NESTED[3][0]);
+    // Hovered, this one's thumb is green: --cf-accent is overridden to --cf-success on it.
+    const recoloured = scroller('thin');
     recoloured.style.setProperty('--cf-accent', 'var(--cf-success)');
-    mosaic.append(recoloured);
+    mosaic.append(labelled(NESTED[2][0], scroller('FASTEXT')), labelled(NESTED[3][0], recoloured));
+    for (const p of [fastext, mosaic]) p.style.cssText = 'padding:1ch;display:flex;gap:1ch';
     const nested = document.createElement('div');
-    nested.style.cssText = 'display:flex;gap:1ch';
+    nested.style.cssText = 'display:flex;flex-wrap:wrap;gap:1ch';
     nested.append(fastext, mosaic);
 
     const outside = document.createElement('div');
     outside.style.cssText = 'display:flex;gap:1ch';
-    outside.append(tag(scroller(), OUTSIDE[0]), tag(scroller('fastext'), OUTSIDE[1]));
+    outside.append(labelled(OUTSIDE[0], scroller()), labelled(OUTSIDE[1], scroller('fastext')));
 
     const status = document.createElement('p');
     const list = document.createElement('ul');
-    list.style.cssText = 'color:#fff;background:#000';
+    list.style.font = 'inherit'; // Storybook's own CSS sets a font on <ul>
     wrap.append(nested, outside, status, list);
 
     // Measure once attached, so the subtree's custom properties resolve.

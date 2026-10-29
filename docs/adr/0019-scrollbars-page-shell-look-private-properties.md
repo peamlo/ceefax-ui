@@ -21,8 +21,9 @@ standard properties are set on the element.
   and an unknown value sets nothing, so the element keeps what it inherited.
 - Standard properties are set only under `@supports not selector(::-webkit-scrollbar)`, so
   Chrome keeps the shaped bar and Firefox gets the variant's two flat colours.
-- Sizes are in `em`, so the bar scales with the Screen frame. `thin` is the exception: it
-  matches Chromium's native thin width (11px).
+- Sizes are in `em`, so the bar scales with the Screen frame: `0.75em` for block and mosaic,
+  `1em` for fastext, `0.5em` for `thin` (Firefox's own thin width at the 16px body size).
+  Chromium's native thin bar is 11px, too close to block's 12px to read as thin.
 - Colours are existing semantic aliases. The exception is the fastext arrow glyph: an inline
   SVG that can't read custom properties, left at SVG's default black, which is the readable
   ink on the cyan button in every shipped theme.

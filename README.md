@@ -122,12 +122,12 @@ The single top line of a teletext page, in broadcast colours: the page you asked
 
 Every scroll container inside the page shell (`.cf-page` and everything in it) gets a teletext scrollbar, with no CSS of your own. Nothing outside `.cf-page` is touched; for the whole document, put `cf-page` on `<body>`. Pick a look with `data-scrollbar`:
 
-| `data-scrollbar`      | Look                                                                         |
-| --------------------- | ---------------------------------------------------------------------------- |
-| _(none)_, the default | **block**: a square foreground thumb on the background, with a border rule   |
-| `fastext`             | a yellow thumb on a deep-blue track, with cyan ▲▼ step buttons               |
-| `mosaic`              | a checkered cyan thumb on a black track striped with the dim foreground      |
-| `thin`                | the browser's thin width, foreground on background, for dense UIs (sidebars) |
+| `data-scrollbar`      | Look                                                                        |
+| --------------------- | --------------------------------------------------------------------------- |
+| _(none)_, the default | **block**: a square foreground thumb on the background, with a border rule  |
+| `fastext`             | a yellow thumb on a deep-blue track, with cyan ▲▼ step buttons              |
+| `mosaic`              | a checkered cyan thumb on a black track striped with the dim foreground     |
+| `thin`                | a narrow bar (two thirds of block), foreground on background, for dense UIs |
 
 ```html
 <section class="cf-page" data-scrollbar="fastext">

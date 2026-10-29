@@ -45,9 +45,9 @@
   --_sb-ff-track: var(--cf-bg);
   --_sb-ff-width: auto;
 }
-/* Chromium's native thin width, which the webkit path has to state. */
+/* Two thirds of block: 8px at the 16px body size, Firefox's own thin width. */
 :where(.cf-page[data-scrollbar='thin'], .cf-page [data-scrollbar='thin']) {
-  --_sb-size: 11px;
+  --_sb-size: 0.5em;
   --_sb-thumb: var(--cf-fg);
   --_sb-thumb-hot: var(--cf-accent);
   --_sb-track: var(--cf-bg);
