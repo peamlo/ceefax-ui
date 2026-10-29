@@ -58,7 +58,7 @@ Space Mono ships under. Source, version and this reasoning are recorded in
 
 ## Amendment: the cell grid and colour rules ([#74](https://github.com/peamlo/ceefax-ui/issues/74))
 
-**The cell grid.** Inside the frame a row is 40 **cells**. Bedstead's cell is 0.6em wide and 1em
+**The cell grid.** Inside the frame a row is 40 **cells** by default (see Grid size below). Bedstead's cell is 0.6em wide and 1em
 tall (its own ascent and descent), so the type is sized to `cell / 0.6` and every line height is
 1: a line box is exactly one cell, which is what lets colour runs and mosaics tile. The frame
 sets text in a second face, `Bedstead Cell`: the same files with no metric overrides, because the
@@ -83,6 +83,12 @@ pixels, so a fractional cell can round up and wrap a 40-character line at 39. Wh
 is supported the cell snaps down to a whole pixel: the row falls short of the edge by under 1px
 per cell (under one cell in all), never past it. With a classic scrollbar the header's and body's
 cells then usually come out the same size, so their columns line up.
+
+**Grid size.** 40 cells is the default and the teletext grid. `data-cells="80"` gives a denser,
+terminal-like grid for pages that need more on screen; it is the same mode with smaller cells, not
+broadcast teletext. `--cf-frame-cells` takes any count, the [ADR-0003](0003-layout-primitives-data-attr-config.md)
+enum-plus-escape-hatch pattern (`data-cells` sets it). The whole-pixel snap costs more on a dense
+grid: at 80 cells in a small frame the row can end several cells short of the edge.
 
 **Authentic colours only.** The two off-palette aliases snap inside the frame, remapped like a
 theme: `--cf-bg-2` to blue and `--cf-fg-dim` to green, never touching `--cf-base-*`. When the

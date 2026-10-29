@@ -25,6 +25,8 @@
    can't read custom props.
    The authentic mode (ADR-0014): a row is 40 cells (--_cell, one cell's width) inside a
    one-cell margin on each side, so header, body and footer start on the same column.
+   data-cells="80" makes a denser, terminal-like grid; --cf-frame-cells is the escape hatch
+   for any count (ADR-0003: enum attribute + custom property).
    Every line is one cell high, with no tracking, and all text is set in Bedstead, whose
    cell is 0.6em × 1em, so 1em = cell / 0.6. The type scale keeps its ratios in cells
    (body 1, heading 2, display-lg 3 cells high). 'Bedstead Cell' is Bedstead at its own
@@ -42,6 +44,13 @@
   syntax: '<length>';
   inherits: true;
   initial-value: 0;
+}
+/* Grid size: 40 cells (teletext, the default) or 80. Set on the frame, read by its slots. */
+.cf-page[data-cells='40'] {
+  --cf-frame-cells: 40;
+}
+.cf-page[data-cells='80'] {
+  --cf-frame-cells: 80;
 }
 @media (min-width: 40em) {
   .cf-page[data-frame] {
@@ -68,18 +77,18 @@
     --cf-text-display-xl: calc(var(--_em) * 4.5);
   }
   .cf-page[data-frame] > * {
-    --_cell: calc(100cqi / 42);
+    --_cell: calc(100cqi / (var(--cf-frame-cells, 40) + 2));
     padding-inline: var(--_cell);
   }
   .cf-page[data-frame] .cf-page__body > * {
-    --_cell: calc(100cqi / 40);
+    --_cell: calc(100cqi / var(--cf-frame-cells, 40));
   }
   @supports (width: round(down, 1.5px, 1px)) {
     .cf-page[data-frame] > * {
-      --_cell: round(down, 100cqi / 42, 1px);
+      --_cell: round(down, 100cqi / (var(--cf-frame-cells, 40) + 2), 1px);
     }
     .cf-page[data-frame] .cf-page__body > * {
-      --_cell: round(down, 100cqi / 40, 1px);
+      --_cell: round(down, 100cqi / var(--cf-frame-cells, 40), 1px);
     }
   }
   .cf-page[data-frame]:has(.cf-page__body) {
