@@ -10,6 +10,7 @@
 @import './components/fastext.css';
 @import './components/notice.css';
 @import './components/header-row.css';
+@import './components/table.css';
 @import './layout/_shared.css';
 @import './layout/stack.css';
 @import './layout/cluster.css';
@@ -17,3 +18,4 @@
 @import './layout/center.css';
 @import './layout/sidebar.css';
 @import './layout/page.css';
+@import './layout/scrollbar.css';

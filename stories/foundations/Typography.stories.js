@@ -20,6 +20,8 @@ const SCALE = [
 
 const LEADING = ['cf-leading-tight', 'cf-leading-normal', 'cf-leading-relaxed'];
 
+const TRACKING = ['cf-tracking-normal', 'cf-tracking-wide'];
+
 const WEIGHTS = ['cf-weight-regular', 'cf-weight-bold'];
 
 export const Families = () => {
@@ -91,6 +93,27 @@ export const Leading = () => {
       ';margin:4px 0 0">' +
       'The quick brown fox jumps over the lazy dog. Teletext pages wrapped tight to a fixed grid.</p>';
     d.appendChild(block);
+  });
+  return d;
+};
+
+// Letter-spacing: normal for running text, wide for the uppercase labels (buttons, fastext keys).
+export const Tracking = () => {
+  const d = page();
+  TRACKING.forEach((token) => {
+    const value = css('--' + token);
+    const row = document.createElement('div');
+    row.style.cssText = 'border-bottom:1px solid #222;padding:12px 0';
+    row.innerHTML =
+      '<code style="color:var(--cf-info);font-size:13px">' +
+      token +
+      ' · ' +
+      value +
+      '</code>' +
+      '<div style="font-size:24px;text-transform:uppercase;letter-spacing:' +
+      value +
+      '">Ceefax P100</div>';
+    d.appendChild(row);
   });
   return d;
 };

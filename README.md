@@ -57,7 +57,7 @@ not a mockup.
 
 - **Never** write state-modifier classes (`cf-btn--disabled`, `cf-btn--active`). Use the real `disabled` attribute, `:focus-visible`, `[aria-current]`, `[aria-pressed]`.
 - **`data-variant`** is only for a presentational colour — any of the six named authentic colours (`red`/`green`/`yellow`/`blue`/`cyan`/`magenta`), plus the look-only `ghost` on a button and `nav` on a link. Each component decides how it paints that colour: the button fills, the card borders, the fastext key backgrounds. An unrecognised name renders the component's default, unstyled look. A **fastext bar** is still the four teletext keys (`red`/`green`/`yellow`/`blue`) — that is the domain, not a styling limit.
-- **`data-band`** sets a coloured **band** behind a text part, one of the same six colours. On a banded part `data-variant` names the ink; without it the band gets the readable default ink (black, white on blue). Only parts whose `data-variant` is a text colour take a band (none ship yet: the header row is first); blocks such as buttons and fastext keys never do. An unknown name renders no band. See [Bands](#bands).
+- **`data-band`** sets a coloured **band** behind a text part, one of the same six colours. On a banded part `data-variant` names the ink; without it the band gets the readable default ink (black, white on blue). Only parts whose `data-variant` is a text colour take a band (the header row's parts and the table's); blocks such as buttons and fastext keys never do. An unknown name renders no band. See [Bands](#bands).
 - No utility classes, no compound-class soup.
 
 ### States
@@ -69,17 +69,18 @@ not a mockup.
 
 ## Components
 
-| Class                                                                                     | Element                                                                 | Variants (`data-*`)                                                                                | State                                    |
-| ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ---------------------------------------- |
-| `cf-btn`                                                                                  | `<button>` / `<a>`                                                      | `variant` red/green/yellow/blue/ghost · `size` sm/md/lg                                            | `:disabled`, `:focus-visible`, `:active` |
-| `cf-link`                                                                                 | `<a>`                                                                   | `variant="nav"`                                                                                    | `[aria-current="page"]`                  |
-| `cf-card`                                                                                 | any block                                                               | `variant` red/green/yellow/blue/cyan/magenta                                                       | —                                        |
-| `cf-fastext` / `cf-fastext__key`                                                          | `<ul>` / `<a>`                                                          | `variant` red/green/yellow/blue                                                                    | `:focus-visible`                         |
-| `cf-notice` / `cf-notice__flag`                                                           | block + `role="note"` / `<strong>`                                      | `variant` red (default, danger)/yellow (warning)/green (success)/blue/cyan/magenta · `blink="off"` | flash (reduced-motion aware)             |
-| `cf-header-row` / `cf-header-row__page` / `__service` / `__rolling` / `__time` / `__date` | `<header>` / `<span>` ×3 / `<time datetime>` / `<span>` in the `<time>` | `variant` on any part (text colour) · `band` on any part (background; `variant` is then the ink)   | —                                        |
-| `cf-page` + `data-frame`                                                                  | `<section>` with `header`/`main`/`footer`                               | `frame` (4:3 screen; `--cf-frame-ratio` to change)                                                 | —                                        |
-| `<cf-loader>`                                                                             | Web Component                                                           | —                                                                                                  | blink (reduced-motion aware)             |
-| `<cf-canvas>`                                                                             | Web Component                                                           | `size` sm/md/lg/full                                                                               | `alt` → `role="img"`                     |
+| Class                                                                                     | Element                                                                 | Variants (`data-*`)                                                                                                                            | State                                    |
+| ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| `cf-btn`                                                                                  | `<button>` / `<a>`                                                      | `variant` red/green/yellow/blue/ghost · `size` sm/md/lg                                                                                        | `:disabled`, `:focus-visible`, `:active` |
+| `cf-link`                                                                                 | `<a>`                                                                   | `variant="nav"`                                                                                                                                | `[aria-current="page"]`                  |
+| `cf-card`                                                                                 | any block                                                               | `variant` red/green/yellow/blue/cyan/magenta                                                                                                   | —                                        |
+| `cf-fastext` / `cf-fastext__key`                                                          | `<ul>` / `<a>`                                                          | `variant` red/green/yellow/blue                                                                                                                | `:focus-visible`                         |
+| `cf-notice` / `cf-notice__flag`                                                           | block + `role="note"` / `<strong>`                                      | `variant` red (default, danger)/yellow (warning)/green (success)/blue/cyan/magenta · `blink="off"`                                             | flash (reduced-motion aware)             |
+| `cf-header-row` / `cf-header-row__page` / `__service` / `__rolling` / `__time` / `__date` | `<header>` / `<span>` ×3 / `<time datetime>` / `<span>` in the `<time>` | `variant` on any part (text colour) · `band` on any part (background; `variant` is then the ink)                                               | —                                        |
+| `cf-table` / `cf-table__scroll`                                                           | `<table>` / `<div role="region">`                                       | `stripe-rows` / `stripe-cols` text/band · `variant` / `band` on any part · `align="end"` / `leader` on a cell · `side="bottom"` on the caption | `[aria-current="true"]` on a row         |
+| `<cf-loader>`                                                                             | Web Component                                                           | —                                                                                                                                              | blink (reduced-motion aware)             |
+| `<cf-canvas>`                                                                             | Web Component                                                           | `size` sm/md/lg/full                                                                                                                           | `alt` → `role="img"`                     |
+| `cf-page` + `data-frame`                                                                  | `<section>` with `header`/`main`/`footer`                               | `frame` (4:3 screen; `--cf-frame-ratio` to change) · `scrollbar` fastext/mosaic/thin                                                           | —                                        |
 
 ### Notice (`cf-notice`)
 
@@ -117,6 +118,76 @@ The single top line of a teletext page, in broadcast colours: the page you asked
 - **Band any part** with `data-band` (see [Bands](#bands)): `<span class="cf-header-row__service" data-band="blue" data-variant="yellow">Teletext</span>` is a broadcast-style yellow-on-blue service name. Without `data-variant` the band takes its readable default ink.
 - **The time is static.** Write the `<time datetime>` yourself (when the page was published, not "now"): `datetime` is the machine-readable ISO value, the text is what readers see, as `Oct28 15:23:19`. There is no JavaScript and no ticking clock.
 - **Narrow viewports** wrap the time onto a second line; the page number stays first.
+
+### Scrollbars
+
+Every scroll container inside the page shell (`.cf-page` and everything in it) gets a teletext scrollbar, with no CSS of your own. Nothing outside `.cf-page` is touched; for the whole document, put `cf-page` on `<body>`. Pick a look with `data-scrollbar`:
+
+| `data-scrollbar`      | Look                                                                        |
+| --------------------- | --------------------------------------------------------------------------- |
+| _(none)_, the default | **block**: a square foreground thumb on the background, with a border rule  |
+| `fastext`             | a yellow thumb on a deep-blue track, with cyan ▲▼ step buttons              |
+| `mosaic`              | a checkered cyan thumb on a black track striped with the dim foreground     |
+| `thin`                | a narrow bar (two thirds of block), foreground on background, for dense UIs |
+
+```html
+<section class="cf-page" data-scrollbar="fastext">
+  …
+  <pre data-scrollbar="thin">…</pre>
+</section>
+```
+
+- **It inherits,** so the nearest `data-scrollbar` wins: set it once on `.cf-page`, override it on one scroller. An unknown value keeps the inherited look.
+- **Hover or drag inverts the thumb** (and fastext's buttons), like every other Inversion.
+- **Colours are the semantic aliases,** so the Accessible theme, or an alias you override, recolours the bar. Put the theme or the override on `.cf-page` or on the element that carries `data-scrollbar` (`<pre data-scrollbar="thin" style="--cf-accent: …">`): that is where the bar's colours are resolved. Sizes are in `em`, so the bar scales with the Screen frame.
+- **Firefox only takes two colours and a width:** it shows the variant's thumb and track colours, with no square shape, pattern, buttons or hover. Chrome and Safari show the full look; fastext's step buttons are on vertical bars only.
+
+### Table (`cf-table`)
+
+A native table set like a broadcast league table: one line per row, figures to the end, and no rule under every row. Group rows with native `<tbody>` elements; the only rule is the **group rule** between groups (and before `<tfoot>`). Wrap the table in its own scroll region, named from the caption, so a wide table scrolls by itself and never the page.
+
+```html
+<div class="cf-table__scroll" role="region" tabindex="0" aria-labelledby="t1">
+  <table class="cf-table">
+    <caption id="t1">
+      Premier League · final table
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Pos</th>
+        <th scope="col">Team</th>
+        <th scope="col" data-align="end">Pts</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <th scope="row">Man City</th>
+        <td data-align="end">91</td>
+      </tr>
+    </tbody>
+    <tbody>
+      <tr>
+        <td>2</td>
+        <th scope="row">Arsenal</th>
+        <td data-align="end">89</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+```
+
+- **The caption comes first** in markup, as HTML requires. It's drawn in the display face and accent colour, at the top; `data-side="bottom"` on the caption moves it under the table.
+- **`data-align="end"`** on a `th` or `td` end-aligns a figure, keeps it on one line and uses tabular digits. Pad compound figures (`22: 5`, `45-17`) yourself.
+- **`data-leader`** on a name cell runs dot leaders from the name to its figures, as on WDR's league tables. That column takes the table's spare width, so the figures sit at its end, and it never wraps. The dot leader is decoration: screen readers hear only the name. One leader column per table.
+- **The header** is bold foreground text with no rule; **`<tfoot>`** is bold, set apart by the group rule.
+- **Row stripes:** `data-stripe-rows="text"` on the table alternates body rows in the info colour and the foreground (Ceefax cyan/white); `data-stripe-rows="band"` puts odd rows on a blue band with its readable ink, the pair `data-band="blue"` gives. The count restarts in every `<tbody>`; the header and footer are never striped. The stripe colour is fixed: band single rows for other colours.
+- **Column stripes:** `data-stripe-cols="text"` or `"band"` gives columns the same two looks, cell by cell, header and footer included (the native `<col>` can't set the ink, so it isn't used). Every row setting wins where it crosses a column stripe. `colspan` shifts the count and isn't supported in a column-striped table.
+- **Zones and bands:** `data-variant` on a `<caption>`, `<thead>`, `<tbody>`, `<tr>`, `<th>` or `<td>` sets its text colour; `data-band` bands it, with `data-variant` as the ink (see [Bands](#bands)). A `<tbody data-band="cyan">` is a WDR-style zone. A part's own setting replaces what it inherits, background included, and both override the row stripe.
+- **The current row** is state, so ARIA: `aria-current="true"` on a `<tr>` (your team, the chosen option) paints an accent band and is announced as current. `data-band` on the row changes the band's colour; there's no text-only current row, so colour is never the only cue, and a cell that names its own colour still takes the row's band. Precedence, most specific first: `aria-current` > a row's band/variant > its `<tbody>`'s > the row stripe > the column stripe.
+- **`--cf-table-rule`** changes the group rule's colour (`--cf-accent-2` by default); `transparent` hides it.
+- **Wrapping follows the Screen frame** ([ADR-0014](docs/adr/0014-screen-frame-is-the-authentic-mode.md)): outside `.cf-page[data-frame]` text cells and the caption wrap like any web table; inside it every cell and the caption stay on one line. Figure cells never wrap.
+- **Typography is yours, through the tokens** ([ADR-0018](docs/adr/0018-foundations-are-tokens-and-semantic-html.md)): there are no typography attributes. The table's defaults are `:where()`, so your own CSS wins without `!important` (`.my-page caption { font-size: var(--cf-text-subheading) }`). `<strong>` and `<small>` in cells and the caption follow `--cf-weight-bold` and `--cf-text-small`; `<em>` keeps its italic (teletext had none, and colour alone can't carry emphasis).
 
 ### Pixel canvas (`<cf-canvas>`)
 
@@ -174,7 +245,7 @@ In the default theme the ink is used as written, so contrast is yours to choose.
 | `yellow` · `cyan` · `green` | default (black) · `blue` 8.0 / 6.9 / 6.3                  |
 | `red` · `magenta`           | default (black) only                                      |
 
-Under the [accessible theme](#accessible-theme) every band's ink is black, whatever ink the markup names, so every band clears AAA. Storybook's `Foundations/Colors` → Bands shows the live grid of pairs and ratios. Bands are presentational only: the text and its semantics are unchanged. Parts that take a band today: every `cf-header-row` part.
+Under the [accessible theme](#accessible-theme) every band's ink is black, whatever ink the markup names, so every band clears AAA. Storybook's `Foundations/Colors` → Bands shows the live grid of pairs and ratios. Bands are presentational only: the text and its semantics are unchanged. Parts that take a band today: every `cf-header-row` part, and a `cf-table`'s caption, row groups, rows and cells.
 
 ## Accessible theme
 

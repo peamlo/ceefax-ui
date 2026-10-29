@@ -48,7 +48,6 @@
     --_cell: calc(var(--_w) / 40);
     --cf-font-display: 'Bedstead Cell', 'Bedstead', monospace;
     --cf-font-mono: var(--cf-font-display);
-    --cf-font-body: var(--cf-font-display);
     --cf-leading-tight: 1;
     --cf-leading-normal: 1;
     --cf-leading-relaxed: 1;

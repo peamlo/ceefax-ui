@@ -5,7 +5,7 @@
 export const COLOURS = ['red', 'green', 'yellow', 'blue', 'cyan', 'magenta'];
 
 const CSS = `
-.band-sample { color: var(--cf-fg); font-family: var(--cf-font-body); padding: 0 1ch; }
+.band-sample { color: var(--cf-fg); font-family: var(--cf-font-mono); padding: 0 1ch; }
 .band-sample[data-variant] { color: var(--_variant, var(--cf-fg)); }
 .band-sample[data-band] {
   background: var(--_band, transparent);
@@ -42,6 +42,16 @@ const luminance = (rgb) => {
 export const contrast = (a, b) => {
   const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
   return (hi + 0.05) / (lo + 0.05);
+};
+
+// Resolve a token to its rendered rgb() inside `root`.
+export const resolve = (root, token) => {
+  const probe = document.createElement('span');
+  probe.style.color = `var(--${token})`;
+  root.append(probe);
+  const rgb = getComputedStyle(probe).color;
+  probe.remove();
+  return rgb;
 };
 
 // The painted ink and band of a sample rendered inside `root`, and their ratio.

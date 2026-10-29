@@ -79,6 +79,11 @@ the gate widens with no change to the stories.
   Playwright outside the stories. It is not a parallel component harness: it
   tests the _installed tarball_ (exports resolve, elements register from a clean
   install), which no story can see. Component behaviour still belongs in stories.
+- **Exception — dead code:** `scripts/token-report.mjs` (issue #52) reads the token
+  layer and every stylesheet, story and demo page to list which `--cf-*` tokens are
+  used or shown in a Foundations story. It checks the source tree, not rendered
+  behaviour, so its verdicts are pinned by a `node:test` file beside it
+  (`scripts/token-report.test.mjs`) and both run in the advisory `dead-code` CI job.
 - Out of scope here, enabled by this: contrast under `[data-theme="accessible"]`
   (#12) reuses this surface; the Astro adapter (#9) proves its output against these
   same assertions rather than building a parallel one.

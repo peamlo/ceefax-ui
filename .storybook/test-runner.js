@@ -113,6 +113,24 @@ async function assertHeaderRowNarrow(page) {
   await page.setViewportSize({ width: 1280, height: 720 });
 }
 
+// Contract (#100): at phone width a wide table scrolls inside its region, never the page,
+// and a real Tab reaches the region so keyboard users can scroll it. Restores the wide viewport.
+async function assertTableNarrow(page) {
+  await page.setViewportSize({ width: 320, height: 640 });
+  const { pageFits, regionScrolls } = await page.evaluate(() => {
+    const region = document.querySelector('.cf-table__scroll');
+    return {
+      pageFits: document.documentElement.scrollWidth <= innerWidth,
+      regionScrolls: region.scrollWidth > region.clientWidth,
+    };
+  });
+  expect(pageFits).toBe(true);
+  expect(regionScrolls).toBe(true);
+  await page.keyboard.press('Tab');
+  expect(await page.evaluate(() => document.activeElement.matches('.cf-table__scroll'))).toBe(true);
+  await page.setViewportSize({ width: 1280, height: 720 });
+}
+
 // Contract (#19): the notice flag flashes for ~5s then holds visible, never under reduced
 // motion, and never with data-blink="off". Needs emulated media, which play() cannot set.
 // Leaves the flag solid (animation finished) so axe audits the resting state.
@@ -168,6 +186,7 @@ export default {
     if (title === 'Components/Fastext bar') await assertFastextHover(page);
     if (title === 'Components/Notice') await assertNoticeBlink(page);
     if (title === 'Components/Header row' && name === 'In the Screen frame') await assertHeaderRowNarrow(page);
+    if (title === 'Components/Table' && name === 'Wide, with long text') await assertTableNarrow(page);
 
     await injectAxe(page);
     await axe(page);

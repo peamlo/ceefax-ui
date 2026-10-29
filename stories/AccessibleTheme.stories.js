@@ -1,5 +1,5 @@
 import { expect } from 'storybook/test';
-import { COLOURS, contrast, measureBand } from './_bands.js';
+import { COLOURS, contrast, measureBand, resolve } from './_bands.js';
 
 // A contract story with no component of its own: it guards the accessible theme's
 // promise (#12) — every colour it ships clears WCAG AAA (≥7:1) against the page
@@ -31,16 +31,6 @@ const ON_BG = [
   'cf-variant-cyan',
 ];
 const VARIANTS = COLOURS;
-
-// Resolve a token to its rendered rgb() inside the themed subtree.
-const resolve = (root, token) => {
-  const probe = document.createElement('span');
-  probe.style.color = `var(--${token})`;
-  root.append(probe);
-  const rgb = getComputedStyle(probe).color;
-  probe.remove();
-  return rgb;
-};
 
 // The ink and fill of a rendered variant button — the seam's pairing, as painted.
 const block = (root, variant) => {

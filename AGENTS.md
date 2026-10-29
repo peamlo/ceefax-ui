@@ -25,6 +25,9 @@ npm run format         # fix what the three can fix; staged files are also fixed
 npm run assert-package # after build: pack, clean-install and assert the tarball, size budgets included (CI `package` job)
 node scripts/size.mjs . # brotli size per entry point vs its budget (ADR-0015)
 node scripts/check-doc-indexes.mjs # every ADR/review is in its index (CI `docs` job, with lychee + markdownlint)
+npx knip               # unused files, exports, dependencies (CI `dead-code` job, config in knip.jsonc)
+node scripts/token-report.mjs # every --cf-* token and its consumers; fails on one neither used nor in a Foundations story
+node --test 'scripts/*.test.mjs' # the scripts' own tests
 ```
 
 Storybook (`@storybook/html-vite` + the a11y addon; interactions/`play()` are core) is the **living component documentation** — stories show the exact HTML contract and run WCAG checks. Add/update a story for any component or variant change.
