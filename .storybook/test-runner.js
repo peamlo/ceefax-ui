@@ -8,7 +8,7 @@ import { injectAxe, checkA11y } from 'axe-playwright';
 //    :focus-visible only respond to a real pointer/keyboard, which the synthetic
 //    in-page userEvent cannot produce — plus the axe a11y pass.
 //
-// axe is gated to Components/* and the Layout/Page screen-frame stories — the Foundations swatch/demo pages deliberately show
+// axe is gated to Components/* and the Layout/Page screen-frame story — the Foundations swatch/demo pages deliberately show
 // the raw palette (known contrast tradeoffs), so running axe over them would fail the
 // build on non-contract stories. Each gated story is audited twice: as authored, then
 // with data-theme="accessible" on <html> at AAA contrast (color-contrast-enhanced, #12).
@@ -96,6 +96,19 @@ async function assertScreenFrame(page) {
   await page.setViewportSize({ width: 1280, height: 720 });
 }
 
+// Contract (#74): the Accessible theme wins over the frame's authentic colours, so the two
+// off-palette aliases keep the theme's values (bg-2 has no theme remap: the default deep blue).
+// Call with the theme already set on <html>, as the Storybook theme toolbar sets it.
+async function assertAccessibleFrame(page) {
+  const [dim, bg2] = await page.evaluate(() =>
+    [...document.querySelectorAll('.cf-page__body span[style]')]
+      .map((n) => getComputedStyle(n))
+      .map((cs) => [cs.color, cs.backgroundColor]),
+  );
+  expect(dim[0]).toBe('rgb(179, 179, 179)'); // the theme's #b3b3b3
+  expect(bg2[1]).toBe('rgb(16, 11, 138)'); // #100b8a, the default
+}
+
 // Contract (#72): at phone width the header row wraps inside the page shell, keeping the
 // page number visible and nothing spilling sideways. Restores the wide viewport.
 async function assertHeaderRowNarrow(page) {
@@ -178,7 +191,7 @@ const axe = async (page, { aaa = false } = {}) => {
 export default {
   async postVisit(page, context) {
     const { title, name } = await getStoryContext(page, context);
-    const isFrame = title === 'Layout/Page' && name.startsWith('Screen frame');
+    const isFrame = title === 'Layout/Page' && name === 'Screen frame (data-frame)';
     if (isFrame) await assertScreenFrame(page);
     if (!title.startsWith('Components/') && !isFrame) return;
 
@@ -193,6 +206,7 @@ export default {
     // Every contract story must also pass axe — at AAA contrast — under the accessible theme.
     await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'accessible'));
     if (title === 'Components/Fastext bar') await assertAccessibleFastextHover(page);
+    if (isFrame) await assertAccessibleFrame(page);
     await axe(page, { aaa: true });
   },
 };

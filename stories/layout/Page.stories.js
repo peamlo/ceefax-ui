@@ -165,7 +165,7 @@ export const Framed = {
           '- **Wide monitor:** 4:3 with side bars, so line lengths stay readable.\n' +
           '- **40 cells to a row:** inside the frame the type is sized so 40 Bedstead cells fill the width of the ' +
           'body (inside its scrollbar, if it has one), every line is one cell high, and only the eight authentic ' +
-          'colours appear (unless the Accessible theme applies, which wins).\n' +
+          'colours appear (unless the Accessible theme applies, which wins: toolbar → Theme).\n' +
           '- **Below 40em (phones):** the frame is dropped and the page is full-bleed at normal type sizes.\n' +
           '- **Keyboard:** give the body `tabindex="0"` so the scroll region is reachable; `#hash` links scroll inside it.\n' +
           '- **Other ratios:** set `--cf-frame-ratio` (default `1.3333`).\n\n' +
@@ -203,36 +203,5 @@ export const Framed = {
     await expect(body.scrollTop).toBeGreaterThan(0);
     await expect(header.getBoundingClientRect().top).toBe(h0);
     await expect(footer.getBoundingClientRect().top).toBe(f0);
-  },
-};
-
-// The Accessible theme wins over the frame's authentic colours: the two aliases keep the
-// theme's values (bg-2 has no theme remap, so it stays the default deep blue). The grid
-// still applies.
-export const FramedAccessible = {
-  name: 'Screen frame + Accessible theme',
-  parameters: {
-    layout: 'fullscreen',
-    docs: {
-      description: {
-        story:
-          'With `data-theme="accessible"` on the frame or any ancestor, the theme wins: `--cf-fg-dim` and ' +
-          '`--cf-bg-2` keep the theme values instead of snapping to authentic green and blue. The 40-cell grid ' +
-          'and Bedstead still apply.',
-      },
-    },
-  },
-  render: () => {
-    const page = framedPage();
-    page.dataset.theme = 'accessible';
-    return page;
-  },
-  play: async ({ canvasElement }) => {
-    const body = canvasElement.querySelector('.cf-page__body');
-    const [dim, bg2] = [...body.querySelectorAll('span[style]')].map((n) => getComputedStyle(n));
-    await expect(dim.color).toBe('rgb(179, 179, 179)'); // the theme's #b3b3b3
-    await expect(bg2.backgroundColor).toBe('rgb(16, 11, 138)'); // #100b8a, the default
-    const row = body.querySelector('p > span').parentElement;
-    await expectRowFills(row);
   },
 };
