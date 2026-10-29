@@ -1,5 +1,0 @@
-interface:
-  display_name: "Demo"
-  short_description: "Show new features on the demo pages."
-policy:
-  allow_implicit_invocation: false
