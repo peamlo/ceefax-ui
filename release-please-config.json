@@ -6,6 +6,7 @@
   "bump-patch-for-minor-pre-major": false,
   "include-component-in-tag": false,
   "pull-request-title-pattern": "chore(release): ${version}",
+  "pull-request-footer": "This PR was generated with [Release Please](https://github.com/googleapis/release-please). See [documentation](https://github.com/googleapis/release-please#release-please).\n\n> [!TIP]\n> 💡 Remember to include new features on your demos with the skill `/demo`!",
   "changelog-sections": [
     { "type": "feat", "section": "Features" },
     { "type": "fix", "section": "Bug Fixes" },
