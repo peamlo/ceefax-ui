@@ -137,7 +137,7 @@ The optional structural template (`cf-page` with `cf-page__header` / `__body` / 
 _Avoid_: layout, page component, template component
 
 **Screen frame**:
-The opt-in `data-frame` variant of the page shell: a 4:3 teletext set, as wide as fits the viewport and centred, with the type tokens scaled to the frame, header and footer pinned and only the body scrolling. Full-bleed below one narrow-viewport breakpoint. Presentational only; the ratio is tunable with `--cf-frame-ratio`. It is the authentic mode: text sits on the Cell grid, 40 to a row. Inside it only the eight authentic colours appear, unless the Accessible theme also applies, which wins.
+The opt-in `data-frame` variant of the page shell: a 4:3 teletext set, as wide as fits its container and centred, with the type tokens scaled to the frame, header and footer pinned and only the body scrolling. Full-bleed below one narrow-viewport breakpoint. Presentational only; the ratio is tunable with `--cf-frame-ratio`. It is the authentic mode: text sits on the Cell grid, 40 to a row. Inside it only the eight authentic colours appear, unless the Accessible theme also applies, which wins.
 _Avoid_: viewport, TV wrapper, `cf-screen`
 
 **Cell**:

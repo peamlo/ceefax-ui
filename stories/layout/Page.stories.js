@@ -180,8 +180,11 @@ export const Framed = {
     const body = page.querySelector('.cf-page__body');
     const r = page.getBoundingClientRect();
     await expect(Math.abs(r.width / r.height - 4 / 3)).toBeLessThan(0.02);
-    // 40 cells to the frame's width (a whole-pixel cell): a Bedstead cell is 0.6em.
-    await expect(parseFloat(getComputedStyle(page).fontSize) * 0.6).toBeCloseTo(Math.floor(r.width / 40), 1);
+    // Never wider than its container (no sideways scroll, in Docs too).
+    await expect(r.width).toBeLessThanOrEqual(page.parentElement.clientWidth);
+    // 40 cells plus a one-cell margin each side (whole-pixel cells): a Bedstead cell is 0.6em.
+    const footer = page.querySelector('footer');
+    await expect(parseFloat(getComputedStyle(footer).fontSize) * 0.6).toBeCloseTo(Math.floor(r.width / 42), 1);
     // A 40-character line fills the body's row (measured inside any scrollbar), one cell
     // high, set in Bedstead.
     const row = body.querySelector('p > span').parentElement;
@@ -197,7 +200,12 @@ export const Framed = {
     await expect(dim.color).toBe('rgb(0, 255, 0)');
     await expect(bg2.backgroundColor).toBe('rgb(0, 0, 255)');
     await expect(body.scrollHeight).toBeGreaterThan(body.clientHeight);
-    const [header, footer] = ['header', 'footer'].map((t) => page.querySelector(t));
+    // Header, body and footer start on the same column, one cell in.
+    const header = page.querySelector('header');
+    const lefts = [header.firstElementChild, row.firstChild, footer.querySelector('li')].map(
+      (n) => n.getBoundingClientRect().left - r.left,
+    );
+    for (const left of lefts) await expect(left).toBeCloseTo(lefts[0], 0);
     const [h0, f0] = [header, footer].map((n) => n.getBoundingClientRect().top);
     body.scrollTop = body.scrollHeight;
     await expect(body.scrollTop).toBeGreaterThan(0);

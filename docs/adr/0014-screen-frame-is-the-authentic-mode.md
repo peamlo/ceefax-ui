@@ -67,12 +67,16 @@ Bedstead in the frame (Space Mono's 0.612em advance would drift off the grid), a
 The type scale keeps its ratios, counted in cells: body 1, heading 2 and display-lg 3 cells high,
 with small, subheading and display-xl at 0.75, 1.5 and 4.5, where nothing needs to tile.
 
-**Rows are measured inside the body.** The body is the scroll region, and a classic scrollbar
-takes about one cell, so a grid sized to the frame would wrap a 40-character line at 39. The
-header and footer take their cells from the frame width; the body's children take theirs from the
-body's own content box (a size container, its scrollbar gutter reserved up front so the
-measurement is stable). Inline padding on the body narrows the cells too, so a framed body should
-carry none.
+**A one-cell margin, and rows measured where they are read.** The 40 cells sit inside a
+one-cell margin on each side, like a set's safe area, so header, body and footer all start on the
+same column (the header row's own padding is replaced by it). The frame is sized to its container
+(never wider, so no sideways scroll in a narrow column such as Storybook Docs) and is a size
+container itself: each slot takes its cell from it, 42 across. The body is the scroll region, and
+a classic scrollbar takes about one cell, so a grid sized to the frame would wrap a 40-character
+line at 39: the body is a size container too, its scrollbar gutter reserved up front so the
+measurement is stable, and its children take their cells from its own content box. This replaces
+[ADR-0009](0009-screen-frame-data-attr.md)'s `--_w` width property: the type no longer scales on
+the frame element itself, so the `cqw` objection there doesn't apply.
 
 **Cells are whole pixels.** Some platforms (Linux Chromium in CI) round glyph advances to whole
 pixels, so a fractional cell can round up and wrap a 40-character line at 39. Where CSS `round()`
