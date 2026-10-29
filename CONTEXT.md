@@ -72,6 +72,22 @@ _Avoid_: toast, banner, callout, live region
 The single top line of a teletext page (`cf-header-row`) on a native `<header>`: the requested page number (`__page`), service name (`__service`), the rolling page number (`__rolling`, the page on air), then date and time (`__time`, a static `<time datetime>` the consumer writes, with the date in `__date`), in broadcast colours. `data-variant` on any part recolours its text; `data-band` sets any part on a band. The only place the page number appears. Static; a ticking clock, a page number that actually rolls, or page-number entry would be opt-in behaviour.
 _Avoid_: top bar, navbar, masthead, title band
 
+**Table**:
+The `cf-table` component: a native `<table>` styled like a broadcast league table, inside a `cf-table__scroll` region.
+_Avoid_: data grid, grid table
+
+**Group rule**:
+The line between two row groups (`<tbody>` or `<tfoot>`) of a table. It's the only rule a table draws; rows within a group have none.
+_Avoid_: row divider, separator, border row
+
+**Stripe**:
+Alternating rows (`data-stripe-rows`) or columns (`data-stripe-cols`) painted as text colour or as a band. A reading aid that any row setting overrides.
+_Avoid_: zebra, banding
+
+**Dot leader**:
+The decorative run of dots that joins a name to its figures across one table column. Hidden from assistive tech.
+_Avoid_: filler, dots
+
 **Custom element**:
 A logic-bearing standard Web Component (e.g. `<cf-loader>`), shipped under the opt-in `./elements` export — separate from the runtime-free CSS core.
 _Avoid_: widget, framework component
