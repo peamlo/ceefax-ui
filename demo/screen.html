@@ -28,6 +28,14 @@
       <main class="cf-page__body cf-stack" tabindex="0" style="padding: var(--cf-space-3)">
         <h1>NEWS</h1>
         <p>Only this body scrolls; the header and fastext keys stay pinned.</p>
+        <!-- The scrollbar look is data-scrollbar on the cf-page; these links swap it. -->
+        <nav aria-label="Scrollbar look">
+          <ul class="cf-cluster" data-gap="2" style="list-style: none; padding: 0; margin: 0">
+            <li><a class="cf-link" href="#fastext" data-look="fastext">FASTEXT</a></li>
+            <li><a class="cf-link" href="#mosaic" data-look="mosaic">MOSAIC</a></li>
+            <li><a class="cf-link" href="#thin" data-look="thin">THIN</a></li>
+          </ul>
+        </nav>
         <p>Headline 1 — type scales with the frame, so lines keep the same width at any size.</p>
         <p>Headline 2 — type scales with the frame, so lines keep the same width at any size.</p>
         <p>Headline 3 — type scales with the frame, so lines keep the same width at any size.</p>
@@ -51,5 +59,21 @@
         </nav>
       </footer>
     </section>
+
+    <script type="module">
+      // Demo-only: the hash picks the cf-page's data-scrollbar (fastext · mosaic · thin).
+      const page = document.querySelector('.cf-page');
+      const links = document.querySelectorAll('[data-look]');
+      const pick = () => {
+        const look = location.hash.slice(1);
+        page.dataset.scrollbar = [...links].some((a) => a.dataset.look === look) ? look : 'fastext';
+        for (const a of links) {
+          if (a.dataset.look === page.dataset.scrollbar) a.setAttribute('aria-current', 'page');
+          else a.removeAttribute('aria-current');
+        }
+      };
+      addEventListener('hashchange', pick);
+      pick();
+    </script>
   </body>
 </html>

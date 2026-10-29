@@ -8,6 +8,8 @@
 
     <!-- Consume the library the real way: one stylesheet, then plain class="…". -->
     <link rel="stylesheet" href="../src/index.css" />
+    <!-- The opt-in custom elements, <cf-loader> and <cf-canvas>: one more import. -->
+    <script type="module" src="../src/elements/index.js"></script>
 
     <style>
       /* Bedstead comes from the library's own @font-face; Space Mono is self-hosted
@@ -361,14 +363,14 @@
           class="ex"
           data-page="100"
           data-title="The page shell"
-          data-note="cf-page stacks header · body · footer bands. Because it is gated with :has(), a bare cf-page stays the plain flat canvas — no breaking change."
+          data-note='cf-page stacks header · body · footer bands. Because it is gated with :has(), a bare cf-page stays the plain flat canvas — no breaking change. data-band="blue" puts the service name on a band; data-variant="yellow" beside it is the ink.'
         >
           <script type="text/plain">
             <!-- one import: @peamlo/ceefax-ui — then plain class="…" -->
             <section class="cf-page">
               <header class="cf-page__header cf-header-row">
                 <span class="cf-header-row__page">P100</span>
-                <span class="cf-header-row__service">CEEFAX</span>
+                <span class="cf-header-row__service" data-band="blue" data-variant="yellow">CEEFAX</span>
                 <span class="cf-header-row__rolling">100</span>
                 <time class="cf-header-row__time" datetime="2026-10-28T16:02:00"><span class="cf-header-row__date">Oct28</span> 16:02:00</time>
               </header>
@@ -433,16 +435,19 @@
           class="ex"
           data-page="300"
           data-title="Sidebar + nav state"
-          data-note='A fixed rail (20ch, tune with --cf-sidebar-side) beside a fluid main that wraps under it when space runs out — no media query. aria-current="page" gives the persistent ▸ caret; you never write an is-active class.'
+          data-note='A fixed rail (20ch, tune with --cf-sidebar-side) beside a fluid main that wraps under it when space runs out — no media query. data-variant="nav" sets the links as a menu, each with its page number in cf-link__page; aria-current="page" gives the persistent ▸ caret, so you never write an is-active class.'
         >
           <script type="text/plain">
             <section class="cf-sidebar" data-gap="3">
               <nav class="cf-sidebar__side" aria-label="Sections">
                 <ul class="cf-stack" data-gap="1"
                     style="list-style:none;padding:0;margin:0">
-                  <li><a class="cf-link" href="#" aria-current="page">POSTS</a></li>
-                  <li><a class="cf-link" href="#">TAGS</a></li>
-                  <li><a class="cf-link" href="#">ARCHIVE</a></li>
+                  <li><a class="cf-link" data-variant="nav" href="#" aria-current="page">
+                    <span class="cf-link__page">101</span><span>POSTS</span></a></li>
+                  <li><a class="cf-link" data-variant="nav" href="#">
+                    <span class="cf-link__page">102</span><span>TAGS</span></a></li>
+                  <li><a class="cf-link" data-variant="nav" href="#">
+                    <span class="cf-link__page">103</span><span>ARCHIVE</span></a></li>
                 </ul>
               </nav>
 
@@ -478,11 +483,84 @@
               <p class="cf-card__body">A constrained reading measure — one page
               wide. Rhythm from cf-stack, tags clustered inline.</p>
 
-              <div class="cf-cluster" data-gap="2">
-                <button class="cf-btn" data-variant="green">Read ▸</button>
-                <button class="cf-btn" data-variant="ghost">Share</button>
+              <div class="cf-cluster" data-gap="2" data-align="center">
+                <button class="cf-btn" data-variant="green" data-size="lg">Read ▸</button>
+                <button class="cf-btn" data-variant="ghost" data-size="sm">Share</button>
               </div>
             </article>
+          </script>
+        </article>
+
+        <article
+          class="ex"
+          data-page="500"
+          data-title="League table — cf-table"
+          data-note='A native table, set like a broadcast league table: figures to the end with data-align="end", a dot leader after each name with data-leader, and a rule only between tbody groups. data-band zones a whole group, aria-current="true" bands your team, and the table scrolls inside its own region, never the page.'
+        >
+          <script type="text/plain">
+            <div class="cf-table__scroll" role="region" tabindex="0"
+                 aria-labelledby="league">
+              <table class="cf-table" data-stripe-rows="band" data-stripe-cols="text">
+                <caption id="league" data-band="blue" data-variant="yellow">PREMIER LEAGUE 23/24</caption>
+                <thead>
+                  <tr><th scope="col">Pos</th><th scope="col">Team</th>
+                    <th scope="col" data-align="end">P</th><th scope="col" data-align="end">GD</th><th scope="col" data-align="end">Pts</th></tr>
+                </thead>
+                <tbody data-band="green">
+                  <tr><td>1</td><th scope="row" data-leader>Man City</th>
+                    <td data-align="end">38</td><td data-align="end">+62</td><td data-align="end">91</td></tr>
+                </tbody>
+                <tbody>
+                  <tr><td>2</td><th scope="row" data-leader>Arsenal</th>
+                    <td data-align="end">38</td><td data-align="end">+62</td><td data-align="end">89</td></tr>
+                  <tr aria-current="true"><td>3</td><th scope="row" data-leader>Liverpool</th>
+                    <td data-align="end">38</td><td data-align="end">+45</td><td data-align="end">82</td></tr>
+                  <tr><td>4</td><th scope="row" data-leader>Aston Villa</th>
+                    <td data-align="end">38</td><td data-align="end">+15</td><td data-align="end">68</td></tr>
+                </tbody>
+                <tbody data-band="red">
+                  <tr><td>18</td><th scope="row" data-leader>Luton</th>
+                    <td data-align="end">38</td><td data-align="end">-33</td><td data-align="end">26</td></tr>
+                  <tr><td>19</td><th scope="row" data-leader>Burnley</th>
+                    <td data-align="end">38</td><td data-align="end">-37</td><td data-align="end">24</td></tr>
+                  <tr><td>20</td><th scope="row" data-leader>Sheffield Utd</th>
+                    <td data-align="end">38</td><td data-align="end">-69</td><td data-align="end">16</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </script>
+        </article>
+
+        <article
+          class="ex"
+          data-page="600"
+          data-title="Notices, loader and pixel art"
+          data-note='cf-notice flags what the reader must not miss: danger by default, any data-variant for another tone, and the flag flashes five times then holds (data-blink="off" keeps it still). The flag word is repeated in the body, so neither colour nor flash is the only cue. The cf-loader and cf-canvas elements come from the elements import.'
+        >
+          <script type="text/plain">
+            <!-- plus: import '@peamlo/ceefax-ui/elements' -->
+            <div class="cf-stack" data-gap="3">
+              <cf-loader>LOADING PAGE 433</cf-loader>
+
+              <div class="cf-notice" role="note">
+                <strong class="cf-notice__flag">Closed</strong>
+                The M6 is closed northbound at junction 19.
+              </div>
+
+              <div class="cf-notice" role="note" data-variant="green" data-blink="off">
+                <strong class="cf-notice__flag">Open</strong>
+                The A55 is open again in both directions.
+              </div>
+
+              <cf-canvas alt="a red heart" data-size="sm">
+                .rr.rr.
+                rrrrrrr
+                rrrrrrr
+                .rrrrr.
+                ..rrr..
+                ...r...
+              </cf-canvas>
+            </div>
           </script>
         </article>
       </main>
@@ -511,7 +589,23 @@
         </div>
         <div class="cheat-row">
           <code>data-variant</code><span class="cheat-val">red · green · yellow · blue · …</span
-          ><span class="cheat-desc">component colour (card, btn, key)</span>
+          ><span class="cheat-desc">component colour (card, btn, key, notice); the ink on a band</span>
+        </div>
+        <div class="cheat-row">
+          <code>data-band</code><span class="cheat-val">red · green · yellow · blue · …</span
+          ><span class="cheat-desc">a part on a coloured background (header row, table)</span>
+        </div>
+        <div class="cheat-row">
+          <code>data-size</code><span class="cheat-val">sm · lg</span
+          ><span class="cheat-desc">button size (canvas also takes md · full)</span>
+        </div>
+        <div class="cheat-row">
+          <code>data-scrollbar</code><span class="cheat-val">fastext · mosaic · thin</span
+          ><span class="cheat-desc">page shell scrollbar look, on cf-page or any scroller in it</span>
+        </div>
+        <div class="cheat-row">
+          <code>data-stripe-rows</code><span class="cheat-val">text · band</span
+          ><span class="cheat-desc">table: alternate row colours (data-stripe-cols for columns)</span>
         </div>
         <div class="cheat-row">
           <code>--cf-grid-min</code><span class="cheat-val">e.g. 16ch</span
@@ -527,8 +621,8 @@
         <div class="colorbar" data-colorbar></div>
         <p class="foot-note">
           Rendered live by the real <b>@peamlo/ceefax-ui</b> stylesheet — the result panels are the library, not a
-          mockup. The 4:3 <code>data-frame</code> variant sizes to the viewport, so it has its own page:
-          <a href="screen.html">screen.html</a>.
+          mockup. The 4:3 <code>data-frame</code> variant sizes to the viewport, so it has its own page, with the
+          scrollbar looks: <a href="screen.html">screen.html</a>.
         </p>
       </footer>
     </div>
