@@ -37,7 +37,6 @@
 :root {
   --cf-font-display: 'Bedstead', monospace;
   --cf-font-mono: 'Space Mono', 'Courier New', monospace;
-  --cf-font-body: var(--cf-font-mono);
   --cf-text-display-xl: 72px;
   --cf-text-display-lg: 48px;
   --cf-text-heading: 32px;

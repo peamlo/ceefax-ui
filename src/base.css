@@ -87,7 +87,7 @@
 .cf-page {
   background: var(--cf-bg);
   color: var(--cf-fg);
-  font-family: var(--cf-font-body);
+  font-family: var(--cf-font-mono);
   font-size: var(--cf-text-body);
   line-height: var(--cf-leading-normal);
 }

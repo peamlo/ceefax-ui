@@ -330,7 +330,7 @@ export const Summary = {
     wrap.className = 'summary-demo';
     const css = document.createElement('style');
     css.textContent =
-      '.summary-demo caption { font-family: var(--cf-font-body); font-size: var(--cf-text-subheading);' +
+      '.summary-demo caption { font-family: var(--cf-font-mono); font-size: var(--cf-text-subheading);' +
       ' font-weight: var(--cf-weight-bold); }';
     const money = (n) => `${n.toLocaleString('es-ES')}€`;
     const line = (name, a, b) =>
