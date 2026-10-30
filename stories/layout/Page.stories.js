@@ -172,11 +172,11 @@ export const CrtFramed = {
     docs: {
       description: {
         story:
-          'Set `data-frame="crt"` instead of a bare `data-frame` to put the page on a TV: faint scanlines, ten to a ' +
+          'Set `data-frame="crt"` instead of a bare `data-frame` for the look of a CRT set: faint scanlines, ten to a ' +
           'text row, over the whole frame and a soft glow on the text. It is still a Screen frame, so everything in ' +
           'the story above applies.\n\n' +
           '- **Static:** no flicker, interlace or curvature (photosensitivity; curvature bends text off the grid).\n' +
-          '- **Off** under `forced-colors: active` and the Accessible theme, and below 40em with the frame.',
+          '- **Off** under `forced-colors: active` and the Accessible theme, and below 40em where the frame itself is dropped.',
       },
     },
   },
@@ -192,11 +192,14 @@ export const CrtFramed = {
     const after = getComputedStyle(page, '::after');
     await expect(after.backgroundImage).toContain('repeating-linear-gradient');
     await expect(after.height).toBe(getComputedStyle(page).height);
-    await expect(getComputedStyle(page.querySelector('p')).textShadow).not.toBe('none');
+    const glow = (sel) => getComputedStyle(page.querySelector(sel)).textShadow;
+    await expect(glow('p')).not.toBe('none');
+    // Each text glows in its own colour: the green service name's glow isn't the white body's.
+    await expect(glow('.cf-header-row__service')).not.toBe(glow('p'));
     // A bare data-frame is unchanged: no overlay, no glow.
     page.dataset.frame = '';
     await expect(getComputedStyle(page, '::after').content).toBe('none');
-    await expect(getComputedStyle(page.querySelector('p')).textShadow).toBe('none');
+    await expect(glow('p')).toBe('none');
     page.dataset.frame = 'crt';
   },
 };
