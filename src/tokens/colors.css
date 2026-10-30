@@ -24,6 +24,9 @@
   --cf-warning: var(--cf-base-yellow);
   --cf-danger: var(--cf-base-red);
   --cf-success: var(--cf-base-green);
+  /* CRT look (data-frame="crt"): the scanline shade, and the glow, which mixes each text's own colour */
+  --cf-crt-scanline: color-mix(in srgb, var(--cf-bg) 21%, transparent); /* below AA on red/magenta, ADR-0014 */
+  --cf-crt-glow: color-mix(in srgb, currentcolor 45%, transparent);
   /* ink (readable foreground) on a variant block: light blocks, and dark ones (authentic blue) */
   --cf-on-variant: var(--cf-base-black);
   --cf-on-variant-dark: var(--cf-base-white);
@@ -74,6 +77,9 @@
   --cf-danger: var(--cf-variant-red);
   --cf-success: var(--cf-variant-green);
   --cf-fg-dim: #b3b3b3;
+  /* no CRT look: the scanlines and glow cost contrast the theme promises */
+  --cf-crt-scanline: transparent;
+  --cf-crt-glow: transparent;
   /* every accessible block is light, so the ink on blue is black like the rest */
   --cf-on-variant-dark: var(--cf-on-variant);
   /* …and every band is light too, so each band's ink is black whatever the markup names */

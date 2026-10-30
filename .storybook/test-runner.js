@@ -86,6 +86,30 @@ async function assertScreenFrame(page) {
   await page.setViewportSize({ width: 1280, height: 720 });
 }
 
+// Contract (#76): the CRT look renders neither scanlines nor glow under forced colours or the
+// Accessible theme. Needs emulated media, which play() cannot set. Leaves both switches off.
+async function assertCrtOffSwitches(page) {
+  const crt = () => {
+    const frame = document.querySelector('.cf-page[data-frame="crt"]');
+    const cs = getComputedStyle(frame);
+    return {
+      overlay: getComputedStyle(frame, '::after').content,
+      glow: getComputedStyle(frame.querySelector('p')).textShadow,
+      tokens: ['--cf-crt-scanline', '--cf-crt-glow'].map((t) => cs.getPropertyValue(t)),
+    };
+  };
+  const on = await page.evaluate(crt);
+  expect(on.overlay).toBe('""');
+  expect(on.glow).not.toBe('none');
+  await page.emulateMedia({ forcedColors: 'active' });
+  expect(await page.evaluate(crt)).toMatchObject({ overlay: 'none', glow: 'none' });
+  await page.emulateMedia({ forcedColors: 'none' });
+  // The theme remaps aliases only (ADR-0010): both effects stay in place but paint transparent.
+  await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'accessible'));
+  expect((await page.evaluate(crt)).tokens).toEqual(['transparent', 'transparent']);
+  await page.evaluate(() => document.documentElement.removeAttribute('data-theme'));
+}
+
 // Contract (#74): the Accessible theme wins over the frame's authentic colours, so the two
 // off-palette aliases keep the theme's values (bg-2 has no theme remap: the default deep blue).
 // Call with the theme already set on <html>, as the Storybook theme toolbar sets it.
@@ -169,6 +193,11 @@ async function assertNoticeBlink(page) {
   expect(opacityAfter).toBe('1');
 }
 
+const ignoreAxePseudo = () => {
+  const { options } = window.axe._audit.checks['color-contrast'];
+  window.axe.configure({ checks: [{ id: 'color-contrast', options: { ...options, ignorePseudo: true } }] });
+};
+
 // `aaa` also enables axe's AAA contrast rule — the accessible theme's promise (#12).
 const axe = async (page, { aaa = false } = {}) => {
   await checkA11y(page, '#storybook-root', {
@@ -181,8 +210,10 @@ const axe = async (page, { aaa = false } = {}) => {
 export default {
   async postVisit(page, context) {
     const { title, name } = await getStoryContext(page, context);
-    const isFrame = title === 'Layout/Page' && name === 'Screen frame (data-frame)';
+    const isCrt = title === 'Layout/Page' && name === 'Screen frame, CRT look (data-frame="crt")';
+    const isFrame = (title === 'Layout/Page' && name === 'Screen frame (data-frame)') || isCrt;
     if (isFrame) await assertScreenFrame(page);
+    if (isCrt) await assertCrtOffSwitches(page);
     if (!title.startsWith('Components/') && !isFrame) return;
 
     if (title === 'Components/Button') await assertButtonContract(page, name);
@@ -192,6 +223,11 @@ export default {
     if (title === 'Components/Table' && name === 'Wide, with long text') await assertTableNarrow(page);
 
     await injectAxe(page);
+    // The scanline overlay is an absolutely positioned ::after with a background-image, which axe
+    // treats as unknown background and skips contrast for (incomplete, not a violation). Ignore it,
+    // so contrast is really measured with the glow on; the scanlines are a texture, not a background.
+    // configure() replaces a check's options, so merge the defaults or the rule throws and is skipped.
+    if (isCrt) await page.evaluate(ignoreAxePseudo);
     await axe(page);
     // Every contract story must also pass axe — at AAA contrast — under the accessible theme.
     await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'accessible'));

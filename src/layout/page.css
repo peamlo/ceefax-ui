@@ -109,3 +109,30 @@
     font-size: var(--cf-text-body);
   }
 }
+
+/* CRT look — opt-in `data-frame="crt"`: faint static scanlines over the frame, twelve to a cell
+   row (a third dark) so they line up with the rows, plus a soft phosphor glow in each text's own colour.
+   No flicker, interlace or curvature (WCAG 2.3.1; curvature bends text off the grid). Nothing
+   moves, so reduced motion doesn't apply. Off under forced colours; the Accessible theme turns
+   it off by remapping --cf-crt-scanline / --cf-crt-glow to transparent (ADR-0010).
+   Known trade-off (ADR-0014): the 21% scanlines drop red (~3.5:1) and magenta (~4.3:1)
+   against black below AA on the rows they darken, so the look is opt-in only. */
+@media (min-width: 40em) and (forced-colors: none) {
+  .cf-page[data-frame='crt'] {
+    position: relative;
+    text-shadow: 0 0 0.15em var(--cf-crt-glow);
+  }
+  .cf-page[data-frame='crt']::after {
+    /* one cell row, measured like the slots' cells (100cqi is the frame here); no round(), no lines */
+    --_row: calc(round(down, 100cqi / (var(--cf-frame-cells, 40) + 2), 1px) / 0.6);
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0 calc(var(--_row) / 18),
+      var(--cf-crt-scanline) 0 calc(var(--_row) / 12)
+    );
+  }
+}

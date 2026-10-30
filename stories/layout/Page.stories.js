@@ -248,3 +248,50 @@ export const Framed = {
     await expect(footer.getBoundingClientRect().top).toBe(f0);
   },
 };
+
+// The CRT look: the same Screen frame with `data-frame="crt"`. Its off-switches (forced colours,
+// Accessible theme) are asserted in .storybook/test-runner.js postVisit: play() can't emulate media.
+export const CrtFramed = {
+  name: 'Screen frame, CRT look (data-frame="crt")',
+  parameters: {
+    layout: 'fullscreen',
+    docs: {
+      description: {
+        story:
+          'Set `data-frame="crt"` instead of a bare `data-frame` for the look of a CRT set: faint scanlines, twelve to a ' +
+          'cell row, over the whole frame and a soft glow on the text. It is still a Screen frame, so everything in ' +
+          'the story above applies. Use the **crt** control to switch the look on and off.\n\n' +
+          '- **Static:** no flicker, interlace or curvature (photosensitivity; curvature bends text off the grid).\n' +
+          '- **Off** under `forced-colors: active` and the Accessible theme, and below 40em where the frame itself is dropped.\n' +
+          '- **Not AA everywhere:** on the rows the scanlines darken, red on black (the NEWS key) drops to ~3.5:1 and magenta to ~4.3:1. ' +
+          'That is the accepted price of the look (ADR-0014), so it is never on by default: a page that must meet AA ' +
+          'leaves `crt` off or uses the Accessible theme.',
+      },
+    },
+  },
+  args: { crt: true },
+  argTypes: { crt: { control: 'boolean', description: 'Toggle `data-frame="crt"` against a bare `data-frame`' } },
+  render: ({ crt }) => {
+    const page = framedPage();
+    page.dataset.frame = crt ? 'crt' : '';
+    return page;
+  },
+  play: async ({ canvasElement, args }) => {
+    if (!args.crt) return; // the CRT assertions are for the look switched on (the default)
+    const page = canvasElement.querySelector('.cf-page');
+    const r = page.getBoundingClientRect();
+    await expect(Math.abs(r.width / r.height - 4 / 3)).toBeLessThan(0.02); // still a Screen frame
+    const after = getComputedStyle(page, '::after');
+    await expect(after.backgroundImage).toContain('repeating-linear-gradient');
+    await expect(after.height).toBe(getComputedStyle(page).height);
+    const glow = (sel) => getComputedStyle(page.querySelector(sel)).textShadow;
+    await expect(glow('p')).not.toBe('none');
+    // Each text glows in its own colour: the green service name's glow isn't the white body's.
+    await expect(glow('.cf-header-row__service')).not.toBe(glow('p'));
+    // A bare data-frame is unchanged: no overlay, no glow.
+    page.dataset.frame = '';
+    await expect(getComputedStyle(page, '::after').content).toBe('none');
+    await expect(glow('p')).toBe('none');
+    page.dataset.frame = 'crt';
+  },
+};
