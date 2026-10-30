@@ -21,7 +21,7 @@ The single place a presentational variant name resolves to a colour — `--_vari
 _Avoid_: variant mixin, colour map, theme lookup
 
 **Variant block**:
-A surface filled with a presentational variant's colour — a fastext key, a coloured button. The readable foreground painted on it is its **ink** (black on light blocks, white on authentic blue; black on every block under the Accessible theme).
+A surface filled with a presentational variant's colour, such as a coloured button. The readable foreground painted on it is its **ink** (black on light blocks, white on authentic blue; black on every block under the Accessible theme).
 _Avoid_: swatch, colour chip
 
 **Band**:
@@ -41,7 +41,7 @@ The typeface for headings, card titles and fastext keys: Bedstead, a recreation 
 _Avoid_: VT323, heading font, title font
 
 **Fastext**:
-The four coloured navigation keys (red / green / yellow / blue) from teletext, and their component (`cf-fastext`). A domain term, not a generic nav bar.
+The one-to-four coloured navigation keys from teletext (red / green / yellow / cyan on screen), and their component (`cf-fastext`): coloured labels by default, a key on a band with `data-band`. A domain term, not a generic nav bar.
 _Avoid_: colour buttons, quick links
 
 **Authentic colour**:

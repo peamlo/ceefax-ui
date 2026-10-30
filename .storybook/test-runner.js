@@ -40,37 +40,27 @@ async function assertButtonContract(page, name) {
   }
 }
 
-// Contract: hovering a fastext key inverts it — the page background behind the key's own
-// colour as text. One key is enough, and deliberately so: the per-colour part (which
-// colour each name resolves to) is pinned for all four by the Foundations/Variant colours
-// matrix, so what is left for real input to prove is that the single hover rule fires.
-// Hovering all four cost 9 Playwright round-trips in postVisit and made this suite fail
-// intermittently on CI with "Resulting promise was garbage collected".
-const RED_KEY = '.cf-fastext__key[data-variant="red"]';
+// Contract: hovering a fastext key inverts it. A text key fills with its colour in its ink;
+// a banded key drops to the page background with its text in the band colour. Asserted
+// against the key's own resting colours, so it holds for either look and any theme. One key
+// per story is enough, and deliberately so: the per-colour part (which colour each name
+// resolves to) is pinned for every colour by the Foundations/Variant colours matrix, so what
+// is left for real input to prove is that the hover rule fires. Hovering all four cost 9
+// Playwright round-trips in postVisit and made this suite fail intermittently on CI with
+// "Resulting promise was garbage collected". No story's first key is blue, so a text key's
+// ink is black.
+const FIRST_KEY = '.cf-fastext__key';
+const BLACK = 'rgb(0, 0, 0)';
 
 async function assertFastextHover(page) {
-  await page.hover(RED_KEY);
-  expect(await page.evaluate(colours, RED_KEY)).toEqual({
-    backgroundColor: 'rgb(0, 0, 0)',
-    color: 'rgb(255, 0, 0)',
-  });
-  // Leave nothing hovered: the axe pass below audits the resting state, and a key held
-  // in hover is a transient inversion whose contrast is not the contract. (Blue's hover
-  // pair is blue-on-black, ~2.4:1 — it would fail axe if left held. See #12.)
-  await page.mouse.move(0, 0);
-}
-
-// Contract (#12): under the accessible theme the hover inversion stays legible. Blue is the
-// key whose authentic inversion fails (~2.4:1), so it is the one worth a real hover: it must
-// invert to sky on black (9.5:1). Call with the theme already set on <html>.
-const BLUE_KEY = '.cf-fastext__key[data-variant="blue"]';
-
-async function assertAccessibleFastextHover(page) {
-  await page.hover(BLUE_KEY);
-  expect(await page.evaluate(colours, BLUE_KEY)).toEqual({
-    backgroundColor: 'rgb(0, 0, 0)',
-    color: 'rgb(102, 179, 255)',
-  });
+  const rest = await page.evaluate(colours, FIRST_KEY);
+  await page.hover(FIRST_KEY);
+  const banded = rest.backgroundColor !== 'rgba(0, 0, 0, 0)';
+  expect(await page.evaluate(colours, FIRST_KEY)).toEqual(
+    banded ? { backgroundColor: BLACK, color: rest.backgroundColor } : { backgroundColor: rest.color, color: BLACK },
+  );
+  // Leave nothing hovered: the axe pass below audits the resting state, and a key held in
+  // hover is a transient inversion whose contrast is not the contract.
   await page.mouse.move(0, 0);
 }
 
@@ -183,7 +173,8 @@ export default {
     await axe(page);
     // Every contract story must also pass axe — at AAA contrast — under the accessible theme.
     await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'accessible'));
-    if (title === 'Components/Fastext bar') await assertAccessibleFastextHover(page);
+    // #12: under the accessible theme the inversion follows the theme's colours, ink still black.
+    if (title === 'Components/Fastext bar') await assertFastextHover(page);
     await axe(page, { aaa: true });
   },
 };

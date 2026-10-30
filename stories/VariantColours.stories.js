@@ -69,8 +69,9 @@ const COMPONENTS = {
     className: 'cf-fastext__key',
     // A key takes its font from the bar, as in real markup; bare, it falls back to serif.
     bar: 'cf-fastext',
-    base: { backgroundColor: TRANSPARENT, color: BLACK },
-    paint: (colour, ink) => ({ backgroundColor: colour, color: ink }),
+    // A text part: data-variant is the label colour, on the page (#120).
+    base: { backgroundColor: TRANSPARENT, color: WHITE },
+    paint: (colour) => ({ backgroundColor: TRANSPARENT, color: colour }),
   },
   // A header-row part's data-variant is its text colour; the page part's default is --cf-fg.
   headerPart: {
@@ -168,14 +169,16 @@ const NESTED_BANDS = [
   ['green', '', { backgroundColor: PALETTES.authentic.green[0], color: BLACK }],
   [UNMAPPED, '', { backgroundColor: TRANSPARENT }],
 ];
-// The first component opted in (#72): a header-row page part, whose default ink is --cf-fg
-// like the sample's, so it must land on exactly the same cases.
-const HEADER_PART = 'cf-header-row__page';
+// The components opted in: a header-row page part (#72) and a fastext key (#120), whose
+// default ink is --cf-fg like the sample's, so they must land on exactly the same cases.
+const BAND_PARTS = ['cf-header-row__page', 'cf-fastext__key'];
 // [theme, cases, optional host, optional part class] in render order; data-band-case indices run across all.
 const BAND_GROUPS = [
   ...Object.entries(PALETTES).map(([theme, p]) => [theme, bandCases(theme, p)]),
   ['authentic', NESTED_BANDS, BAND_HOST],
-  ...Object.entries(PALETTES).map(([theme, p]) => [theme, bandCases(theme, p), null, HEADER_PART]),
+  ...BAND_PARTS.flatMap((part) =>
+    Object.entries(PALETTES).map(([theme, p]) => [theme, bandCases(theme, p), null, part]),
+  ),
 ];
 
 const row = 'display:flex;flex-wrap:wrap;align-items:flex-start;gap:1ch;width:100%';
