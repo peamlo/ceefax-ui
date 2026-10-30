@@ -14,9 +14,9 @@
     </style>
   </head>
   <body>
-    <!-- Resize the window: the page stays 4:3, 40 cells to a row, and below 40em it goes full-bleed.
+    <!-- Resize the window: the page stays 4:3, 40 cells to a row (data-cells: 40 · 60 · 80), and below 40em it goes full-bleed.
          Add ?crt to the URL for data-frame="crt", the CRT look (opt-in: below AA on red and magenta, ADR-0014). -->
-    <section class="cf-page" data-frame data-scrollbar="fastext">
+    <section class="cf-page" data-frame data-cells="40" data-scrollbar="fastext">
       <header class="cf-page__header cf-header-row">
         <span class="cf-header-row__page">P100</span>
         <span class="cf-header-row__service">CEEFAX</span>
@@ -29,24 +29,31 @@
       <main class="cf-page__body cf-stack" tabindex="0" style="padding-block: var(--cf-space-3)">
         <h1>NEWS</h1>
         <p>Only this body scrolls; the header and fastext keys stay pinned.</p>
-        <!-- The scrollbar look is data-scrollbar on the cf-page; these links swap it. -->
-        <nav aria-label="Scrollbar look">
-          <ul class="cf-cluster" data-gap="2" style="list-style: none; padding: 0; margin: 0">
-            <li><a class="cf-link" href="#fastext" data-look="fastext">FASTEXT</a></li>
-            <li><a class="cf-link" href="#mosaic" data-look="mosaic">MOSAIC</a></li>
-            <li><a class="cf-link" href="#thin" data-look="thin">THIN</a></li>
-          </ul>
+        <!-- Demo-only: each link sets one attribute on the cf-page, kept in the URL with ?crt. -->
+        <nav aria-label="Screen options">
+          <p class="cf-cluster" data-gap="2">
+            <span>SCROLLBAR</span>
+            <a class="cf-link" href="?scrollbar=fastext" data-set="scrollbar" data-value="fastext">FASTEXT</a>
+            <a class="cf-link" href="?scrollbar=mosaic" data-set="scrollbar" data-value="mosaic">MOSAIC</a>
+            <a class="cf-link" href="?scrollbar=thin" data-set="scrollbar" data-value="thin">THIN</a>
+          </p>
+          <p class="cf-cluster" data-gap="2">
+            <span>CELLS</span>
+            <a class="cf-link" href="?cells=40" data-set="cells" data-value="40">40</a>
+            <a class="cf-link" href="?cells=60" data-set="cells" data-value="60">60</a>
+            <a class="cf-link" href="?cells=80" data-set="cells" data-value="80">80</a>
+          </p>
         </nav>
-        <p>Headline 1 — forty cells to a row, at any size.</p>
-        <p>Headline 2 — forty cells to a row, at any size.</p>
-        <p>Headline 3 — forty cells to a row, at any size.</p>
-        <p>Headline 4 — forty cells to a row, at any size.</p>
-        <p>Headline 5 — forty cells to a row, at any size.</p>
-        <p>Headline 6 — forty cells to a row, at any size.</p>
-        <p>Headline 7 — forty cells to a row, at any size.</p>
-        <p>Headline 8 — forty cells to a row, at any size.</p>
-        <p>Headline 9 — forty cells to a row, at any size.</p>
-        <p>Headline 10 — forty cells to a row, at any size.</p>
+        <p>Headline 1 — the same cells to a row, at any size.</p>
+        <p>Headline 2 — the same cells to a row, at any size.</p>
+        <p>Headline 3 — the same cells to a row, at any size.</p>
+        <p>Headline 4 — the same cells to a row, at any size.</p>
+        <p>Headline 5 — the same cells to a row, at any size.</p>
+        <p>Headline 6 — the same cells to a row, at any size.</p>
+        <p>Headline 7 — the same cells to a row, at any size.</p>
+        <p>Headline 8 — the same cells to a row, at any size.</p>
+        <p>Headline 9 — the same cells to a row, at any size.</p>
+        <p>Headline 10 — the same cells to a row, at any size.</p>
       </main>
 
       <footer class="cf-page__footer">
@@ -63,22 +70,23 @@
 
     <script type="module">
       const page = document.querySelector('.cf-page');
+      const params = new URLSearchParams(location.search);
 
       // Demo-only: ?crt in the URL switches on the CRT look.
-      if (new URLSearchParams(location.search).has('crt')) page.dataset.frame = 'crt';
+      if (params.has('crt')) page.dataset.frame = 'crt';
 
-      // Demo-only: the hash picks the cf-page's data-scrollbar (fastext · mosaic · thin).
-      const links = document.querySelectorAll('[data-look]');
-      const pick = () => {
-        const look = location.hash.slice(1);
-        page.dataset.scrollbar = [...links].some((a) => a.dataset.look === look) ? look : 'fastext';
-        for (const a of links) {
-          if (a.dataset.look === page.dataset.scrollbar) a.setAttribute('aria-current', 'page');
-          else a.removeAttribute('aria-current');
-        }
-      };
-      addEventListener('hashchange', pick);
-      pick();
+      // Demo-only: ?scrollbar= and ?cells= pick those attributes; each link keeps the other options.
+      const links = document.querySelectorAll('[data-set]');
+      for (const a of links) {
+        const { set, value } = a.dataset;
+        if (params.get(set) === value) page.dataset[set] = value;
+        const next = new URLSearchParams(params);
+        next.set(set, value);
+        a.href = `?${next}`;
+      }
+      for (const a of links) {
+        if (page.dataset[a.dataset.set] === a.dataset.value) a.setAttribute('aria-current', 'page');
+      }
     </script>
   </body>
 </html>

@@ -377,7 +377,7 @@
           class="ex"
           data-page="100"
           data-title="The page shell"
-          data-note='cf-page stacks header · body · footer bands. Because it is gated with :has(), a bare cf-page stays the plain flat canvas — no breaking change. data-band="blue" puts the service name on a band; data-variant="yellow" beside it is the ink.'
+          data-note='cf-page stacks header · body · footer bands. Because it is gated with :has(), a bare cf-page stays the plain flat canvas — no breaking change. data-band="blue" puts the service name on a band; data-variant="yellow" beside it is the ink. The fastext keys are banded too; without data-band they are coloured text (screen.html).'
         >
           <script type="text/plain">
             <!-- one import: @peamlo/ceefax-ui — then plain class="…" -->
@@ -403,10 +403,10 @@
               <footer class="cf-page__footer">
                 <nav aria-label="Fastext">
                   <ul class="cf-fastext">
-                    <li><a class="cf-fastext__key" data-variant="red" href="#">NEWS</a></li>
-                    <li><a class="cf-fastext__key" data-variant="green" href="#">SPORT</a></li>
-                    <li><a class="cf-fastext__key" data-variant="yellow" href="#">TV</a></li>
-                    <li><a class="cf-fastext__key" data-variant="cyan" href="#">A–Z</a></li>
+                    <li><a class="cf-fastext__key" data-band="red" href="#">NEWS</a></li>
+                    <li><a class="cf-fastext__key" data-band="green" href="#">SPORT</a></li>
+                    <li><a class="cf-fastext__key" data-band="yellow" href="#">TV</a></li>
+                    <li><a class="cf-fastext__key" data-band="cyan" href="#">A–Z</a></li>
                   </ul>
                 </nav>
               </footer>
@@ -607,7 +607,7 @@
         </div>
         <div class="cheat-row">
           <code>data-band</code><span class="cheat-val">red · green · yellow · blue · …</span
-          ><span class="cheat-desc">a part on a coloured background (header row, table)</span>
+          ><span class="cheat-desc">a part on a coloured background (header row, fastext key, table)</span>
         </div>
         <div class="cheat-row">
           <code>data-size</code><span class="cheat-val">sm · lg</span
