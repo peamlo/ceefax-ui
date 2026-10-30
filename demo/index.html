@@ -292,9 +292,19 @@
         border-bottom: 1px solid var(--doc-line);
         background: #0a0d11;
       }
+      .cheat h3 {
+        margin: 0;
+        padding: 12px 18px 8px;
+        border-bottom: 1px solid var(--doc-line);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.22em;
+        color: var(--doc-cyan);
+        text-transform: uppercase;
+      }
       .cheat-row {
         display: grid;
-        grid-template-columns: minmax(140px, 180px) minmax(150px, 1fr) 2fr;
+        grid-template-columns: minmax(150px, 190px) minmax(160px, 1.2fr) minmax(130px, 1fr) 1.6fr;
         gap: 16px;
         padding: 11px 18px;
         border-bottom: 1px solid var(--doc-line);
@@ -303,6 +313,19 @@
       }
       .cheat-row:last-child {
         border-bottom: 0;
+      }
+      .cheat-head {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        color: var(--doc-dim);
+        background: #0a0d11;
+      }
+      .cheat-on {
+        color: var(--doc-green);
+      }
+      .cheat-on span {
+        white-space: nowrap;
       }
       .cheat-row code {
         font-weight: 700;
@@ -337,6 +360,9 @@
           grid-template-columns: 1fr;
           gap: 2px;
           padding: 12px 16px;
+        }
+        .cheat-head {
+          display: none;
         }
       }
     </style>
@@ -581,53 +607,146 @@
 
       <section class="cheat">
         <h2>The whole config vocabulary</h2>
+        <div class="cheat-row cheat-head">
+          <span>ATTRIBUTE</span><span>ON</span><span>VALUES</span><span>WHAT IT DOES</span>
+        </div>
+        <h3>Layout primitives</h3>
         <div class="cheat-row">
-          <code>data-gap</code><span class="cheat-val">0 – 8</span
-          ><span class="cheat-desc">spacing step (shared by every primitive)</span>
+          <code>data-gap</code
+          ><span class="cheat-on"
+            ><span>cf-stack</span> · <span>cf-cluster</span> · <span>cf-grid</span> · <span>cf-sidebar</span></span
+          ><span class="cheat-val">0 – 8</span><span class="cheat-desc">spacing step between the children</span>
         </div>
         <div class="cheat-row">
-          <code>data-cols</code><span class="cheat-val">2 · 3 · 4</span
-          ><span class="cheat-desc">grid: up to N columns, then collapse</span>
+          <code>data-cols</code><span class="cheat-on"><span>cf-grid</span></span
+          ><span class="cheat-val">2 · 3 · 4</span><span class="cheat-desc">up to N columns, then collapse</span>
         </div>
         <div class="cheat-row">
-          <code>data-align</code><span class="cheat-val">start · center · end · baseline</span
-          ><span class="cheat-desc">cluster cross-axis</span>
+          <code>data-align</code><span class="cheat-on"><span>cf-cluster</span></span
+          ><span class="cheat-val">start · center · end · baseline</span
+          ><span class="cheat-desc">cross-axis alignment of the items</span>
         </div>
         <div class="cheat-row">
-          <code>data-side</code><span class="cheat-val">right</span
-          ><span class="cheat-desc">sidebar: rail on the trailing edge</span>
+          <code>data-side</code><span class="cheat-on"><span>cf-sidebar</span></span
+          ><span class="cheat-val">right</span><span class="cheat-desc">rail on the trailing edge</span>
         </div>
         <div class="cheat-row">
-          <code>data-max</code><span class="cheat-val">content · layout</span
-          ><span class="cheat-desc">center: one page vs two</span>
+          <code>data-max</code><span class="cheat-on"><span>cf-center</span></span
+          ><span class="cheat-val">content · layout</span><span class="cheat-desc">one page wide vs two</span>
+        </div>
+        <h3>Page shell</h3>
+        <div class="cheat-row">
+          <code>data-frame</code><span class="cheat-on"><span>cf-page</span></span
+          ><span class="cheat-val">(bare) · crt</span
+          ><span class="cheat-desc">4:3 Screen frame; crt adds the CRT look</span>
         </div>
         <div class="cheat-row">
-          <code>data-variant</code><span class="cheat-val">red · green · yellow · blue · …</span
-          ><span class="cheat-desc">component colour (card, btn, key, notice); the ink on a band</span>
+          <code>data-cells</code><span class="cheat-on"><span>cf-page[data-frame]</span></span
+          ><span class="cheat-val">40 · 60 · 80</span><span class="cheat-desc">cells to a row</span>
         </div>
         <div class="cheat-row">
-          <code>data-band</code><span class="cheat-val">red · green · yellow · blue · …</span
-          ><span class="cheat-desc">a part on a coloured background (header row, fastext key, table)</span>
+          <code>data-scrollbar</code
+          ><span class="cheat-on"><span>cf-page</span> · <span>any scroller inside it</span></span
+          ><span class="cheat-val">fastext · mosaic · thin</span><span class="cheat-desc">scrollbar look</span>
+        </div>
+        <h3>Colour</h3>
+        <div class="cheat-row">
+          <code>data-variant</code
+          ><span class="cheat-on"
+            ><span>cf-card</span> · <span>cf-btn</span> · <span>cf-notice</span> · <span>cf-fastext__key</span> ·
+            <span>cf-header-row parts</span> · <span>cf-table parts</span></span
+          ><span class="cheat-val">red · green · yellow · blue · cyan · magenta</span
+          ><span class="cheat-desc"
+            >the part&#39;s colour, or the ink beside a data-band; cf-btn also takes ghost, cf-link takes nav</span
+          >
         </div>
         <div class="cheat-row">
-          <code>data-size</code><span class="cheat-val">sm · lg</span
-          ><span class="cheat-desc">button size (canvas also takes md · full)</span>
+          <code>data-band</code
+          ><span class="cheat-on"
+            ><span>cf-header-row parts</span> · <span>cf-fastext__key</span> · <span>cf-table parts</span></span
+          ><span class="cheat-val">red · green · yellow · blue · cyan · magenta</span
+          ><span class="cheat-desc">a coloured background behind the text</span>
         </div>
         <div class="cheat-row">
-          <code>data-scrollbar</code><span class="cheat-val">fastext · mosaic · thin</span
-          ><span class="cheat-desc">page shell scrollbar look, on cf-page or any scroller in it</span>
+          <code>data-theme</code><span class="cheat-on"><span>&lt;html&gt;</span></span
+          ><span class="cheat-val">accessible</span><span class="cheat-desc">the CVD-optimised theme</span>
+        </div>
+        <h3>Component options</h3>
+        <div class="cheat-row">
+          <code>data-size</code><span class="cheat-on"><span>cf-btn</span></span
+          ><span class="cheat-val">sm · lg</span><span class="cheat-desc">button size</span>
         </div>
         <div class="cheat-row">
-          <code>data-stripe-rows</code><span class="cheat-val">text · band</span
-          ><span class="cheat-desc">table: alternate row colours (data-stripe-cols for columns)</span>
+          <code>data-size</code><span class="cheat-on"><span>&lt;cf-canvas&gt;</span></span
+          ><span class="cheat-val">sm · md · lg · full</span><span class="cheat-desc">widest the art may grow</span>
         </div>
         <div class="cheat-row">
-          <code>--cf-grid-min</code><span class="cheat-val">e.g. 16ch</span
-          ><span class="cheat-desc">escape hatch → intrinsic auto-fit grid</span>
+          <code>data-blink</code><span class="cheat-on"><span>cf-notice</span></span
+          ><span class="cheat-val">off</span><span class="cheat-desc">the flag holds still</span>
         </div>
         <div class="cheat-row">
-          <code>--cf-sidebar-side</code><span class="cheat-val">e.g. 30ch</span
-          ><span class="cheat-desc">escape hatch → rail width</span>
+          <code>data-stripe-rows</code><span class="cheat-on"><span>cf-table</span></span
+          ><span class="cheat-val">text · band</span><span class="cheat-desc">alternate row colours (body rows)</span>
+        </div>
+        <div class="cheat-row">
+          <code>data-stripe-cols</code><span class="cheat-on"><span>cf-table</span></span
+          ><span class="cheat-val">text · band</span><span class="cheat-desc">alternate column colours</span>
+        </div>
+        <div class="cheat-row">
+          <code>data-leader</code><span class="cheat-on"><span>cf-table th</span> · <span>td</span></span
+          ><span class="cheat-val">(bare)</span><span class="cheat-desc">dot leader to the figures</span>
+        </div>
+        <div class="cheat-row">
+          <code>data-align</code><span class="cheat-on"><span>cf-table th</span> · <span>td</span></span
+          ><span class="cheat-val">end</span><span class="cheat-desc">figures to the end, tabular numbers</span>
+        </div>
+        <div class="cheat-row">
+          <code>data-side</code><span class="cheat-on"><span>cf-table caption</span></span
+          ><span class="cheat-val">bottom</span><span class="cheat-desc">caption under the table</span>
+        </div>
+        <h3>Escape hatches (custom properties)</h3>
+        <div class="cheat-row">
+          <code>--cf-gap</code><span class="cheat-on"><span>any layout primitive</span></span
+          ><span class="cheat-val">e.g. 1.5rem</span><span class="cheat-desc">a gap off the scale</span>
+        </div>
+        <div class="cheat-row">
+          <code>--cf-grid-min</code><span class="cheat-on"><span>cf-grid</span></span
+          ><span class="cheat-val">e.g. 16ch</span><span class="cheat-desc">intrinsic auto-fit grid</span>
+        </div>
+        <div class="cheat-row">
+          <code>--cf-grid-floor</code><span class="cheat-on"><span>cf-grid[data-cols]</span></span
+          ><span class="cheat-val">default 20ch</span
+          ><span class="cheat-desc">column width that triggers the collapse</span>
+        </div>
+        <div class="cheat-row">
+          <code>--cf-sidebar-side</code><span class="cheat-on"><span>cf-sidebar</span></span
+          ><span class="cheat-val">e.g. 30ch</span><span class="cheat-desc">rail width</span>
+        </div>
+        <div class="cheat-row">
+          <code>--cf-sidebar-content-min</code><span class="cheat-on"><span>cf-sidebar</span></span
+          ><span class="cheat-val">default 50%</span
+          ><span class="cheat-desc">main width where it wraps under the rail</span>
+        </div>
+        <div class="cheat-row">
+          <code>--cf-center-max</code><span class="cheat-on"><span>cf-center</span></span
+          ><span class="cheat-val">e.g. 60ch</span><span class="cheat-desc">reading measure</span>
+        </div>
+        <div class="cheat-row">
+          <code>--cf-frame-ratio</code><span class="cheat-on"><span>cf-page[data-frame]</span></span
+          ><span class="cheat-val">default 1.3333</span><span class="cheat-desc">frame aspect ratio</span>
+        </div>
+        <div class="cheat-row">
+          <code>--cf-frame-cells</code><span class="cheat-on"><span>cf-page[data-frame]</span></span
+          ><span class="cheat-val">any count</span><span class="cheat-desc">cells to a row, off the enum</span>
+        </div>
+        <div class="cheat-row">
+          <code>--cf-table-rule</code><span class="cheat-on"><span>cf-table</span></span
+          ><span class="cheat-val">a colour · transparent</span
+          ><span class="cheat-desc">the rule between row groups</span>
+        </div>
+        <div class="cheat-row">
+          <code>--cf-pixels-scale</code><span class="cheat-on"><span>&lt;cf-canvas&gt;</span></span
+          ><span class="cheat-val">e.g. 4</span><span class="cheat-desc">exact screen px per art pixel</span>
         </div>
       </section>
 
