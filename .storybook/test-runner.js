@@ -87,6 +87,25 @@ async function assertScreenFrame(page) {
   await page.setViewportSize({ width: 1280, height: 720 });
 }
 
+// Contract (#76): the CRT look renders neither scanlines nor glow under forced colours or the
+// Accessible theme. Needs emulated media, which play() cannot set. Leaves both switches off.
+async function assertCrtOffSwitches(page) {
+  const crt = () => {
+    const frame = document.querySelector('.cf-page[data-frame="crt"]');
+    return {
+      overlay: getComputedStyle(frame, '::after').content,
+      glow: getComputedStyle(frame.querySelector('p')).textShadow,
+    };
+  };
+  expect(await page.evaluate(crt)).not.toEqual({ overlay: 'none', glow: 'none' });
+  await page.emulateMedia({ forcedColors: 'active' });
+  expect(await page.evaluate(crt)).toEqual({ overlay: 'none', glow: 'none' });
+  await page.emulateMedia({ forcedColors: 'none' });
+  await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'accessible'));
+  expect(await page.evaluate(crt)).toEqual({ overlay: 'none', glow: 'none' });
+  await page.evaluate(() => document.documentElement.removeAttribute('data-theme'));
+}
+
 // Contract (#72): at phone width the header row wraps inside the page shell, keeping the
 // page number visible and nothing spilling sideways. Restores the wide viewport.
 async function assertHeaderRowNarrow(page) {
@@ -169,8 +188,10 @@ const axe = async (page, { aaa = false } = {}) => {
 export default {
   async postVisit(page, context) {
     const { title, name } = await getStoryContext(page, context);
-    const isFrame = title === 'Layout/Page' && name === 'Screen frame (data-frame)';
+    const isCrt = title === 'Layout/Page' && name === 'Screen frame, CRT look (data-frame="crt")';
+    const isFrame = (title === 'Layout/Page' && name === 'Screen frame (data-frame)') || isCrt;
     if (isFrame) await assertScreenFrame(page);
+    if (isCrt) await assertCrtOffSwitches(page);
     if (!title.startsWith('Components/') && !isFrame) return;
 
     if (title === 'Components/Button') await assertButtonContract(page, name);

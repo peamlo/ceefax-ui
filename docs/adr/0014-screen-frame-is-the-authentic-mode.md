@@ -52,6 +52,12 @@ Space Mono ships under. Source, version and this reasoning are recorded in
   this is a breaking change.
 - Later fidelity tickets decide per rule whether it applies everywhere (a look) or only in the
   frame (a constraint), using this split.
+- **The CRT look is a look on top of the frame, never the default**
+  ([#76](https://github.com/peamlo/ceefax-ui/issues/76)). `data-frame="crt"` is still a Screen
+  frame and adds faint static scanlines (ten to a text row, so they line up with the rows) and a
+  soft glow in each text's own colour. It never flickers or interlaces (photosensitivity, WCAG
+  2.3.1) and never curves (that bends text off the grid). Forced colours and the Accessible theme
+  turn it off.
 - **Deferred:** if `<cf-canvas>` is kept alongside `cf-mosaic`, decide whether it takes the
   two-colours-per-cell limit inside the frame. Until then
   [ADR-0004](0004-cf-canvas-pixel-art.md) stands: free per-pixel colour.

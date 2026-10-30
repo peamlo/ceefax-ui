@@ -162,3 +162,41 @@ export const Framed = {
     await expect(footer.getBoundingClientRect().top).toBe(f0);
   },
 };
+
+// The CRT look: the same Screen frame with `data-frame="crt"`. Its off-switches (forced colours,
+// Accessible theme) are asserted in .storybook/test-runner.js postVisit: play() can't emulate media.
+export const CrtFramed = {
+  name: 'Screen frame, CRT look (data-frame="crt")',
+  parameters: {
+    layout: 'fullscreen',
+    docs: {
+      description: {
+        story:
+          'Set `data-frame="crt"` instead of a bare `data-frame` to put the page on a TV: faint scanlines, ten to a ' +
+          'text row, over the whole frame and a soft glow on the text. It is still a Screen frame, so everything in ' +
+          'the story above applies.\n\n' +
+          '- **Static:** no flicker, interlace or curvature (photosensitivity; curvature bends text off the grid).\n' +
+          '- **Off** under `forced-colors: active` and the Accessible theme, and below 40em with the frame.',
+      },
+    },
+  },
+  render: () => {
+    const page = framedPage();
+    page.dataset.frame = 'crt';
+    return page;
+  },
+  play: async ({ canvasElement }) => {
+    const page = canvasElement.querySelector('.cf-page');
+    const r = page.getBoundingClientRect();
+    await expect(Math.abs(r.width / r.height - 4 / 3)).toBeLessThan(0.02); // still a Screen frame
+    const after = getComputedStyle(page, '::after');
+    await expect(after.backgroundImage).toContain('repeating-linear-gradient');
+    await expect(after.height).toBe(getComputedStyle(page).height);
+    await expect(getComputedStyle(page.querySelector('p')).textShadow).not.toBe('none');
+    // A bare data-frame is unchanged: no overlay, no glow.
+    page.dataset.frame = '';
+    await expect(getComputedStyle(page, '::after').content).toBe('none');
+    await expect(getComputedStyle(page.querySelector('p')).textShadow).toBe('none');
+    page.dataset.frame = 'crt';
+  },
+};
