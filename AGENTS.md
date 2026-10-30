@@ -24,7 +24,7 @@ npm run lint           # Stylelint (the contract's mechanical rules) + ESLint + 
 npm run format         # fix what the three can fix; staged files are also fixed by the pre-commit hook
 npm run assert-package # after build: pack, clean-install and assert the tarball, size budgets included (CI `package` job)
 node scripts/size.mjs . # brotli size per entry point vs its budget (ADR-0015)
-node scripts/check-doc-indexes.mjs # every ADR/review is in its index (CI `docs` job, with lychee + markdownlint)
+node scripts/check-doc-indexes.mjs # every ADR/review is in its index (CI `docs` workflow, with lychee + markdownlint)
 npx knip               # unused files, exports, dependencies (CI `dead-code` job, config in knip.jsonc)
 node scripts/token-report.mjs # every --cf-* token and its consumers; fails on one neither used nor in a Foundations story
 node --test 'scripts/*.test.mjs' # the scripts' own tests
@@ -39,7 +39,7 @@ Storybook (`@storybook/html-vite` + the a11y addon; interactions/`play()` are co
 - `docs/adr/` — Architecture Decision Records (why, not how). Flag output that contradicts an ADR.
 - Storybook — live component behaviour and variants.
 - `docs/agents/` — how agents consume the issue tracker, triage labels, and domain docs (see below).
-- `docs/reference/` — external reference material (summaries + archive links, not mirrors), e.g. [zxnet teletext](docs/reference/zxnet-teletext.md) for authentic teletext behaviour and specs.
+- `docs/reference/` — external reference material (summaries + archive links, not mirrors), e.g. [zxnet teletext](docs/reference/zxnet-teletext.md) for authentic teletext behaviour and specs, [Antena 3 Teletexto](docs/reference/antena3-teletexto.md) for a live Spanish service.
 - `docs/reviews/` — dated, point-in-time reviews (e.g. CI checks). Snapshots, not living docs: the GitHub issues they spawn are canonical.
 
 ## Commit messages — Conventional Commits
@@ -108,6 +108,7 @@ PRs merge into `main` via **squash only** (merge-commit and rebase are disabled)
 Don't bump `version` in a PR or run `npm publish` locally. Why and how: `docs/adr/0013-release-please-and-trusted-publishing.md`.
 
 - After every merge to `main`, release-please (`.github/workflows/release-please.yml`) keeps one **release PR**, `chore(release): <version>`, open while there is releasable work (`feat`, `fix`, `perf` or any breaking change; bump rules in `release-please-config.json`). It holds the version bump and the `CHANGELOG.md` entry.
+- Before merging the release PR, run `/demo #<release PR>` and merge the `docs(demo)` PR it opens, so the demo pages show the release's new features (the release PR's footer reminds you). It only writes `demo/*.html`, never images.
 - Merging the release PR tags `v<version>` and creates the GitHub release. The tag starts `.github/workflows/release.yml`, which builds, runs `assert-package` and publishes to npm with provenance through trusted publishing (no npm token).
 - Fallback if release-please misbehaves: push a `v*` tag matching `package.json` on `main` and `release.yml` publishes it the same way.
 - Dry run: run the `release` workflow from the Actions tab with **dry-run** ticked. It proves the build and tarball gate only, not the OIDC login: the first real tag is the first real test of the trusted publisher.

@@ -75,7 +75,7 @@ export const TeletextPage = {
       fastextKey('red', 'NOTICIAS'),
       fastextKey('green', 'DEPORTES'),
       fastextKey('yellow', 'SERVICIOS'),
-      fastextKey('blue', 'SUBTITULADO'),
+      fastextKey('cyan', 'SUBTITULADO'),
     );
     nav.append(ul);
     footer.append(nav);
@@ -132,7 +132,7 @@ const framedPage = ({ cells = 40 } = {}) => {
     fastextKey('red', 'NEWS'),
     fastextKey('green', 'SPORT'),
     fastextKey('yellow', 'WEATHER'),
-    fastextKey('blue', 'INDEX'),
+    fastextKey('cyan', 'INDEX'),
   );
   nav.append(ul);
   footer.append(nav);
