@@ -16,7 +16,7 @@ const LEAKS = FILES.flatMap((file) =>
   (SHEETS[file].match(/--cf-base-[a-z]+/g) ?? []).map((token) => `${file.replace('../', '')}: ${token}`),
 );
 
-export default { title: 'Foundations/Token layering' };
+export default { title: 'Foundations/Token layering', tags: ['contract'] };
 
 // The canvas shows the live result of the same check play() asserts, so a reader sees
 // what was scanned and what (if anything) leaked — never a static claim.

@@ -6,7 +6,7 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "entry": ["scripts/*.mjs"],
   "storybook": {
-    "entry": [".storybook/{preview,test-runner}.js", "stories/**/*.stories.js"],
+    "entry": [".storybook/{preview,vitest.setup}.js", "stories/**/*.stories.js"],
   },
   // Run as `npm exec publint` inside assert-package.mjs, which knip can't see.
   "ignoreDependencies": ["publint"],

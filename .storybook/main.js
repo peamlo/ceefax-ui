@@ -10,6 +10,7 @@ export default {
   addons: [
     '@storybook/addon-docs',
     '@storybook/addon-a11y', // live WCAG checks — flags the known contrast failures
+    '@storybook/addon-vitest', // runs the contract stories in Vitest browser mode (ADR-0006)
   ],
   // The root postcss.config.js uses postcss-url { url: 'rebase' } for the library
   // build. Vite would otherwise inherit it and run postcss-url over Storybook's
