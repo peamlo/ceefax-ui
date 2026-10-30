@@ -20,6 +20,22 @@
   ascent-override: 90%;
   descent-override: 20%;
 }
+/* The same files at Bedstead's own metrics (cell = -200..800, 1em): inside the Screen frame a
+   line box is exactly one cell, so colour runs and mosaics tile. Same URLs, so no second download. */
+@font-face {
+  font-family: 'Bedstead Cell';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../fonts/bedstead-3.261-regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Bedstead Cell';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../fonts/bedstead-3.261-bold.woff2') format('woff2');
+}
 @font-face {
   font-family: 'Space Mono';
   font-style: normal;

@@ -47,6 +47,15 @@
   --cf-ink-magenta: var(--cf-variant-magenta);
   --cf-ink-cyan: var(--cf-variant-cyan);
 }
+/* Screen frame (ADR-0014): inside the frame only the eight authentic colours appear, so the two
+   off-palette aliases snap to their authentic neighbours, remapped like a theme. Same breakpoint as
+   the frame (layout/page.css). The Accessible theme wins, on the frame or any ancestor. */
+@media (min-width: 40em) {
+  .cf-page[data-frame]:not([data-theme='accessible'], [data-theme='accessible'] *) {
+    --cf-bg-2: var(--cf-base-blue);
+    --cf-fg-dim: var(--cf-base-green);
+  }
+}
 /* Accessible theme (opt-in, #12): CVD-optimised, every colour >=7:1 (AAA) on black.
    danger/success sit on the blue-yellow axis (amber vs teal) so they survive red-green
    colour-blindness. Remaps ONLY aliases; --cf-base-* stay authentic. Works on <html> or
