@@ -46,8 +46,8 @@
   }
 }
 
-/* CRT look — opt-in `data-frame="crt"`: faint static scanlines over the frame, ten to a text
-   row so they line up with the rows, plus a soft phosphor glow in each text's own colour.
+/* CRT look — opt-in `data-frame="crt"`: faint static scanlines over the frame, eight to a text
+   row (a third dark) so they line up with the rows, plus a soft phosphor glow in each text's own colour.
    No flicker, interlace or curvature (WCAG 2.3.1; curvature bends text off the grid). Nothing
    moves, so reduced motion doesn't apply. Off under forced colours; the Accessible theme turns
    it off by remapping --cf-crt-scanline / --cf-crt-glow to transparent (ADR-0010). */
@@ -65,8 +65,8 @@
     pointer-events: none;
     background: repeating-linear-gradient(
       to bottom,
-      transparent 0 calc(var(--_row) / 20),
-      var(--cf-crt-scanline) 0 calc(var(--_row) / 10)
+      transparent 0 calc(var(--_row) / 12),
+      var(--cf-crt-scanline) 0 calc(var(--_row) / 8)
     );
   }
 }

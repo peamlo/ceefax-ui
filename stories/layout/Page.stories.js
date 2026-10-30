@@ -172,20 +172,23 @@ export const CrtFramed = {
     docs: {
       description: {
         story:
-          'Set `data-frame="crt"` instead of a bare `data-frame` for the look of a CRT set: faint scanlines, ten to a ' +
+          'Set `data-frame="crt"` instead of a bare `data-frame` for the look of a CRT set: faint scanlines, eight to a ' +
           'text row, over the whole frame and a soft glow on the text. It is still a Screen frame, so everything in ' +
-          'the story above applies.\n\n' +
+          'the story above applies. Use the **crt** control to switch the look on and off.\n\n' +
           '- **Static:** no flicker, interlace or curvature (photosensitivity; curvature bends text off the grid).\n' +
           '- **Off** under `forced-colors: active` and the Accessible theme, and below 40em where the frame itself is dropped.',
       },
     },
   },
-  render: () => {
+  args: { crt: true },
+  argTypes: { crt: { control: 'boolean', description: 'Toggle `data-frame="crt"` against a bare `data-frame`' } },
+  render: ({ crt }) => {
     const page = framedPage();
-    page.dataset.frame = 'crt';
+    page.dataset.frame = crt ? 'crt' : '';
     return page;
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, args }) => {
+    if (!args.crt) return; // the CRT assertions are for the look switched on (the default)
     const page = canvasElement.querySelector('.cf-page');
     const r = page.getBoundingClientRect();
     await expect(Math.abs(r.width / r.height - 4 / 3)).toBeLessThan(0.02); // still a Screen frame

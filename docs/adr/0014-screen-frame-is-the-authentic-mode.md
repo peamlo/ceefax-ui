@@ -54,7 +54,7 @@ Space Mono ships under. Source, version and this reasoning are recorded in
   frame (a constraint), using this split.
 - **The CRT look is a look on top of the frame, never the default**
   ([#76](https://github.com/peamlo/ceefax-ui/issues/76)). `data-frame="crt"` is still a Screen
-  frame and adds faint static scanlines (ten to a text row, so they line up with the rows) and a
+  frame and adds faint static scanlines (eight to a text row, so they line up with the rows) and a
   soft glow in each text's own colour. It never flickers or interlaces (photosensitivity, WCAG
   2.3.1) and never curves (that bends text off the grid). Forced colours turn it off, and so does
   the Accessible theme, by remapping the `--cf-crt-*` aliases to transparent. Below the frame's

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-crt>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -248,14 +248,20 @@
         flex-direction: column;
         justify-content: center;
       }
-      .pane-result .screen::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        background: repeating-linear-gradient(rgba(0, 0, 0, 0) 0 2px, rgba(0, 0, 0, 0.3) 2px 3px);
-        mix-blend-mode: multiply;
-        opacity: 0.7;
+      /* The CRT look the library gives data-frame="crt", on every result panel: the same
+         --cf-crt-* tokens, so the Accessible theme turns it off here too. The panels aren't Screen
+         frames, so the scanline pitch is a fixed 3px rather than eight to a text row. */
+      @media (forced-colors: none) {
+        [data-crt] .pane-result .screen {
+          text-shadow: 0 0 0.15em var(--cf-crt-glow);
+        }
+        [data-crt] .pane-result .screen::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          background: repeating-linear-gradient(transparent 0 2px, var(--cf-crt-scanline) 0 3px);
+        }
       }
       /* keep the page shell content-sized inside a demo panel (library sets 100vh) */
       .pane-result .screen .cf-page:has(.cf-page__body) {
@@ -347,6 +353,13 @@
           <span style="color: var(--doc-dim); font-weight: 400"
             >— sets <code>data-theme="accessible"</code> on &lt;html&gt;; the bar above is <code>--cf-base-*</code>, so
             it never changes</span
+          ></label
+        >
+        <label class="mast-theme"
+          ><input type="checkbox" data-crt-switch checked />CRT LOOK
+          <span style="color: var(--doc-dim); font-weight: 400"
+            >— the scanlines and glow of <code>data-frame="crt"</code> (see <a href="screen.html">screen.html</a>); off
+            under the accessible theme</span
           ></label
         >
         <p class="mast-sub">
@@ -527,8 +540,8 @@
         <div class="colorbar" data-colorbar></div>
         <p class="foot-note">
           Rendered live by the real <b>@peamlo/ceefax-ui</b> stylesheet — the result panels are the library, not a
-          mockup. The 4:3 <code>data-frame</code> variant sizes to the viewport, so it has its own page:
-          <a href="screen.html">screen.html</a>.
+          mockup. The 4:3 <code>data-frame</code> variant (here with the <code>crt</code> look) sizes to the viewport,
+          so it has its own page: <a href="screen.html">screen.html</a>.
         </p>
       </footer>
     </div>
@@ -547,6 +560,12 @@
       themeSwitch.addEventListener('change', () => {
         if (themeSwitch.checked) document.documentElement.dataset.theme = 'accessible';
         else delete document.documentElement.dataset.theme;
+      });
+
+      // Demo-only: switches the panels' CRT look (in a real page, data-frame="crt" on the frame).
+      const crtSwitch = document.querySelector('[data-crt-switch]');
+      crtSwitch.addEventListener('change', () => {
+        document.documentElement.toggleAttribute('data-crt', crtSwitch.checked);
       });
 
       const dedent = (t) => {
