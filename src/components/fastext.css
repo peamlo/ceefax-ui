@@ -1,8 +1,11 @@
-/* Fastext bar — the coloured "remote key" nav. Colour is NEVER the sole cue:
-   every key carries a redundant text label in the markup. */
+/* Fastext bar — the one to four coloured "remote keys". Colour is NEVER the sole cue:
+   every key carries a redundant text label in the markup. The <li>s are the grid items,
+   so the keys split the row into equal columns, edge to edge, at any count. */
 .cf-fastext {
-  display: flex;
-  gap: var(--cf-space-1);
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 0;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -11,29 +14,46 @@
   text-transform: uppercase;
   letter-spacing: var(--cf-tracking-wide);
 }
+/* The key fills its column, so a band fills it too. A long label wraps inside its own
+   key; the row never scrolls sideways. */
 .cf-fastext__key {
-  flex: 1 1 0;
   display: flex;
   align-items: center;
-  gap: var(--cf-space-2);
-  padding: 0.4em 2ch;
-  color: var(--cf-on-variant);
+  justify-content: center;
+  block-size: 100%;
+  padding: 0.4em 1ch;
+  color: var(--cf-fg);
+  text-align: center;
   text-decoration: none;
+  overflow-wrap: anywhere;
   border: var(--cf-border-thin) solid transparent;
-  white-space: nowrap;
 }
-/* Colour comes from the variant seam (base.css); the key paints its background. */
+/* Colour comes from the variant seam (base.css): by default a key is coloured text on the
+   page, like a header-row part. A band (ADR-0017) is the filled look; data-variant beside
+   it names the ink. Both rules read through fallbacks, so a typo renders a plain key. */
 .cf-fastext__key[data-variant] {
-  background: var(--_variant, transparent);
-  color: var(--_variant-ink, var(--cf-on-variant));
+  color: var(--_variant, var(--cf-fg));
 }
+.cf-fastext__key[data-band] {
+  background: var(--_band, transparent);
+  color: var(--_band-ink, var(--_variant, var(--cf-fg)));
+}
+/* Inversion: a text key fills with its colour in its ink; a banded key drops to the page
+   with its text in the band colour. Same specificity as the rules above, so these follow. */
 .cf-fastext__key:hover,
 .cf-fastext__key:focus-visible {
   outline: none;
-  background: var(--cf-bg);
+  background: var(--cf-fg);
+  color: var(--cf-bg);
   border-color: currentcolor;
 }
 .cf-fastext__key[data-variant]:hover,
 .cf-fastext__key[data-variant]:focus-visible {
-  color: var(--_variant, var(--cf-on-variant));
+  background: var(--_variant, var(--cf-fg));
+  color: var(--_variant-ink, var(--cf-bg));
+}
+.cf-fastext__key[data-band]:hover,
+.cf-fastext__key[data-band]:focus-visible {
+  background: var(--cf-bg);
+  color: var(--_band, var(--_variant, var(--cf-fg)));
 }

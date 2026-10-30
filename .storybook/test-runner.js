@@ -40,39 +40,29 @@ async function assertButtonContract(page, name) {
   }
 }
 
-// Contract: hovering a fastext key inverts it — the page background behind the key's own
-// colour as text. One key is enough, and deliberately so: the per-colour part (which
-// colour each name resolves to) is pinned for all four by the Foundations/Variant colours
-// matrix, so what is left for real input to prove is that the single hover rule fires.
-// Hovering all four cost 9 Playwright round-trips in postVisit and made this suite fail
-// intermittently on CI with "Resulting promise was garbage collected".
-const RED_KEY = '.cf-fastext__key[data-variant="red"]';
+// Contract: hovering a fastext key inverts it. A text key fills with its colour in its ink;
+// a banded key drops to the page background with its text in the band colour. One key per
+// story is enough, and deliberately so: the per-colour part (which colour each name resolves
+// to) is pinned for every colour by the Foundations/Variant colours matrix, so what is left
+// for real input to prove is that the hover rule fires. Hovering all four cost 9 Playwright
+// round-trips in postVisit and made this suite fail intermittently on CI with "Resulting
+// promise was garbage collected". Every story's first key is red; `red` is the theme's red.
+const FIRST_KEY = '.cf-fastext__key';
+const BLACK = 'rgb(0, 0, 0)';
 
-async function assertFastextHover(page) {
-  await page.hover(RED_KEY);
-  expect(await page.evaluate(colours, RED_KEY)).toEqual({
-    backgroundColor: 'rgb(0, 0, 0)',
-    color: 'rgb(255, 0, 0)',
-  });
-  // Leave nothing hovered: the axe pass below audits the resting state, and a key held
-  // in hover is a transient inversion whose contrast is not the contract. (Blue's hover
-  // pair is blue-on-black, ~2.4:1 — it would fail axe if left held. See #12.)
+async function assertFastextHover(page, name, red = 'rgb(255, 0, 0)') {
+  await page.hover(FIRST_KEY);
+  expect(await page.evaluate(colours, FIRST_KEY)).toEqual(
+    name === 'Banded' ? { backgroundColor: BLACK, color: red } : { backgroundColor: red, color: BLACK },
+  );
+  // Leave nothing hovered: the axe pass below audits the resting state, and a key held in
+  // hover is a transient inversion whose contrast is not the contract.
   await page.mouse.move(0, 0);
 }
 
-// Contract (#12): under the accessible theme the hover inversion stays legible. Blue is the
-// key whose authentic inversion fails (~2.4:1), so it is the one worth a real hover: it must
-// invert to sky on black (9.5:1). Call with the theme already set on <html>.
-const BLUE_KEY = '.cf-fastext__key[data-variant="blue"]';
-
-async function assertAccessibleFastextHover(page) {
-  await page.hover(BLUE_KEY);
-  expect(await page.evaluate(colours, BLUE_KEY)).toEqual({
-    backgroundColor: 'rgb(0, 0, 0)',
-    color: 'rgb(102, 179, 255)',
-  });
-  await page.mouse.move(0, 0);
-}
+// Contract (#12): under the accessible theme the inversion follows the theme's colours and
+// its ink stays black. Call with the theme already set on <html>.
+const assertAccessibleFastextHover = (page, name) => assertFastextHover(page, name, 'rgb(255, 158, 77)');
 
 // Contract: below the narrow breakpoint the 4:3 frame is dropped and the page is full-bleed.
 // Needs a real viewport resize, which in-page play() cannot do. Restores the wide viewport.
@@ -174,7 +164,7 @@ export default {
     if (!title.startsWith('Components/') && !isFrame) return;
 
     if (title === 'Components/Button') await assertButtonContract(page, name);
-    if (title === 'Components/Fastext bar') await assertFastextHover(page);
+    if (title === 'Components/Fastext bar') await assertFastextHover(page, name);
     if (title === 'Components/Notice') await assertNoticeBlink(page);
     if (title === 'Components/Header row' && name === 'In the Screen frame') await assertHeaderRowNarrow(page);
     if (title === 'Components/Table' && name === 'Wide, with long text') await assertTableNarrow(page);
@@ -183,7 +173,7 @@ export default {
     await axe(page);
     // Every contract story must also pass axe — at AAA contrast — under the accessible theme.
     await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'accessible'));
-    if (title === 'Components/Fastext bar') await assertAccessibleFastextHover(page);
+    if (title === 'Components/Fastext bar') await assertAccessibleFastextHover(page, name);
     await axe(page, { aaa: true });
   },
 };

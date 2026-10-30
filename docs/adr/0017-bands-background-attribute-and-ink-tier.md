@@ -20,7 +20,8 @@ The pick is folded into `--_band-ink` in the seam (`var(--_ink-pick, <default in
 a banded element first clears the band properties it inherited. So a component opts in with
 **one** rule on parts whose `data-variant` is a text colour —
 `[data-band] { background: var(--_band, …); color: var(--_band-ink, var(--_variant, …)) }` —
-and blocks never take `data-band`. The issue's draft had a second
+and blocks never take `data-band`. The fastext key is a text part (its `data-variant` is the
+label colour), so it takes bands; a banded key is the filled fastext look (#120). The issue's draft had a second
 `[data-band][data-variant]` rule reading `--_ink-pick` directly; it painted the themed ink
 even when the band was a typo, which under the Accessible theme is black on the black page.
 
@@ -41,5 +42,5 @@ even when the band was a typo, which under the Accessible theme is black on the 
   `Foundations/Colors` Bands story document the passing ones.
 - More inherited seam properties; the self-attribute guard and the `var()` fallback rules of
   ADR-0007 apply unchanged, and the band reset keeps a nested typo band unbanded.
-- Pinned by `Foundations/Variant colours`, `Foundations/Accessible theme` and the Bands
-  story. `Components/Header row` joins when #72 opts in.
+- Pinned by `Foundations/Variant colours`, `Foundations/Accessible theme`, the Bands story,
+  `Components/Header row` and `Components/Fastext bar`.
