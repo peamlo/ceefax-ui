@@ -14,7 +14,8 @@
     </style>
   </head>
   <body>
-    <!-- Resize the window: the page stays 4:3, type scales with it, and below 40em it goes full-bleed. -->
+    <!-- Resize the window: the page stays 4:3, 40 cells to a row, and below 40em it goes full-bleed.
+         Add ?crt to the URL for data-frame="crt", the CRT look (opt-in: below AA on red and magenta, ADR-0014). -->
     <section class="cf-page" data-frame data-scrollbar="fastext">
       <header class="cf-page__header cf-header-row">
         <span class="cf-header-row__page">P100</span>
@@ -25,7 +26,7 @@
         >
       </header>
 
-      <main class="cf-page__body cf-stack" tabindex="0" style="padding: var(--cf-space-3)">
+      <main class="cf-page__body cf-stack" tabindex="0" style="padding-block: var(--cf-space-3)">
         <h1>NEWS</h1>
         <p>Only this body scrolls; the header and fastext keys stay pinned.</p>
         <!-- The scrollbar look is data-scrollbar on the cf-page; these links swap it. -->
@@ -36,16 +37,16 @@
             <li><a class="cf-link" href="#thin" data-look="thin">THIN</a></li>
           </ul>
         </nav>
-        <p>Headline 1 — type scales with the frame, so lines keep the same width at any size.</p>
-        <p>Headline 2 — type scales with the frame, so lines keep the same width at any size.</p>
-        <p>Headline 3 — type scales with the frame, so lines keep the same width at any size.</p>
-        <p>Headline 4 — type scales with the frame, so lines keep the same width at any size.</p>
-        <p>Headline 5 — type scales with the frame, so lines keep the same width at any size.</p>
-        <p>Headline 6 — type scales with the frame, so lines keep the same width at any size.</p>
-        <p>Headline 7 — type scales with the frame, so lines keep the same width at any size.</p>
-        <p>Headline 8 — type scales with the frame, so lines keep the same width at any size.</p>
-        <p>Headline 9 — type scales with the frame, so lines keep the same width at any size.</p>
-        <p>Headline 10 — type scales with the frame, so lines keep the same width at any size.</p>
+        <p>Headline 1 — forty cells to a row, at any size.</p>
+        <p>Headline 2 — forty cells to a row, at any size.</p>
+        <p>Headline 3 — forty cells to a row, at any size.</p>
+        <p>Headline 4 — forty cells to a row, at any size.</p>
+        <p>Headline 5 — forty cells to a row, at any size.</p>
+        <p>Headline 6 — forty cells to a row, at any size.</p>
+        <p>Headline 7 — forty cells to a row, at any size.</p>
+        <p>Headline 8 — forty cells to a row, at any size.</p>
+        <p>Headline 9 — forty cells to a row, at any size.</p>
+        <p>Headline 10 — forty cells to a row, at any size.</p>
       </main>
 
       <footer class="cf-page__footer">
@@ -54,15 +55,19 @@
             <li><a class="cf-fastext__key" data-variant="red" href="#">NEWS</a></li>
             <li><a class="cf-fastext__key" data-variant="green" href="#">SPORT</a></li>
             <li><a class="cf-fastext__key" data-variant="yellow" href="#">TV</a></li>
-            <li><a class="cf-fastext__key" data-variant="blue" href="#">A–Z</a></li>
+            <li><a class="cf-fastext__key" data-variant="cyan" href="#">A–Z</a></li>
           </ul>
         </nav>
       </footer>
     </section>
 
     <script type="module">
-      // Demo-only: the hash picks the cf-page's data-scrollbar (fastext · mosaic · thin).
       const page = document.querySelector('.cf-page');
+
+      // Demo-only: ?crt in the URL switches on the CRT look.
+      if (new URLSearchParams(location.search).has('crt')) page.dataset.frame = 'crt';
+
+      // Demo-only: the hash picks the cf-page's data-scrollbar (fastext · mosaic · thin).
       const links = document.querySelectorAll('[data-look]');
       const pick = () => {
         const look = location.hash.slice(1);

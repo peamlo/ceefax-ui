@@ -75,7 +75,7 @@ export const TeletextPage = {
       fastextKey('red', 'NOTICIAS'),
       fastextKey('green', 'DEPORTES'),
       fastextKey('yellow', 'SERVICIOS'),
-      fastextKey('blue', 'SUBTITULADO'),
+      fastextKey('cyan', 'SUBTITULADO'),
     );
     nav.append(ul);
     footer.append(nav);
@@ -83,22 +83,41 @@ export const TeletextPage = {
     page.append(header, body, footer);
     return page;
   },
+  // Outside the Screen frame body text stays Space Mono: the grid and Bedstead are the frame's.
+  play: async ({ canvasElement }) => {
+    const body = canvasElement.querySelector('.cf-card__body');
+    await expect(getComputedStyle(body).fontFamily).toMatch(/^"?Space Mono/);
+  },
 };
 
-// The contract markup: the page shell plus the presentational `data-frame` variant.
+// The contract markup: the page shell plus the presentational `data-frame` variant, and
+// `data-cells` for the denser 60- and 80-cell grids (40, the default, needs no attribute).
 // The body is the scroll region, so it is made focusable.
-const framedPage = () => {
+const ruler = (cells) => '0123456789'.repeat(cells / 10);
+const framedPage = ({ cells = 40 } = {}) => {
   const page = el('section', 'cf-page');
   page.dataset.frame = '';
+  if (cells !== 40) page.dataset.cells = String(cells);
 
   const header = headerRow();
 
   const body = el('main', 'cf-page__body cf-stack');
   body.tabIndex = 0;
-  body.style.padding = 'var(--cf-space-3)';
+  body.style.paddingBlock = 'var(--cf-space-3)';
   body.append(el('h1', null, 'NEWS'));
+  // A full row of characters: it fills the body's width, so text wraps at the grid's count.
+  body.append(el('p', null, `<span>${ruler(cells)}</span>`));
+  // The two off-palette aliases, snapped to authentic blue and green inside the frame.
+  body.append(
+    el(
+      'p',
+      null,
+      '<span style="color:var(--cf-fg-dim)">Updated 16:02</span> ' +
+        '<span style="background:var(--cf-bg-2)">Secondary background</span>',
+    ),
+  );
   for (let i = 1; i <= 30; i++) {
-    body.append(el('p', null, `Headline ${i} — the type scales with the frame, so lines stay the same width.`));
+    body.append(el('p', null, `Headline ${i}: forty cells to a row, as on a set.`));
   }
   const end = el('p', null, 'End of page');
   end.id = 'end';
@@ -113,13 +132,38 @@ const framedPage = () => {
     fastextKey('red', 'NEWS'),
     fastextKey('green', 'SPORT'),
     fastextKey('yellow', 'WEATHER'),
-    fastextKey('blue', 'INDEX'),
+    fastextKey('cyan', 'INDEX'),
   );
   nav.append(ul);
   footer.append(nav);
 
   page.append(header, body, footer);
   return page;
+};
+
+// A full row of characters fills its row: it never overflows (so it never wraps one short),
+// and it falls short by under 1px per cell, the whole-pixel snap that keeps glyph advances exact.
+const expectRowFills = async (row, cells) => {
+  const span = row.querySelector('span').getBoundingClientRect().width;
+  const width = row.getBoundingClientRect().width;
+  await expect(span).toBeLessThanOrEqual(width + 0.01);
+  await expect(width - span).toBeLessThan(cells);
+  await expect(span / cells).toBeCloseTo(Math.round(span / cells), 2);
+};
+
+// The grid at `cells` to a row: cells plus a one-cell margin each side across the frame
+// (whole-pixel cells, a Bedstead cell is 0.6em), a full row fills the body, and header,
+// body and footer start on the same column, one cell in.
+const expectGrid = async (page, cells) => {
+  const r = page.getBoundingClientRect();
+  const [header, footer] = ['header', 'footer'].map((t) => page.querySelector(t));
+  const row = page.querySelector('.cf-page__body p > span').parentElement;
+  await expect(parseFloat(getComputedStyle(footer).fontSize) * 0.6).toBeCloseTo(Math.floor(r.width / (cells + 2)), 1);
+  await expectRowFills(row, cells);
+  const lefts = [header.firstElementChild, row.firstChild, footer.querySelector('li')].map(
+    (n) => n.getBoundingClientRect().left - r.left,
+  );
+  for (const left of lefts) await expect(left).toBeCloseTo(lefts[0], 0);
 };
 
 // Use the Storybook viewport toolbar to see the frame go full-bleed below 40em.
@@ -136,6 +180,11 @@ export const Framed = {
           'teletext set: a centred 4:3 box on a black canvas, type scaled to the box, header and footer pinned and ' +
           'only the body scrolling. Omit it and you get the plain full-viewport page above.\n\n' +
           '- **Wide monitor:** 4:3 with side bars, so line lengths stay readable.\n' +
+          '- **40 cells to a row:** inside the frame the type is sized so 40 Bedstead cells fill the width of the ' +
+          'body (inside its scrollbar, if it has one), every line is one cell high, and only the eight authentic ' +
+          'colours appear (unless the Accessible theme applies, which wins: toolbar → Theme).\n' +
+          '- **Grid size:** `data-cells="60"` or `"80"` for a denser, terminal-like grid (the `cells` control); ' +
+          '`--cf-frame-cells` takes any count.\n' +
           '- **Below 40em (phones):** the frame is dropped and the page is full-bleed at normal type sizes.\n' +
           '- **Keyboard:** give the body `tabindex="0"` so the scroll region is reachable; `#hash` links scroll inside it.\n' +
           '- **Other ratios:** set `--cf-frame-ratio` (default `1.3333`).\n\n' +
@@ -143,16 +192,53 @@ export const Framed = {
       },
     },
   },
+  args: { cells: 40 },
+  argTypes: {
+    cells: {
+      control: 'inline-radio',
+      options: [40, 60, 80],
+      description: 'Cells to a row: `data-cells` (40, the default, needs no attribute)',
+    },
+  },
   render: framedPage,
   // Test-runner default viewport is wide (1280×720), so the frame is 4:3 with side bars.
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, args }) => {
+    await document.fonts.load("1em 'Bedstead Cell'"); // measure Bedstead, not the fallback monospace
     const page = canvasElement.querySelector('.cf-page');
     const body = page.querySelector('.cf-page__body');
     const r = page.getBoundingClientRect();
     await expect(Math.abs(r.width / r.height - 4 / 3)).toBeLessThan(0.02);
-    // Type scales with the frame: body is 16px at a 1024px-wide frame.
-    const cs = getComputedStyle(page);
-    await expect(parseFloat(cs.fontSize)).toBeCloseTo((r.width * 16) / 1024, 1);
+    // Never wider than its container (no sideways scroll, in Docs too).
+    await expect(r.width).toBeLessThanOrEqual(page.parentElement.clientWidth);
+    await expectGrid(page, args.cells);
+    // Each line is one cell high, set in Bedstead, and nothing spills sideways.
+    const row = body.querySelector('p > span').parentElement;
+    const cs = getComputedStyle(row);
+    await expect(body.scrollWidth).toBe(body.clientWidth);
+    await expect(row.getBoundingClientRect().height).toBeCloseTo(parseFloat(cs.fontSize), 0);
+    await expect(cs.fontFamily).toMatch(/^"?Bedstead/);
+    const fastext = page.querySelector('.cf-fastext');
+    await expect(fastext.scrollWidth).toBeLessThanOrEqual(fastext.clientWidth);
+    // Only the authentic eight: the off-palette aliases snap to blue and green.
+    const [dim, bg2] = [...body.querySelectorAll('span[style]')].map((n) => getComputedStyle(n));
+    await expect(dim.color).toBe('rgb(0, 255, 0)');
+    await expect(bg2.backgroundColor).toBe('rgb(0, 0, 255)');
+    // The other grid sizes: data-cells="60" and "80", and the --cf-frame-cells escape hatch. Restored after.
+    const span = row.querySelector('span');
+    for (const [cells, set] of [
+      [60, () => (page.dataset.cells = '60')],
+      [80, () => (page.dataset.cells = '80')],
+      [50, () => page.style.setProperty('--cf-frame-cells', '50')],
+    ]) {
+      set();
+      span.textContent = ruler(cells);
+      await expectGrid(page, cells);
+      delete page.dataset.cells;
+      page.style.removeProperty('--cf-frame-cells');
+    }
+    if (args.cells !== 40) page.dataset.cells = String(args.cells);
+    span.textContent = ruler(args.cells);
+    // Only the body scrolls; header and footer stay pinned.
     await expect(body.scrollHeight).toBeGreaterThan(body.clientHeight);
     const [header, footer] = ['header', 'footer'].map((t) => page.querySelector(t));
     const [h0, f0] = [header, footer].map((n) => n.getBoundingClientRect().top);
@@ -160,5 +246,52 @@ export const Framed = {
     await expect(body.scrollTop).toBeGreaterThan(0);
     await expect(header.getBoundingClientRect().top).toBe(h0);
     await expect(footer.getBoundingClientRect().top).toBe(f0);
+  },
+};
+
+// The CRT look: the same Screen frame with `data-frame="crt"`. Its off-switches (forced colours,
+// Accessible theme) are asserted in .storybook/test-runner.js postVisit: play() can't emulate media.
+export const CrtFramed = {
+  name: 'Screen frame, CRT look (data-frame="crt")',
+  parameters: {
+    layout: 'fullscreen',
+    docs: {
+      description: {
+        story:
+          'Set `data-frame="crt"` instead of a bare `data-frame` for the look of a CRT set: faint scanlines, twelve to a ' +
+          'cell row, over the whole frame and a soft glow on the text. It is still a Screen frame, so everything in ' +
+          'the story above applies. Use the **crt** control to switch the look on and off.\n\n' +
+          '- **Static:** no flicker, interlace or curvature (photosensitivity; curvature bends text off the grid).\n' +
+          '- **Off** under `forced-colors: active` and the Accessible theme, and below 40em where the frame itself is dropped.\n' +
+          '- **Not AA everywhere:** on the rows the scanlines darken, red on black (the NEWS key) drops to ~3.5:1 and magenta to ~4.3:1. ' +
+          'That is the accepted price of the look (ADR-0014), so it is never on by default: a page that must meet AA ' +
+          'leaves `crt` off or uses the Accessible theme.',
+      },
+    },
+  },
+  args: { crt: true },
+  argTypes: { crt: { control: 'boolean', description: 'Toggle `data-frame="crt"` against a bare `data-frame`' } },
+  render: ({ crt }) => {
+    const page = framedPage();
+    page.dataset.frame = crt ? 'crt' : '';
+    return page;
+  },
+  play: async ({ canvasElement, args }) => {
+    if (!args.crt) return; // the CRT assertions are for the look switched on (the default)
+    const page = canvasElement.querySelector('.cf-page');
+    const r = page.getBoundingClientRect();
+    await expect(Math.abs(r.width / r.height - 4 / 3)).toBeLessThan(0.02); // still a Screen frame
+    const after = getComputedStyle(page, '::after');
+    await expect(after.backgroundImage).toContain('repeating-linear-gradient');
+    await expect(after.height).toBe(getComputedStyle(page).height);
+    const glow = (sel) => getComputedStyle(page.querySelector(sel)).textShadow;
+    await expect(glow('p')).not.toBe('none');
+    // Each text glows in its own colour: the green service name's glow isn't the white body's.
+    await expect(glow('.cf-header-row__service')).not.toBe(glow('p'));
+    // A bare data-frame is unchanged: no overlay, no glow.
+    page.dataset.frame = '';
+    await expect(getComputedStyle(page, '::after').content).toBe('none');
+    await expect(glow('p')).toBe('none');
+    page.dataset.frame = 'crt';
   },
 };

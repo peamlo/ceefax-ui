@@ -24,7 +24,7 @@ npm run lint           # Stylelint (the contract's mechanical rules) + ESLint + 
 npm run format         # fix what the three can fix; staged files are also fixed by the pre-commit hook
 npm run assert-package # after build: pack, clean-install and assert the tarball, size budgets included (CI `package` job)
 node scripts/size.mjs . # brotli size per entry point vs its budget (ADR-0015)
-node scripts/check-doc-indexes.mjs # every ADR/review is in its index (CI `docs` job, with lychee + markdownlint)
+node scripts/check-doc-indexes.mjs # every ADR/review is in its index (CI `docs` workflow, with lychee + markdownlint)
 npx knip               # unused files, exports, dependencies (CI `dead-code` job, config in knip.jsonc)
 node scripts/token-report.mjs # every --cf-* token and its consumers; fails on one neither used nor in a Foundations story
 node --test 'scripts/*.test.mjs' # the scripts' own tests
@@ -39,7 +39,7 @@ Storybook (`@storybook/html-vite` + the a11y addon; interactions/`play()` are co
 - `docs/adr/` — Architecture Decision Records (why, not how). Flag output that contradicts an ADR.
 - Storybook — live component behaviour and variants.
 - `docs/agents/` — how agents consume the issue tracker, triage labels, and domain docs (see below).
-- `docs/reference/` — external reference material (summaries + archive links, not mirrors), e.g. [zxnet teletext](docs/reference/zxnet-teletext.md) for authentic teletext behaviour and specs.
+- `docs/reference/` — external reference material (summaries + archive links, not mirrors), e.g. [zxnet teletext](docs/reference/zxnet-teletext.md) for authentic teletext behaviour and specs, [Antena 3 Teletexto](docs/reference/antena3-teletexto.md) for a live Spanish service.
 - `docs/reviews/` — dated, point-in-time reviews (e.g. CI checks). Snapshots, not living docs: the GitHub issues they spawn are canonical.
 
 ## Commit messages — Conventional Commits

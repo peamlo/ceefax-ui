@@ -250,14 +250,20 @@
         flex-direction: column;
         justify-content: center;
       }
-      .pane-result .screen::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        background: repeating-linear-gradient(rgba(0, 0, 0, 0) 0 2px, rgba(0, 0, 0, 0.3) 2px 3px);
-        mix-blend-mode: multiply;
-        opacity: 0.7;
+      /* The CRT look the library gives data-frame="crt", on every result panel: the same
+         --cf-crt-* tokens, so the Accessible theme turns it off here too. The panels aren't Screen
+         frames, so the scanline pitch is a fixed 3px rather than twelve to a cell row. */
+      @media (forced-colors: none) {
+        [data-crt] .pane-result .screen {
+          text-shadow: 0 0 0.15em var(--cf-crt-glow);
+        }
+        [data-crt] .pane-result .screen::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          background: repeating-linear-gradient(transparent 0 2px, var(--cf-crt-scanline) 0 3px);
+        }
       }
       /* keep the page shell content-sized inside a demo panel (library sets 100vh) */
       .pane-result .screen .cf-page:has(.cf-page__body) {
@@ -351,6 +357,14 @@
             it never changes</span
           ></label
         >
+        <label class="mast-theme"
+          ><input type="checkbox" data-crt-switch />CRT LOOK
+          <span style="color: var(--doc-dim); font-weight: 400"
+            >— the scanlines and glow of <code>data-frame="crt"</code> (see
+            <a href="screen.html?crt">screen.html?crt</a>); below AA on red and magenta, so opt-in;
+            <em>off under the accessible theme</em></span
+          ></label
+        >
         <p class="mast-sub">
           A quick view of what the library delivers. The <b>class markup you write</b> is on the left; the
           <b>real library stylesheet</b> (<code>../src/index.css</code>) renders it on the right. One import, then plain
@@ -392,7 +406,7 @@
                     <li><a class="cf-fastext__key" data-variant="red" href="#">NEWS</a></li>
                     <li><a class="cf-fastext__key" data-variant="green" href="#">SPORT</a></li>
                     <li><a class="cf-fastext__key" data-variant="yellow" href="#">TV</a></li>
-                    <li><a class="cf-fastext__key" data-variant="blue" href="#">A–Z</a></li>
+                    <li><a class="cf-fastext__key" data-variant="cyan" href="#">A–Z</a></li>
                   </ul>
                 </nav>
               </footer>
@@ -641,6 +655,12 @@
       themeSwitch.addEventListener('change', () => {
         if (themeSwitch.checked) document.documentElement.dataset.theme = 'accessible';
         else delete document.documentElement.dataset.theme;
+      });
+
+      // Demo-only: switches the panels' CRT look (in a real page, data-frame="crt" on the frame).
+      const crtSwitch = document.querySelector('[data-crt-switch]');
+      crtSwitch.addEventListener('change', () => {
+        document.documentElement.toggleAttribute('data-crt', crtSwitch.checked);
       });
 
       const dedent = (t) => {

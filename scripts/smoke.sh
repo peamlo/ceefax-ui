@@ -13,5 +13,9 @@ get "" > /dev/null
 id=$(get index.json | jq -re '[.entries[] | select(.type == "story")][0].id')
 get "iframe.html?id=${id}" > /dev/null
 grep -q 'src/index.css' <<< "$(get demo/)"
+for page in demo/ demo/screen; do grep -q 'public/favicon.svg' <<< "$(get "$page")"; done
 get src/index.css > /dev/null
 get fonts/bedstead-3.261-regular.woff2 > /dev/null
+get public/favicon.svg > /dev/null
+# A host that serves index.html for missing paths hides every broken link above.
+[[ $(curl -sS -o /dev/null -w '%{http_code}' "${URL}does-not-exist") == 404 ]]

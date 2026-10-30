@@ -18,24 +18,81 @@
 }
 
 /* Screen frame — opt-in `data-frame` on the page shell: a 4:3 teletext set, as wide as
-   fits the viewport and centred, with the type tokens scaled to the frame so the layout
-   reads the same at any size. Header/footer stay pinned; only the body scrolls (give it
-   tabindex="0" so keyboard users can reach it). Ratio escape hatch: --cf-frame-ratio.
-   Below the one breakpoint a 4:3 box would be tiny, so the frame simply isn't applied
-   (full-bleed, fixed type). The breakpoint is a literal: @media can't read custom props.
-   --_w is the frame width, so type scales without container queries (cqw can't resolve
-   against the element that is itself the container). */
+   fits its container and the viewport's height, centred. Header/footer stay pinned; only
+   the body scrolls (give it tabindex="0" so keyboard users can reach it). Ratio escape
+   hatch: --cf-frame-ratio. Below the one breakpoint a 4:3 box would be tiny, so the frame
+   simply isn't applied (full-bleed, fixed type). The breakpoint is a literal: @media
+   can't read custom props.
+   The authentic mode (ADR-0014): a row is 40 cells (--_cell, one cell's width) inside a
+   one-cell margin on each side, so header, body and footer start on the same column.
+   data-cells="60" and "80" make denser, terminal-like grids; --cf-frame-cells is the escape hatch
+   for any count (ADR-0003: enum attribute + custom property).
+   Every line is one cell high, with no tracking, and all text is set in Bedstead, whose
+   cell is 0.6em × 1em, so 1em = cell / 0.6. The type scale keeps its ratios in cells
+   (body 1, heading 2, display-lg 3 cells high). 'Bedstead Cell' is Bedstead at its own
+   metrics, so a line box is exactly its cell and colour runs and mosaics tile. Colours:
+   tokens/colors.css.
+   The frame is a size container, so each slot measures its cells against it (42 across:
+   40 plus the margins). The body is a container too, and its children re-read the tokens
+   against its own content box, so a scrollbar never wraps a 40-cell line at 39.
+   The cell snaps down to a whole pixel where round() is supported: some platforms (Linux
+   Chromium) round glyph advances to whole pixels, and a fractional cell rounded up would
+   wrap at 39. The row then falls short of the edge by under 1px per cell. */
+/* Registered as a length so `100cqi` resolves to px where it is declared (against the
+   nearest container), not again on every descendant against whatever container is nearest. */
+@property --_cell {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0;
+}
+/* Grid size: 40 cells (teletext, the default), 60 or 80. Set on the frame, read by its slots. */
+.cf-page[data-cells='40'] {
+  --cf-frame-cells: 40;
+}
+.cf-page[data-cells='60'] {
+  --cf-frame-cells: 60;
+}
+.cf-page[data-cells='80'] {
+  --cf-frame-cells: 80;
+}
 @media (min-width: 40em) {
   .cf-page[data-frame] {
     --_r: var(--cf-frame-ratio, 1.3333);
-    --_w: min(100vw, calc(100dvh * var(--_r)));
-    --cf-text-body: calc(var(--_w) * 0.015625); /* 16px at a 1024px-wide frame */
-    --cf-text-small: calc(var(--_w) * 0.01171875); /* 12px */
-    --cf-text-heading: calc(var(--_w) * 0.03125); /* 32px */
-    width: var(--_w);
+    --cf-font-display: 'Bedstead Cell', 'Bedstead', monospace;
+    --cf-font-mono: var(--cf-font-display);
+    --cf-leading-tight: 1;
+    --cf-leading-normal: 1;
+    --cf-leading-relaxed: 1;
+    --cf-tracking-wide: 0; /* tracking would push text off its cells */
+    width: min(100%, calc(100dvh * var(--_r)));
     aspect-ratio: var(--_r);
     margin-inline: auto;
     overflow: hidden;
+    container-type: inline-size;
+  }
+  :where(.cf-page[data-frame] > *, .cf-page[data-frame] .cf-page__body > *) {
+    --_em: calc(var(--_cell) / 0.6); /* Bedstead's advance is 0.6em */
+    --cf-text-small: calc(var(--_em) * 0.75);
+    --cf-text-body: var(--_em);
+    --cf-text-subheading: calc(var(--_em) * 1.5);
+    --cf-text-heading: calc(var(--_em) * 2);
+    --cf-text-display-lg: calc(var(--_em) * 3);
+    --cf-text-display-xl: calc(var(--_em) * 4.5);
+  }
+  .cf-page[data-frame] > * {
+    --_cell: calc(100cqi / (var(--cf-frame-cells, 40) + 2));
+    padding-inline: var(--_cell);
+  }
+  .cf-page[data-frame] .cf-page__body > * {
+    --_cell: calc(100cqi / var(--cf-frame-cells, 40));
+  }
+  @supports (width: round(down, 1.5px, 1px)) {
+    .cf-page[data-frame] > * {
+      --_cell: round(down, 100cqi / (var(--cf-frame-cells, 40) + 2), 1px);
+    }
+    .cf-page[data-frame] .cf-page__body > * {
+      --_cell: round(down, 100cqi / var(--cf-frame-cells, 40), 1px);
+    }
   }
   .cf-page[data-frame]:has(.cf-page__body) {
     min-height: 0;
@@ -43,5 +100,39 @@
   }
   .cf-page[data-frame] .cf-page__body {
     overflow: auto;
+    scrollbar-gutter: stable; /* reserved up front, or cqi would ignore an auto scrollbar */
+    container-type: inline-size;
+  }
+  /* Zero specificity, so a component's own size still wins; bare headings keep their
+     browser em sizes. */
+  :where(.cf-page[data-frame] > *, .cf-page[data-frame] .cf-page__body > :not(h1, h2, h3, h4, h5, h6)) {
+    font-size: var(--cf-text-body);
+  }
+}
+
+/* CRT look — opt-in `data-frame="crt"`: faint static scanlines over the frame, twelve to a cell
+   row (a third dark) so they line up with the rows, plus a soft phosphor glow in each text's own colour.
+   No flicker, interlace or curvature (WCAG 2.3.1; curvature bends text off the grid). Nothing
+   moves, so reduced motion doesn't apply. Off under forced colours; the Accessible theme turns
+   it off by remapping --cf-crt-scanline / --cf-crt-glow to transparent (ADR-0010).
+   Known trade-off (ADR-0014): the 21% scanlines drop red (~3.5:1) and magenta (~4.3:1)
+   against black below AA on the rows they darken, so the look is opt-in only. */
+@media (min-width: 40em) and (forced-colors: none) {
+  .cf-page[data-frame='crt'] {
+    position: relative;
+    text-shadow: 0 0 0.15em var(--cf-crt-glow);
+  }
+  .cf-page[data-frame='crt']::after {
+    /* one cell row, measured like the slots' cells (100cqi is the frame here); no round(), no lines */
+    --_row: calc(round(down, 100cqi / (var(--cf-frame-cells, 40) + 2), 1px) / 0.6);
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0 calc(var(--_row) / 18),
+      var(--cf-crt-scanline) 0 calc(var(--_row) / 12)
+    );
   }
 }

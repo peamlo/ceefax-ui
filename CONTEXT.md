@@ -21,7 +21,7 @@ The single place a presentational variant name resolves to a colour — `--_vari
 _Avoid_: variant mixin, colour map, theme lookup
 
 **Variant block**:
-A surface filled with a presentational variant's colour — a fastext key, a coloured button. The readable foreground painted on it is its **ink** (black on light blocks, white on authentic blue; black on every block under the Accessible theme).
+A surface filled with a presentational variant's colour, such as a coloured button. The readable foreground painted on it is its **ink** (black on light blocks, white on authentic blue; black on every block under the Accessible theme).
 _Avoid_: swatch, colour chip
 
 **Band**:
@@ -41,7 +41,7 @@ The typeface for headings, card titles and fastext keys: Bedstead, a recreation 
 _Avoid_: VT323, heading font, title font
 
 **Fastext**:
-The four coloured navigation keys (red / green / yellow / blue) from teletext, and their component (`cf-fastext`). A domain term, not a generic nav bar.
+The one-to-four coloured navigation keys from teletext (red / green / yellow / cyan on screen), and their component (`cf-fastext`): coloured labels by default, a key on a band with `data-band`. A domain term, not a generic nav bar.
 _Avoid_: colour buttons, quick links
 
 **Authentic colour**:
@@ -137,8 +137,12 @@ The optional structural template (`cf-page` with `cf-page__header` / `__body` / 
 _Avoid_: layout, page component, template component
 
 **Screen frame**:
-The opt-in `data-frame` variant of the page shell: a 4:3 teletext set, as wide as fits the viewport and centred, with the type tokens scaled to the frame, header and footer pinned and only the body scrolling. Full-bleed below one narrow-viewport breakpoint. Presentational only; the ratio is tunable with `--cf-frame-ratio`.
+The opt-in `data-frame` variant of the page shell: a 4:3 teletext set, as wide as fits its container and centred, with the type tokens scaled to the frame, header and footer pinned and only the body scrolling. Full-bleed below one narrow-viewport breakpoint. Presentational only; the ratio is tunable with `--cf-frame-ratio`. It is the authentic mode: text sits on the Cell grid, 40 to a row by default. Inside it only the eight authentic colours appear, unless the Accessible theme also applies, which wins. `data-frame="crt"` is still a Screen frame, with the **CRT look** on top: faint static scanlines, twelve to a cell row, and a soft glow on the text; off under forced colours and the Accessible theme.
 _Avoid_: viewport, TV wrapper, `cf-screen`
+
+**Cell**:
+One character position on the teletext grid, 40 to a row (60 or 80 on the Screen frame's denser grids). Inside the Screen frame, text and mosaics snap to cells; outside it, layout stays fluid and only the look is teletext.
+_Avoid_: character box, tile, column
 
 **Scrollbar variant**:
 The look of the scrollbars inside the Page shell, set with the presentational `data-scrollbar` attribute: `fastext`, `mosaic` or `thin`, with **block** (a square foreground thumb) when none is set. Inherited, so the nearest attribute wins. On hover or drag the thumb takes an Inversion. Firefox shows only the variant's two colours.
