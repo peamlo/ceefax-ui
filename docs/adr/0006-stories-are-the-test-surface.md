@@ -51,7 +51,7 @@ no built Storybook. One mechanism, one surface:
   the addon's axe pass (Storybook runs `afterEach` finalizers in reverse, so the
   preview's goes first; it throws if axe has already run). `play()` asserts under the
   authentic theme in both projects; a `play()` that checks an accessible-theme contract
-  (the fastext blue-key hover) sets the theme for that step and restores it.
+  (the fastext hover inversion) sets the theme for that step and restores it.
 
 Assertions target the **highest seam** — rendered DOM and computed styles a consumer
 would see — never a private `--_var` or an internal selector.
