@@ -1,5 +1,6 @@
 import { expect, within } from 'storybook/test';
 import { colours, realInput, unhover } from './_real-input.js';
+import { withAccessibleTheme } from './_theme.js';
 
 // The authentic on-screen palette: the 4th key is cyan, because blue text on black fails contrast.
 const KEYS = [
@@ -74,15 +75,7 @@ export default {
     if (!io) return;
     await assertHover(io, keys[0]);
     // #12: under the accessible theme the inversion follows the theme's colours, ink still black.
-    const root = document.documentElement;
-    const theme = root.dataset.theme;
-    root.dataset.theme = 'accessible';
-    try {
-      await assertHover(io, keys[0]);
-    } finally {
-      if (theme) root.dataset.theme = theme;
-      else delete root.dataset.theme;
-    }
+    await withAccessibleTheme(() => assertHover(io, keys[0]));
   },
 };
 
