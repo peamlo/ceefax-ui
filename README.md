@@ -80,7 +80,7 @@ not a mockup.
 | `cf-table` / `cf-table__scroll`                                                           | `<table>` / `<div role="region">`                                       | `stripe-rows` / `stripe-cols` text/band · `variant` / `band` on any part · `align="end"` / `leader` on a cell · `side="bottom"` on the caption | `[aria-current="true"]` on a row         |
 | `<cf-loader>`                                                                             | Web Component                                                           | —                                                                                                                                              | blink (reduced-motion aware)             |
 | `<cf-canvas>`                                                                             | Web Component                                                           | `size` sm/md/lg/full                                                                                                                           | `alt` → `role="img"`                     |
-| `cf-page` + `data-frame`                                                                  | `<section>` with `header`/`main`/`footer`                               | `frame` (4:3 screen; `--cf-frame-ratio` to change) · `scrollbar` fastext/mosaic/thin                                                           | —                                        |
+| `cf-page` + `data-frame`                                                                  | `<section>` with `header`/`main`/`footer`                               | `frame` (4:3 screen; `--cf-frame-ratio` to change) · `cells` 40/60/80 (`--cf-frame-cells` for any count) · `scrollbar` fastext/mosaic/thin     | —                                        |
 
 ### Notice (`cf-notice`)
 
@@ -222,7 +222,9 @@ Colour tokens come in two tiers, both under the `cf` namespace:
 
 Use the semantic aliases in your own CSS so it follows the active theme; reach for `--cf-base-*` only when you deliberately want the authentic colour whatever the theme (e.g. pixel art). The library's own component and layout stylesheets, and the variant seam, use semantic aliases only — CI enforces it.
 
-Type follows web conventions on an 8px grid: `--cf-text-small` 12 · `body` 16 · `subheading` 24 · `heading` 32 · `display-lg` 48 · `display-xl` 72 (px). `--cf-content-max` is a prose reading measure (~65ch); only the Screen frame is one teletext page (40 cells) wide, and inside it the type scales with the frame.
+Type follows web conventions on an 8px grid: `--cf-text-small` 12 · `body` 16 · `subheading` 24 · `heading` 32 · `display-lg` 48 · `display-xl` 72 (px). `--cf-content-max` is a prose reading measure (~65ch); only the Screen frame is one teletext page (40 cells) wide.
+
+Inside the Screen frame (`.cf-page[data-frame]`, from 40em up) the page follows teletext's rules: the type is sized so 40 Bedstead cells fill a row inside a one-cell margin on each side (in the body, inside its scrollbar, to the whole pixel), so header, body and footer start on the same column, every line is one cell high, all text is Bedstead, and the scale keeps its ratios in cells (body 1 · heading 2 · display-lg 3). Only the eight authentic colours appear: `--cf-bg-2` snaps to blue and `--cf-fg-dim` to green, unless the [accessible theme](#accessible-theme) applies, which wins. The frame sets each slot's inline padding to that margin. For a denser, terminal-like grid add `data-cells="60"` or `"80"`; `--cf-frame-cells` takes any count (40 is the default and the teletext one).
 
 Spacing is `ch`-based; radius is always `0`.
 

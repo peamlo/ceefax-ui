@@ -55,3 +55,42 @@ Space Mono ships under. Source, version and this reasoning are recorded in
 - **Deferred:** if `<cf-canvas>` is kept alongside `cf-mosaic`, decide whether it takes the
   two-colours-per-cell limit inside the frame. Until then
   [ADR-0004](0004-cf-canvas-pixel-art.md) stands: free per-pixel colour.
+
+## Amendment: the cell grid and colour rules ([#74](https://github.com/peamlo/ceefax-ui/issues/74))
+
+**The cell grid.** Inside the frame a row is 40 **cells** by default (see Grid size below). Bedstead's cell is 0.6em wide and 1em
+tall (its own ascent and descent), so the type is sized to `cell / 0.6` and every line height is
+1: a line box is exactly one cell, which is what lets colour runs and mosaics tile. The frame
+sets text in a second face, `Bedstead Cell`: the same files with no metric overrides, because the
+overrides that centre capitals outside the frame make the glyph box 1.1em tall. All text is
+Bedstead in the frame (Space Mono's 0.612em advance would drift off the grid), and tracking is 0.
+The type scale keeps its ratios, counted in cells: body 1, heading 2 and display-lg 3 cells high,
+with small, subheading and display-xl at 0.75, 1.5 and 4.5, where nothing needs to tile.
+
+**A one-cell margin, and rows measured where they are read.** The 40 cells sit inside a
+one-cell margin on each side, like a set's safe area, so header, body and footer all start on the
+same column (the header row's own padding is replaced by it). The frame is sized to its container
+(never wider, so no sideways scroll in a narrow column such as Storybook Docs) and is a size
+container itself: each slot takes its cell from it, 42 across. The body is the scroll region, and
+a classic scrollbar takes about one cell, so a grid sized to the frame would wrap a 40-character
+line at 39: the body is a size container too, its scrollbar gutter reserved up front so the
+measurement is stable, and its children take their cells from its own content box. This replaces
+[ADR-0009](0009-screen-frame-data-attr.md)'s `--_w` width property: the type no longer scales on
+the frame element itself, so the `cqw` objection there doesn't apply.
+
+**Cells are whole pixels.** Some platforms (Linux Chromium in CI) round glyph advances to whole
+pixels, so a fractional cell can round up and wrap a 40-character line at 39. Where CSS `round()`
+is supported the cell snaps down to a whole pixel: the row falls short of the edge by under 1px
+per cell (under one cell in all), never past it. With a classic scrollbar the header's and body's
+cells then usually come out the same size, so their columns line up.
+
+**Grid size.** 40 cells is the default and the teletext grid. `data-cells="60"` and `"80"` give
+denser, terminal-like grids for pages that need more on screen; it is the same mode with smaller cells, not
+broadcast teletext. `--cf-frame-cells` takes any count, the [ADR-0003](0003-layout-primitives-data-attr-config.md)
+enum-plus-escape-hatch pattern (`data-cells` sets it). The whole-pixel snap costs more on a dense
+grid: at 80 cells in a small frame the row can end several cells short of the edge.
+
+**Authentic colours only.** The two off-palette aliases snap inside the frame, remapped like a
+theme: `--cf-bg-2` to blue and `--cf-fg-dim` to green, never touching `--cf-base-*`. When the
+Accessible theme applies to the frame or an ancestor it wins and the aliases keep its values. Like
+the rest of the frame, none of this applies below the 40em breakpoint.

@@ -68,13 +68,35 @@ async function assertFastextHover(page) {
 // Needs a real viewport resize, which in-page play() cannot do. Restores the wide viewport.
 async function assertScreenFrame(page) {
   await page.setViewportSize({ width: 400, height: 800 });
-  const { width, aspectRatio } = await page.evaluate(() => {
+  const { width, aspectRatio, fontFamily } = await page.evaluate(() => {
     const cs = getComputedStyle(document.querySelector('.cf-page[data-frame]'));
-    return { width: parseFloat(cs.width), aspectRatio: cs.aspectRatio };
+    return { width: parseFloat(cs.width), aspectRatio: cs.aspectRatio, fontFamily: cs.fontFamily };
   });
   expect(aspectRatio).toBe('auto');
   expect(width).toBeGreaterThanOrEqual(380); // viewport minus scrollbar, i.e. full-bleed
+  expect(fontFamily).toMatch(/^"?Space Mono/); // no grid, no Bedstead body text
+  // A width-bound frame (taller viewport than 4:3): the 40-character row still fills the body.
+  await page.setViewportSize({ width: 900, height: 1000 });
+  const [rowW, spanW] = await page.evaluate(() => {
+    const row = document.querySelector('.cf-page__body p > span').parentElement;
+    return [row.getBoundingClientRect().width, row.firstChild.getBoundingClientRect().width];
+  });
+  expect(spanW).toBeLessThanOrEqual(rowW + 0.01); // never wraps at 39
+  expect(rowW - spanW).toBeLessThan(40); // short by under 1px per cell (whole-pixel cells)
   await page.setViewportSize({ width: 1280, height: 720 });
+}
+
+// Contract (#74): the Accessible theme wins over the frame's authentic colours, so the two
+// off-palette aliases keep the theme's values (bg-2 has no theme remap: the default deep blue).
+// Call with the theme already set on <html>, as the Storybook theme toolbar sets it.
+async function assertAccessibleFrame(page) {
+  const [dim, bg2] = await page.evaluate(() =>
+    [...document.querySelectorAll('.cf-page__body span[style]')]
+      .map((n) => getComputedStyle(n))
+      .map((cs) => [cs.color, cs.backgroundColor]),
+  );
+  expect(dim[0]).toBe('rgb(179, 179, 179)'); // the theme's #b3b3b3
+  expect(bg2[1]).toBe('rgb(16, 11, 138)'); // #100b8a, the default
 }
 
 // Contract (#72): at phone width the header row wraps inside the page shell, keeping the
@@ -175,6 +197,7 @@ export default {
     await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'accessible'));
     // #12: under the accessible theme the inversion follows the theme's colours, ink still black.
     if (title === 'Components/Fastext bar') await assertFastextHover(page);
+    if (isFrame) await assertAccessibleFrame(page);
     await axe(page, { aaa: true });
   },
 };

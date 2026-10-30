@@ -8,7 +8,9 @@
    Every part also opts into bands (ADR-0017): data-band sets it on a coloured background, and
    data-variant beside it picks the ink, e.g. <span class="cf-header-row__service" data-band="blue"
    data-variant="yellow">. After the [data-variant] rule so it wins on order.
-   A touch larger than body text, and scaled with it inside the Screen frame. Narrow viewports
+   A touch larger than body text; inside the Screen frame exactly one cell high, like the broadcast
+   row, and its padding gives way to the frame's one-cell margin (same breakpoint as the frame,
+   layout/page.css). Narrow viewports
    wrap the time onto a second line, kept right; the page number leads and never shrinks. */
 .cf-header-row {
   display: flex;
@@ -22,6 +24,11 @@
   font-size: calc(var(--cf-text-body) * 1.25);
   line-height: var(--cf-leading-tight);
   overflow-wrap: anywhere;
+}
+@media (min-width: 40em) {
+  .cf-page[data-frame] .cf-header-row {
+    font-size: var(--cf-text-body);
+  }
 }
 .cf-header-row__page,
 .cf-header-row__time {
