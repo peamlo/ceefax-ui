@@ -50,7 +50,9 @@
    row (a third dark) so they line up with the rows, plus a soft phosphor glow in each text's own colour.
    No flicker, interlace or curvature (WCAG 2.3.1; curvature bends text off the grid). Nothing
    moves, so reduced motion doesn't apply. Off under forced colours; the Accessible theme turns
-   it off by remapping --cf-crt-scanline / --cf-crt-glow to transparent (ADR-0010). */
+   it off by remapping --cf-crt-scanline / --cf-crt-glow to transparent (ADR-0010).
+   Known trade-off (ADR-0014): the 21% scanlines drop black on red below AA on the rows they
+   darken (~3.5:1), so the look is opt-in only. */
 @media (min-width: 40em) and (forced-colors: none) {
   .cf-page[data-frame='crt'] {
     /* the body line box stands in for the cell row until #74 sets a cell height */

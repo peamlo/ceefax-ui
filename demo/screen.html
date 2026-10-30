@@ -15,8 +15,8 @@
   </head>
   <body>
     <!-- Resize the window: the page stays 4:3, type scales with it, and below 40em it goes full-bleed.
-         data-frame="crt" adds the CRT look; a bare data-frame is the plain frame. -->
-    <section class="cf-page" data-frame="crt" data-scrollbar="fastext">
+         Add ?crt to the URL for data-frame="crt", the CRT look (opt-in: below AA on red, ADR-0014). -->
+    <section class="cf-page" data-frame data-scrollbar="fastext">
       <header class="cf-page__header cf-header-row">
         <span class="cf-header-row__page">P100</span>
         <span class="cf-header-row__service">CEEFAX</span>
@@ -52,5 +52,9 @@
         </nav>
       </footer>
     </section>
+    <script>
+      // Demo-only: ?crt in the URL switches on the CRT look.
+      if (new URLSearchParams(location.search).has('crt')) document.querySelector('.cf-page').dataset.frame = 'crt';
+    </script>
   </body>
 </html>

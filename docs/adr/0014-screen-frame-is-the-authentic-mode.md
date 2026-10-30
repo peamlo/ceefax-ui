@@ -59,6 +59,10 @@ Space Mono ships under. Source, version and this reasoning are recorded in
   2.3.1) and never curves (that bends text off the grid). Forced colours turn it off, and so does
   the Accessible theme, by remapping the `--cf-crt-*` aliases to transparent. Below the frame's
   breakpoint, where the frame itself is dropped, there is no CRT look either.
+  **The scanlines knowingly fall below AA** on the rows they darken: at 21% black, black on red
+  (a fastext key) drops from 5.25:1 to about 3.5:1 there; every other pair stays above 4.5:1.
+  Keeping AA on every row needs at most ~8%, where the lines barely show, so we chose the look
+  and keep it opt-in. A page that must meet AA leaves `crt` off or uses the Accessible theme.
 - **Deferred:** if `<cf-canvas>` is kept alongside `cf-mosaic`, decide whether it takes the
   two-colours-per-cell limit inside the frame. Until then
   [ADR-0004](0004-cf-canvas-pixel-art.md) stands: free per-pixel colour.

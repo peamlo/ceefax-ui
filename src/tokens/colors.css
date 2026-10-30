@@ -25,7 +25,7 @@
   --cf-danger: var(--cf-base-red);
   --cf-success: var(--cf-base-green);
   /* CRT look (data-frame="crt"): the scanline shade, and the glow, which mixes each text's own colour */
-  --cf-crt-scanline: color-mix(in srgb, var(--cf-bg) 21%, transparent);
+  --cf-crt-scanline: color-mix(in srgb, var(--cf-bg) 21%, transparent); /* below AA on red, ADR-0014 */
   --cf-crt-glow: color-mix(in srgb, currentcolor 45%, transparent);
   /* ink (readable foreground) on a variant block: light blocks, and dark ones (authentic blue) */
   --cf-on-variant: var(--cf-base-black);
