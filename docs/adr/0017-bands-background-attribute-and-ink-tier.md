@@ -44,3 +44,6 @@ even when the band was a typo, which under the Accessible theme is black on the 
   ADR-0007 apply unchanged, and the band reset keeps a nested typo band unbanded.
 - Pinned by `Foundations/Variant colours`, `Foundations/Accessible theme`, the Bands story,
   `Components/Header row` and `Components/Fastext bar`.
+- Since #120 the fastext key paints its label (or its band), not a background. Where
+  accepted ADRs 0007 and 0008 say the key paints its background or reads `--cf-on-variant`
+  for ink, read it as history.

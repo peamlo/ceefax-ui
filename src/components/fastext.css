@@ -4,7 +4,7 @@
 .cf-fastext {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: 1fr;
+  grid-auto-columns: minmax(0, 1fr); /* not 1fr: a long word must not widen its column */
   gap: 0;
   margin: 0;
   padding: 0;
@@ -30,7 +30,8 @@
 }
 /* Colour comes from the variant seam (base.css): by default a key is coloured text on the
    page, like a header-row part. A band (ADR-0017) is the filled look; data-variant beside
-   it names the ink. Both rules read through fallbacks, so a typo renders a plain key. */
+   it names the ink. Both rules read through fallbacks, so at rest a typo renders a plain key
+   (on hover a typo band still drops to the page, like a real band). */
 .cf-fastext__key[data-variant] {
   color: var(--_variant, var(--cf-fg));
 }
