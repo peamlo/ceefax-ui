@@ -258,12 +258,12 @@ export const CrtFramed = {
     docs: {
       description: {
         story:
-          'Set `data-frame="crt"` instead of a bare `data-frame` for the look of a CRT set: faint scanlines, eight to a ' +
-          'text row, over the whole frame and a soft glow on the text. It is still a Screen frame, so everything in ' +
+          'Set `data-frame="crt"` instead of a bare `data-frame` for the look of a CRT set: faint scanlines, twelve to a ' +
+          'cell row, over the whole frame and a soft glow on the text. It is still a Screen frame, so everything in ' +
           'the story above applies. Use the **crt** control to switch the look on and off.\n\n' +
           '- **Static:** no flicker, interlace or curvature (photosensitivity; curvature bends text off the grid).\n' +
           '- **Off** under `forced-colors: active` and the Accessible theme, and below 40em where the frame itself is dropped.\n' +
-          '- **Not AA everywhere:** on the rows the scanlines darken, black on red (the NEWS key) drops to ~3.5:1. ' +
+          '- **Not AA everywhere:** on the rows the scanlines darken, red on black (the NEWS key) drops to ~3.5:1 and magenta to ~4.3:1. ' +
           'That is the accepted price of the look (ADR-0014), so it is never on by default: a page that must meet AA ' +
           'leaves `crt` off or uses the Accessible theme.',
       },

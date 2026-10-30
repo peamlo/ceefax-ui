@@ -250,7 +250,7 @@
       }
       /* The CRT look the library gives data-frame="crt", on every result panel: the same
          --cf-crt-* tokens, so the Accessible theme turns it off here too. The panels aren't Screen
-         frames, so the scanline pitch is a fixed 3px rather than eight to a text row. */
+         frames, so the scanline pitch is a fixed 3px rather than twelve to a cell row. */
       @media (forced-colors: none) {
         [data-crt] .pane-result .screen {
           text-shadow: 0 0 0.15em var(--cf-crt-glow);
@@ -359,7 +359,7 @@
           ><input type="checkbox" data-crt-switch />CRT LOOK
           <span style="color: var(--doc-dim); font-weight: 400"
             >— the scanlines and glow of <code>data-frame="crt"</code> (see
-            <a href="screen.html?crt">screen.html?crt</a>); below AA on red, so opt-in;
+            <a href="screen.html?crt">screen.html?crt</a>); below AA on red and magenta, so opt-in;
             <em>off under the accessible theme</em></span
           ></label
         >
