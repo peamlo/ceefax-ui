@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/peamlo/ceefax-ui/compare/v0.5.0...v0.5.1) (2026-10-31)
+
+
+### Bug Fixes
+
+* **layout:** keep Stack children at their content height ([#128](https://github.com/peamlo/ceefax-ui/issues/128)) ([e9d5c8e](https://github.com/peamlo/ceefax-ui/commit/e9d5c8e9891cb710782d609df856d1660442edad)), closes [#125](https://github.com/peamlo/ceefax-ui/issues/125)
+
 ## [0.5.0](https://github.com/peamlo/ceefax-ui/compare/v0.4.0...v0.5.0) (2026-10-31)
 
 
