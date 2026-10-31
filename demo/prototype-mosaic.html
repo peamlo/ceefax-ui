@@ -22,8 +22,16 @@
       }
 
       /* --- The cf-mosaic CSS under test (would become src/components/mosaic.css) --- */
+      /* Fix 1, font load: a mosaic-only face (same file, so no second download) that blocks instead of
+         swapping, so mosaic cells stay blank while Bedstead loads rather than showing tofu. Text keeps swap. */
+      @font-face {
+        font-family: 'Bedstead Mosaic';
+        font-display: block;
+        src: url('../fonts/bedstead-3.261-regular.woff2') format('woff2');
+        unicode-range: U+2580-259F, U+1FB00-1FB3B, U+1CE51-1CE8F;
+      }
       .cf-mosaic {
-        font-family: 'Bedstead Cell', 'Bedstead', monospace;
+        font-family: 'Bedstead Mosaic', 'Bedstead Cell', 'Bedstead', monospace;
         font-weight: normal;
         line-height: 1;
         letter-spacing: 0;
@@ -38,6 +46,15 @@
       }
       .cf-mosaic [data-band] {
         background: var(--_band);
+      }
+      /* Fix 2, forced colours: a mosaic is a picture, like the cf-canvas it replaces, so it keeps its
+         colours and brings its own teletext background (the page's may be forced to white). ?fc=off to compare. */
+      @media (forced-colors: active) {
+        :root:not(.proto-fc-off) .cf-mosaic {
+          forced-color-adjust: none;
+          background: var(--cf-bg);
+          color: var(--cf-fg);
+        }
       }
 
       /* --- Prototype chrome, not under test --- */
@@ -398,6 +415,7 @@
       });
       if (params.get('theme') === 'accessible') document.documentElement.dataset.theme = 'accessible';
       if (params.has('snap')) document.documentElement.classList.add('proto-snap');
+      if (params.get('fc') === 'off') document.documentElement.classList.add('proto-fc-off');
       for (const box of document.querySelectorAll('[data-param]')) {
         const { param, value } = box.dataset;
         box.checked = params.has(param);
