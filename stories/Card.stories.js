@@ -1,6 +1,7 @@
 export default {
   title: 'Components/Card',
-  tags: ['autodocs'],
+  tags: ['autodocs', 'contract'],
+  parameters: { a11y: { test: 'error' } }, // in the axe gate under both themes (ADR-0006)
   render: ({ title, body, variant }) => {
     const card = document.createElement('article');
     card.className = 'cf-card';

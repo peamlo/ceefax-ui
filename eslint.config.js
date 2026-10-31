@@ -9,7 +9,7 @@ export default [
   { ignores: ['dist/', 'storybook-static/', '.agents/', '.claude/'] },
   js.configs.recommended,
   {
-    files: ['src/**/*.js', 'stories/**/*.js', '.storybook/preview.js'],
+    files: ['src/**/*.js', 'stories/**/*.js', '.storybook/preview.js', '.storybook/vitest.setup.js'],
     languageOptions: { globals: globals.browser },
   },
   {
@@ -30,13 +30,12 @@ export default [
     ...noUnsanitized.configs.recommended,
   },
   {
-    files: ['*.js', '*.mjs', 'scripts/**', '.storybook/main.js', '.storybook/test-runner.js'],
+    files: ['*.js', '*.mjs', 'scripts/**', '.storybook/main.js'],
     languageOptions: { globals: globals.node },
   },
   {
-    // Playwright page.evaluate() callbacks run in the browser; the test-runner hook runs
-    // under Jest.
-    files: ['scripts/assert-package.mjs', '.storybook/test-runner.js'],
-    languageOptions: { globals: { ...globals.browser, ...globals.jest } },
+    // Playwright page.evaluate() callbacks run in the browser.
+    files: ['scripts/assert-package.mjs'],
+    languageOptions: { globals: globals.browser },
   },
 ];

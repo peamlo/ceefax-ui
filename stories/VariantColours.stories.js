@@ -4,8 +4,8 @@ import { COLOURS, bandSample } from './_bands.js';
 // A contract story with no component of its own: it pins the computed colour a consumer
 // sees for every (component × variant) pair, so the variant→colour mapping can move
 // (issue #7) without any outcome drifting. Asserts the rendered result only — never the
-// custom property that carries it. Kept out of Components/* so the axe pass in
-// .storybook/test-runner.js doesn't run over a raw colour matrix.
+// custom property that carries it. Kept out of Components/* so the axe gate (ADR-0006)
+// doesn't run over a raw colour matrix.
 //
 // The pairs are generated, not listed: each theme says which colour every variant name
 // resolves to, each component says which properties it paints with that colour. A new
@@ -183,11 +183,11 @@ const BAND_GROUPS = [
 
 const row = 'display:flex;flex-wrap:wrap;align-items:flex-start;gap:1ch;width:100%';
 
-export default { title: 'Foundations/Variant colours' };
+export default { title: 'Foundations/Variant colours', tags: ['contract'] };
 
-// Deliberately ONE story: a Foundations file with more than one story reproducibly hangs
-// the test-runner for 60s with a "navigation" error on CI (ADR-0006), which is why the
-// Layout documentation stories are out of the gate. The nested cases ride along here.
+// Deliberately ONE story: a Foundations file with more than one story reproducibly hung
+// the old Storybook test-runner for 60s with a "navigation" error on CI (ADR-0006). The
+// nested cases ride along here.
 export const Matrix = {
   name: 'Every component × variant',
   render: () => {

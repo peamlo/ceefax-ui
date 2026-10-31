@@ -63,7 +63,7 @@ const bands = (root) =>
     })),
   );
 
-export default { title: 'Foundations/Accessible theme' };
+export default { title: 'Foundations/Accessible theme', tags: ['contract'] };
 
 // One story (ADR-0006): the canvas shows the live table play() asserts, plus the
 // danger/success pair side by side for a deuteranopia-simulation review.
