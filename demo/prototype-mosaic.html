@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>PROTOTYPE — cf-mosaic vs cf-canvas</title>
+    <link rel="icon" href="../public/favicon.svg" />
+    <link rel="stylesheet" href="../src/index.css" />
+    <!--
+      PROTOTYPE, throwaway (#75). Four variants of the same Screen-frame page, switchable via ?variant=:
+        A  cf-canvas today: every artwork is a <cf-canvas> block
+        B  cf-mosaic contiguous: the same pixel sources, written as Bedstead sextant text
+        C  cf-mosaic separated: the same, data-mosaic="separated" (U+1CE51..1CE8F)
+        D  side by side: canvas | contiguous | separated per artwork, two-colour clashes marked, markup shown
+      Every artwork is one cf-canvas char-grid; the mosaic variants convert it to text in JS (prototype
+      only: the real cf-mosaic is CSS on hand-written characters). ?theme=accessible tries the Accessible theme.
+    -->
+    <style>
+      body {
+        margin: 0;
+        background: #000;
+      }
+
+      /* --- The cf-mosaic CSS under test (would become src/components/mosaic.css) --- */
+      .cf-mosaic {
+        font-family: 'Bedstead Cell', 'Bedstead', monospace;
+        font-weight: normal;
+        line-height: 1;
+        letter-spacing: 0;
+        white-space: pre;
+      }
+      .cf-mosaic[data-rows] {
+        display: inline-block;
+        vertical-align: top;
+      }
+      .cf-mosaic [data-variant] {
+        color: var(--_variant);
+      }
+      .cf-mosaic [data-band] {
+        background: var(--_band);
+      }
+
+      /* --- Prototype chrome, not under test --- */
+      .proto-bar {
+        position: fixed;
+        inset-block-end: 12px;
+        inset-inline-start: 50%;
+        translate: -50% 0;
+        z-index: 99;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #fff;
+        color: #111;
+        font:
+          600 13px/1 system-ui,
+          sans-serif;
+        box-shadow: 0 4px 16px rgb(0 0 0 / 0.5);
+      }
+      .proto-bar button {
+        font: inherit;
+        border: 0;
+        border-radius: 999px;
+        background: #e5e5e5;
+        padding: 6px 10px;
+        cursor: pointer;
+      }
+      .proto-bar label {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+        font-weight: 400;
+      }
+      .proto-cols {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--_cell, 1ch);
+        align-items: end;
+      }
+      /* Same width as the mosaic: one source pixel = half a cell. Canvas pixels stay square. */
+      .proto-cols cf-canvas {
+        width: calc(var(--_cell, 1ch) * var(--px) / 2);
+      }
+      /* ?snap: the cell snaps to 3px so 1em (cell / 0.6) is a whole pixel and mosaic rows don't seam. */
+      .proto-snap .cf-page[data-frame] .cf-page__body > * {
+        --_cell: round(down, 100cqi / 40, 3px);
+      }
+      .proto-clash [data-clash] {
+        outline: 1px dashed #fff;
+        outline-offset: -1px;
+      }
+      .proto-markup {
+        font:
+          11px/1.4 ui-monospace,
+          monospace;
+        white-space: pre-wrap;
+        word-break: break-all;
+        color: #ccc;
+        max-height: 8lh;
+        overflow: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <section class="cf-page" data-frame data-cells="40" data-scrollbar="fastext">
+      <header class="cf-page__header cf-header-row">
+        <span class="cf-header-row__page">P199</span>
+        <span class="cf-header-row__service">CEEFAX</span>
+        <span class="cf-header-row__rolling">199</span>
+        <time class="cf-header-row__time" datetime="2026-10-31T16:02:00"
+          ><span class="cf-header-row__date">Oct31</span> 16:02:00</time
+        >
+      </header>
+      <main class="cf-page__body cf-stack" tabindex="0" style="padding-block: var(--cf-space-3)" id="body"></main>
+      <footer class="cf-page__footer">
+        <nav aria-label="Fastext">
+          <ul class="cf-fastext">
+            <li><a class="cf-fastext__key" data-variant="red" href="?variant=A">CANVAS</a></li>
+            <li><a class="cf-fastext__key" data-variant="green" href="?variant=B">MOSAIC</a></li>
+            <li><a class="cf-fastext__key" data-variant="yellow" href="?variant=C">SEPARATE</a></li>
+            <li><a class="cf-fastext__key" data-variant="cyan" href="?variant=D">COMPARE</a></li>
+          </ul>
+        </nav>
+      </footer>
+    </section>
+
+    <nav class="proto-bar" aria-label="Prototype variants">
+      <button type="button" data-step="-1" aria-label="Previous variant">←</button>
+      <span id="proto-label"></span>
+      <button type="button" data-step="1" aria-label="Next variant">→</button>
+      <label><input type="checkbox" data-param="theme" data-value="accessible" /> accessible</label>
+      <label><input type="checkbox" data-param="snap" data-value="3px" /> snap</label>
+    </nav>
+
+    <script type="module">
+      import { parseCharGrid } from '../src/elements/cf-canvas.js';
+      import { CEEFAX_PALETTE } from '../src/tokens/palette.js';
+
+      // --- Shared pixel sources (cf-canvas char-grids) -------------------------------------------
+      const ART = {
+        heart: {
+          alt: 'a red heart',
+          src: `
+            .rr.rr.
+            rrrrrrr
+            rrrrrrr
+            .rrrrr.
+            ..rrr..
+            ...r...`,
+        },
+        palm: {
+          alt: 'a palm tree on an island',
+          src: `
+            ..gg..gg..
+            .gggggggg.
+            gg..gg..gg
+            g...yy...g
+            ....yy....
+            ....yy....
+            ....yy....
+            ...yyyy...
+            ..cccccc..
+            cccccccccc`,
+        },
+        // 1px stripes: three colours in every 2x3 cell, the worst case for the two-colour limit.
+        rainbow: {
+          alt: 'a rainbow flag',
+          src: `
+            rrrrrrrrrrrr
+            yyyyyyyyyyyy
+            gggggggggggg
+            cccccccccccc
+            bbbbbbbbbbbb
+            mmmmmmmmmmmm`,
+        },
+        // The same flag drawn on whole cells (3px stripes): teletext artists' answer to the limit.
+        rainbowCell: {
+          alt: 'a rainbow flag',
+          src: `
+            rrrrrrrrrrrr
+            rrrrrrrrrrrr
+            rrrrrrrrrrrr
+            yyyyyyyyyyyy
+            yyyyyyyyyyyy
+            yyyyyyyyyyyy
+            gggggggggggg
+            gggggggggggg
+            gggggggggggg
+            bbbbbbbbbbbb
+            bbbbbbbbbbbb
+            bbbbbbbbbbbb`,
+        },
+        rule: {
+          src: [0, 1, 2].map((r) => '..yyyy..'.repeat(11).slice(r * 2, r * 2 + 80)).join('\n'),
+        },
+        arrow: {
+          src: `
+            rr..
+            rrrr
+            rr..`,
+        },
+        wedgeL: {
+          src: `
+            ...b
+            ..bb
+            .bbb`,
+        },
+        wedgeR: {
+          src: `
+            b...
+            bb..
+            bbb.`,
+        },
+      };
+      const VOTES = [
+        ['LAB', 34, 'red'],
+        ['CON', 24, 'blue'],
+        ['REF', 14, 'cyan'],
+        ['LD', 12, 'yellow'],
+        ['GRN', 7, 'green'],
+      ];
+      const votesAlt = `Vote share: ${VOTES.map(([p, v]) => `${p} ${v}%`).join(', ')}`;
+
+      // --- Pixel grid -> mosaic cells -----------------------------------------------------------
+      const NAME = [null, ...CEEFAX_PALETTE.map((p) => p.name)];
+      function glyph(v, separated) {
+        if (v === 0) return ' ';
+        if (separated) return String.fromCodePoint(0x1ce51 + v - 1);
+        if (v === 63) return '█';
+        if (v === 21) return '▌';
+        if (v === 42) return '▐';
+        return String.fromCodePoint(0x1fb00 + v - 1 - (v > 21) - (v > 42));
+      }
+      // Each 2x3 block keeps at most two colours: ink + background (transparent = the page).
+      // ponytail: extra colours merge into the ink, not nearest-colour; enough to see the limit.
+      function toCells(src, separated) {
+        const { width, height, cells } = parseCharGrid(src);
+        const rows = [];
+        let clashes = 0;
+        for (let cy = 0; cy < Math.ceil(height / 3); cy++) {
+          const row = [];
+          for (let cx = 0; cx < Math.ceil(width / 2); cx++) {
+            const px = [];
+            for (let r = 0; r < 3; r++)
+              for (let c = 0; c < 2; c++) {
+                const x = cx * 2 + c,
+                  y = cy * 3 + r;
+                px.push(x < width && y < height ? cells[y * width + x] : 0);
+              }
+            const count = {};
+            for (const p of px) count[p] = (count[p] || 0) + 1;
+            const opaque = Object.keys(count)
+              .map(Number)
+              .filter((k) => k)
+              .sort((a, b) => count[b] - count[a]);
+            let ink = 0,
+              bg = 0,
+              on = (p) => p !== 0,
+              clash = false;
+            if (opaque.length === 1 && !count[0]) ink = opaque[0];
+            else if (count[0]) [ink, clash] = [opaque[0] || 0, opaque.length > 1];
+            else [bg, ink, clash, on] = [opaque[0], opaque[1], opaque.length > 2, (p) => p !== opaque[0]];
+            const v = px.reduce((acc, p, i) => acc | (on(p) ? 1 << i : 0), 0);
+            if (clash) clashes++;
+            row.push({ ch: glyph(v, separated), ink: NAME[ink], bg: NAME[bg], clash });
+          }
+          rows.push(row);
+        }
+        return { rows, clashes, cols: rows[0]?.length || 0 };
+      }
+      // One span per run of cells sharing ink + background: the markup a consumer would write.
+      function attrs({ ink, bg, clash }) {
+        let a = '';
+        if (ink && ink !== 'white' && ink !== 'black') a += ` data-variant="${ink}"`;
+        if (ink === 'black') a += ` style="color:var(--cf-bg)"`;
+        if (bg && bg !== 'black' && bg !== 'white') a += ` data-band="${bg}"`;
+        if (bg === 'white') a += ` style="background:var(--cf-fg)"`;
+        if (clash) a += ' data-clash';
+        return a;
+      }
+      function mosaic(src, { separated = false, label = '' } = {}) {
+        const m = toCells(src, separated);
+        const lines = m.rows.map((row) => {
+          let out = '',
+            run = '',
+            key = null;
+          const flush = () => {
+            if (run) out += key === '' ? run : `<span${key}>${run}</span>`;
+          };
+          for (const cell of row) {
+            const k = attrs(cell);
+            if (k !== key) (flush(), (run = ''), (key = k));
+            run += cell.ch;
+          }
+          flush();
+          return out;
+        });
+        const a11y = label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"';
+        const sep = separated ? ' data-mosaic="separated"' : '';
+        const rowsAttr = m.rows.length > 1 ? ` data-rows="${m.rows.length}"` : '';
+        const html = `<span class="cf-mosaic"${sep}${rowsAttr} ${a11y}>${lines.join('\n')}</span>`;
+        return { ...m, html, spans: (html.match(/<span/g) || []).length - 1 };
+      }
+      const canvas = (key, extra = '') =>
+        `<cf-canvas ${ART[key].alt ? `alt="${ART[key].alt}"` : ''} ${extra}>${ART[key].src}</cf-canvas>`;
+      const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+
+      // --- Variants -----------------------------------------------------------------------------
+      // A: what a consumer can build today. Every graphic is its own block: nothing sits on a text row.
+      function VariantA() {
+        return `
+          <h1>WEATHER</h1>
+          ${canvas('rule', 'data-size="full"')}
+          <p>${canvas('arrow', 'style="width:2ch"')}SPORT City win the derby</p>
+          <p>Inline icon above: cf-canvas is a block, so it breaks the row.</p>
+          <h2 data-variant="cyan">VOTE SHARE</h2>
+          ${(() => {
+            const w = 50,
+              rows = VOTES.flatMap(([, v, c]) => {
+                const code = CEEFAX_PALETTE.find((p) => p.name === c).code;
+                const bar = code.repeat(Math.round(v * 1.5)).padEnd(w, '.');
+                return [bar, bar, '.'.repeat(w)];
+              });
+            return `<cf-canvas alt="${votesAlt}" data-size="md">${rows.join('\n')}</cf-canvas>
+              <p>${VOTES.map(([p, v]) => `${p} ${v}%`).join(' · ')}</p>`;
+          })()}
+          <p>Labels can't share a row with their bar.</p>
+          <div class="cf-cluster" data-gap="3">
+            ${canvas('heart', 'data-size="sm"')} ${canvas('palm', 'data-size="sm"')} ${canvas('rainbow', 'data-size="sm"')}
+          </div>
+          <p>Free colour per pixel: the 1px rainbow is fine here.</p>`;
+      }
+      // B / C: the same page as text. Graphics share rows with text, tile on the cell grid, wrap and copy.
+      function VariantMosaic(separated) {
+        const m = (k, o) => mosaic(ART[k].src, { separated, ...o }).html;
+        const full = separated ? glyph(63, true) : '█';
+        const half = separated ? glyph(21, true) : '▌';
+        const bars = VOTES.map(([p, v, c]) => {
+          const n = Math.round(v * 1.5);
+          const bar = full.repeat(n >> 1) + (n & 1 ? half : '');
+          return `<p>${p.padEnd(4)}<span class="cf-mosaic" ${separated ? 'data-mosaic="separated"' : ''} aria-hidden="true"><span data-variant="${c}">${bar}</span></span> ${v}%</p>`;
+        }).join('');
+        return `
+          <p>${m('wedgeL')}<span data-band="blue" data-variant="yellow" style="background:var(--_band);color:var(--_band-ink)"> WEATHER  ·  TODAY </span>${m('wedgeR')}</p>
+          <p>${m('rule')}</p>
+          <p>${m('arrow')}SPORT City win the derby</p>
+          <p>The icon sits on the headline's row.</p>
+          <h2 data-variant="cyan">VOTE SHARE</h2>
+          <div>${bars}</div>
+          <p>Bars are decorative; the figures are text.</p>
+          <p>${m('heart', { label: ART.heart.alt })} ${m('palm', { label: ART.palm.alt })} ${m('rainbow', { label: ART.rainbow.alt })} ${m('rainbowCell', { label: ART.rainbowCell.alt })}</p>
+          <p>Rainbow 1: 1px stripes lose colours (2 per cell). Rainbow 2: drawn on whole cells, it keeps them.</p>`;
+      }
+      // D: each artwork three ways, at the same width, with the cost of the mosaic version.
+      function VariantD() {
+        return Object.entries(ART)
+          .filter(([k]) => !k.startsWith('wedge'))
+          .map(([k, { alt, src }]) => {
+            const c = mosaic(src, { label: alt });
+            const s = mosaic(src, { separated: true, label: alt });
+            return `
+              <h3 data-variant="cyan">${k.toUpperCase()}</h3>
+              <div class="proto-cols proto-clash" style="--px:${parseCharGrid(src).width}">
+                ${canvas(k)}<span>${c.html}</span><span>${s.html}</span>
+              </div>
+              <p>${c.cols}x${c.rows.length} cells · ${c.clashes} clash${c.clashes === 1 ? '' : 'es'} · ${c.spans} spans</p>
+              <details><summary>markup</summary><pre class="proto-markup">${esc(c.html)}</pre></details>`;
+          })
+          .join('');
+      }
+
+      const VARIANTS = {
+        A: ['cf-canvas today', VariantA],
+        B: ['cf-mosaic contiguous', () => VariantMosaic(false)],
+        C: ['cf-mosaic separated', () => VariantMosaic(true)],
+        D: ['side by side', VariantD],
+      };
+      const keys = Object.keys(VARIANTS);
+      const params = new URLSearchParams(location.search);
+      const current = VARIANTS[params.get('variant')] ? params.get('variant') : 'A';
+      const [name, render] = VARIANTS[current];
+      document.getElementById('body').innerHTML = render();
+      document.getElementById('proto-label').textContent = `${current} (${name})`;
+
+      // Switcher: arrows (buttons or ← →) keep every other param.
+      const go = (step) => {
+        const next = new URLSearchParams(params);
+        next.set('variant', keys[(keys.indexOf(current) + step + keys.length) % keys.length]);
+        location.search = next;
+      };
+      document.querySelectorAll('[data-step]').forEach((b) => b.addEventListener('click', () => go(+b.dataset.step)));
+      addEventListener('keydown', (e) => {
+        if (e.target.closest('input, textarea, [contenteditable]')) return;
+        if (e.key === 'ArrowLeft') go(-1);
+        if (e.key === 'ArrowRight') go(1);
+      });
+      if (params.get('theme') === 'accessible') document.documentElement.dataset.theme = 'accessible';
+      if (params.has('snap')) document.documentElement.classList.add('proto-snap');
+      for (const box of document.querySelectorAll('[data-param]')) {
+        const { param, value } = box.dataset;
+        box.checked = params.has(param);
+        box.addEventListener('change', () => {
+          const next = new URLSearchParams(params);
+          box.checked ? next.set(param, value) : next.delete(param);
+          location.search = next;
+        });
+      }
+    </script>
+  </body>
+</html>
