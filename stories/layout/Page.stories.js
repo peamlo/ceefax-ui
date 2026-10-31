@@ -249,6 +249,36 @@ export const Framed = {
   },
 };
 
+// A table region in an overfull frame body (#125): the body is a cf-stack, and a flex item with
+// overflow-x: auto has no automatic minimum height, so it used to shrink to 0px and vanish.
+export const FramedTable = {
+  name: 'Screen frame, with a table',
+  parameters: { layout: 'fullscreen' },
+  render: () => {
+    const page = framedPage();
+    const region = el(
+      'div',
+      'cf-table__scroll',
+      '<table class="cf-table" data-stripe-rows="text"><caption id="listings">BBC ONE TONIGHT</caption><tbody>' +
+        '<tr><td>18:00</td><td>BBC News</td></tr><tr><td>18:30</td><td>Regional News</td></tr>' +
+        '<tr><td>19:00</td><td>The One Show</td></tr><tr><td>19:30</td><td>EastEnders</td></tr></tbody></table>',
+    );
+    region.setAttribute('role', 'region');
+    region.tabIndex = 0;
+    region.setAttribute('aria-labelledby', 'listings');
+    page.querySelector('.cf-page__body h1').after(region);
+    return page;
+  },
+  play: async ({ canvasElement }) => {
+    const body = canvasElement.querySelector('.cf-page__body');
+    const region = body.querySelector('.cf-table__scroll');
+    await expect(body.scrollHeight).toBeGreaterThan(body.clientHeight); // overfull: the body scrolls
+    const table = region.querySelector('table').getBoundingClientRect().height;
+    await expect(table).toBeGreaterThan(0);
+    await expect(region.getBoundingClientRect().height).toBeCloseTo(table, 0);
+  },
+};
+
 // The CRT look: the same Screen frame with `data-frame="crt"`. Its off-switches (forced colours,
 // Accessible theme) are asserted in .storybook/test-runner.js postVisit: play() can't emulate media.
 export const CrtFramed = {
