@@ -1,6 +1,6 @@
 {
   "name": "@peamlo/ceefax-ui",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Ceefax / teletext-inspired, framework-agnostic CSS-first design system.",
   "type": "module",
   "license": "MIT",
