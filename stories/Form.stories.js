@@ -516,6 +516,75 @@ export const Radio = {
   },
 };
 
+// One composed form on a plain page: the field markup contract from #126 as it stands (ids
+// prefixed, as the Field story above has the same fields on the docs page), plus a group named
+// by the heading above it. Where a legend would repeat that heading, the fieldset
+// points at it with aria-labelledby: no hidden text.
+export const ComposedForm = {
+  name: 'A composed form',
+  render: () => {
+    const page = html(`
+<section class="cf-page">
+  <main class="cf-page__body">
+    <form class="cf-stack" action="/letters" method="post">
+      <div class="cf-field">
+        <label for="s-email">Email</label>
+        <input class="cf-input" id="s-email" name="email" type="email"
+               autocomplete="email" required aria-describedby="s-email-hint">
+        <p class="cf-field__hint" id="s-email-hint">We only use it to reply.</p>
+      </div>
+
+      <div class="cf-field">
+        <label for="s-postcode">Postcode</label>
+        <input class="cf-input" id="s-postcode" name="postcode" autocomplete="postal-code"
+               aria-invalid="true" aria-describedby="s-postcode-err">
+        <p class="cf-field__error" id="s-postcode-err">Enter a postcode like W12 7RJ.</p>
+      </div>
+
+      <fieldset class="cf-field">
+        <legend>Channel</legend>
+        <div class="cf-field"><label><input class="cf-radio" type="radio" name="ch" value="1" checked> BBC1</label></div>
+        <div class="cf-field"><label><input class="cf-radio" type="radio" name="ch" value="2"> BBC2</label></div>
+      </fieldset>
+
+      <h2 id="reply-heading">How should we reply?</h2>
+      <fieldset class="cf-field" aria-labelledby="reply-heading">
+        <div class="cf-field"><label><input class="cf-checkbox" type="checkbox" name="reply" value="email" checked> By email</label></div>
+        <div class="cf-field"><label><input class="cf-checkbox" type="checkbox" name="reply" value="air"> On air</label></div>
+      </fieldset>
+
+      <button class="cf-btn" type="submit">Send letter</button>
+    </form>
+  </main>
+</section>`).firstElementChild;
+    page.querySelector('form').addEventListener('submit', (e) => e.preventDefault());
+    return page;
+  },
+  play: async ({ canvasElement }) => {
+    await assertMarkupContract(canvasElement);
+    const canvas = within(canvasElement);
+    // A plain page, not the Screen frame: the body type, not Bedstead.
+    await expect(canvasElement.querySelector('.cf-page').hasAttribute('data-frame')).toBe(false);
+    const email = canvas.getByRole('textbox', { name: 'Email' });
+    await expect(style(email).fontFamily).toMatch(/^"?Space Mono/);
+    await expect(email).toHaveAccessibleDescription('We only use it to reply.');
+    const postcode = canvas.getByRole('textbox', { name: 'Postcode' });
+    await expect(postcode).toBeInvalid();
+    await expect(postcode).toHaveAccessibleDescription('Enter a postcode like W12 7RJ.');
+    await assertInvalidLook(postcode, email);
+    await assertGroup(canvasElement.querySelector('fieldset'), 'Channel');
+    // The second group is named by the on-screen heading, not by a legend or hidden text.
+    const heading = canvas.getByRole('heading', { name: 'How should we reply?' });
+    const reply = canvas.getByRole('group', { name: 'How should we reply?' });
+    await expect(reply.getAttribute('aria-labelledby')).toBe(heading.id);
+    await expect(reply.querySelector('legend')).toBeNull();
+    await expect(box(heading).height).toBeGreaterThan(0);
+    await expect(box(heading).bottom).toBeLessThanOrEqual(box(reply).top);
+    await expect(within(reply).getAllByRole('checkbox')).toHaveLength(2);
+    await expect(canvas.getByRole('button', { name: 'Send letter' })).toHaveAttribute('type', 'submit');
+  },
+};
+
 // Inside the Screen frame, the authentic mode (ADR-0014): the controls take the frame's type
 // (Bedstead, one cell to a character), and with one cell of padding across, a `size` or `cols`
 // width lands on whole cells. Down, a field is taller than a text row: no vertical snapping.
