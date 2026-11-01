@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ceefax-ui — form demo</title>
+    <link rel="icon" href="../public/favicon.svg" />
+    <link rel="stylesheet" href="../src/index.css" />
+    <style>
+      body {
+        margin: 0;
+        background: #000;
+        /* Demo chrome: a side gutter; out of the frame the page shell has none of its own. */
+        padding-inline: var(--cf-space-2);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- A holiday enquiry, the way a consumer writes it: every form class, plain markup, no library JS.
+         ?cells=40 · 60 · 80 puts it in the Screen frame; ?theme=accessible switches the theme. -->
+    <section class="cf-page" data-scrollbar="thin">
+      <header class="cf-page__header cf-header-row">
+        <span class="cf-header-row__page">P555</span>
+        <span class="cf-header-row__service">CEEFAX</span>
+        <span class="cf-header-row__rolling">555</span>
+        <time class="cf-header-row__time" datetime="2026-11-01T09:41:00"
+          ><span class="cf-header-row__date">Nov01</span> 09:41:00</time
+        >
+      </header>
+
+      <main class="cf-page__body cf-stack" data-gap="4" tabindex="0" style="padding-block: var(--cf-space-3)">
+        <h1>HOLIDAY ENQUIRY</h1>
+
+        <!-- Demo-only: each link sets one option, kept in the URL. -->
+        <nav aria-label="Demo options">
+          <p class="cf-cluster" data-gap="2">
+            <span>FRAME</span>
+            <a class="cf-link" href="?" data-set="cells" data-value="">OFF</a>
+            <a class="cf-link" href="?cells=40" data-set="cells" data-value="40">40</a>
+            <a class="cf-link" href="?cells=60" data-set="cells" data-value="60">60</a>
+            <a class="cf-link" href="?cells=80" data-set="cells" data-value="80">80</a>
+          </p>
+          <p class="cf-cluster" data-gap="2">
+            <span>THEME</span>
+            <a class="cf-link" href="?" data-set="theme" data-value="">DEFAULT</a>
+            <a class="cf-link" href="?theme=accessible" data-set="theme" data-value="accessible">ACCESSIBLE</a>
+          </p>
+        </nav>
+
+        <!-- A search box with no visible label is named with aria-label; it lines up with its button. -->
+        <search>
+          <form class="cf-cluster" data-gap="2" action="/holidays/search">
+            <input
+              class="cf-input"
+              type="search"
+              name="q"
+              size="20"
+              placeholder="e.g. Majorca"
+              aria-label="Search holidays"
+            />
+            <button class="cf-btn" type="submit">Search</button>
+          </form>
+        </search>
+
+        <!-- The server rejected the postcode last time: the notice and the error message are in the page only while that's true. -->
+        <div class="cf-notice" role="note">
+          <strong class="cf-notice__flag">Check</strong>
+          <p>Check your postcode: we couldn't match it. Fix it below and send again.</p>
+        </div>
+
+        <form class="cf-stack" data-gap="4" action="/holidays/enquiry" method="post" data-demo-form>
+          <h2>YOUR TRIP</h2>
+
+          <div class="cf-field">
+            <label for="destination">Destination</label>
+            <select class="cf-select" id="destination" name="destination" required>
+              <option value="">Choose a resort</option>
+              <option>Majorca, Spain</option>
+              <option>Algarve, Portugal</option>
+              <option>Crete, Greece</option>
+              <option>Antalya, Turkey</option>
+              <option>Tenerife, Canary Islands</option>
+            </select>
+          </div>
+
+          <div class="cf-field">
+            <label for="airport">Flying from</label>
+            <select class="cf-select" id="airport" name="airport">
+              <option>London Gatwick</option>
+              <option>Manchester</option>
+              <option>Birmingham</option>
+              <option>Glasgow</option>
+            </select>
+          </div>
+
+          <div class="cf-cluster" data-gap="4" data-align="start">
+            <div class="cf-field">
+              <label for="nights">Nights</label>
+              <input
+                class="cf-input"
+                id="nights"
+                name="nights"
+                type="number"
+                min="3"
+                max="28"
+                value="7"
+                size="4"
+                aria-describedby="nights-hint"
+              />
+              <p class="cf-field__hint" id="nights-hint">3 to 28.</p>
+            </div>
+            <div class="cf-field">
+              <label for="adults">Adults</label>
+              <input class="cf-input" id="adults" name="adults" type="number" min="1" max="9" value="2" size="4" />
+            </div>
+            <div class="cf-field">
+              <label for="children">Children</label>
+              <input class="cf-input" id="children" name="children" type="number" min="0" max="9" value="0" size="4" />
+            </div>
+          </div>
+
+          <!-- A group is a fieldset named by its legend. A sold-out option is disabled. -->
+          <fieldset class="cf-field">
+            <legend>Board</legend>
+            <div class="cf-field">
+              <label><input class="cf-radio" type="radio" name="board" value="self" /> Self catering</label>
+            </div>
+            <div class="cf-field">
+              <label><input class="cf-radio" type="radio" name="board" value="half" checked /> Half board</label>
+            </div>
+            <div class="cf-field">
+              <label><input class="cf-radio" type="radio" name="board" value="full" /> Full board</label>
+            </div>
+            <div class="cf-field">
+              <label
+                ><input class="cf-radio" type="radio" name="board" value="all" disabled /> All inclusive (sold
+                out)</label
+              >
+            </div>
+          </fieldset>
+
+          <!-- "All extras" is indeterminate while only some are ticked: the page's own script sets it. -->
+          <fieldset class="cf-field" data-extras>
+            <legend>Extras</legend>
+            <div class="cf-field">
+              <label><input class="cf-checkbox" type="checkbox" data-extras-all /> All extras</label>
+            </div>
+            <div class="cf-field">
+              <label
+                ><input class="cf-checkbox" type="checkbox" name="extras" value="transfers" checked /> Airport
+                transfers</label
+              >
+            </div>
+            <div class="cf-field">
+              <label><input class="cf-checkbox" type="checkbox" name="extras" value="car" /> Car hire</label>
+            </div>
+            <div class="cf-field">
+              <label
+                ><input class="cf-checkbox" type="checkbox" name="extras" value="insurance" /> Travel insurance</label
+              >
+            </div>
+          </fieldset>
+
+          <h2>YOUR DETAILS</h2>
+
+          <div class="cf-field">
+            <label for="name">Full name</label>
+            <input class="cf-input" id="name" name="name" autocomplete="name" size="30" required />
+          </div>
+
+          <div class="cf-field">
+            <label for="email">Email</label>
+            <input
+              class="cf-input"
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              size="30"
+              required
+              aria-describedby="email-hint"
+            />
+            <p class="cf-field__hint" id="email-hint">We send your quote here.</p>
+          </div>
+
+          <div class="cf-field">
+            <label for="phone">Phone</label>
+            <input
+              class="cf-input"
+              id="phone"
+              name="phone"
+              type="tel"
+              autocomplete="tel"
+              size="20"
+              aria-describedby="phone-hint"
+            />
+            <p class="cf-field__hint" id="phone-hint">Optional. A daytime number.</p>
+          </div>
+
+          <div class="cf-field">
+            <label for="postcode">Postcode</label>
+            <input
+              class="cf-input"
+              id="postcode"
+              name="postcode"
+              autocomplete="postal-code"
+              size="10"
+              value="W12 7R"
+              aria-invalid="true"
+              aria-describedby="postcode-hint postcode-err"
+            />
+            <p class="cf-field__hint" id="postcode-hint">For the brochure.</p>
+            <p class="cf-field__error" id="postcode-err">Enter a postcode like W12 7RJ.</p>
+          </div>
+
+          <div class="cf-field">
+            <label for="offer">Link to the offer</label>
+            <input
+              class="cf-input"
+              id="offer"
+              name="offer"
+              type="url"
+              size="30"
+              placeholder="https://"
+              aria-describedby="offer-hint"
+            />
+            <p class="cf-field__hint" id="offer-hint">Optional. Seen it on another page? Paste its link.</p>
+          </div>
+
+          <div class="cf-field">
+            <label for="ref">Booking reference</label>
+            <input
+              class="cf-input"
+              id="ref"
+              name="ref"
+              size="12"
+              value="TT-PENDING"
+              disabled
+              aria-describedby="ref-hint"
+            />
+            <p class="cf-field__hint" id="ref-hint">We fill this in when we reply.</p>
+          </div>
+
+          <h2>TRACK YOUR ENQUIRY</h2>
+
+          <div class="cf-field">
+            <label for="password">Password</label>
+            <input
+              class="cf-input"
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="new-password"
+              minlength="8"
+              size="20"
+              aria-describedby="password-hint"
+            />
+            <p class="cf-field__hint" id="password-hint">Optional. At least 8 characters.</p>
+          </div>
+
+          <div class="cf-field">
+            <label for="message">Anything else?</label>
+            <textarea
+              class="cf-textarea"
+              id="message"
+              name="message"
+              cols="40"
+              rows="5"
+              placeholder="Sea view, cot, a quiet room…"
+            ></textarea>
+          </div>
+
+          <!-- The heading is already on screen, so the group points at it instead of repeating it in a legend.
+               The character variant draws the controls as text: ( ) (*) and [ ] [X]. -->
+          <h2 id="reply-heading">HOW SHOULD WE REPLY?</h2>
+          <fieldset class="cf-field" aria-labelledby="reply-heading">
+            <div class="cf-field">
+              <label
+                ><input class="cf-radio" data-variant="character" type="radio" name="reply" value="email" checked />
+                Email</label
+              >
+            </div>
+            <div class="cf-field">
+              <label
+                ><input class="cf-radio" data-variant="character" type="radio" name="reply" value="phone" />
+                Phone</label
+              >
+            </div>
+            <div class="cf-field">
+              <label
+                ><input class="cf-radio" data-variant="character" type="radio" name="reply" value="post" /> Post</label
+              >
+            </div>
+          </fieldset>
+
+          <div class="cf-field">
+            <label
+              ><input class="cf-checkbox" data-variant="character" type="checkbox" name="deals" checked /> Send me the
+              weekly late deals</label
+            >
+          </div>
+          <div class="cf-field">
+            <label
+              ><input class="cf-checkbox" data-variant="character" type="checkbox" name="sms" disabled /> Text me
+              (coming soon)</label
+            >
+          </div>
+
+          <!-- Required, so sending without it gives the browser's own invalid look. -->
+          <div class="cf-field">
+            <label
+              ><input class="cf-checkbox" type="checkbox" name="terms" required /> I have read the booking
+              conditions</label
+            >
+          </div>
+
+          <div class="cf-cluster" data-gap="2">
+            <button class="cf-btn" type="submit">Send enquiry</button>
+            <button class="cf-btn" data-variant="ghost" type="reset">Clear form</button>
+          </div>
+
+          <div role="status" data-demo-status></div>
+        </form>
+      </main>
+
+      <footer class="cf-page__footer">
+        <nav aria-label="Fastext">
+          <ul class="cf-fastext">
+            <li><a class="cf-fastext__key" data-variant="red" href="index.html">INDEX</a></li>
+            <li><a class="cf-fastext__key" data-variant="green" href="#">FLIGHTS</a></li>
+            <li><a class="cf-fastext__key" data-variant="yellow" href="#">DEALS</a></li>
+            <li><a class="cf-fastext__key" data-variant="cyan" href="screen.html">SCREEN</a></li>
+          </ul>
+        </nav>
+      </footer>
+    </section>
+
+    <script type="module">
+      // The consumer's own script: keep "All extras" in step with its options. The library has no JS.
+      const extras = document.querySelector('[data-extras]');
+      const all = extras.querySelector('[data-extras-all]');
+      const options = [...extras.querySelectorAll('[name="extras"]')];
+      const sync = () => {
+        const on = options.filter((o) => o.checked).length;
+        all.checked = on === options.length;
+        all.indeterminate = on > 0 && on < options.length;
+      };
+      all.addEventListener('change', () => {
+        for (const o of options) o.checked = all.checked;
+      });
+      for (const o of options) o.addEventListener('change', sync);
+      sync();
+
+      // Demo-only: there's no server, so a valid form says so instead of leaving the page.
+      // The browser's own validation still runs first and blocks an invalid one.
+      const form = document.querySelector('[data-demo-form]');
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        form.querySelector('[data-demo-status]').innerHTML =
+          '<div class="cf-notice" role="note" data-variant="green" data-blink="off"><strong class="cf-notice__flag">Sent</strong><p>Sent: this is a demo, so nothing left the page.</p></div>';
+      });
+      form.addEventListener('reset', () => setTimeout(sync));
+
+      // Demo-only: ?cells= puts the page in the Screen frame, ?theme= sets data-theme on <html>.
+      const page = document.querySelector('.cf-page');
+      const params = new URLSearchParams(location.search);
+      if (params.get('cells')) Object.assign(page.dataset, { frame: '', cells: params.get('cells') });
+      if (params.get('theme')) document.documentElement.dataset.theme = params.get('theme');
+      for (const a of document.querySelectorAll('[data-set]')) {
+        const { set, value } = a.dataset;
+        const next = new URLSearchParams(params);
+        if (value) next.set(set, value);
+        else next.delete(set);
+        a.href = `?${next}`;
+        if ((params.get(set) ?? '') === value) a.setAttribute('aria-current', 'page');
+      }
+    </script>
+  </body>
+</html>

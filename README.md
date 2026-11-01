@@ -36,7 +36,8 @@ npm run demo   # serves the repo, then open http://localhost:3000/demo/
 
 It's a plain static page ([`demo/index.html`](demo/index.html)) that consumes the
 real `src/index.css` and the self-hosted fonts — the result panels are the library,
-not a mockup.
+not a mockup. [`demo/form.html`](demo/form.html) puts every form control in one
+real form, a holiday enquiry.
 
 ![The ceefax-ui demo page: markup on the left, live result on the right](docs/images/demo.png)
 
