@@ -21,7 +21,7 @@ consumer to protect.
 The `Foundations/Token layering` story reads every component and layout stylesheet's
 source and fails if any names `--cf-base-*` (or if it finds no files). It runs in the
 storybook-tests CI job beside the palette-drift guard (ADR-0006). The only places allowed
-to name the base tier are the token layer, the pixel canvas renderer (ADR-0004), and —
+to name the base tier are the token layer and —
 until #12 points it at a remappable `--cf-variant-*` tier — the variant seam's `--_variant`
 (ADR-0007). The ink on a variant block is already an alias: `--cf-on-variant` (on light
 blocks) and `--cf-on-variant-dark` (on authentic blue), so a theme sets it

@@ -66,7 +66,8 @@ Space Mono ships under. Source, version and this reasoning are recorded in
   and keep it opt-in. A page that must meet AA leaves `crt` off or uses the Accessible theme.
 - **Deferred:** if `<cf-canvas>` is kept alongside `cf-mosaic`, decide whether it takes the
   two-colours-per-cell limit inside the frame. Until then
-  [ADR-0004](0004-cf-canvas-pixel-art.md) stands: free per-pixel colour.
+  [ADR-0004](0004-cf-canvas-pixel-art.md) stands: free per-pixel colour. _(Closed by
+  [ADR-0020](0020-text-mosaics-replace-pixel-canvas.md): the canvas is removed.)_
 
 ## Amendment: the cell grid and colour rules ([#74](https://github.com/peamlo/ceefax-ui/issues/74))
 

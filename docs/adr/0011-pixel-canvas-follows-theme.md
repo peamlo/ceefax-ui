@@ -1,5 +1,7 @@
 # ADR-0011: Pixel canvas art follows the theme through `--cf-variant-*`
 
+> **Superseded by [ADR-0020](0020-text-mosaics-replace-pixel-canvas.md).**
+
 ## Context
 
 [ADR-0004](0004-cf-canvas-pixel-art.md) had `<cf-canvas>` read the authentic colours
