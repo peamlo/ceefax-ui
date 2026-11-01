@@ -301,6 +301,67 @@ export const BarChart = {
   },
 };
 
+// A picture at the scale teletext artists drew them, on a page laid out like Antena 3's: a text
+// index in a cf-sidebar rail, the art as the main column, 15 + 1 + 24 = 40 cells. Separated by
+// default, as most portrait art on air was.
+const INDEX = [
+  [
+    'cyan',
+    'SATURN',
+    [
+      ['Rings', 121],
+      ['Moons', 122],
+    ],
+  ],
+  ['red', 'MARS', [['Rovers', 124]]],
+  ['yellow', 'THE MOON', [['Phases', 126]]],
+];
+const pad = (text, n) => text.padEnd(n).replace(/ /g, ' '); // spaces that keep the columns
+export const Artwork = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'A 24 × 13-cell picture beside a text index, in the Screen frame: shading is ordered dithering, and the ring passes in front of the planet and behind it. The controls set the picture: try it contiguous, or with an ink and a band.',
+      },
+    },
+  },
+  render: (args) => {
+    const section = document.createElement('section');
+    section.className = 'cf-page';
+    section.dataset.frame = '';
+    section.innerHTML =
+      '<main class="cf-page__body" tabindex="0">' +
+      `<h2 style="font-size: var(--cf-text-body)"><span class="cf-mosaic" data-band="magenta">${pad(' THE NIGHT SKY', 35)}P120 </span></h2>` +
+      '<div class="cf-sidebar" data-gap="1" style="--cf-sidebar-side: 15ch">' +
+      '<div class="cf-sidebar__side">' +
+      INDEX.map(
+        ([band, title, items]) =>
+          `<p><span class="cf-mosaic" data-band="${band}">${pad(` ${title}`, 15)}</span><br>` +
+          items.map(([item, page]) => `${pad(item, 12)}${page}`).join('<br>') +
+          '</p>',
+      ).join('') +
+      '</div>' +
+      `<div class="cf-sidebar__main">${mosaic(args, (s) => toMosaic(ART.saturn, s))}</div>` +
+      '</div>' +
+      '</main>';
+    return section;
+  },
+  args: { separated: true, label: 'Saturn and its rings' },
+  play: async ({ canvasElement, args }) => {
+    await fontsLoaded();
+    const art = mosaics(canvasElement).at(-1);
+    if (args.label) await expect(within(canvasElement).getByRole('img', { name: args.label })).toBe(art);
+    await assertCells(art, 24);
+    await assertSeparated(art, args.separated);
+    // 13 rows, one em each, beside the index: the sidebar fits 40 cells without wrapping.
+    const size = parseFloat(getComputedStyle(art).fontSize);
+    await expect(art.getBoundingClientRect().height).toBeCloseTo(13 * size, 0);
+    const rail = canvasElement.querySelector('.cf-sidebar__side').getBoundingClientRect();
+    await expect(art.getBoundingClientRect().left).toBeGreaterThan(rail.right);
+  },
+};
+
 // The authentic mode: a whole page inside the Screen frame, where every mosaic sits on the 40-cell
 // grid beside text. The temperature key is one mosaic of three whole-cell colour runs, each with
 // its label; the runs tile edge to edge, across and down (pixels checked in
