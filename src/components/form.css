@@ -1,4 +1,4 @@
-/* Form — the real native controls, one class each, restyled with appearance: none (#126).
+/* Form — the real native controls, one class each, restyled with appearance: none (#126, ADR-0020).
    cf-field holds a control with its <label> above and, when present, its hint and error
    message below. State is native: :focus-visible, disabled, :user-invalid (never :invalid,
    which marks empty required fields on load) and aria-invalid="true" for a server error.
@@ -13,9 +13,25 @@
   color: var(--cf-fg);
   font-family: var(--cf-font-mono);
 }
-:where(.cf-field > label) {
+:where(.cf-field > :is(label, legend)) {
+  padding: 0;
   text-transform: uppercase;
   letter-spacing: var(--cf-tracking-wide);
+}
+/* A group of checkboxes or radios is a fieldset field, named by its legend. */
+:where(fieldset.cf-field) {
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+/* A checkbox or radio sits beside its text, in a wrapping label. */
+:where(.cf-field > label:has(.cf-checkbox, .cf-radio)) {
+  display: flex;
+  align-items: center;
+  gap: 1ch;
+  text-transform: none;
+  letter-spacing: 0;
 }
 :where(.cf-field__hint, .cf-field__error) {
   margin: 0;
@@ -95,7 +111,38 @@
   background-color: var(--cf-bg);
   color: var(--cf-fg);
 }
-:where(.cf-input, .cf-textarea, .cf-select):focus-visible {
+/* Checkbox and radio: a square and a circle two characters across (two cells in the Screen
+   frame), outlined in the foreground colour. On, the border becomes a double border filling the
+   shape: outline, gap and inner fill, so the shape changes, not only the colour, and the mark is
+   a border, which forced colours keep (they drop backgrounds). Indeterminate: the double border
+   on the top and bottom only, which meet as a bar. */
+:where(.cf-checkbox, .cf-radio) {
+  appearance: none;
+  flex: none;
+  inline-size: 2ch;
+  block-size: 2ch;
+  margin: 0;
+  border: var(--cf-border-thin) solid;
+  background-color: var(--cf-bg);
+  color: var(--cf-fg);
+  font: inherit;
+  cursor: pointer;
+}
+:where(.cf-radio) {
+  border-radius: 50%;
+}
+/* Not .cf-radio:indeterminate: every radio in a group with nothing chosen matches it. */
+:where(:is(.cf-checkbox, .cf-radio):checked, .cf-checkbox:indeterminate) {
+  border: 1ch double;
+  color: var(--cf-accent);
+}
+:where(.cf-checkbox):indeterminate {
+  border-inline: var(--cf-border-thin) solid;
+}
+:where(.cf-checkbox, .cf-radio):is(:user-invalid, [aria-invalid='true']) {
+  color: var(--cf-danger);
+}
+:where(.cf-input, .cf-textarea, .cf-select, .cf-checkbox, .cf-radio):focus-visible {
   --_bd: var(--cf-accent);
   outline: var(--cf-border-thin) solid var(--cf-accent);
   outline-offset: var(--cf-border-thin);
@@ -107,7 +154,7 @@
   --_bw: var(--cf-border-thick);
   --_bd: var(--cf-danger);
 }
-:where(.cf-input, .cf-textarea, .cf-select):disabled {
+:where(.cf-input, .cf-textarea, .cf-select, .cf-checkbox, .cf-radio):disabled {
   opacity: 0.4;
   cursor: default;
 }

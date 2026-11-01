@@ -257,6 +257,44 @@ async function assertSelectForced(page) {
   expect(backgroundImage.includes('gradient') || appearance !== 'none').toBe(true);
 }
 
+// Contract (#131): a real Tab to a checkbox shows the accent ring and keeps its shape; a
+// disabled one doesn't change on hover; under forced colours a checked box still differs from
+// an unchecked one by its shape (a border, which the system keeps, not a background it drops).
+// The Checkbox story: newsletter (off), publish (on), archive (disabled, on). Leaves forced
+// colours off and nothing hovered.
+const shapeOf = (sel) => {
+  const cs = getComputedStyle(document.querySelector(sel));
+  return [cs.borderTopStyle, cs.borderTopWidth, cs.borderLeftWidth, cs.borderRadius].join(' ');
+};
+async function assertCheckboxInput(page) {
+  const [off, on, disabled] = ['[name=news]', '[name=publish]', '[name=archive]'];
+  const rest = await page.evaluate(control, off);
+  await page.keyboard.press('Tab');
+  expect(await page.evaluate(() => document.activeElement.name)).toBe('news');
+  expect(await page.evaluate(control, off)).toEqual({ ...rest, outline: `solid 2px ${ACCENT}` });
+  const dimmed = await page.evaluate(control, disabled);
+  await page.hover(disabled);
+  expect(await page.evaluate(control, disabled)).toEqual(dimmed);
+  await page.mouse.move(0, 0);
+  await page.emulateMedia({ forcedColors: 'active' });
+  const [offShape, onShape] = [await page.evaluate(shapeOf, off), await page.evaluate(shapeOf, on)];
+  await page.emulateMedia({ forcedColors: 'none' });
+  expect(onShape).not.toBe(offShape);
+}
+
+// Contract (#131): the arrow keys move the choice in a radio group, natively. Leaves the
+// group as rendered (BBC1 on).
+async function assertRadioKeys(page) {
+  const focused = () => [document.activeElement.value, document.activeElement.checked];
+  await page.keyboard.press('Tab');
+  expect(await page.evaluate(focused)).toEqual(['1', true]);
+  await page.keyboard.press('ArrowDown');
+  expect(await page.evaluate(focused)).toEqual(['2', true]);
+  expect(await page.evaluate(() => document.querySelector('[name=ch][value="1"]').checked)).toBe(false);
+  await page.keyboard.press('ArrowUp');
+  expect(await page.evaluate(focused)).toEqual(['1', true]);
+}
+
 const ignoreAxePseudo = () => {
   const { options } = window.axe._audit.checks['color-contrast'];
   window.axe.configure({ checks: [{ id: 'color-contrast', options: { ...options, ignorePseudo: true } }] });
@@ -288,6 +326,8 @@ export default {
     if (title === 'Components/Form' && name === 'Field') await assertFieldInput(page);
     if (title === 'Components/Form' && name === 'Input') await assertDisabledForced(page, '#in-off');
     if (title === 'Components/Form' && name === 'Select') await assertSelectForced(page);
+    if (title === 'Components/Form' && name === 'Checkbox') await assertCheckboxInput(page);
+    if (title === 'Components/Form' && name === 'Radio') await assertRadioKeys(page);
 
     await injectAxe(page);
     // The scanline overlay is an absolutely positioned ::after with a background-image, which axe

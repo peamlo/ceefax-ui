@@ -1,6 +1,6 @@
 import { expect, within } from 'storybook/test';
 
-// Form controls and cf-field (#126, #130): the real native elements with one class each.
+// Form controls and cf-field (#126, #130, #131): the real native elements with one class each.
 // The stories render the exact contract markup; play() asserts what a consumer sees (roles,
 // computed styles, the markup contract), never a private --_* property. Real Tab focus and
 // real :user-invalid need real input, so they are asserted in .storybook/test-runner.js.
@@ -48,7 +48,9 @@ export default {
           '`cf-field` lays out a control with its `<label>` above it and, when present, a hint (`cf-field__hint`) ' +
           'and an error message (`cf-field__error`) below. Link both to the control with `aria-describedby`. ' +
           '`cf-input` styles every text-like `<input>`, `cf-textarea` a `<textarea>` (`textarea.cf-input` looks ' +
-          'the same) and `cf-select` a single `<select>`. State is native: `:focus-visible`, `disabled`, the ' +
+          'the same) and `cf-select` a single `<select>`. `cf-checkbox` and `cf-radio` draw a square and a ' +
+          'circle beside the text of their wrapping `<label>`; a `<fieldset class="cf-field">` with a `<legend>` ' +
+          'is the field for a group. State is native: `:focus-visible`, `disabled`, the ' +
           'browser\'s own validation (`:user-invalid`) and `aria-invalid="true"` for an error from the server. ' +
           'Size a control in characters with `size`, `cols` and `rows`. The library never shows or hides an ' +
           'error message: put it in the page only while the field is invalid.',
@@ -282,6 +284,156 @@ export const Select = {
   },
 };
 
+// A checkbox or radio's drawn shape, the non-colour part of its look.
+const SHAPE = ['borderTopWidth', 'borderTopStyle', 'borderLeftWidth', 'borderLeftStyle', 'borderRadius'];
+const shape = (el) => Object.fromEntries(SHAPE.map((p) => [p, style(el)[p]]));
+const ACCENT = 'rgb(255, 255, 0)';
+const DANGER = 'rgb(255, 0, 0)';
+
+// Resting: a square (checkbox) or a circle (radio) outlined in the foreground colour, beside
+// its label's text, and no generated glyph (that is the character variant's, #132).
+const assertDrawnRest = async (control, radius) => {
+  const cs = style(control);
+  await expect(cs.appearance).toBe('none');
+  await expect(box(control).width).toBeGreaterThan(0);
+  await expect(box(control).width).toBe(box(control).height);
+  await expect(cs.borderRadius).toBe(radius);
+  await expect(cs.borderTopStyle).toBe('solid');
+  await expect(cs.borderTopWidth).toBe('2px'); // --cf-border-thin
+  await expect(cs.borderTopColor).toBe(WHITE); // --cf-fg
+  await expect(style(control, '::before').content).toBe('none');
+  // Beside its text, on one line: the wrapping label is a row, its text not uppercased.
+  const label = control.closest('label');
+  await expect(style(label).textTransform).toBe('none');
+  await expect(box(control).right).toBeLessThan(box(label).right);
+  await expect(box(label).height).toBeLessThan(box(control).height * 2);
+};
+
+// Checked: the outline and an inner fill take the accent colour, and the shape changes too,
+// so "on" is never told by colour alone.
+const assertDrawnChecked = async (on, off) => {
+  await expect(on.checked).toBe(true);
+  for (const side of ['Top', 'Right', 'Bottom', 'Left']) await expect(style(on)[`border${side}Color`]).toBe(ACCENT);
+  await expect(shape(on)).not.toEqual(shape(off));
+  await expect(box(on).width).toBe(box(off).width);
+};
+
+// A group is a fieldset field, named by its legend, with no fieldset border or padding.
+const assertGroup = async (fieldset, name) => {
+  await expect(fieldset).toHaveAccessibleName(name);
+  const cs = style(fieldset);
+  await expect(cs.borderTopStyle).toBe('none');
+  await expect(cs.paddingLeft).toBe('0px');
+  await expect(cs.paddingTop).toBe('0px');
+  const legend = fieldset.querySelector('legend');
+  await expect(style(legend).textTransform).toBe('uppercase');
+  await expect(box(legend).left).toBe(box(fieldset).left);
+  await expect(box(legend).bottom).toBeLessThan(box(fieldset.querySelector('input')).top);
+};
+
+const option = (cls, type, name, value, text, attrs = '') =>
+  `<div class="cf-field"><label><input class="${cls}" type="${type}" name="${name}" value="${value}"${attrs}> ${text}</label></div>`;
+
+// Checkboxes in a group: off, on, indeterminate (set by script), disabled, and one a server
+// rejected. The mixed one is a "some selected" parent.
+export const Checkbox = {
+  render: () => {
+    const root = html(`<div class="cf-stack">
+<fieldset class="cf-field">
+  <legend>Options</legend>
+  ${option('cf-checkbox', 'checkbox', 'news', 'yes', 'Send me the newsletter')}
+  ${option('cf-checkbox', 'checkbox', 'publish', 'yes', 'Publish my letter', ' checked')}
+  ${option('cf-checkbox', 'checkbox', 'pages', 'some', 'Some pages', ' id="mixed"')}
+  ${option('cf-checkbox', 'checkbox', 'archive', 'yes', 'Archive (off air)', ' disabled checked')}
+</fieldset>
+<div class="cf-field">
+  <label><input class="cf-checkbox" type="checkbox" name="terms" value="yes" required
+         aria-invalid="true" aria-describedby="terms-err"> I agree to the terms</label>
+  <p class="cf-field__error" id="terms-err">Agree to the terms to send your letter.</p>
+</div>
+</div>`);
+    root.querySelector('#mixed').indeterminate = true;
+    return root;
+  },
+  play: async ({ canvasElement }) => {
+    await assertMarkupContract(canvasElement);
+    const canvas = within(canvasElement);
+    await assertGroup(canvasElement.querySelector('fieldset'), 'Options');
+    const off = canvas.getByRole('checkbox', { name: 'Send me the newsletter' });
+    const on = canvas.getByRole('checkbox', { name: 'Publish my letter' });
+    const mixed = canvas.getByRole('checkbox', { name: 'Some pages' });
+    const disabled = canvas.getByRole('checkbox', { name: 'Archive (off air)' });
+    const terms = canvas.getByRole('checkbox', { name: 'I agree to the terms' });
+    await assertDrawnRest(off, '0px');
+    await assertDrawnChecked(on, off);
+    // Checking it changes its shape to the checked one; unchecking changes it back.
+    off.click();
+    await expect(shape(off)).toEqual(shape(on));
+    off.click();
+    await expect(shape(off)).not.toEqual(shape(on));
+    // Indeterminate: a horizontal bar, in the accent colour, unlike both on and off.
+    await expect(mixed).toBePartiallyChecked();
+    await expect(style(mixed).borderTopColor).toBe(ACCENT);
+    await expect(px(style(mixed).borderTopWidth)).toBeGreaterThan(px(style(mixed).borderLeftWidth));
+    await expect(shape(mixed)).not.toEqual(shape(on));
+    await expect(shape(mixed)).not.toEqual(shape(off));
+    // Disabled dims like a disabled cf-btn, with a default cursor; it keeps its checked shape.
+    await expect(style(disabled).opacity).toBe('0.4');
+    await expect(style(disabled).cursor).toBe('default');
+    await expect(shape(disabled)).toEqual(shape(on));
+    // A server error: the control takes the danger colour.
+    await expect(terms).toBeInvalid();
+    await expect(style(terms).borderTopColor).toBe(DANGER);
+    await expect(terms).toHaveAccessibleDescription('Agree to the terms to send your letter.');
+  },
+};
+
+// A radio group: one on, one off, one disabled; and a group a server rejected, its error
+// message linked from the fieldset. Arrow keys move the choice, natively.
+export const Radio = {
+  render: () =>
+    html(`<div class="cf-stack">
+<fieldset class="cf-field">
+  <legend>Channel</legend>
+  ${option('cf-radio', 'radio', 'ch', '1', 'BBC1', ' checked')}
+  ${option('cf-radio', 'radio', 'ch', '2', 'BBC2')}
+  ${option('cf-radio', 'radio', 'ch', 'x', 'Off air', ' disabled')}
+</fieldset>
+<fieldset class="cf-field" aria-describedby="day-err">
+  <legend>Day</legend>
+  ${option('cf-radio', 'radio', 'day', 'sat', 'Saturday', ' aria-invalid="true"')}
+  ${option('cf-radio', 'radio', 'day', 'sun', 'Sunday', ' aria-invalid="true"')}
+  <p class="cf-field__error" id="day-err">Choose a day.</p>
+</fieldset>
+</div>`),
+  play: async ({ canvasElement }) => {
+    await assertMarkupContract(canvasElement);
+    const canvas = within(canvasElement);
+    const [channel, day] = canvasElement.querySelectorAll('fieldset');
+    await assertGroup(channel, 'Channel');
+    await assertGroup(day, 'Day');
+    await expect(day).toHaveAccessibleDescription('Choose a day.');
+    const on = canvas.getByRole('radio', { name: 'BBC1' });
+    const off = canvas.getByRole('radio', { name: 'BBC2' });
+    await assertDrawnRest(off, '50%');
+    await assertDrawnChecked(on, off);
+    // Checking another radio moves the "on" shape to it.
+    off.click();
+    await assertDrawnChecked(off, on);
+    on.click();
+    const disabled = canvas.getByRole('radio', { name: 'Off air' });
+    await expect(style(disabled).opacity).toBe('0.4');
+    await expect(style(disabled).cursor).toBe('default');
+    // A group with nothing chosen matches :indeterminate, yet every radio in it is off.
+    for (const radio of within(day).getAllByRole('radio')) {
+      await expect(radio.matches(':indeterminate')).toBe(true);
+      await expect(shape(radio)).toEqual(shape(off));
+      await expect(radio).toBeInvalid();
+      await expect(style(radio).borderTopColor).toBe(DANGER);
+    }
+  },
+};
+
 // Inside the Screen frame, the authentic mode (ADR-0014): the controls take the frame's type
 // (Bedstead, one cell to a character), and with one cell of padding across, a `size` or `cols`
 // width lands on whole cells. Down, a field is taller than a text row: no vertical snapping.
@@ -322,6 +474,12 @@ export const InScreenFrame = {
         <label for="f-letter">Letter</label>
         <textarea class="cf-textarea" id="f-letter" name="letter" rows="3" cols="30"></textarea>
       </div>
+      <fieldset class="cf-field">
+        <legend>Channel</legend>
+        <div class="cf-field"><label><input class="cf-radio" type="radio" name="ch" value="1" checked> BBC1</label></div>
+        <div class="cf-field"><label><input class="cf-radio" type="radio" name="ch" value="2"> BBC2</label></div>
+      </fieldset>
+      <div class="cf-field"><label><input class="cf-checkbox" type="checkbox" name="publish" checked> Publish it</label></div>
       <div class="cf-cluster">
         <input class="cf-input" type="search" name="q" aria-label="Search pages" size="12">
         <button class="cf-btn" type="submit">Go</button>
@@ -358,6 +516,19 @@ export const InScreenFrame = {
       await expectCells(box(page.querySelector('textarea')).width, 30 + 2, cell);
       // The select: its longest option, one cell before it, three after (the ▼ in the middle one).
       await expectCells(box(page.querySelector('select')).width, 'London'.length + 4, cell);
+      // A checkbox or radio is two cells across, and its text starts one cell after it.
+      for (const label of page.querySelectorAll('label:has(.cf-checkbox, .cf-radio), legend')) {
+        await expect(style(label).fontFamily).toMatch(/^"?Bedstead Cell/);
+        await expect(style(label).fontSize).toBe(style(form).fontSize);
+      }
+      for (const control of page.querySelectorAll('.cf-checkbox, .cf-radio')) {
+        await expectCells(box(control).width, 2, cell);
+        await expectCells(box(control).height, 2, cell);
+        const text = document.createRange();
+        text.selectNodeContents(control.parentElement);
+        text.setStartAfter(control);
+        await expectCells(text.getBoundingClientRect().left - box(form).left, 3, cell);
+      }
     }
     if (args.cells === 40) delete page.dataset.cells;
     else page.dataset.cells = String(args.cells);
