@@ -160,9 +160,8 @@ export const assertDrawnRest = async (control, radius) => {
   await expect(cs.borderTopWidth).toBe('2px'); // --cf-border-thin
   await expect(cs.borderTopColor).toBe(WHITE); // --cf-fg
   await expect(style(control, '::before').content).toBe('none');
-  // Beside its text, on one line: the wrapping label is a row, its text not uppercased.
+  // Beside its text, on one line: the wrapping label is a row.
   const label = control.closest('label');
-  await expect(style(label).textTransform).toBe('none');
   await expect(box(control).right).toBeLessThan(box(label).right);
   await expect(box(label).height).toBeLessThan(box(control).height * 2);
 };
@@ -192,7 +191,6 @@ export const assertGroup = async (fieldset, name) => {
   await expect(cs.paddingLeft).toBe('0px');
   await expect(cs.paddingTop).toBe('0px');
   const legend = fieldset.querySelector('legend');
-  await expect(style(legend).textTransform).toBe('uppercase');
   await expect(box(legend).left).toBe(box(fieldset).left);
   await expect(box(legend).bottom).toBeLessThanOrEqual(box(fieldset.querySelector('input')).top);
 };

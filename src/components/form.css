@@ -16,8 +16,6 @@
 }
 :where(.cf-field > :is(label, legend)) {
   padding: 0;
-  text-transform: uppercase;
-  letter-spacing: var(--cf-tracking-wide);
 }
 /* A group of checkboxes or radios is a fieldset field, named by its legend. */
 :where(fieldset.cf-field) {
@@ -31,8 +29,6 @@
   display: flex;
   align-items: center;
   gap: 1ch;
-  text-transform: none;
-  letter-spacing: 0;
 }
 :where(.cf-field__hint, .cf-field__error) {
   margin: 0;
