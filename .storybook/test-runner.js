@@ -197,22 +197,32 @@ async function assertNoticeBlink(page) {
 // own --cf-bg background. Needs emulated media, which play() cannot set. Leaves forced colours off.
 async function assertMosaicForcedColours(page) {
   await page.emulateMedia({ forcedColors: 'active' });
-  const [cap, band] = await page.evaluate(() =>
-    [...document.querySelectorAll('.cf-mosaic')].slice(0, 2).map((m) => {
+  // The Banner's logo (default ink, no band), title (yellow on blue) and rule (blue, no band).
+  const [logo, title, rule] = await page.evaluate(() =>
+    [...document.querySelectorAll('.cf-mosaic')].map((m) => {
       const cs = getComputedStyle(m);
       return { color: cs.color, backgroundColor: cs.backgroundColor, adjust: cs.forcedColorAdjust };
     }),
   );
-  expect(cap).toEqual({ color: 'rgb(0, 0, 255)', backgroundColor: 'rgb(0, 0, 0)', adjust: 'none' });
-  expect(band).toEqual({ color: 'rgb(255, 255, 0)', backgroundColor: 'rgb(0, 0, 255)', adjust: 'none' });
+  expect(logo).toEqual({ color: 'rgb(255, 255, 255)', backgroundColor: 'rgb(0, 0, 0)', adjust: 'none' });
+  expect(title).toEqual({ color: 'rgb(255, 255, 0)', backgroundColor: 'rgb(0, 0, 255)', adjust: 'none' });
+  expect(rule).toEqual({ color: 'rgb(0, 0, 255)', backgroundColor: 'rgb(0, 0, 0)', adjust: 'none' });
   await page.emulateMedia({ forcedColors: 'none' });
 }
 
 // Contract (#75): inside the Screen frame mosaic cells tile with no gap, across or down. Layout
-// can't show it (a glyph's ink isn't its box), so read the pixels: a screenshot of the solid flag,
-// decoded in the page, has no page-black pixel inside a 1px inset. Leaves forced colours off.
+// can't show it (a glyph's ink isn't its box), so read the pixels: a screenshot of the temperature
+// key's solid colour runs, decoded in the page, has no page-black pixel inside a 1px inset. Leaves
+// forced colours off.
 async function assertMosaicTiles(page) {
-  const png = (await page.locator('.cf-mosaic[role="img"]').screenshot()).toString('base64');
+  const KEY = '.cf-mosaic[aria-label^="Temperature key"]';
+  // Only the colour runs: the labels beside them are text on the page's black.
+  const clip = await page.evaluate((sel) => {
+    document.querySelector(sel).scrollIntoView({ block: 'center' });
+    const [first, , last] = [...document.querySelectorAll(`${sel} > span`)].map((r) => r.getBoundingClientRect());
+    return { x: first.left, y: first.top, width: first.width, height: last.bottom - first.top };
+  }, KEY);
+  const png = (await page.screenshot({ clip })).toString('base64');
   const dark = await page.evaluate(async (data) => {
     const img = await createImageBitmap(await (await fetch(`data:image/png;base64,${data}`)).blob());
     const ctx = new OffscreenCanvas(img.width, img.height).getContext('2d');
@@ -224,11 +234,10 @@ async function assertMosaicTiles(page) {
   }, png);
   expect(dark).toBe(0);
   // Colour runs inside a mosaic keep their own inks under forced colours too.
-  const runs = () =>
-    [...document.querySelectorAll('.cf-mosaic[role="img"] > span')].map((s) => getComputedStyle(s).color);
-  const inks = await page.evaluate(runs);
+  const runs = (sel) => [...document.querySelectorAll(`${sel} > span`)].map((s) => getComputedStyle(s).color);
+  const inks = await page.evaluate(runs, KEY);
   await page.emulateMedia({ forcedColors: 'active' });
-  expect(await page.evaluate(runs)).toEqual(inks);
+  expect(await page.evaluate(runs, KEY)).toEqual(inks);
   await page.emulateMedia({ forcedColors: 'none' });
 }
 

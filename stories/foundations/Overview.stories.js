@@ -1,22 +1,20 @@
 import { page, heading } from './_tokens.js';
+import { lettering, rule, toMosaic } from '../_mosaic.js';
 
 export default { title: 'Foundations/Overview' };
 
 export const Overview = () => {
   const root = page();
 
-  // Teletext masthead for the library name: the title is text on a mosaic band (cf-mosaic), between
-  // two mosaic rows that round its corners. Those are decorative, so hidden. Each row is a block,
-  // so the three stack one em apart with no line-height gap.
+  // Teletext masthead for the library name: the title in yellow mosaic lettering, a named image
+  // inside the <h1>, over a blue mosaic rule that is decorative. Both are cf-mosaic (Components/Mosaic).
+  const title = lettering('CEEFAX-UI');
   const header = document.createElement('div');
-  header.style.cssText = 'font-size:var(--cf-text-display-lg);width:fit-content;margin-bottom:8px';
-  const edge = (cells) =>
-    `<span class="cf-mosaic" aria-hidden="true" data-variant="blue" style="display:block">${cells}</span>`;
+  header.style.cssText = 'font-size:var(--cf-text-subheading);margin-bottom:16px';
   header.innerHTML =
-    edge('🬞' + '🬭'.repeat(9) + '🬏') +
     '<h1 style="margin:0;font-size:inherit">' +
-    '<span class="cf-mosaic" data-band="blue" data-variant="yellow" style="display:block"> CEEFAX-UI </span></h1>' +
-    edge('🬁' + '🬂'.repeat(9) + '🬀');
+    `<span class="cf-mosaic" role="img" aria-label="ceefax-ui" data-variant="yellow">${toMosaic(title)}</span></h1>` +
+    `<div><span class="cf-mosaic" aria-hidden="true" data-variant="blue">${rule('top', title[0].length / 2)}</span></div>`;
   root.appendChild(header);
 
   const ul = 'max-width:60ch;line-height:1.7;color:var(--cf-fg-dim)';
