@@ -37,14 +37,16 @@
   src: url('../../fonts/bedstead-3.261-bold.woff2') format('woff2');
 }
 /* The same file again, for mosaics only (components/mosaic.css): fallback fonts have no mosaic glyphs, so
-   swap would show tofu boxes while Bedstead loads. block keeps mosaic cells blank instead; text keeps swap. */
+   swap would show tofu boxes while Bedstead loads. block keeps mosaic cells blank instead; text keeps swap.
+   The range is the standard mosaic code points plus U+EE00–EE7F, Bedstead's private-use copy of them
+   in ZVBI's layout, so art pasted from ZVBI-based tools blanks while loading too. */
 @font-face {
   font-family: 'Bedstead Mosaic';
   font-style: normal;
   font-weight: 400;
   font-display: block;
   src: url('../../fonts/bedstead-3.261-regular.woff2') format('woff2');
-  unicode-range: U+2580-259F, U+1FB00-1FB3B, U+1CE51-1CE8F;
+  unicode-range: U+2580-259F, U+1FB00-1FB3B, U+1CE51-1CE8F, U+EE00-EE7F;
 }
 @font-face {
   font-family: 'Space Mono';

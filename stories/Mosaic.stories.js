@@ -28,10 +28,13 @@ const page = (html) => {
 const mosaics = (root) => [...root.querySelectorAll('.cf-mosaic')];
 const fontsLoaded = () =>
   Promise.all([document.fonts.load('16px "Bedstead Mosaic"', '█𜺏'), document.fonts.load('16px "Bedstead Cell"')]);
-// Every glyph a mosaic draws comes from Bedstead (no tofu): each cell is exactly one advance wide.
+// Every glyph a mosaic draws comes from Bedstead (no tofu): each cell is one advance wide. Some
+// platforms (Linux Chromium) round a fractional advance to a whole pixel, so allow half a pixel a
+// cell; a fallback glyph is several pixels off.
 const assertCells = async (el, cols) => {
   const size = parseFloat(getComputedStyle(el).fontSize);
-  await expect(el.getBoundingClientRect().width).toBeCloseTo(cols * size * ADVANCE, 0);
+  const off = Math.abs(el.getBoundingClientRect().width - cols * size * ADVANCE);
+  await expect(off).toBeLessThanOrEqual(cols * 0.5);
 };
 
 export default {
@@ -69,7 +72,7 @@ export const Banner = {
     const faces = [...document.fonts].filter((f) => f.family.replace(/"/g, '').startsWith('Bedstead'));
     const mosaic = faces.filter((f) => f.family.includes('Mosaic'));
     await expect(mosaic.map((f) => [f.display, f.unicodeRange])).toEqual([
-      ['block', 'U+2580-259F, U+1FB00-1FB3B, U+1CE51-1CE8F'],
+      ['block', 'U+2580-259F, U+1FB00-1FB3B, U+1CE51-1CE8F, U+EE00-EE7F'],
     ]);
     await expect(faces.filter((f) => !mosaic.includes(f)).every((f) => f.display === 'swap')).toBe(true);
   },
