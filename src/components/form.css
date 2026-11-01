@@ -136,8 +136,33 @@
   border: 1ch double;
   color: var(--cf-accent);
 }
-:where(.cf-checkbox):indeterminate {
+:where(.cf-checkbox:indeterminate) {
   border-inline: var(--cf-border-thin) solid;
+}
+/* The character variant: no shape, the control is its glyph, generated content on the input
+   itself (unspecified, w3c/csswg-drafts#12876; a story guards it). The glyph inherits the colour
+   above: accent when on, danger when invalid. On the control only: a container's data-variant
+   is a colour. */
+:where(:is(.cf-checkbox, .cf-radio)[data-variant='character']) {
+  inline-size: auto;
+  block-size: auto;
+  border: 0;
+  border-radius: 0;
+}
+:where(.cf-checkbox[data-variant='character'])::before {
+  content: '[\a0]';
+}
+:where(.cf-checkbox[data-variant='character']:checked)::before {
+  content: '[X]';
+}
+:where(.cf-checkbox[data-variant='character']:indeterminate)::before {
+  content: '[-]';
+}
+:where(.cf-radio[data-variant='character'])::before {
+  content: '(\a0)';
+}
+:where(.cf-radio[data-variant='character']:checked)::before {
+  content: '(*)';
 }
 :where(.cf-checkbox, .cf-radio):is(:user-invalid, [aria-invalid='true']) {
   color: var(--cf-danger);

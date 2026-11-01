@@ -272,6 +272,11 @@ async function assertCheckboxInput(page) {
   await page.keyboard.press('Tab');
   expect(await page.evaluate(() => document.activeElement.name)).toBe('news');
   expect(await page.evaluate(control, off)).toEqual({ ...rest, outline: `solid 2px ${ACCENT}` });
+  // The character variant (#132) takes the same ring.
+  const glyph = '[name=c-news]';
+  const glyphRest = await page.evaluate(control, glyph);
+  await page.focus(glyph);
+  expect(await page.evaluate(control, glyph)).toEqual({ ...glyphRest, outline: `solid 2px ${ACCENT}` });
   const dimmed = await page.evaluate(control, disabled);
   await page.hover(disabled);
   expect(await page.evaluate(control, disabled)).toEqual(dimmed);

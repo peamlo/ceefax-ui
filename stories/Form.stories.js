@@ -49,7 +49,8 @@ export default {
           'and an error message (`cf-field__error`) below. Link both to the control with `aria-describedby`. ' +
           '`cf-input` styles every text-like `<input>`, `cf-textarea` a `<textarea>` (`textarea.cf-input` looks ' +
           'the same) and `cf-select` a single `<select>`. `cf-checkbox` and `cf-radio` draw a square and a ' +
-          'circle beside the text of their wrapping `<label>`; a `<fieldset class="cf-field">` with a `<legend>` ' +
+          'circle beside the text of their wrapping `<label>`, or text characters (`[X]`, `(*)`) with ' +
+          '`data-variant="character"` on the control; a `<fieldset class="cf-field">` with a `<legend>` ' +
           'is the field for a group. State is native: `:focus-visible`, `disabled`, the ' +
           'browser\'s own validation (`:user-invalid`) and `aria-invalid="true"` for an error from the server. ' +
           'Size a control in characters with `size`, `cols` and `rows`. The library never shows or hides an ' +
@@ -331,6 +332,19 @@ const assertGroup = async (fieldset, name) => {
   await expect(box(legend).bottom).toBeLessThan(box(fieldset.querySelector('input')).top);
 };
 
+// The character variant (#132): the control is drawn as its glyph, generated content on the
+// <input> itself. No spec requires a browser to draw that (w3c/csswg-drafts#12876), so this is
+// also the guard: the control has no size or border of its own, so its width is the glyph's,
+// and a glyph that stops rendering leaves it zero wide.
+const assertCharacter = async (control, glyph, colour) => {
+  await expect(style(control, '::before').content).toBe(`"${glyph}"`);
+  await expect(style(control, '::before').color).toBe(colour);
+  await expect([style(control).borderTopStyle, style(control).borderLeftStyle]).toEqual(['none', 'none']);
+  await expect(box(control).width).toBeGreaterThan(0);
+};
+const CH = ' data-variant="character"';
+const NBSP = '\u00a0';
+
 const option = (cls, type, name, value, text, attrs = '') =>
   `<div class="cf-field"><label><input class="${cls}" type="${type}" name="${name}" value="${value}"${attrs}> ${text}</label></div>`;
 
@@ -351,8 +365,22 @@ export const Checkbox = {
          aria-invalid="true" aria-describedby="terms-err"> I agree to the terms</label>
   <p class="cf-field__error" id="terms-err">Agree to the terms to send your letter.</p>
 </div>
+<fieldset class="cf-field">
+  <legend>Options, as characters</legend>
+  ${option('cf-checkbox', 'checkbox', 'c-news', 'yes', 'Weekly digest', CH)}
+  ${option('cf-checkbox', 'checkbox', 'c-publish', 'yes', 'Print my name', `${CH} checked`)}
+  ${option('cf-checkbox', 'checkbox', 'c-pages', 'some', 'Some regions', `${CH} id="c-mixed"`)}
+  ${option('cf-checkbox', 'checkbox', 'c-archive', 'yes', 'Subtitles (off air)', `${CH} disabled checked`)}
+  ${option('cf-checkbox', 'checkbox', 'c-terms', 'yes', 'I am over 16', `${CH} aria-invalid="true" aria-describedby="age-err"`)}
+  <p class="cf-field__error" id="age-err">You must be over 16 to send a letter.</p>
+</fieldset>
+<fieldset class="cf-field" data-variant="character">
+  <legend>Not from a container</legend>
+  ${option('cf-checkbox', 'checkbox', 'c-box', 'yes', 'Still a square')}
+</fieldset>
 </div>`);
     root.querySelector('#mixed').indeterminate = true;
+    root.querySelector('#c-mixed').indeterminate = true;
     return root;
   },
   play: async ({ canvasElement }) => {
@@ -385,6 +413,21 @@ export const Checkbox = {
     await expect(terms).toBeInvalid();
     await expect(style(terms).borderTopColor).toBe(DANGER);
     await expect(terms).toHaveAccessibleDescription('Agree to the terms to send your letter.');
+    // The character variant: [ ], [X] and [-], the on glyphs in the accent colour.
+    const char = (name) => canvasElement.querySelector(`[name=${name}]`);
+    await assertCharacter(char('c-news'), `[${NBSP}]`, WHITE);
+    await assertCharacter(char('c-publish'), '[X]', ACCENT);
+    await assertCharacter(char('c-pages'), '[-]', ACCENT);
+    await assertCharacter(char('c-archive'), '[X]', ACCENT);
+    await expect(style(char('c-archive')).opacity).toBe('0.4');
+    await expect(style(char('c-archive')).cursor).toBe('default');
+    await assertCharacter(char('c-terms'), `[${NBSP}]`, DANGER);
+    char('c-news').click();
+    await assertCharacter(char('c-news'), '[X]', ACCENT);
+    char('c-news').click();
+    await assertCharacter(char('c-news'), `[${NBSP}]`, WHITE);
+    // On a container it does nothing: the checkbox inside keeps the drawn square.
+    await assertDrawnRest(char('c-box'), '0px');
   },
 };
 
@@ -404,6 +447,18 @@ export const Radio = {
   ${option('cf-radio', 'radio', 'day', 'sat', 'Saturday', ' aria-invalid="true"')}
   ${option('cf-radio', 'radio', 'day', 'sun', 'Sunday', ' aria-invalid="true"')}
   <p class="cf-field__error" id="day-err">Choose a day.</p>
+</fieldset>
+<fieldset class="cf-field">
+  <legend>Channel, as characters</legend>
+  ${option('cf-radio', 'radio', 'c-ch', '3', 'ITV', `${CH} checked`)}
+  ${option('cf-radio', 'radio', 'c-ch', '4', 'Channel 4', CH)}
+  ${option('cf-radio', 'radio', 'c-ch', 'x', 'S4C (off air)', `${CH} disabled`)}
+</fieldset>
+<fieldset class="cf-field" aria-describedby="slot-err">
+  <legend>Slot, as characters</legend>
+  ${option('cf-radio', 'radio', 'c-slot', 'am', 'Morning', `${CH} aria-invalid="true"`)}
+  ${option('cf-radio', 'radio', 'c-slot', 'pm', 'Evening', `${CH} aria-invalid="true"`)}
+  <p class="cf-field__error" id="slot-err">Choose a slot.</p>
 </fieldset>
 </div>`),
   play: async ({ canvasElement }) => {
@@ -431,6 +486,20 @@ export const Radio = {
       await expect(radio).toBeInvalid();
       await expect(style(radio).borderTopColor).toBe(DANGER);
     }
+    // The character variant: ( ) and (*), the on glyph in the accent colour.
+    const [cOn, cOff, cDisabled] = canvasElement.querySelectorAll('[name=c-ch]');
+    await assertCharacter(cOn, '(*)', ACCENT);
+    await assertCharacter(cOff, `(${NBSP})`, WHITE);
+    cOff.click();
+    await assertCharacter(cOff, '(*)', ACCENT);
+    await assertCharacter(cOn, `(${NBSP})`, WHITE);
+    cOn.click();
+    await assertCharacter(cDisabled, `(${NBSP})`, WHITE);
+    await expect(style(cDisabled).opacity).toBe('0.4');
+    await expect(style(cDisabled).cursor).toBe('default');
+    // Nothing chosen (:indeterminate) is still off, in the danger colour when invalid.
+    for (const radio of canvasElement.querySelectorAll('[name=c-slot]'))
+      await assertCharacter(radio, `(${NBSP})`, DANGER);
   },
 };
 
@@ -480,6 +549,8 @@ export const InScreenFrame = {
         <div class="cf-field"><label><input class="cf-radio" type="radio" name="ch" value="2"> BBC2</label></div>
       </fieldset>
       <div class="cf-field"><label><input class="cf-checkbox" type="checkbox" name="publish" checked> Publish it</label></div>
+      <div class="cf-field"><label><input class="cf-checkbox" data-variant="character" type="checkbox" name="digest" checked> Digest</label></div>
+      <div class="cf-field"><label><input class="cf-radio" data-variant="character" type="radio" name="slot" value="am"> Morning</label></div>
       <div class="cf-cluster">
         <input class="cf-input" type="search" name="q" aria-label="Search pages" size="12">
         <button class="cf-btn" type="submit">Go</button>
@@ -516,18 +587,20 @@ export const InScreenFrame = {
       await expectCells(box(page.querySelector('textarea')).width, 30 + 2, cell);
       // The select: its longest option, one cell before it, three after (the ▼ in the middle one).
       await expectCells(box(page.querySelector('select')).width, 'London'.length + 4, cell);
-      // A checkbox or radio is two cells across, and its text starts one cell after it.
+      // A checkbox or radio is two cells across (a character-variant glyph three), and its text
+      // starts one cell after it.
       for (const label of page.querySelectorAll('label:has(.cf-checkbox, .cf-radio), legend')) {
         await expect(style(label).fontFamily).toMatch(/^"?Bedstead Cell/);
         await expect(style(label).fontSize).toBe(style(form).fontSize);
       }
       for (const control of page.querySelectorAll('.cf-checkbox, .cf-radio')) {
-        await expectCells(box(control).width, 2, cell);
-        await expectCells(box(control).height, 2, cell);
+        const across = control.dataset.variant ? 3 : 2;
+        await expectCells(box(control).width, across, cell);
+        if (!control.dataset.variant) await expectCells(box(control).height, 2, cell);
         const text = document.createRange();
         text.selectNodeContents(control.parentElement);
         text.setStartAfter(control);
-        await expectCells(text.getBoundingClientRect().left - box(form).left, 3, cell);
+        await expectCells(text.getBoundingClientRect().left - box(form).left, across + 1, cell);
       }
     }
     if (args.cells === 40) delete page.dataset.cells;
