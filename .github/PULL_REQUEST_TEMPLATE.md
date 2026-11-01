@@ -44,6 +44,7 @@ Tick all that apply, or write "None — internal only".
 - [ ] `npm run build` passes (`dist/index.css` + `dist/tokens.css`)
 - [ ] `npm run assert-package` passes (packaging, exports, fonts, size budgets)
 - [ ] `npm run storybook` — Storybook a11y checks pass for affected components
+- [ ] `npm run test-storybook` passes — play(), axe and html-validate over every gated story
 - [ ] Keyboard/focus behaviour verified (focus inversion, `▸` caret on `[aria-current]`)
 - [ ] Reduced-motion respected where relevant (`<cf-loader>` blink, `:active` scale)
 

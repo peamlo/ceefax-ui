@@ -38,7 +38,8 @@ Two mechanisms, one surface:
   hover-suppression, driven through Playwright's real pointer/keyboard — plus the
   **axe** contrast/label/role pass. axe is gated to `Components/*`: the Foundations
   swatch pages deliberately render the raw palette (known contrast tradeoffs), so
-  running axe over them would fail the build on non-contract stories.
+  running axe over them would fail the build on non-contract stories. Every story it
+  visits also gets **html-validate** over its rendered HTML (#127, rules in `.htmlvalidate.js`).
 
 Assertions target the **highest seam** — rendered DOM and computed styles a consumer
 would see — never a private `--_var` or an internal selector.
@@ -69,7 +70,7 @@ the gate widens with no change to the stories.
   `test-runner.js` and not in `Button.stories.js`?** Because synthetic events can't
   trigger the CSS state; a `play()`-based hover test would fail on the enabled button
   and pass _vacuously_ on the disabled one. Real input has to come from Playwright.
-- New deps: `@storybook/test-runner`, `axe-playwright`, and Playwright browsers in
+- New deps: `@storybook/test-runner`, `axe-playwright`, `html-validate` (#127), and Playwright browsers in
   CI. Since Storybook 9 the `play()` helpers (`expect`, `within`) come from core
   (`storybook/test`), so `@storybook/test` is no longer a separate package. Storybook
   10 needs test-runner 0.26+, which still depends on `uuid@8` (a moderate advisory),

@@ -1,0 +1,33 @@
+// html-validate rules for the stories' rendered HTML (#127), run per story by the test-runner
+// hook (.storybook/test-runner.js). Starts from the recommended preset; every rule turned off
+// carries its reason. The input is a story's rendered root (what "Show code" displays), a
+// fragment serialized by the browser, not a hand-written document.
+export default {
+  extends: ['html-validate:recommended'],
+  elements: [
+    'html5',
+    {
+      // The two opt-in Web Components (src/elements/): the loader sits in running text, the canvas is a block.
+      'cf-loader': { flow: true, phrasing: true, permittedContent: ['@phrasing'] },
+      // Its text content is the char-grid source, read by the element and drawn to a canvas.
+      'cf-canvas': { flow: true, permittedContent: [] },
+    },
+  ],
+  rules: {
+    // Document-level: a story is a fragment, with no doctype or <title> to judge.
+    'doctype-html': 'off',
+    'doctype-style': 'off',
+    'empty-title': 'off',
+    'long-title': 'off',
+    // Valid HTML: stories lay out their demos and set custom properties with style="".
+    'no-inline-style': 'off',
+    // The browser serializes every boolean attribute as name="", so its style isn't the story's.
+    'attribute-boolean-style': 'off',
+    // On, minus one role. The rule reports an element given a role that a native element already
+    // has, here <div role="region"> where it wants <section>. The table's cf-table__scroll is
+    // exactly that markup by contract (README "The contract"), so role="region" is exempt: every
+    // other role (button, link, list, …) is still reported. A <section> region would be a
+    // contract change, out of scope for #127.
+    'prefer-native-element': ['error', { exclude: ['region'] }],
+  },
+};

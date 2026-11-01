@@ -46,9 +46,9 @@ not a mockup.
 
 ```html
 <!-- identity = class · look-only variant = data-* · state = native/ARIA attrs -->
-<button class="cf-btn">Read more</button>
-<button class="cf-btn" data-variant="red">▸ RED · INDEX</button>
-<button class="cf-btn" data-size="lg" disabled>Off air</button>
+<button class="cf-btn" type="button">Read more</button>
+<button class="cf-btn" type="button" data-variant="red">▸ RED · INDEX</button>
+<button class="cf-btn" type="button" data-size="lg" disabled>Off air</button>
 
 <a class="cf-link" href="/posts">POSTS</a>
 <a class="cf-link" href="/about" aria-current="page">ABOUT</a>
@@ -252,7 +252,7 @@ Under the [accessible theme](#accessible-theme) every band's ink is black, whate
 The authentic palette is the point of the library, but it is not accessible: authentic blue is 2.44:1 on black, and `danger = red` / `success = green` is the classic red–green confusion. Opt into the **accessible theme** with one attribute — no JavaScript, no build step, no markup changes:
 
 ```html
-<html data-theme="accessible"></html>
+<html lang="en" data-theme="accessible"></html>
 ```
 
 It also works on any subtree (`<section data-theme="accessible">`) to scope it to one region. Without the attribute nothing changes.
