@@ -253,7 +253,7 @@ The real native controls, one class each, restyled: square boxes on the page bac
 - **Validation is the browser's own** (`required`, `type`, `minlength`…): after the user has interacted, an invalid control (`:user-invalid`) gets a thicker border in the danger colour (a checkbox or radio turns the danger colour). Empty required fields aren't red on load. For an error from your server, set `aria-invalid="true"`: it looks the same.
 - **The error message is yours to show:** put `cf-field__error` in the page (and set `aria-invalid`) only while the field is invalid. The library never shows or hides it, because a hidden description is still read out. It is in the danger colour with a leading `!`, so it isn't told by colour alone.
 - **No hidden labels:** a control with no visible label (a search box) is named with `aria-label`.
-- **Override with your own CSS:** every form rule is `:where()`, so it wins without `!important` ([ADR-0018](docs/adr/0018-foundations-are-tokens-and-semantic-html.md)).
+- **Override with your own CSS:** every form rule is `:where()`, states (`:focus-visible`, `:disabled`, invalid) included, so your selector wins without `!important` ([ADR-0018](docs/adr/0018-foundations-are-tokens-and-semantic-html.md)).
 
 ### Pixel canvas (`<cf-canvas>`)
 

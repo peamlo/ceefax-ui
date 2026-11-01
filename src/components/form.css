@@ -3,8 +3,9 @@
    message below. State is native: :focus-visible, disabled, :user-invalid (never :invalid,
    which marks empty required fields on load) and aria-invalid="true" for a server error.
    The error message is in the page only while the field is invalid: the library never shows
-   or hides it. Every rule is wrapped in :where(), so consumer CSS wins without !important
-   (ADR-0018), and later rules here win on order alone. */
+   or hides it. Every selector, states included, is wrapped in :where() (a pseudo-element can't
+   be, and adds only a type's weight), so consumer CSS wins without !important (ADR-0018; lint
+   enforces it), and later rules here win on order alone. */
 :where(.cf-field) {
   display: flex;
   flex-direction: column;
@@ -164,10 +165,10 @@
 :where(.cf-radio[data-variant='character']:checked)::before {
   content: '(*)';
 }
-:where(.cf-checkbox, .cf-radio):is(:user-invalid, [aria-invalid='true']) {
+:where(:is(.cf-checkbox, .cf-radio):is(:user-invalid, [aria-invalid='true'])) {
   color: var(--cf-danger);
 }
-:where(.cf-input, .cf-textarea, .cf-select, .cf-checkbox, .cf-radio):focus-visible {
+:where(:is(.cf-input, .cf-textarea, .cf-select, .cf-checkbox, .cf-radio):focus-visible) {
   --_bd: var(--cf-accent);
   outline: var(--cf-border-thin) solid var(--cf-accent);
   outline-offset: var(--cf-border-thin);
@@ -175,11 +176,11 @@
 }
 /* Invalid once the user has interacted (:user-invalid), or as the server says (aria-invalid):
    a thicker border in the danger colour, so not by colour alone. */
-:where(.cf-input, .cf-textarea, .cf-select):is(:user-invalid, [aria-invalid='true']) {
+:where(:is(.cf-input, .cf-textarea, .cf-select):is(:user-invalid, [aria-invalid='true'])) {
   --_bw: var(--cf-border-thick);
   --_bd: var(--cf-danger);
 }
-:where(.cf-input, .cf-textarea, .cf-select, .cf-checkbox, .cf-radio):disabled {
+:where(:is(.cf-input, .cf-textarea, .cf-select, .cf-checkbox, .cf-radio):disabled) {
   opacity: 0.4;
   cursor: default;
 }
@@ -199,7 +200,7 @@
 }
 /* Autofill: the browser's own background can't be overridden, so an inset shadow paints the
    page background over it; the text in the info colour is the "filled for you" cue. */
-:where(.cf-input, .cf-textarea, .cf-select):autofill {
+:where(:is(.cf-input, .cf-textarea, .cf-select):autofill) {
   box-shadow: inset 0 0 0 100vmax var(--cf-bg);
   -webkit-text-fill-color: var(--cf-info);
 }
