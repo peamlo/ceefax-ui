@@ -210,7 +210,7 @@ async function assertMosaicForcedColours(page) {
 
 // Contract (#75): inside the Screen frame mosaic cells tile with no gap, across or down. Layout
 // can't show it (a glyph's ink isn't its box), so read the pixels: a screenshot of the solid flag,
-// decoded in the page, has no page-black pixel inside a 1px inset.
+// decoded in the page, has no page-black pixel inside a 1px inset. Leaves forced colours off.
 async function assertMosaicTiles(page) {
   const png = (await page.locator('.cf-mosaic[role="img"]').screenshot()).toString('base64');
   const dark = await page.evaluate(async (data) => {
@@ -223,6 +223,13 @@ async function assertMosaicTiles(page) {
     return n;
   }, png);
   expect(dark).toBe(0);
+  // Colour runs inside a mosaic keep their own inks under forced colours too.
+  const runs = () =>
+    [...document.querySelectorAll('.cf-mosaic[role="img"] > span')].map((s) => getComputedStyle(s).color);
+  const inks = await page.evaluate(runs);
+  await page.emulateMedia({ forcedColors: 'active' });
+  expect(await page.evaluate(runs)).toEqual(inks);
+  await page.emulateMedia({ forcedColors: 'none' });
 }
 
 const ignoreAxePseudo = () => {

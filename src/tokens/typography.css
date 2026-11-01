@@ -36,7 +36,7 @@
   font-display: swap;
   src: url('../../fonts/bedstead-3.261-bold.woff2') format('woff2');
 }
-/* The same file again, for mosaics only (components/mosaic.css): fallback fonts have no sextants, so
+/* The same file again, for mosaics only (components/mosaic.css): fallback fonts have no mosaic glyphs, so
    swap would show tofu boxes while Bedstead loads. block keeps mosaic cells blank instead; text keeps swap. */
 @font-face {
   font-family: 'Bedstead Mosaic';

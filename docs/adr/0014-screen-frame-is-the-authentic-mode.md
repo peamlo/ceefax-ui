@@ -46,7 +46,8 @@ Space Mono ships under. Source, version and this reasoning are recorded in
   display-lg 48 · display-xl 72; small is the one 4px exception) and `--cf-content-max` is a
   ~65ch prose measure, not one teletext page. Only the Screen frame is 40 cells wide; it keeps
   scaling the type with its width. `<cf-canvas>` keeps its own 40ch cap so pixel art doesn't
-  stretch to the prose measure (amends the cap in [ADR-0004](0004-cf-canvas-pixel-art.md)).
+  stretch to the prose measure (amends the cap in [ADR-0004](0004-cf-canvas-pixel-art.md); the canvas is
+  removed by [ADR-0020](0020-text-mosaics-replace-pixel-canvas.md)).
   `--cf-text-caption` is removed outright (use `small`): the library has no consumers yet, so
   a deprecation period would protect no one. Public tokens changed value or were removed, so
   this is a breaking change.

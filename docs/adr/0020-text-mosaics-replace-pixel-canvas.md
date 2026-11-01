@@ -13,7 +13,7 @@ grow faster than the element count (1000 canvases: 493 ms vs 21 ms for mosaics).
 
 ## Decision
 
-Teletext graphics are text mosaics (`cf-mosaic`): Bedstead sextant glyphs coloured with `data-variant`
+Teletext graphics are text mosaics (`cf-mosaic`): Bedstead mosaic glyphs coloured with `data-variant`
 and `data-band`, at most two colours per cell. `<cf-canvas>` and `palette.js` are removed, with no
 deprecation release, because the library has no consumers yet. A mosaic is a picture: it keeps its
 colours under forced colours, on its own `--cf-bg` background. Its font face blocks instead of swapping,
@@ -33,7 +33,8 @@ not in a format of the library's own.
 - Supersedes ADR-0004 and ADR-0011, including ADR-0004's planned "paint it yourself" editor and PNG
   export: the zxnet editor replaces both. Amends [ADR-0008](0008-cf-base-token-tier.md) (the canvas no
   longer names `--cf-base-*`) and [ADR-0014](0014-screen-frame-is-the-authentic-mode.md) (its deferred
-  canvas question is closed).
+  canvas question is closed, and the canvas's 40ch cap goes with it). Where ADR-0006 and ADR-0015 name the
+  canvas, `parseCharGrid` or the palette-drift guard, read it as history.
 - `./elements` keeps only `<cf-loader>`.
 - Pictures that need more than two colours per cell must be redrawn on whole cells, as teletext artists did.
 - Authoring and PNG export come from the zxnet editor; the library ships neither.

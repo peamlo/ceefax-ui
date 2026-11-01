@@ -1,9 +1,8 @@
 import { expect, within } from 'storybook/test';
 
-// cf-mosaic (#75, ADR-0020): teletext block graphics written as characters. Each story's markup
-// is what a consumer writes; the glyphs are literal (draw them in the zxnet editor, see README).
-// A cell's code point is 0x1FB00 + bits − 1, skipping ▌ ▐ █ (bits 21, 42, 63), or 0x1CE51 + bits − 1
-// separated; bits 1, 2, 4 … from the top-left, row by row.
+// cf-mosaic (#75, ADR-0020): teletext mosaics written as characters. Each story's markup is what a
+// consumer writes; the glyphs are literal (draw them in the zxnet editor; the README has the
+// cell → code point formula).
 const HEART = '🬻🬺█🬓\n🬁🬬🬆 ';
 const HEART_SEPARATED = '𜺎𜺍𜺏𜹤\n𜹒𜹿𜹗 ';
 const RULE = '🬋'.repeat(40); // the middle row of every cell
@@ -17,6 +16,8 @@ const VOTES = [
 ];
 const bar = (v) => '█'.repeat(Math.floor(v / 4)) + (v % 4 >= 2 ? '▌' : '');
 
+const ADVANCE = 0.6; // a Bedstead cell is 0.6em wide
+
 const page = (html) => {
   const el = document.createElement('div');
   el.className = 'cf-page';
@@ -27,10 +28,10 @@ const page = (html) => {
 const mosaics = (root) => [...root.querySelectorAll('.cf-mosaic')];
 const fontsLoaded = () =>
   Promise.all([document.fonts.load('16px "Bedstead Mosaic"', '█𜺏'), document.fonts.load('16px "Bedstead Cell"')]);
-// Every glyph a mosaic draws comes from Bedstead (no tofu): each cell is exactly 0.6em wide.
+// Every glyph a mosaic draws comes from Bedstead (no tofu): each cell is exactly one advance wide.
 const assertCells = async (el, cols) => {
   const size = parseFloat(getComputedStyle(el).fontSize);
-  await expect(el.getBoundingClientRect().width).toBeCloseTo(cols * size * 0.6, 0);
+  await expect(el.getBoundingClientRect().width).toBeCloseTo(cols * size * ADVANCE, 0);
 };
 
 export default {
@@ -141,7 +142,7 @@ export const BarChart = {
 };
 
 // data-mosaic="separated": the same cells with a gutter round each block, from the Unicode 16
-// separated sextants (U+1CE51–1CE8F), drawn by Bedstead like the contiguous ones.
+// separated mosaics (U+1CE51–1CE8F), drawn by Bedstead like the contiguous ones.
 export const Separated = {
   render: () =>
     page(
@@ -192,10 +193,10 @@ export const InTheScreenFrame = {
     const body = canvasElement.querySelector('.cf-page__body');
     const { paddingLeft, paddingRight } = getComputedStyle(body);
     const content = body.clientWidth - parseFloat(paddingLeft) - parseFloat(paddingRight);
-    await expect(size * 0.6).toBeCloseTo(Math.floor(content / 40), 1);
+    await expect(size * ADVANCE).toBeCloseTo(Math.floor(content / 40), 1);
     // Across: six cells. Down: one row per em, and a glyph fills its em, so rows meet. That the
     // painted pixels leave no gap is checked on a screenshot in .storybook/test-runner.js postVisit.
-    for (const r of runs) await expect(r.width).toBeCloseTo(6 * size * 0.6, 1);
+    for (const r of runs) await expect(r.width).toBeCloseTo(6 * size * ADVANCE, 1);
     for (let i = 1; i < runs.length; i++) await expect(runs[i].top - runs[i - 1].top).toBeCloseTo(size, 1);
     await expect(flag.getBoundingClientRect().height).toBeCloseTo(3 * size, 1);
     await expect(runs.map((_, i) => getComputedStyle(flag.children[i]).color)).toEqual([

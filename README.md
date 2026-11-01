@@ -191,7 +191,7 @@ A native table set like a broadcast league table: one line per row, figures to t
 
 ### Mosaic (`cf-mosaic`)
 
-Teletext block graphics written as text: banners, rules, logo blocks, small charts and pictures that sit on the same row as the words around them, as on a real set. Each character is a 2×3 block pattern filling one cell, drawn by Bedstead. A mosaic is CSS on characters you write: the line wraps around it like a word, it copies like text, and it needs no JavaScript.
+Teletext mosaics, graphics written as text: banners, rules, logo blocks, small charts and pictures that sit on the same row as the words around them, as on a real set. Each character is a 2×3 block pattern filling one cell, drawn by Bedstead. A mosaic is CSS on characters you write: the line wraps around it like a word, it copies like text, and it needs no JavaScript.
 
 <!-- prettier-ignore -->
 ```html
@@ -210,7 +210,7 @@ Teletext block graphics written as text: banners, rules, logo blocks, small char
 - **Cells are code points.** Number a cell's blocks 1, 2, 4, 8, 16, 32 from the top-left, row by row, and add the lit ones (`bits`, 1–63; a space is an empty cell). Contiguous: `0x1FB00 + bits − 1`, skipping the three that Unicode encodes as block elements (`▌` U+258C for 21, `▐` U+2590 for 42, `█` U+2588 for 63), so subtract one more above 21 and another above 42. Separated, with `data-mosaic="separated"`: `0x1CE51 + bits − 1` (Unicode 16, no exceptions). Rows are newlines inside the mosaic; it is one inline box, so a picture keeps its shape beside text.
 - **Draw art in the [zxnet teletext editor](https://zxnet.co.uk/teletext/editor/)** ([reference](./docs/reference/zxnet-teletext.md)), not by hand. It paints with teletext's own rules (two colours per cell, contiguous and separated) and keeps the whole page in its URL. The library ships no editor of its own ([ADR-0020](./docs/adr/0020-text-mosaics-replace-pixel-canvas.md)).
 - **Two colours per cell:** `data-variant` is the ink and `data-band` the background, on the mosaic or on a `<span>` inside it for each colour run. A banded run names its ink beside its band, which follows the band rules (see [Bands](#bands)). Letters inside a mosaic fall back to Bedstead, so text can share a mosaic's band.
-- **Accessibility:** decorative by default — put `aria-hidden="true"` on it, or a screen reader announces every glyph by its Unicode name. A mosaic that carries meaning gets `role="img"` and an `aria-label`. In a chart keep the figures as text and hide only the bars. A rule on a line of its own goes in a `<div>`, not a `<p>`, so no empty paragraph is left behind.
+- **Accessibility:** most mosaics decorate, so put `aria-hidden="true"` on them, or a screen reader announces every glyph by its Unicode name. A mosaic that carries meaning gets `role="img"` and an `aria-label`. In a chart keep the figures as text and hide only the bars. A rule on a line of its own goes in a `<div>`, not a `<p>`, so no empty paragraph is left behind.
 - **Forced colours:** a mosaic is a picture, so it keeps its colours, on its own `--cf-bg` background.
 - **Font loading:** mosaics use a `font-display: block` face (the same Bedstead file, no second download), so cells stay blank rather than showing tofu while it loads. Text keeps `swap`. On pages with mosaics, preload the font (from wherever you serve the package's `fonts/`) so the cells appear with the text:
 

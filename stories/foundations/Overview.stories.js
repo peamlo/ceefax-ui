@@ -48,7 +48,7 @@ export const Overview = () => {
   components.style.cssText = ul;
   components.innerHTML =
     `<li><strong style="${key}">Buttons, links, cards, fastext</strong> — one semantic class on a native element; state from native/ARIA attributes.</li>` +
-    `<li><strong style="${key}">Mosaics</strong> — teletext block graphics written as text (<code>cf-mosaic</code>), on the same row as the words around them.</li>` +
+    `<li><strong style="${key}">Mosaics</strong> — teletext graphics written as text (<code>cf-mosaic</code>), on the same row as the words around them.</li>` +
     `<li><strong style="${key}">Optional element</strong> — one standard Web Component under the opt-in <code>./elements</code> export (<code>&lt;cf-loader&gt;</code>) for what CSS can't do alone.</li>`;
   root.appendChild(heading('Components'));
   root.appendChild(components);
