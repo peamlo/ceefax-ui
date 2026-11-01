@@ -3,6 +3,7 @@ export default {
   tags: ['autodocs'],
   render: ({ label, variant, size, disabled }) => {
     const b = document.createElement('button');
+    b.type = 'button';
     b.className = 'cf-btn';
     b.textContent = label;
     if (variant) b.dataset.variant = variant;

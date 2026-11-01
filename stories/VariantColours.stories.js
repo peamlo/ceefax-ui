@@ -116,6 +116,7 @@ const build = ([kind, variant], i) => {
   const n = document.createElement(c.tag);
   n.className = c.className;
   if (c.tag === 'a') n.href = '#';
+  if (c.tag === 'button') n.type = 'button';
   if (variant) n.dataset.variant = variant;
   n.dataset.case = String(i);
   n.textContent = (variant || 'default').toUpperCase();

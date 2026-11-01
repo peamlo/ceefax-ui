@@ -1,12 +1,15 @@
 import { getStoryContext } from '@storybook/test-runner';
 import { injectAxe, checkA11y } from 'axe-playwright';
+import { HtmlValidate } from 'html-validate';
+import htmlValidateConfig from '../.htmlvalidate.js';
 
 // The stories are the test surface (issue #8). Two mechanisms, one surface:
 //  - story play() functions carry the assertions that in-page code can observe
 //    (ARIA/role/text, static computed styles, the parseCharGrid pure contract);
 //  - this hook carries the two that need *real* browser input — CSS :hover and
 //    :focus-visible only respond to a real pointer/keyboard, which the synthetic
-//    in-page userEvent cannot produce — plus the axe a11y pass.
+//    in-page userEvent cannot produce — plus the axe a11y pass and, on every story,
+//    html-validate over the rendered HTML (#127).
 //
 // axe is gated to Components/* and the Layout/Page screen-frame story — the Foundations swatch/demo pages deliberately show
 // the raw palette (known contrast tradeoffs), so running axe over them would fail the
@@ -193,6 +196,18 @@ async function assertNoticeBlink(page) {
   expect(opacityAfter).toBe('1');
 }
 
+// Contract (#127): every story renders valid HTML, so markup a consumer copies from "Show code"
+// validates too. Checks the rendered root after play(), so markup a story builds in JS counts.
+const htmlValidate = new HtmlValidate(htmlValidateConfig);
+
+async function assertValidHtml(page, title, name) {
+  const markup = await page.$eval('#storybook-root', (root) => root.innerHTML);
+  const { valid, results } = await htmlValidate.validateString(markup);
+  if (valid) return;
+  const problems = results[0].messages.map((m) => `  ${m.ruleId}: ${m.message} (${m.selector ?? 'document'})`);
+  throw new Error(`Invalid HTML in story "${title} / ${name}":\n${problems.join('\n')}`);
+}
+
 const ignoreAxePseudo = () => {
   const { options } = window.axe._audit.checks['color-contrast'];
   window.axe.configure({ checks: [{ id: 'color-contrast', options: { ...options, ignorePseudo: true } }] });
@@ -210,6 +225,7 @@ const axe = async (page, { aaa = false } = {}) => {
 export default {
   async postVisit(page, context) {
     const { title, name } = await getStoryContext(page, context);
+    await assertValidHtml(page, title, name);
     const isCrt = title === 'Layout/Page' && name === 'Screen frame, CRT look (data-frame="crt")';
     const isFrame = (title === 'Layout/Page' && name === 'Screen frame (data-frame)') || isCrt;
     if (isFrame) await assertScreenFrame(page);
