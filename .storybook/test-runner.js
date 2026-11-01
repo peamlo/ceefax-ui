@@ -193,6 +193,70 @@ async function assertNoticeBlink(page) {
   expect(opacityAfter).toBe('1');
 }
 
+// Contract (#130): a real Tab to a text control shows the accent ring and keeps its colours
+// (no inversion while you type); typing an invalid value and leaving gives the :user-invalid
+// look; every state stays visible under forced colours. Needs real keyboard input and
+// emulated media, which play() cannot produce. The Field story's first control is a required
+// email field. Leaves forced colours off.
+const control = (sel) => {
+  const cs = getComputedStyle(document.querySelector(sel));
+  return {
+    backgroundColor: cs.backgroundColor,
+    color: cs.color,
+    borderColor: cs.borderTopColor,
+    borderWidth: cs.borderTopWidth,
+    outline: `${cs.outlineStyle} ${cs.outlineWidth} ${cs.outlineColor}`,
+    opacity: cs.opacity,
+    width: document.querySelector(sel).getBoundingClientRect().width,
+  };
+};
+const ACCENT = 'rgb(255, 255, 0)';
+async function assertFieldInput(page) {
+  const rest = await page.evaluate(control, '#email');
+  await page.keyboard.press('Tab');
+  expect(await page.evaluate(() => document.activeElement.id)).toBe('email');
+  expect(await page.evaluate(control, '#email')).toEqual({
+    ...rest,
+    borderColor: ACCENT,
+    outline: `solid 2px ${ACCENT}`,
+  });
+  // Empty and required, yet untouched: not invalid. Then a bad value, and leave the field.
+  expect(rest.borderWidth).toBe('2px');
+  await page.keyboard.type('not-an-email');
+  await page.keyboard.press('Tab');
+  expect(await page.evaluate(control, '#email')).toMatchObject({
+    borderColor: 'rgb(255, 0, 0)',
+    borderWidth: '4px',
+    outline: expect.stringMatching(/^none/),
+    width: rest.width,
+  });
+  // Read under forced colours, asserted after switching them off, so a failure can't leak them.
+  await page.emulateMedia({ forcedColors: 'active' });
+  const [invalid, focused] = [await page.evaluate(control, '#email'), await page.evaluate(control, '#postcode')];
+  await page.emulateMedia({ forcedColors: 'none' });
+  expect(invalid.borderWidth).toBe('4px');
+  expect(focused.outline).toMatch(/^solid 2px/);
+}
+// Disabled stays dimmed under forced colours.
+async function assertDisabledForced(page, sel) {
+  await page.emulateMedia({ forcedColors: 'active' });
+  const { opacity } = await page.evaluate(control, sel);
+  await page.emulateMedia({ forcedColors: 'none' });
+  expect(opacity).toBe('0.4');
+}
+
+// Forced colours drop the drawn ▼ (a gradient background), so the select falls back to the
+// system's own arrow. Read under forced colours, asserted after switching them off again.
+async function assertSelectForced(page) {
+  await page.emulateMedia({ forcedColors: 'active' });
+  const { backgroundImage, appearance } = await page.evaluate(() => {
+    const cs = getComputedStyle(document.querySelector('#region'));
+    return { backgroundImage: cs.backgroundImage, appearance: cs.appearance };
+  });
+  await page.emulateMedia({ forcedColors: 'none' });
+  expect(backgroundImage.includes('gradient') || appearance !== 'none').toBe(true);
+}
+
 const ignoreAxePseudo = () => {
   const { options } = window.axe._audit.checks['color-contrast'];
   window.axe.configure({ checks: [{ id: 'color-contrast', options: { ...options, ignorePseudo: true } }] });
@@ -221,6 +285,9 @@ export default {
     if (title === 'Components/Notice') await assertNoticeBlink(page);
     if (title === 'Components/Header row' && name === 'In the Screen frame') await assertHeaderRowNarrow(page);
     if (title === 'Components/Table' && name === 'Wide, with long text') await assertTableNarrow(page);
+    if (title === 'Components/Form' && name === 'Field') await assertFieldInput(page);
+    if (title === 'Components/Form' && name === 'Input') await assertDisabledForced(page, '#in-off');
+    if (title === 'Components/Form' && name === 'Select') await assertSelectForced(page);
 
     await injectAxe(page);
     // The scanline overlay is an absolutely positioned ::after with a background-image, which axe

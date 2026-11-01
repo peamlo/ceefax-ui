@@ -55,7 +55,7 @@ export default {
           'Layout',
           ['Stack', 'Cluster', 'Grid', 'Center', 'Sidebar', 'Page'],
           'Components',
-          ['Button', 'Link', 'Card', 'Fastext bar', 'Header row', 'Table', 'Pixel canvas'],
+          ['Button', 'Link', 'Card', 'Fastext bar', 'Header row', 'Table', 'Form', 'Pixel canvas'],
         ],
       },
     },
