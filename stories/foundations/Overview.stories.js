@@ -1,19 +1,20 @@
 import { page, heading } from './_tokens.js';
-import '../../src/elements/cf-canvas.js';
-import { masthead } from '../_pixel-text.js';
+import { lettering, rule, toMosaic } from '../_mosaic.js';
 
 export default { title: 'Foundations/Overview' };
 
 export const Overview = () => {
   const root = page();
 
-  // Teletext masthead for the library name. It happens to be a <cf-canvas>, but the
-  // page is about the design system as a whole — not this one element.
-  const header = document.createElement('cf-canvas');
-  header.setAttribute('alt', 'ceefax-ui');
-  header.setAttribute('data-size', 'full');
-  header.style.marginBottom = '8px';
-  header.textContent = masthead('CEEFAX-UI');
+  // Teletext masthead for the library name: the title in yellow mosaic lettering, a named image
+  // inside the <h1>, over a blue mosaic rule that is decorative. Both are cf-mosaic (Components/Mosaic).
+  const title = lettering('CEEFAX-UI');
+  const header = document.createElement('div');
+  header.style.cssText = 'font-size:var(--cf-text-subheading);margin-bottom:16px';
+  header.innerHTML =
+    '<h1 style="margin:0;font-size:inherit">' +
+    `<span class="cf-mosaic" role="img" aria-label="ceefax-ui" data-variant="yellow">${toMosaic(title)}</span></h1>` +
+    `<div><span class="cf-mosaic" aria-hidden="true" data-variant="blue">${rule('top', title[0].length / 2)}</span></div>`;
   root.appendChild(header);
 
   const ul = 'max-width:60ch;line-height:1.7;color:var(--cf-fg-dim)';
@@ -45,7 +46,8 @@ export const Overview = () => {
   components.style.cssText = ul;
   components.innerHTML =
     `<li><strong style="${key}">Buttons, links, cards, fastext</strong> — one semantic class on a native element; state from native/ARIA attributes.</li>` +
-    `<li><strong style="${key}">Optional elements</strong> — a couple of standard Web Components under the opt-in <code>./elements</code> export (<code>&lt;cf-loader&gt;</code>, <code>&lt;cf-canvas&gt;</code>) for the few things CSS can't do alone.</li>`;
+    `<li><strong style="${key}">Mosaics</strong> — teletext graphics written as text (<code>cf-mosaic</code>), on the same row as the words around them.</li>` +
+    `<li><strong style="${key}">Optional element</strong> — one standard Web Component under the opt-in <code>./elements</code> export (<code>&lt;cf-loader&gt;</code>) for what CSS can't do alone.</li>`;
   root.appendChild(heading('Components'));
   root.appendChild(components);
 

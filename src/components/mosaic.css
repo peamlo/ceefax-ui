@@ -1,0 +1,37 @@
+/* Mosaic — teletext's graphics characters, written as text (ADR-0020): each character is a 2×3
+   block pattern filling one cell, from Bedstead's glyphs at their standard Unicode code points.
+   Contiguous mosaics are U+1FB00–1FB3B plus ▌ ▐ █; separated ones (data-mosaic="separated", a
+   presentational marker: the characters carry the look) are U+1CE51–1CE8F. A space is an empty cell,
+   and letters fall back to Bedstead, so a mosaic run can carry text on its band, as a set's row did.
+   One mosaic is one atomic inline box, so a multi-row picture keeps its shape beside text, and
+   rows (newlines) stack one cell apart, which inside the Screen frame is the grid itself.
+   Two colours per cell, as on a set: data-variant is the ink, data-band the background, on the
+   mosaic or on a span inside it for a colour run. A banded run names its ink beside its band, which
+   reads the band ink a theme can collapse (ADR-0017), so shapes keep their contrast there too.
+   Give it aria-hidden="true" when it decorates, or role="img" + aria-label when it means something.
+   Every rule is :where() (ADR-0018), so consumer CSS wins without !important. */
+:where(.cf-mosaic) {
+  display: inline-block;
+  font-family: 'Bedstead Mosaic', 'Bedstead Cell', 'Bedstead', monospace;
+  font-weight: var(--cf-weight-regular);
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: pre;
+}
+/* Forced colours would repaint the glyphs in one system colour and drop the bands, so a picture
+   loses its shape. Keep its colours, on its own teletext background (the page's may be forced white).
+   Before the colour rules, which win on order where the mosaic names its own ink or band. */
+@media (forced-colors: active) {
+  :where(.cf-mosaic) {
+    forced-color-adjust: none;
+    background: var(--cf-bg);
+    color: var(--cf-fg);
+  }
+}
+:where(.cf-mosaic[data-variant], .cf-mosaic [data-variant]) {
+  color: var(--_variant, currentcolor);
+}
+:where(.cf-mosaic[data-band], .cf-mosaic [data-band]) {
+  background: var(--_band, transparent);
+  color: var(--_band-ink, var(--_variant, currentcolor));
+}

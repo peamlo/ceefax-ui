@@ -1,5 +1,8 @@
 # ADR-0004: `<cf-canvas>` — canvas pixel-art element and its char-grid source
 
+> **Superseded by [ADR-0020](0020-text-mosaics-replace-pixel-canvas.md).** Its planned editor and PNG export are
+> replaced by the zxnet teletext editor.
+
 ## Context
 
 The library needs a way to render teletext-style **pixel art** — headers, logos and
