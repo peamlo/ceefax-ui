@@ -31,7 +31,7 @@ export const toMosaic = (pixels, separated = false) => {
 };
 
 // A one-cell-high rule: which third of the cell is lit.
-export const RULES = { top: 3, middle: 12, bottom: 48, full: 63 };
+const RULES = { top: 3, middle: 12, bottom: 48, full: 63 };
 export const rule = (pattern, length, separated) => cell(RULES[pattern], separated).repeat(length);
 
 export const ART = {
