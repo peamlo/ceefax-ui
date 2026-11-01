@@ -86,6 +86,18 @@ async function assertScreenFrame(page) {
   await page.setViewportSize({ width: 1280, height: 720 });
 }
 
+// Run `read` under emulated forced colours, then always switch them off again, so a failing
+// read or assertion can't leak them into the next story (its axe pass would fail). Assert on
+// what it returns, after it returns.
+async function underForcedColours(page, read) {
+  await page.emulateMedia({ forcedColors: 'active' });
+  try {
+    return await read();
+  } finally {
+    await page.emulateMedia({ forcedColors: 'none' });
+  }
+}
+
 // Contract (#76): the CRT look renders neither scanlines nor glow under forced colours or the
 // Accessible theme. Needs emulated media, which play() cannot set. Leaves both switches off.
 async function assertCrtOffSwitches(page) {
@@ -101,9 +113,7 @@ async function assertCrtOffSwitches(page) {
   const on = await page.evaluate(crt);
   expect(on.overlay).toBe('""');
   expect(on.glow).not.toBe('none');
-  await page.emulateMedia({ forcedColors: 'active' });
-  expect(await page.evaluate(crt)).toMatchObject({ overlay: 'none', glow: 'none' });
-  await page.emulateMedia({ forcedColors: 'none' });
+  expect(await underForcedColours(page, () => page.evaluate(crt))).toMatchObject({ overlay: 'none', glow: 'none' });
   // The theme remaps aliases only (ADR-0010): both effects stay in place but paint transparent.
   await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'accessible'));
   expect((await page.evaluate(crt)).tokens).toEqual(['transparent', 'transparent']);
@@ -198,7 +208,8 @@ async function assertNoticeBlink(page) {
 // look; every state stays visible under forced colours. Needs real keyboard input and
 // emulated media, which play() cannot produce. The Field story's first control is a required
 // email field. Leaves forced colours off.
-const control = (sel) => {
+// A snapshot of a control's computed look (and width), compared before and after real input.
+const controlLook = (sel) => {
   const cs = getComputedStyle(document.querySelector(sel));
   return {
     backgroundColor: cs.backgroundColor,
@@ -212,10 +223,10 @@ const control = (sel) => {
 };
 const ACCENT = 'rgb(255, 255, 0)';
 async function assertFieldInput(page) {
-  const rest = await page.evaluate(control, '#email');
+  const rest = await page.evaluate(controlLook, '#email');
   await page.keyboard.press('Tab');
   expect(await page.evaluate(() => document.activeElement.id)).toBe('email');
-  expect(await page.evaluate(control, '#email')).toEqual({
+  expect(await page.evaluate(controlLook, '#email')).toEqual({
     ...rest,
     borderColor: ACCENT,
     outline: `solid 2px ${ACCENT}`,
@@ -224,36 +235,34 @@ async function assertFieldInput(page) {
   expect(rest.borderWidth).toBe('2px');
   await page.keyboard.type('not-an-email');
   await page.keyboard.press('Tab');
-  expect(await page.evaluate(control, '#email')).toMatchObject({
+  expect(await page.evaluate(controlLook, '#email')).toMatchObject({
     borderColor: 'rgb(255, 0, 0)',
     borderWidth: '4px',
     outline: expect.stringMatching(/^none/),
     width: rest.width,
   });
-  // Read under forced colours, asserted after switching them off, so a failure can't leak them.
-  await page.emulateMedia({ forcedColors: 'active' });
-  const [invalid, focused] = [await page.evaluate(control, '#email'), await page.evaluate(control, '#postcode')];
-  await page.emulateMedia({ forcedColors: 'none' });
+  const [invalid, focused] = await underForcedColours(page, async () => [
+    await page.evaluate(controlLook, '#email'),
+    await page.evaluate(controlLook, '#postcode'),
+  ]);
   expect(invalid.borderWidth).toBe('4px');
   expect(focused.outline).toMatch(/^solid 2px/);
 }
 // Disabled stays dimmed under forced colours.
 async function assertDisabledForced(page, sel) {
-  await page.emulateMedia({ forcedColors: 'active' });
-  const { opacity } = await page.evaluate(control, sel);
-  await page.emulateMedia({ forcedColors: 'none' });
+  const { opacity } = await underForcedColours(page, () => page.evaluate(controlLook, sel));
   expect(opacity).toBe('0.4');
 }
 
 // Forced colours drop the drawn ▼ (a gradient background), so the select falls back to the
-// system's own arrow. Read under forced colours, asserted after switching them off again.
+// system's own arrow.
 async function assertSelectForced(page) {
-  await page.emulateMedia({ forcedColors: 'active' });
-  const { backgroundImage, appearance } = await page.evaluate(() => {
-    const cs = getComputedStyle(document.querySelector('#region'));
-    return { backgroundImage: cs.backgroundImage, appearance: cs.appearance };
-  });
-  await page.emulateMedia({ forcedColors: 'none' });
+  const { backgroundImage, appearance } = await underForcedColours(page, () =>
+    page.evaluate(() => {
+      const cs = getComputedStyle(document.querySelector('#region'));
+      return { backgroundImage: cs.backgroundImage, appearance: cs.appearance };
+    }),
+  );
   expect(backgroundImage.includes('gradient') || appearance !== 'none').toBe(true);
 }
 
@@ -268,22 +277,23 @@ const shapeOf = (sel) => {
 };
 async function assertCheckboxInput(page) {
   const [off, on, disabled] = ['[name=news]', '[name=publish]', '[name=archive]'];
-  const rest = await page.evaluate(control, off);
+  const rest = await page.evaluate(controlLook, off);
   await page.keyboard.press('Tab');
   expect(await page.evaluate(() => document.activeElement.name)).toBe('news');
-  expect(await page.evaluate(control, off)).toEqual({ ...rest, outline: `solid 2px ${ACCENT}` });
+  expect(await page.evaluate(controlLook, off)).toEqual({ ...rest, outline: `solid 2px ${ACCENT}` });
   // The character variant (#132) takes the same ring.
   const glyph = '[name=c-news]';
-  const glyphRest = await page.evaluate(control, glyph);
+  const glyphRest = await page.evaluate(controlLook, glyph);
   await page.focus(glyph);
-  expect(await page.evaluate(control, glyph)).toEqual({ ...glyphRest, outline: `solid 2px ${ACCENT}` });
-  const dimmed = await page.evaluate(control, disabled);
+  expect(await page.evaluate(controlLook, glyph)).toEqual({ ...glyphRest, outline: `solid 2px ${ACCENT}` });
+  const dimmed = await page.evaluate(controlLook, disabled);
   await page.hover(disabled);
-  expect(await page.evaluate(control, disabled)).toEqual(dimmed);
+  expect(await page.evaluate(controlLook, disabled)).toEqual(dimmed);
   await page.mouse.move(0, 0);
-  await page.emulateMedia({ forcedColors: 'active' });
-  const [offShape, onShape] = [await page.evaluate(shapeOf, off), await page.evaluate(shapeOf, on)];
-  await page.emulateMedia({ forcedColors: 'none' });
+  const [offShape, onShape] = await underForcedColours(page, async () => [
+    await page.evaluate(shapeOf, off),
+    await page.evaluate(shapeOf, on),
+  ]);
   expect(onShape).not.toBe(offShape);
 }
 
