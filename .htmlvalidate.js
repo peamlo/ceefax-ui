@@ -7,13 +7,18 @@ export default {
   elements: [
     'html5',
     {
-      // The two opt-in Web Components (src/elements/). Both sit in running text or a block.
+      // The two opt-in Web Components (src/elements/): the loader sits in running text, the canvas is a block.
       'cf-loader': { flow: true, phrasing: true, permittedContent: ['@phrasing'] },
       // Its text content is the char-grid source, read by the element and drawn to a canvas.
       'cf-canvas': { flow: true, permittedContent: [] },
     },
   ],
   rules: {
+    // Document-level: a story is a fragment, with no doctype or <title> to judge.
+    'doctype-html': 'off',
+    'doctype-style': 'off',
+    'empty-title': 'off',
+    'long-title': 'off',
     // Valid HTML: stories lay out their demos and set custom properties with style="".
     'no-inline-style': 'off',
     // The browser serializes every boolean attribute as name="", so its style isn't the story's.

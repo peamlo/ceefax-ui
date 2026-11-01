@@ -1,6 +1,6 @@
 # Runs the Storybook test-runner against a built Storybook: the story play()
 # functions (contract interaction assertions) + the axe a11y pass on Components/*
-# + html-validate over every story's rendered HTML (.htmlvalidate.js, #127).
+# + html-validate over every gated story's rendered HTML (.htmlvalidate.js, #127).
 # Per ADR-0002 this is a HARD gate — the `main protection` ruleset requires
 # `test-storybook`, so a red run blocks merge. See ADR-0006.
 name: storybook-tests

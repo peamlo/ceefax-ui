@@ -8,7 +8,7 @@ import htmlValidateConfig from '../.htmlvalidate.js';
 //    (ARIA/role/text, static computed styles, the parseCharGrid pure contract);
 //  - this hook carries the two that need *real* browser input — CSS :hover and
 //    :focus-visible only respond to a real pointer/keyboard, which the synthetic
-//    in-page userEvent cannot produce — plus the axe a11y pass and, on every story,
+//    in-page userEvent cannot produce — plus the axe a11y pass and, on every story it visits,
 //    html-validate over the rendered HTML (#127).
 //
 // axe is gated to Components/* and the Layout/Page screen-frame story — the Foundations swatch/demo pages deliberately show
@@ -196,10 +196,10 @@ async function assertNoticeBlink(page) {
   expect(opacityAfter).toBe('1');
 }
 
-// Contract (#127): every story renders valid HTML, so markup a consumer copies from "Show code"
-// validates too. Checks the rendered root after play(), so markup a story builds in JS counts.
 const htmlValidate = new HtmlValidate(htmlValidateConfig);
 
+// Contract (#127): every gated story renders valid HTML, so markup a consumer copies from "Show
+// code" validates too. Checks the rendered root after play(), so markup a story builds in JS counts.
 async function assertValidHtml(page, title, name) {
   const markup = await page.$eval('#storybook-root', (root) => root.innerHTML);
   const { valid, results } = await htmlValidate.validateString(markup);
