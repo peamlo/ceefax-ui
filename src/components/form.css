@@ -83,6 +83,12 @@
   line-height: var(--cf-leading-normal);
   resize: vertical; /* keeps the cols width */
 }
+/* The browser's own number spinners and search clear button go too, like the select's arrow:
+   they are drawn for a light page. The arrow keys still step a number. */
+:where(.cf-input)::-webkit-inner-spin-button,
+:where(.cf-input)::-webkit-search-cancel-button {
+  appearance: none;
+}
 :where(.cf-input, .cf-textarea)::placeholder {
   color: var(--cf-fg-dim);
   opacity: 1;

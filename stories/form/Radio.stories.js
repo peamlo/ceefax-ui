@@ -122,7 +122,9 @@ export const WithDisabled = {
   play: async ({ canvasElement }) => assertDisabled(radio(canvasElement, 'ITV')),
 };
 
-// The character variant (#132): ( ) and (*), the on glyph in the accent colour.
+// The character variant (#132): ( ) and (*), the on glyph in the accent colour; nothing chosen
+// (:indeterminate) is still off, in the danger colour when invalid; disabled is the drawn
+// default's. One story, the other states set in play() and put back.
 export const Character = {
   args: { variant: 'character' },
   play: async ({ canvasElement }) => {
@@ -133,25 +135,16 @@ export const Character = {
     off.click();
     await assertCharacter(off, '(*)', ACCENT);
     await assertCharacter(on, `(${NBSP})`, WHITE);
-    on.click();
-  },
-};
-
-export const CharacterDisabled = {
-  name: 'Character, disabled option',
-  args: { variant: 'character', disabled: 'ITV' },
-  play: async ({ canvasElement }) => {
-    await assertCharacter(radio(canvasElement, 'ITV'), `(${NBSP})`, WHITE);
-    await assertDisabled(radio(canvasElement, 'ITV'));
-  },
-};
-
-// Nothing chosen (:indeterminate) is still off, in the danger colour when invalid.
-export const CharacterServerError = {
-  name: 'Character, server error',
-  args: { variant: 'character', legend: 'Slot', options: ['Morning', 'Evening'], checked: '', error: 'Choose a slot.' },
-  play: async ({ canvasElement }) => {
-    for (const control of within(canvasElement).getAllByRole('radio'))
+    off.checked = false;
+    for (const control of [on, off]) {
+      await expect(control.matches(':indeterminate')).toBe(true);
+      control.setAttribute('aria-invalid', 'true');
       await assertCharacter(control, `(${NBSP})`, DANGER);
+      control.removeAttribute('aria-invalid');
+    }
+    on.checked = true;
+    off.disabled = true;
+    await assertDisabled(off);
+    off.disabled = false;
   },
 };

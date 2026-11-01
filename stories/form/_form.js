@@ -222,7 +222,7 @@ export const assertCharacter = async (control, glyph, colour) => {
 };
 
 export const VARIANT = {
-  control: 'inline-radio',
+  control: { type: 'inline-radio', labels: { '': 'drawn' } },
   options: ['', 'character'],
-  description: '`data-variant` on the control: empty for the drawn shape, `character` for text characters',
+  description: '`data-variant` on the control: none for the drawn shape (the default), `character` for text characters',
 };

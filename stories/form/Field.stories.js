@@ -72,12 +72,12 @@ export const Field = {
 };
 
 // A group of checkboxes: a fieldset named by its legend. data-variant="character" works per
-// control only: on the fieldset (`containerVariant`) it does nothing to the checkboxes inside.
+// control only: on the fieldset it does nothing to the checkboxes inside (checked in play()).
 export const CheckboxGroup = {
   name: 'Checkbox group',
-  render: ({ legend, options, checked, variant, containerVariant }) => {
+  render: ({ legend, options, checked, variant }) => {
     const name = uid('group');
-    return html(`<fieldset class="cf-field"${containerVariant ? ' data-variant="character"' : ''}>
+    return html(`<fieldset class="cf-field">
   <legend>${legend}</legend>
   ${options
     .map((label) =>
@@ -99,22 +99,21 @@ export const CheckboxGroup = {
     options: { control: 'object', description: 'The option texts' },
     checked: { control: 'object', description: 'The options that are on' },
     variant: VARIANT,
-    containerVariant: {
-      control: 'boolean',
-      description: '`data-variant="character"` on the fieldset: it does nothing to the controls inside',
-    },
   },
   args: {
     legend: 'Regions',
     options: ['London', 'Scotland', 'Wales'],
     checked: ['Scotland'],
     variant: '',
-    containerVariant: true,
   },
   play: async ({ canvasElement, args }) => {
     await assertMarkupContract(canvasElement);
-    await assertGroup(canvasElement.querySelector('fieldset'), args.legend);
-    if (!args.variant) await assertDrawnRest(within(canvasElement).getByRole('checkbox', { name: 'London' }), '0px');
+    const fieldset = canvasElement.querySelector('fieldset');
+    await assertGroup(fieldset, args.legend);
+    if (args.variant) return;
+    fieldset.dataset.variant = 'character';
+    await assertDrawnRest(within(canvasElement).getByRole('checkbox', { name: 'London' }), '0px');
+    delete fieldset.dataset.variant;
   },
 };
 

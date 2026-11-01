@@ -141,7 +141,9 @@ export const ServerError = {
   },
 };
 
-// The character variant (#132): [ ] and [X], the on glyph in the accent colour.
+// The character variant (#132): [ ], [X] and [-], the on glyphs in the accent colour, the
+// danger colour when invalid; focus and disabled are the drawn default's. One story, the other
+// states set in play() and put back.
 export const Character = {
   args: { variant: 'character' },
   play: async ({ canvasElement }) => {
@@ -151,29 +153,14 @@ export const Character = {
     await assertCharacter(control, '[X]', ACCENT);
     control.click();
     await assertCharacter(control, `[${NBSP}]`, WHITE);
-  },
-};
-
-export const CharacterIndeterminate = {
-  name: 'Character, indeterminate',
-  args: { variant: 'character', label: 'All regions', indeterminate: true },
-  play: async ({ canvasElement }) => assertCharacter(checkbox(canvasElement), '[-]', ACCENT),
-};
-
-export const CharacterDisabled = {
-  name: 'Character, disabled',
-  args: { variant: 'character', label: 'Subtitles (off air)', checked: true, disabled: true },
-  play: async ({ canvasElement }) => {
-    await assertCharacter(checkbox(canvasElement), '[X]', ACCENT);
-    await assertDisabled(checkbox(canvasElement));
-  },
-};
-
-export const CharacterServerError = {
-  name: 'Character, server error',
-  args: { variant: 'character', label: 'I am over 16', error: 'You must be over 16 to send a letter.' },
-  play: async ({ canvasElement }) => {
-    await assertCharacter(checkbox(canvasElement), `[${NBSP}]`, DANGER);
-    await assertError(checkbox(canvasElement));
+    control.indeterminate = true;
+    await assertCharacter(control, '[-]', ACCENT);
+    control.indeterminate = false;
+    control.setAttribute('aria-invalid', 'true');
+    await assertCharacter(control, `[${NBSP}]`, DANGER);
+    control.removeAttribute('aria-invalid');
+    control.disabled = true;
+    await assertDisabled(control);
+    control.disabled = false;
   },
 };

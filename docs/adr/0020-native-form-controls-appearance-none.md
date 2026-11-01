@@ -18,4 +18,4 @@ Every form control is the real native element with one semantic class (`cf-input
 
 - Keyboard, form submission, `:indeterminate`, `:user-invalid` and screen readers behave exactly as the browser's own controls do.
 - The character variant depends on unspecified behaviour. A story test fails if its glyph stops rendering. If a browser drops it, only opt-in users are affected.
-- The open select list, number spinners and similar parts the browser draws itself stay native. Their dark-page colours (`color-scheme`) are left to a later theme decision.
+- The open select list and similar parts the browser draws itself stay native. Their dark-page colours (`color-scheme`) are left to a later theme decision. The number spinners and the search clear button are hidden instead, like the select's arrow: the arrow keys still step a number.
