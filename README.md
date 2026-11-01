@@ -69,18 +69,20 @@ not a mockup.
 
 ## Components
 
-| Class                                                                                     | Element                                                                 | Variants (`data-*`)                                                                                                                                                                                        | State                                    |
-| ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
-| `cf-btn`                                                                                  | `<button>` / `<a>`                                                      | `variant` red/green/yellow/blue/ghost · `size` sm/md/lg                                                                                                                                                    | `:disabled`, `:focus-visible`, `:active` |
-| `cf-link`                                                                                 | `<a>`                                                                   | `variant="nav"`                                                                                                                                                                                            | `[aria-current="page"]`                  |
-| `cf-card`                                                                                 | any block                                                               | `variant` red/green/yellow/blue/cyan/magenta                                                                                                                                                               | —                                        |
-| `cf-fastext` / `cf-fastext__key`                                                          | `<ul>` / `<a>`                                                          | `variant` (text colour) · `band` (filled key, ADR-0017); 1–4 keys in equal columns                                                                                                                         | `:focus-visible`                         |
-| `cf-notice` / `cf-notice__flag`                                                           | block + `role="note"` / `<strong>`                                      | `variant` red (default, danger)/yellow (warning)/green (success)/blue/cyan/magenta · `blink="off"`                                                                                                         | flash (reduced-motion aware)             |
-| `cf-header-row` / `cf-header-row__page` / `__service` / `__rolling` / `__time` / `__date` | `<header>` / `<span>` ×3 / `<time datetime>` / `<span>` in the `<time>` | `variant` on any part (text colour) · `band` on any part (background; `variant` is then the ink)                                                                                                           | —                                        |
-| `cf-table` / `cf-table__scroll`                                                           | `<table>` / `<div role="region">`                                       | `stripe-rows` / `stripe-cols` text/band · `variant` / `band` on any part · `align="end"` / `leader` on a cell · `side="bottom"` on the caption                                                             | `[aria-current="true"]` on a row         |
-| `<cf-loader>`                                                                             | Web Component                                                           | —                                                                                                                                                                                                          | blink (reduced-motion aware)             |
-| `<cf-canvas>`                                                                             | Web Component                                                           | `size` sm/md/lg/full                                                                                                                                                                                       | `alt` → `role="img"`                     |
-| `cf-page` + `data-frame`                                                                  | `<section>` with `header`/`main`/`footer`                               | `frame` (4:3 screen; `--cf-frame-ratio` to change) · `cells` 40/60/80 (`--cf-frame-cells` for any count) · `crt` adds scanlines + glow (opt-in, below AA on red/magenta) · `scrollbar` fastext/mosaic/thin | —                                        |
+| Class                                                                                     | Element                                                                 | Variants (`data-*`)                                                                                                                                                                                        | State                                                                   |
+| ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `cf-btn`                                                                                  | `<button>` / `<a>`                                                      | `variant` red/green/yellow/blue/ghost · `size` sm/md/lg                                                                                                                                                    | `:disabled`, `:focus-visible`, `:active`                                |
+| `cf-link`                                                                                 | `<a>`                                                                   | `variant="nav"`                                                                                                                                                                                            | `[aria-current="page"]`                                                 |
+| `cf-card`                                                                                 | any block                                                               | `variant` red/green/yellow/blue/cyan/magenta                                                                                                                                                               | —                                                                       |
+| `cf-fastext` / `cf-fastext__key`                                                          | `<ul>` / `<a>`                                                          | `variant` (text colour) · `band` (filled key, ADR-0017); 1–4 keys in equal columns                                                                                                                         | `:focus-visible`                                                        |
+| `cf-notice` / `cf-notice__flag`                                                           | block + `role="note"` / `<strong>`                                      | `variant` red (default, danger)/yellow (warning)/green (success)/blue/cyan/magenta · `blink="off"`                                                                                                         | flash (reduced-motion aware)                                            |
+| `cf-header-row` / `cf-header-row__page` / `__service` / `__rolling` / `__time` / `__date` | `<header>` / `<span>` ×3 / `<time datetime>` / `<span>` in the `<time>` | `variant` on any part (text colour) · `band` on any part (background; `variant` is then the ink)                                                                                                           | —                                                                       |
+| `cf-table` / `cf-table__scroll`                                                           | `<table>` / `<div role="region">`                                       | `stripe-rows` / `stripe-cols` text/band · `variant` / `band` on any part · `align="end"` / `leader` on a cell · `side="bottom"` on the caption                                                             | `[aria-current="true"]` on a row                                        |
+| `cf-field` / `cf-field__hint` / `cf-field__error`                                         | block with `<label>` + control / `<p>` / `<p>`                          | —                                                                                                                                                                                                          | —                                                                       |
+| `cf-input` / `cf-textarea` / `cf-select`                                                  | text-like `<input>` / `<textarea>` / single `<select>`                  | — (`size`, `cols`, `rows` set the size)                                                                                                                                                                    | `:focus-visible`, `:user-invalid`, `[aria-invalid="true"]`, `:disabled` |
+| `<cf-loader>`                                                                             | Web Component                                                           | —                                                                                                                                                                                                          | blink (reduced-motion aware)                                            |
+| `<cf-canvas>`                                                                             | Web Component                                                           | `size` sm/md/lg/full                                                                                                                                                                                       | `alt` → `role="img"`                                                    |
+| `cf-page` + `data-frame`                                                                  | `<section>` with `header`/`main`/`footer`                               | `frame` (4:3 screen; `--cf-frame-ratio` to change) · `cells` 40/60/80 (`--cf-frame-cells` for any count) · `crt` adds scanlines + glow (opt-in, below AA on red/magenta) · `scrollbar` fastext/mosaic/thin | —                                                                       |
 
 ### Notice (`cf-notice`)
 
@@ -188,6 +190,48 @@ A native table set like a broadcast league table: one line per row, figures to t
 - **`--cf-table-rule`** changes the group rule's colour (`--cf-accent-2` by default); `transparent` hides it.
 - **Wrapping follows the Screen frame** ([ADR-0014](docs/adr/0014-screen-frame-is-the-authentic-mode.md)): outside `.cf-page[data-frame]` text cells and the caption wrap like any web table; inside it every cell and the caption stay on one line. Figure cells never wrap.
 - **Typography is yours, through the tokens** ([ADR-0018](docs/adr/0018-foundations-are-tokens-and-semantic-html.md)): there are no typography attributes. The table's defaults are `:where()`, so your own CSS wins without `!important` (`.my-page caption { font-size: var(--cf-text-subheading) }`). `<strong>` and `<small>` in cells and the caption follow `--cf-weight-bold` and `--cf-text-small`; `<em>` keeps its italic (teletext had none, and colour alone can't carry emphasis).
+
+### Forms (`cf-field`, `cf-input`, `cf-textarea`, `cf-select`)
+
+The real native controls, one class each, restyled: square boxes on the page background. A **field** (`cf-field`) holds a control with its `<label>` above it and, when present, a **hint** (`cf-field__hint`) and an **error message** (`cf-field__error`) below. Link the label with `for`/`id`, and the hint and error with `aria-describedby` (both ids when both exist).
+
+```html
+<div class="cf-field">
+  <label for="email">Email</label>
+  <input
+    class="cf-input"
+    id="email"
+    name="email"
+    type="email"
+    autocomplete="email"
+    required
+    aria-describedby="email-hint"
+  />
+  <p class="cf-field__hint" id="email-hint">We only use it to reply.</p>
+</div>
+
+<div class="cf-field">
+  <label for="postcode">Postcode</label>
+  <input
+    class="cf-input"
+    id="postcode"
+    name="postcode"
+    autocomplete="postal-code"
+    aria-invalid="true"
+    aria-describedby="postcode-err"
+  />
+  <p class="cf-field__error" id="postcode-err">Enter a postcode like W12 7RJ.</p>
+</div>
+```
+
+- **`cf-input`** styles every text-like `<input>`: `text`, `email`, `password`, `search`, `url`, `tel` and `number`. **`cf-textarea`** styles a `<textarea>` (`textarea.cf-input` looks the same). **`cf-select`** styles a single `<select>` with a drawn ▼ in the field's colour; its open list stays the browser's own.
+- **Submit and reset** are a `cf-btn` on `<button type="submit">` / `<button type="reset">`. A text control is as tall as a default `cf-btn`, so a search box and its button line up.
+- **Size in characters** with the native `size`, `cols` and `rows`: no fixed widths, no `data-size`. Inside the Screen frame a `size` or `cols` width lands on whole cells.
+- **Focus** shows an accent ring; the text keeps its colours while you type. **`disabled`** dims a control like a disabled `cf-btn`. Placeholders use the dim foreground colour; autofilled text turns the info colour.
+- **Validation is the browser's own** (`required`, `type`, `minlength`…): after the user has interacted, an invalid control (`:user-invalid`) gets a thicker border in the danger colour. Empty required fields aren't red on load. For an error from your server, set `aria-invalid="true"`: it looks the same.
+- **The error message is yours to show:** put `cf-field__error` in the page (and set `aria-invalid`) only while the field is invalid. The library never shows or hides it, because a hidden description is still read out. It is in the danger colour with a leading `!`, so it isn't told by colour alone.
+- **No hidden labels:** a control with no visible label (a search box) is named with `aria-label`.
+- **Override with your own CSS:** every form rule is `:where()`, so it wins without `!important` ([ADR-0018](docs/adr/0018-foundations-are-tokens-and-semantic-html.md)).
 
 ### Pixel canvas (`<cf-canvas>`)
 
