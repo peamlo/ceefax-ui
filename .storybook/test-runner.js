@@ -198,7 +198,7 @@ async function assertNoticeBlink(page) {
 
 const htmlValidate = new HtmlValidate(htmlValidateConfig);
 
-// Contract (#127): every gated story renders valid HTML, so markup a consumer copies from "Show
+// Contract (#127): every story renders valid HTML, so markup a consumer copies from "Show
 // code" validates too. Checks the rendered root after play(), so markup a story builds in JS counts.
 async function assertValidHtml(page, title, name) {
   const markup = await page.$eval('#storybook-root', (root) => root.innerHTML);

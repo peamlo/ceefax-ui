@@ -45,22 +45,29 @@ Assertions target the **highest seam** — rendered DOM and computed styles a co
 would see — never a private `--_var` or an internal selector.
 
 CI (`.github/workflows/storybook-tests.yml`) builds Storybook, serves it, and runs
-the test-runner **scoped by file path to the contract stories** — issue #8's tested
-modules (button, link, card, fastext, `<cf-canvas>`) plus the palette-drift guard.
+the test-runner over **every story**. It was first scoped by file path to the contract
+stories (issue #8's tested modules: button, link, card, fastext, `<cf-canvas>`, plus the
+palette-drift guard); the next paragraph is why, and why the filter is gone.
 Per [ADR-0002](0002-squash-only-conventional-pr-titles.md) this is a **hard** gate: the
 `main protection` ruleset requires `test-storybook`, so a red run blocks merge.
 
-The Foundations/Layout **documentation** stories are deliberately _not_ in the CI gate.
-They are out of #8's scope (they assert no contract claim — they are visual token/layout
-demos) and, more practically, they currently destabilise the test-runner: several hang
+The Foundations/Layout **documentation** stories were at first _not_ in the CI gate.
+They were out of #8's scope (they assert no contract claim — they are visual token/layout
+demos) and, more practically, they destabilised the test-runner: several hang
 for ~60s with a "most likely because of a navigation" error and time out, reproducibly,
 even at `--maxWorkers=1` and on the CI runner. The one exception is Foundations/Brand,
 which carries a contract claim (`<cf-loader>` follows `--cf-fg`, #73) and runs cleanly, so
 it is in the gate by path like the contract stories. Scoping by path (rather than a tag +
 `--includeTags`, which reports every other story as "skipped") keeps the run and its
 output limited to what it actually gates. Making the whole story catalogue runnable
-under the test-runner is tracked separately; when fixed, the path filter is dropped and
+under the test-runner was tracked separately; when fixed, the path filter is dropped and
 the gate widens with no change to the stories.
+
+**Update (2026-11):** the hangs are gone. With Storybook 10 and the runner as of #136, all 83
+stories (the 24 documentation ones included) pass locally in about 19 s, run after run, with no
+hangs; the CI `test-storybook` job of the PR that dropped the filter is the runner-side proof. So the path filter is dropped: the gate runs every story (smoke test, `play()` and
+html-validate), while axe stays gated to `Components/*` and the screen frame in the hook,
+for the reason above. A story that must stay out of the gate takes the `!test` tag.
 
 ## Consequences
 
