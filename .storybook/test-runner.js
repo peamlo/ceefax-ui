@@ -206,8 +206,8 @@ async function assertNoticeBlink(page) {
 // Contract (#130): a real Tab to a text control shows the accent ring and keeps its colours
 // (no inversion while you type); typing an invalid value and leaving gives the :user-invalid
 // look; every state stays visible under forced colours. Needs real keyboard input and
-// emulated media, which play() cannot produce. The Field story's first control is a required
-// email field. Leaves forced colours off.
+// emulated media, which play() cannot produce. The Field story (Components/Form/Field): a
+// required email field, then a postcode with a server error. Leaves forced colours off.
 // A snapshot of a control's computed look (and width), compared before and after real input.
 const controlLook = (sel) => {
   const cs = getComputedStyle(document.querySelector(sel));
@@ -259,55 +259,57 @@ async function assertDisabledForced(page, sel) {
 async function assertSelectForced(page) {
   const { backgroundImage, appearance } = await underForcedColours(page, () =>
     page.evaluate(() => {
-      const cs = getComputedStyle(document.querySelector('#region'));
+      const cs = getComputedStyle(document.querySelector('select'));
       return { backgroundImage: cs.backgroundImage, appearance: cs.appearance };
     }),
   );
   expect(backgroundImage.includes('gradient') || appearance !== 'none').toBe(true);
 }
 
-// Contract (#131): a real Tab to a checkbox shows the accent ring and keeps its shape; a
-// disabled one doesn't change on hover; under forced colours a checked box still differs from
-// an unchecked one by its shape (a border, which the system keeps, not a background it drops).
-// The Checkbox story: newsletter (off), publish (on), archive (disabled, on). Leaves forced
-// colours off and nothing hovered.
+// Contract (#131, #132): a real Tab to a checkbox, drawn or a character, shows the accent ring
+// and keeps its shape; a disabled one doesn't change on hover; under forced colours a checked
+// box still differs from an unchecked one by its shape (a border, which the system keeps, not a
+// background it drops). One checkbox per story. Leaves it as rendered, forced colours off and
+// nothing hovered.
 const shapeOf = (sel) => {
   const cs = getComputedStyle(document.querySelector(sel));
   return [cs.borderTopStyle, cs.borderTopWidth, cs.borderLeftWidth, cs.borderRadius].join(' ');
 };
-async function assertCheckboxInput(page) {
-  const [off, on, disabled] = ['[name=news]', '[name=publish]', '[name=archive]'];
-  const rest = await page.evaluate(controlLook, off);
+async function assertCheckboxInput(page, name) {
+  const box = '.cf-checkbox';
+  if (name === 'Disabled') {
+    const dimmed = await page.evaluate(controlLook, box);
+    await page.hover(box);
+    expect(await page.evaluate(controlLook, box)).toEqual(dimmed);
+    await page.mouse.move(0, 0);
+    return;
+  }
+  const rest = await page.evaluate(controlLook, box);
   await page.keyboard.press('Tab');
-  expect(await page.evaluate(() => document.activeElement.name)).toBe('news');
-  expect(await page.evaluate(controlLook, off)).toEqual({ ...rest, outline: `solid 2px ${ACCENT}` });
-  // The character variant (#132) takes the same ring.
-  const glyph = '[name=c-news]';
-  const glyphRest = await page.evaluate(controlLook, glyph);
-  await page.focus(glyph);
-  expect(await page.evaluate(controlLook, glyph)).toEqual({ ...glyphRest, outline: `solid 2px ${ACCENT}` });
-  const dimmed = await page.evaluate(controlLook, disabled);
-  await page.hover(disabled);
-  expect(await page.evaluate(controlLook, disabled)).toEqual(dimmed);
-  await page.mouse.move(0, 0);
-  const [offShape, onShape] = await underForcedColours(page, async () => [
-    await page.evaluate(shapeOf, off),
-    await page.evaluate(shapeOf, on),
-  ]);
+  expect(await page.evaluate((sel) => document.activeElement.matches(sel), box)).toBe(true);
+  expect(await page.evaluate(controlLook, box)).toEqual({ ...rest, outline: `solid 2px ${ACCENT}` });
+  if (name !== 'Unchecked') return;
+  const [offShape, onShape] = await underForcedColours(page, async () => {
+    const off = await page.evaluate(shapeOf, box);
+    await page.click(box);
+    const on = await page.evaluate(shapeOf, box);
+    await page.click(box);
+    return [off, on];
+  });
   expect(onShape).not.toBe(offShape);
 }
 
-// Contract (#131): the arrow keys move the choice in a radio group, natively. Leaves the
-// group as rendered (BBC1 on).
+// Contract (#131): the arrow keys move the choice in a radio group, natively. The Group story:
+// BBC1 on, then BBC2, ITV. Leaves the group as rendered.
 async function assertRadioKeys(page) {
   const focused = () => [document.activeElement.value, document.activeElement.checked];
   await page.keyboard.press('Tab');
-  expect(await page.evaluate(focused)).toEqual(['1', true]);
+  expect(await page.evaluate(focused)).toEqual(['BBC1', true]);
   await page.keyboard.press('ArrowDown');
-  expect(await page.evaluate(focused)).toEqual(['2', true]);
-  expect(await page.evaluate(() => document.querySelector('[name=ch][value="1"]').checked)).toBe(false);
+  expect(await page.evaluate(focused)).toEqual(['BBC2', true]);
+  expect(await page.evaluate(() => document.querySelector('[value="BBC1"]').checked)).toBe(false);
   await page.keyboard.press('ArrowUp');
-  expect(await page.evaluate(focused)).toEqual(['1', true]);
+  expect(await page.evaluate(focused)).toEqual(['BBC1', true]);
 }
 
 const ignoreAxePseudo = () => {
@@ -338,11 +340,12 @@ export default {
     if (title === 'Components/Notice') await assertNoticeBlink(page);
     if (title === 'Components/Header row' && name === 'In the Screen frame') await assertHeaderRowNarrow(page);
     if (title === 'Components/Table' && name === 'Wide, with long text') await assertTableNarrow(page);
-    if (title === 'Components/Form' && name === 'Field') await assertFieldInput(page);
-    if (title === 'Components/Form' && name === 'Input') await assertDisabledForced(page, '#in-off');
-    if (title === 'Components/Form' && name === 'Select') await assertSelectForced(page);
-    if (title === 'Components/Form' && name === 'Checkbox') await assertCheckboxInput(page);
-    if (title === 'Components/Form' && name === 'Radio') await assertRadioKeys(page);
+    if (title === 'Components/Form/Field' && name === 'Field') await assertFieldInput(page);
+    if (title === 'Components/Form/Input' && name === 'Disabled') await assertDisabledForced(page, 'input');
+    if (title === 'Components/Form/Select' && name === 'Default') await assertSelectForced(page);
+    if (title === 'Components/Form/Checkbox' && ['Unchecked', 'Character', 'Disabled'].includes(name))
+      await assertCheckboxInput(page, name);
+    if (title === 'Components/Form/Radio' && name === 'Group') await assertRadioKeys(page);
 
     await injectAxe(page);
     // The scanline overlay is an absolutely positioned ::after with a background-image, which axe
