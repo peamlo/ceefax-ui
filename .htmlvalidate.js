@@ -23,7 +23,11 @@ export default {
     'no-inline-style': 'off',
     // The browser serializes every boolean attribute as name="", so its style isn't the story's.
     'attribute-boolean-style': 'off',
-    // The table's scroll region is a <div role="region"> by contract (README "The contract").
+    // On, minus one role. The rule reports an element given a role that a native element already
+    // has, here <div role="region"> where it wants <section>. The table's cf-table__scroll is
+    // exactly that markup by contract (README "The contract"), so role="region" is exempt: every
+    // other role (button, link, list, …) is still reported. A <section> region would be a
+    // contract change, out of scope for #127.
     'prefer-native-element': ['error', { exclude: ['region'] }],
   },
 };
