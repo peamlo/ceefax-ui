@@ -1,0 +1,208 @@
+/* Form — the real native controls, one class each, restyled with appearance: none (#126, ADR-0020).
+   cf-field holds a control with its <label> above and, when present, its hint and error
+   message below. State is native: :focus-visible, disabled, :user-invalid (never :invalid,
+   which marks empty required fields on load) and aria-invalid="true" for a server error.
+   The error message is in the page only while the field is invalid: the library never shows
+   or hides it. Every selector, states included, is wrapped in :where() (a pseudo-element can't
+   be, and adds only a type's weight), so consumer CSS wins without !important (ADR-0018; lint
+   enforces it), and later rules here win on order alone. */
+:where(.cf-field) {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* a control keeps its size/cols width */
+  gap: var(--cf-space-1);
+  color: var(--cf-fg);
+  font-family: var(--cf-font-mono);
+}
+:where(.cf-field > :is(label, legend)) {
+  padding: 0;
+}
+/* A group of checkboxes or radios is a fieldset field, named by its legend. */
+:where(fieldset.cf-field) {
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+/* A checkbox or radio sits beside its text, in a wrapping label. */
+:where(.cf-field > label:has(.cf-checkbox, .cf-radio)) {
+  display: flex;
+  align-items: center;
+  gap: 1ch;
+}
+:where(.cf-field__hint, .cf-field__error) {
+  margin: 0;
+  font-size: var(--cf-text-small);
+}
+:where(.cf-field__hint) {
+  color: var(--cf-fg-dim);
+}
+/* The danger colour, plus a leading mark so the error isn't told by colour alone. The mark is
+   silent (empty alt text): aria-invalid already says the field is invalid. */
+:where(.cf-field__error) {
+  color: var(--cf-danger);
+}
+:where(.cf-field__error)::before {
+  content: '! ';
+  content: '! ' / '';
+}
+/* Text controls: a square box on the page background, as tall as a default cf-btn (the same
+   type, line height, padding and border), with one character of padding across. --_bw is the
+   border width; the padding gives back what the border takes, so the box never moves when the
+   border thickens (invalid), and inside the Screen frame a size/cols width plus its padding
+   lands on whole cells. No hover change, and no inversion on focus: a text control keeps
+   :focus-visible while you type, so the text keeps its colours. */
+:where(.cf-input, .cf-textarea, .cf-select) {
+  --_bw: var(--cf-border-thin);
+  --_bd: var(--cf-fg);
+  appearance: none;
+  max-inline-size: 100%;
+  margin: 0;
+  padding: calc(0.4em + var(--cf-border-thin) - var(--_bw)) calc(1ch - var(--_bw));
+  border: var(--_bw) solid var(--_bd);
+  border-radius: var(--cf-radius);
+  background-color: var(--cf-bg);
+  color: var(--cf-fg);
+  font-family: var(--cf-font-mono);
+  font-size: var(--cf-text-body);
+  font-weight: var(--cf-weight-regular);
+  line-height: 1;
+}
+/* Browsers keep a single-line control's text at least the font's normal line height, so its
+   height is set outright (a cf-btn's 1em line plus 0.4em padding each side) and the text is
+   centred in it. */
+:where(input.cf-input, .cf-select) {
+  block-size: calc(1.8em + 2 * var(--cf-border-thin));
+  padding-block: 0;
+}
+:where(textarea:is(.cf-input, .cf-textarea)) {
+  line-height: var(--cf-leading-normal);
+  resize: vertical; /* keeps the cols width */
+}
+/* The browser's own number spinners and search clear button go too, like the select's arrow:
+   they are drawn for a light page. The arrow keys still step a number. */
+:where(.cf-input)::-webkit-inner-spin-button,
+:where(.cf-input)::-webkit-search-cancel-button {
+  appearance: none;
+}
+:where(.cf-input, .cf-textarea)::placeholder {
+  color: var(--cf-fg-dim);
+  opacity: 1;
+}
+/* A drawn ▼ in the field's own colour, in the middle of three cells at the end; the open list
+   stays the browser's own. */
+:where(.cf-select) {
+  padding-inline-end: calc(3ch - var(--_bw));
+  background-image:
+    linear-gradient(to bottom left, currentcolor 50%, transparent 50%),
+    linear-gradient(to bottom right, currentcolor 50%, transparent 50%);
+  background-origin: border-box;
+  background-position:
+    right 1.5ch center,
+    right 1ch center;
+  background-size: 0.5ch 0.5em;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+/* Forced colours drop a gradient background, and the ▼ with it: the system draws its own. */
+@media (forced-colors: active) {
+  :where(.cf-select) {
+    appearance: auto;
+  }
+}
+:where(.cf-select option) {
+  background-color: var(--cf-bg);
+  color: var(--cf-fg);
+}
+/* Checkbox and radio: a square and a circle two characters across (two cells in the Screen
+   frame), outlined in the foreground colour. On, the border becomes a double border filling the
+   shape: outline, gap and inner fill, so the shape changes, not only the colour, and the mark is
+   a border, which forced colours keep (they drop backgrounds). Indeterminate: the double border
+   on the top and bottom only, which meet as a bar. */
+:where(.cf-checkbox, .cf-radio) {
+  appearance: none;
+  flex: none;
+  inline-size: 2ch;
+  block-size: 2ch;
+  margin: 0;
+  border: var(--cf-border-thin) solid;
+  background-color: var(--cf-bg);
+  color: var(--cf-fg);
+  font: inherit;
+  cursor: pointer;
+}
+:where(.cf-radio) {
+  border-radius: 50%;
+}
+/* Not .cf-radio:indeterminate: every radio in a group with nothing chosen matches it. */
+:where(:is(.cf-checkbox, .cf-radio):checked, .cf-checkbox:indeterminate) {
+  border: 1ch double;
+  color: var(--cf-accent);
+}
+:where(.cf-checkbox:indeterminate) {
+  border-inline: var(--cf-border-thin) solid;
+}
+/* The character variant: no shape, the control is its glyph, generated content on the input
+   itself (unspecified, w3c/csswg-drafts#12876; a story guards it). The glyph inherits the colour
+   above: accent when on, danger when invalid. On the control only: a container's data-variant
+   is a colour. */
+:where(:is(.cf-checkbox, .cf-radio)[data-variant='character']) {
+  inline-size: auto;
+  block-size: auto;
+  border: 0;
+  border-radius: 0;
+}
+:where(.cf-checkbox[data-variant='character'])::before {
+  content: '[\a0]';
+}
+:where(.cf-checkbox[data-variant='character']:checked)::before {
+  content: '[X]';
+}
+:where(.cf-checkbox[data-variant='character']:indeterminate)::before {
+  content: '[-]';
+}
+:where(.cf-radio[data-variant='character'])::before {
+  content: '(\a0)';
+}
+:where(.cf-radio[data-variant='character']:checked)::before {
+  content: '(*)';
+}
+:where(:is(.cf-checkbox, .cf-radio):is(:user-invalid, [aria-invalid='true'])) {
+  color: var(--cf-danger);
+}
+:where(:is(.cf-input, .cf-textarea, .cf-select, .cf-checkbox, .cf-radio):focus-visible) {
+  --_bd: var(--cf-accent);
+  outline: var(--cf-border-thin) solid var(--cf-accent);
+  outline-offset: var(--cf-border-thin);
+  caret-color: var(--cf-accent);
+}
+/* Invalid once the user has interacted (:user-invalid), or as the server says (aria-invalid):
+   a thicker border in the danger colour, so not by colour alone. */
+:where(:is(.cf-input, .cf-textarea, .cf-select):is(:user-invalid, [aria-invalid='true'])) {
+  --_bw: var(--cf-border-thick);
+  --_bd: var(--cf-danger);
+}
+:where(:is(.cf-input, .cf-textarea, .cf-select, .cf-checkbox, .cf-radio):disabled) {
+  opacity: 0.4;
+  cursor: default;
+}
+/* The Screen frame is the authentic mode (ADR-0014): the controls already take its type tokens,
+   so a character is a cell. A native size/cols width adds a sliver (Chrome: the font's widest
+   glyph minus its average, and a textarea's scrollbar), so the box is set to exactly size/cols
+   plus its two padding cells. Only where the frame applies; the breakpoint is page.css's literal.
+   ponytail: typed attr() is Chrome-only today; other browsers drop the declaration and keep the
+   native width, a fraction of a cell over. */
+@media (min-width: 40em) {
+  :where(.cf-page[data-frame] input.cf-input:not([type='number'])) {
+    inline-size: calc((attr(size type(<number>), 20) + 2) * 1ch);
+  }
+  :where(.cf-page[data-frame] textarea:is(.cf-input, .cf-textarea)) {
+    inline-size: calc((attr(cols type(<number>), 20) + 2) * 1ch);
+  }
+}
+/* Autofill: the browser's own background can't be overridden, so an inset shadow paints the
+   page background over it; the text in the info colour is the "filled for you" cue. */
+:where(:is(.cf-input, .cf-textarea, .cf-select):autofill) {
+  box-shadow: inset 0 0 0 100vmax var(--cf-bg);
+  -webkit-text-fill-color: var(--cf-info);
+}
