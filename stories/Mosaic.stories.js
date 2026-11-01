@@ -47,14 +47,113 @@ const banner = ({ logo: letters, title, ink, band, strapline, ruleColour, separa
   `<div><span class="cf-mosaic" data-mosaic="separated" aria-hidden="true"${attr('data-variant', ruleColour)}>${rule('middle', 40, true)}</span></div>` +
   '</header>';
 
+// The docs page: how mosaics work, end to end. Markdown, rendered above the stories.
+const DOCS = `
+\`cf-mosaic\` draws teletext graphics as **text**: banners, rules, logo blocks, charts and pictures that sit on
+the same row as the words around them, as on a real set. It is one class on a \`<span>\` and needs no JavaScript.
+The characters you write are the picture; the class only sets the font, the colours and the cell grid.
+
+### How a character becomes a picture
+
+Every mosaic character fills one **cell**, split into 2 × 3 **blocks**. Each block has a value, and a cell's
+character is the sum of its lit blocks (1–63; a space is an empty cell):
+
+| | left | right |
+| --- | --- | --- |
+| top | 1 | 2 |
+| middle | 4 | 8 |
+| bottom | 16 | 32 |
+
+The heart in **Picture** is 8 × 6 blocks, so 4 cells across and 2 rows down. A newline inside the mosaic starts
+the next row:
+
+\`\`\`text
+pixels      cell sums
+.##.##..    62  61  63  20
+#######.
+#######.
+.#####..     2  47   7   0
+..###...
+...#....
+\`\`\`
+
+Those sums are the characters <span class="cf-mosaic" style="font-family: 'Bedstead Mosaic', monospace">🬻🬺█🬓</span> on the first row and
+<span class="cf-mosaic" style="font-family: 'Bedstead Mosaic', monospace">🬁🬬🬆</span> and a space on the second.
+The first cell has every block lit but the top-left one: 2 + 4 + 8 + 16 + 32 = 62.
+
+### Code points
+
+- **Contiguous** (blocks touch, the default): \`U+1FB00 + sum − 1\`. Unicode encodes three cells as older block
+  elements, so they are skipped: \`▌\` (21), \`▐\` (42) and \`█\` (63). Above 21 subtract one more, above 42 another:
+  62 → U+1FB3B <span class="cf-mosaic" style="font-family: 'Bedstead Mosaic', monospace">🬻</span>.
+- **Separated** (each block inset by a gutter): \`U+1CE51 + sum − 1\`, no exceptions, and mark the mosaic
+  \`data-mosaic="separated"\`. The characters carry the look; the attribute names it.
+- Bedstead also has a private-use copy of every mosaic at U+EE00–EE7F, in the layout ZVBI-based tools use. It
+  renders the same; write the standard code points so the text means something outside this font.
+
+Don't type them by hand: draw in the [zxnet teletext editor](https://zxnet.co.uk/teletext/editor/) and paste
+the characters. It paints with teletext's own rules. These stories build their art in code
+(\`stories/_mosaic.js\`), so the controls can change it.
+
+### Colour: two per cell
+
+As on a set, a cell has an **ink** and a **background**: \`data-variant\` names the ink and \`data-band\` the
+background, on the mosaic or on a \`<span>\` inside it for each colour run. A banded run names its ink beside its
+band, and follows the band rules (ADR-0017): under the Accessible theme its ink turns black, so shapes keep their
+contrast. A picture that needs three colours in one cell must be redrawn on whole cells, as teletext artists did.
+Letters inside a mosaic fall back to Bedstead, so text can share a mosaic's row or band (the temperature key in
+**In the Screen frame**).
+
+### Accessibility
+
+- A screen reader would read every mosaic character by its Unicode name, so **most mosaics are hidden**:
+  \`aria-hidden="true"\`.
+- A mosaic that means something is an image with a name: \`role="img"\` and an \`aria-label\` (the Banner's logo
+  and title, the heart).
+- In a chart, hide the bars and keep the figures as text (**Bar chart**): a screen reader hears "LAB 34%".
+- A rule on a line of its own goes in a \`<div>\`, not a \`<p>\`, or an empty paragraph is left behind.
+- Under **forced colours** a mosaic is treated as a picture: it keeps its colours on its own \`--cf-bg\`
+  background, where text around it takes the system colours.
+
+### Font loading
+
+Fallback fonts have no mosaic glyphs, so while Bedstead downloads they would show empty boxes. Mosaics use their
+own face over the same file with \`font-display: block\`: cells stay blank until the font arrives, while text
+keeps \`swap\`. Browsers give up blocking after about three seconds, so on pages with mosaics preload the font:
+\`<link rel="preload" href="…/fonts/bedstead-3.261-regular.woff2" as="font" type="font/woff2" crossorigin>\`.
+
+### Your own CSS
+
+Every mosaic rule is \`:where()\` (ADR-0018), so your CSS wins without \`!important\`, and that includes the font.
+A rule that sets a font on every \`span\` (as this docs page's theme does, hence the inline style on the
+characters above) turns mosaics into empty boxes. Give them their face back:
+\`.cf-mosaic { font-family: 'Bedstead Mosaic', 'Bedstead Cell', monospace }\`.
+
+### On the cell grid
+
+A mosaic is one inline box: the line wraps around it like a word, never inside it, and a picture keeps its
+shape beside text. Inside the Screen frame (\`.cf-page[data-frame]\`) cells sit on the 40-cell grid and tile edge
+to edge, across and down. The frame's cell is a whole pixel but its height (1em) usually isn't, so at some sizes
+a faint line can show where two rows of a solid block meet.
+`;
+
 export default {
   title: 'Components/Mosaic',
   tags: ['autodocs'],
+  parameters: { docs: { description: { component: DOCS } } },
   argTypes: { separated: { control: 'boolean', description: 'data-mosaic="separated" and the separated characters' } },
   args: { separated: false },
 };
 
 export const Banner = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "After Ceefax's page 100: a logo cut out of white blocks and a title in mosaic lettering on a band, both images with names, then a strapline in text and a dotted rule (separated mosaics) that is decorative. Change the letters, colours and strapline in the controls.",
+      },
+    },
+  },
   render: (args) => page(banner(args)),
   argTypes: {
     logo: { control: 'text', description: 'letters cut out of the blocks' },
@@ -101,6 +200,14 @@ export const Banner = {
 };
 
 export const Rule = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'One cell high, with one third of each cell lit: top, middle, bottom or the full cell. Decorative, in a `<div>`.',
+      },
+    },
+  },
   render: ({ pattern, length, variant, separated }) =>
     page(
       '<p>Above the rule.</p>' +
@@ -126,6 +233,14 @@ export const Rule = {
 // A mosaic that means something is an image with a name. Rows are newlines; the picture keeps
 // its shape beside the text that follows it. An empty label makes it decorative.
 export const Picture = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'A meaningful mosaic is an image with a name; clear the label to make it decorative (aria-hidden). Add a band for a second colour in every cell.',
+      },
+    },
+  },
   render: ({ art, variant, band, label, caption, separated }) =>
     page(
       `<p><span class="cf-mosaic"${sep(separated)}${a11y(label)}${attr('data-band', band)}${attr('data-variant', variant)}>${toMosaic(ART[art], separated)}</span>` +
@@ -153,12 +268,32 @@ export const Picture = {
 };
 
 // The test-runner finds play() by reading the source, so name it rather than spread it in.
-export const Separated = { ...Picture, args: { ...Picture.args, separated: true }, play: Picture.play };
+export const Separated = {
+  ...Picture,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'The same picture with data-mosaic="separated" and the separated characters (U+1CE51–1CE8F): each block inset by a gutter. Every story has the separated control.',
+      },
+    },
+  },
+  args: { ...Picture.args, separated: true },
+  play: Picture.play,
+};
 
 // The bars are decorative; the figures stay text, so a screen reader hears "LAB 34%".
 // 1 cell = 4%, ▌ for a half.
 const bar = (v, separated) => cell(63, separated).repeat(Math.floor(v / 4)) + (v % 4 >= 2 ? cell(21, separated) : '');
 export const BarChart = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Each bar is a run of full cells, with ▌ for a half; 1 cell = 4%. The bars are hidden and the figures are text. Edit the data in the controls.',
+      },
+    },
+  },
   render: ({ heading, data, separated }) =>
     page(
       `<h3>${heading}</h3>` +
@@ -215,6 +350,14 @@ const TEMPS = [
   ['CDF', 15, 'red'],
 ];
 export const InTheScreenFrame = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "A whole page in the authentic mode: every mosaic sits on the 40-cell grid beside text. The temperature key's colour runs tile edge to edge, and the test-runner checks their pixels for gaps.",
+      },
+    },
+  },
   name: 'In the Screen frame',
   render: (args) => {
     const section = document.createElement('section');

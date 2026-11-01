@@ -217,6 +217,7 @@ The heart is 8 × 6 blocks, so 4 cells across and 2 rows down: the newline insid
   ```
 
 - **Inside the Screen frame** mosaics sit on the cell grid and tile edge to edge.
+- **Your CSS wins** (every rule is `:where()`), font included: a rule that sets a font on every `span` turns mosaics into empty boxes. Set it back with `.cf-mosaic { font-family: 'Bedstead Mosaic', 'Bedstead Cell', monospace }`.
 
 ## Tokens
 
