@@ -100,6 +100,10 @@ _Avoid_: help text, helper, description
 The text that says why a field's value was rejected and how to fix it (`cf-field__error`). It is in the page only while the field is invalid. The library styles it but never shows or hides it. Not a Notice.
 _Avoid_: validation message, inline alert, toast
 
+**Character variant**:
+A checkbox or radio drawn as text characters, `[X]` and `(*)`, instead of the default square and circle (`data-variant="character"`).
+_Avoid_: glyph style, text mode, ASCII checkbox, box
+
 **Custom element**:
 A logic-bearing standard Web Component (e.g. `<cf-loader>`), shipped under the opt-in `./elements` export — separate from the runtime-free CSS core.
 _Avoid_: widget, framework component
