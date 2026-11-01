@@ -334,13 +334,26 @@ const assertGroup = async (fieldset, name) => {
 
 // The character variant (#132): the control is drawn as its glyph, generated content on the
 // <input> itself. No spec requires a browser to draw that (w3c/csswg-drafts#12876), so this is
-// also the guard: the control has no size or border of its own, so its width is the glyph's,
-// and a glyph that stops rendering leaves it zero wide.
+// also the guard: the control has no size or border of its own, and with its glyph suppressed
+// (content: none) it must be narrower, so its width comes from a ::before the browser drew.
+// A browser that stops drawing generated content on inputs leaves the two widths equal.
+const NO_GLYPH = Object.assign(document.createElement('style'), {
+  textContent: '[data-no-glyph]::before { content: none }',
+});
+const glyphWidth = (control) => {
+  const drawn = box(control).width;
+  document.head.append(NO_GLYPH);
+  control.dataset.noGlyph = '';
+  const bare = box(control).width;
+  delete control.dataset.noGlyph;
+  NO_GLYPH.remove();
+  return drawn - bare;
+};
 const assertCharacter = async (control, glyph, colour) => {
   await expect(style(control, '::before').content).toBe(`"${glyph}"`);
   await expect(style(control, '::before').color).toBe(colour);
   await expect([style(control).borderTopStyle, style(control).borderLeftStyle]).toEqual(['none', 'none']);
-  await expect(box(control).width).toBeGreaterThan(0);
+  await expect(glyphWidth(control)).toBeGreaterThan(0);
 };
 const CH = ' data-variant="character"';
 const NBSP = '\u00a0';
