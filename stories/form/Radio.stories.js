@@ -43,8 +43,7 @@ const render = ({ legend, options, variant, checked, disabled, error }) => {
         'aria-invalid': !!error && 'true',
       }),
     )
-    .join('')}
-  ${error ? `<p class="cf-field__error" id="${err}">${error}</p>` : ''}
+    .join('')}${error ? `\n  <p class="cf-field__error" id="${err}">${error}</p>` : ''}
 </fieldset>`).firstElementChild;
 };
 

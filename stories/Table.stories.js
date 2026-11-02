@@ -328,15 +328,19 @@ export const Summary = {
   render: () => {
     const wrap = document.createElement('div');
     wrap.className = 'summary-demo';
-    const css = document.createElement('style');
-    css.textContent =
-      '.summary-demo caption { font-family: var(--cf-font-mono); font-size: var(--cf-text-subheading);' +
-      ' font-weight: var(--cf-weight-bold); }';
+    // In <head>, once: a <style> inside the story's <div> is invalid HTML (#127).
+    if (!document.getElementById('summary-demo-css')) {
+      const css = document.createElement('style');
+      css.id = 'summary-demo-css';
+      css.textContent =
+        '.summary-demo caption { font-family: var(--cf-font-mono); font-size: var(--cf-text-subheading);' +
+        ' font-weight: var(--cf-weight-bold); }';
+      document.head.append(css);
+    }
     const money = (n) => `${n.toLocaleString('es-ES')}€`;
     const line = (name, a, b) =>
       `<tr><th scope="row">${name}</th><td data-align="end">${money(a)}</td><td data-align="end">${money(b)}</td></tr>`;
     wrap.append(
-      css,
       table({
         caption: 'Your investment plan · <small>per month</small>',
         captionAttrs: ' data-side="bottom"',

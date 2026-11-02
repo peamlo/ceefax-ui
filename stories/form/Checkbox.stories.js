@@ -37,8 +37,7 @@ const render = ({ label, variant, checked, indeterminate, required, disabled, er
     disabled,
     'aria-invalid': !!error && 'true',
     'aria-describedby': err,
-  })}> ${label}</label>
-  ${error ? `<p class="cf-field__error" id="${err}">${error}</p>` : ''}
+  })}> ${label}</label>${error ? `\n  <p class="cf-field__error" id="${err}">${error}</p>` : ''}
 </div>`).firstElementChild;
   root.querySelector('input').indeterminate = indeterminate;
   return root;

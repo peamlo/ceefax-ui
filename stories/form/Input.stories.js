@@ -28,6 +28,8 @@ const render = ({ label, labelVisible, type, placeholder, value, size, required,
         id: labelVisible && id,
         name: type,
         type,
+        // A password field needs autocomplete (html-validate, #127); the hint asks for a new one.
+        autocomplete: type === 'password' && 'new-password',
         placeholder,
         value,
         size,
@@ -132,7 +134,7 @@ export const Password = {
 
 export const NumberInput = {
   name: 'Number',
-  args: { label: 'Nights', type: 'number', value: '7', size: 4 },
+  args: { label: 'Nights', type: 'number', value: '7' },
   play: async ({ canvasElement }) => assertTextLook(input(canvasElement)),
 };
 

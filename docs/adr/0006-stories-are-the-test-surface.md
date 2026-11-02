@@ -38,28 +38,36 @@ Two mechanisms, one surface:
   hover-suppression, driven through Playwright's real pointer/keyboard — plus the
   **axe** contrast/label/role pass. axe is gated to `Components/*`: the Foundations
   swatch pages deliberately render the raw palette (known contrast tradeoffs), so
-  running axe over them would fail the build on non-contract stories.
+  running axe over them would fail the build on non-contract stories. Every story it
+  visits also gets **html-validate** over its rendered HTML (#127, rules in `.htmlvalidate.js`).
 
 Assertions target the **highest seam** — rendered DOM and computed styles a consumer
 would see — never a private `--_var` or an internal selector.
 
 CI (`.github/workflows/storybook-tests.yml`) builds Storybook, serves it, and runs
-the test-runner **scoped by file path to the contract stories** — issue #8's tested
-modules (button, link, card, fastext, `<cf-canvas>`) plus the palette-drift guard.
+the test-runner over **every story**. It was first scoped by file path to the contract
+stories (issue #8's tested modules: button, link, card, fastext, `<cf-canvas>`, plus the
+palette-drift guard); the next paragraph is why, and why the filter is gone.
 Per [ADR-0002](0002-squash-only-conventional-pr-titles.md) this is a **hard** gate: the
 `main protection` ruleset requires `test-storybook`, so a red run blocks merge.
 
-The Foundations/Layout **documentation** stories are deliberately _not_ in the CI gate.
-They are out of #8's scope (they assert no contract claim — they are visual token/layout
-demos) and, more practically, they currently destabilise the test-runner: several hang
+The Foundations/Layout **documentation** stories were at first _not_ in the CI gate.
+They were out of #8's scope (they assert no contract claim — they are visual token/layout
+demos) and, more practically, they destabilised the test-runner: several hang
 for ~60s with a "most likely because of a navigation" error and time out, reproducibly,
 even at `--maxWorkers=1` and on the CI runner. The one exception is Foundations/Brand,
 which carries a contract claim (`<cf-loader>` follows `--cf-fg`, #73) and runs cleanly, so
 it is in the gate by path like the contract stories. Scoping by path (rather than a tag +
 `--includeTags`, which reports every other story as "skipped") keeps the run and its
 output limited to what it actually gates. Making the whole story catalogue runnable
-under the test-runner is tracked separately; when fixed, the path filter is dropped and
+under the test-runner was tracked separately; when fixed, the path filter is dropped and
 the gate widens with no change to the stories.
+
+**Update (2026-11):** the hangs are gone. With Storybook 10 and the runner as of #136, all 114
+stories (the 24 documentation ones included) pass locally in about 36 s, run after run, with no
+hangs; the CI `test-storybook` job of the PR that dropped the filter is the runner-side proof. So the path filter is dropped: the gate runs every story (smoke test, `play()` and
+html-validate), while axe stays gated to `Components/*` and the screen frame in the hook,
+for the reason above. A story that must stay out of the gate takes the `!test` tag.
 
 ## Consequences
 
@@ -69,7 +77,7 @@ the gate widens with no change to the stories.
   `test-runner.js` and not in `Button.stories.js`?** Because synthetic events can't
   trigger the CSS state; a `play()`-based hover test would fail on the enabled button
   and pass _vacuously_ on the disabled one. Real input has to come from Playwright.
-- New deps: `@storybook/test-runner`, `axe-playwright`, and Playwright browsers in
+- New deps: `@storybook/test-runner`, `axe-playwright`, `html-validate` (#127), and Playwright browsers in
   CI. Since Storybook 9 the `play()` helpers (`expect`, `within`) come from core
   (`storybook/test`), so `@storybook/test` is no longer a separate package. Storybook
   10 needs test-runner 0.26+, which still depends on `uuid@8` (a moderate advisory),
