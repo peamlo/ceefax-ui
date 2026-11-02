@@ -45,6 +45,12 @@ export default {
   },
   overrides: [
     {
+      // Form rules are :where() (ADR-0018), so any consumer selector wins without !important:
+      // states included. A pseudo-element can't go inside :where(), hence 0,0,1.
+      files: ['src/components/form.css'],
+      rules: { 'selector-max-specificity': '0,0,1' },
+    },
+    {
       // The token layer is where raw colours and the base tier live.
       files: ['src/tokens/**/*.css'],
       rules: {

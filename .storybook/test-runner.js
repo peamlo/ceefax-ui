@@ -86,6 +86,18 @@ async function assertScreenFrame(page) {
   await page.setViewportSize({ width: 1280, height: 720 });
 }
 
+// Run `read` under emulated forced colours, then always switch them off again, so a failing
+// read or assertion can't leak them into the next story (its axe pass would fail). Assert on
+// what it returns, after it returns.
+async function underForcedColours(page, read) {
+  await page.emulateMedia({ forcedColors: 'active' });
+  try {
+    return await read();
+  } finally {
+    await page.emulateMedia({ forcedColors: 'none' });
+  }
+}
+
 // Contract (#76): the CRT look renders neither scanlines nor glow under forced colours or the
 // Accessible theme. Needs emulated media, which play() cannot set. Leaves both switches off.
 async function assertCrtOffSwitches(page) {
@@ -101,9 +113,7 @@ async function assertCrtOffSwitches(page) {
   const on = await page.evaluate(crt);
   expect(on.overlay).toBe('""');
   expect(on.glow).not.toBe('none');
-  await page.emulateMedia({ forcedColors: 'active' });
-  expect(await page.evaluate(crt)).toMatchObject({ overlay: 'none', glow: 'none' });
-  await page.emulateMedia({ forcedColors: 'none' });
+  expect(await underForcedColours(page, () => page.evaluate(crt))).toMatchObject({ overlay: 'none', glow: 'none' });
   // The theme remaps aliases only (ADR-0010): both effects stay in place but paint transparent.
   await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'accessible'));
   expect((await page.evaluate(crt)).tokens).toEqual(['transparent', 'transparent']);
@@ -193,6 +203,115 @@ async function assertNoticeBlink(page) {
   expect(opacityAfter).toBe('1');
 }
 
+// Contract (#130): a real Tab to a text control shows the accent ring and keeps its colours
+// (no inversion while you type); typing an invalid value and leaving gives the :user-invalid
+// look; every state stays visible under forced colours. Needs real keyboard input and
+// emulated media, which play() cannot produce. The Field story (Components/Form/Field): a
+// required email field, then a postcode with a server error. Leaves forced colours off.
+// A snapshot of a control's computed look (and width), compared before and after real input.
+const controlLook = (sel) => {
+  const cs = getComputedStyle(document.querySelector(sel));
+  return {
+    backgroundColor: cs.backgroundColor,
+    color: cs.color,
+    borderColor: cs.borderTopColor,
+    borderWidth: cs.borderTopWidth,
+    outline: `${cs.outlineStyle} ${cs.outlineWidth} ${cs.outlineColor}`,
+    opacity: cs.opacity,
+    width: document.querySelector(sel).getBoundingClientRect().width,
+  };
+};
+const ACCENT = 'rgb(255, 255, 0)';
+async function assertFieldInput(page) {
+  const rest = await page.evaluate(controlLook, '#email');
+  await page.keyboard.press('Tab');
+  expect(await page.evaluate(() => document.activeElement.id)).toBe('email');
+  expect(await page.evaluate(controlLook, '#email')).toEqual({
+    ...rest,
+    borderColor: ACCENT,
+    outline: `solid 2px ${ACCENT}`,
+  });
+  // Empty and required, yet untouched: not invalid. Then a bad value, and leave the field.
+  expect(rest.borderWidth).toBe('2px');
+  await page.keyboard.type('not-an-email');
+  await page.keyboard.press('Tab');
+  expect(await page.evaluate(controlLook, '#email')).toMatchObject({
+    borderColor: 'rgb(255, 0, 0)',
+    borderWidth: '4px',
+    outline: expect.stringMatching(/^none/),
+    width: rest.width,
+  });
+  const [invalid, focused] = await underForcedColours(page, async () => [
+    await page.evaluate(controlLook, '#email'),
+    await page.evaluate(controlLook, '#postcode'),
+  ]);
+  expect(invalid.borderWidth).toBe('4px');
+  expect(focused.outline).toMatch(/^solid 2px/);
+}
+// Disabled stays dimmed under forced colours.
+async function assertDisabledForced(page, sel) {
+  const { opacity } = await underForcedColours(page, () => page.evaluate(controlLook, sel));
+  expect(opacity).toBe('0.4');
+}
+
+// Forced colours drop the drawn ▼ (a gradient background), so the select falls back to the
+// system's own arrow.
+async function assertSelectForced(page) {
+  const { backgroundImage, appearance } = await underForcedColours(page, () =>
+    page.evaluate(() => {
+      const cs = getComputedStyle(document.querySelector('select'));
+      return { backgroundImage: cs.backgroundImage, appearance: cs.appearance };
+    }),
+  );
+  expect(backgroundImage.includes('gradient') || appearance !== 'none').toBe(true);
+}
+
+// Contract (#131, #132): a real Tab to a checkbox, drawn or a character, shows the accent ring
+// and keeps its shape; a disabled one doesn't change on hover; under forced colours a checked
+// box still differs from an unchecked one by its shape (a border, which the system keeps, not a
+// background it drops). One checkbox per story. Leaves it as rendered, forced colours off and
+// nothing hovered.
+const shapeOf = (sel) => {
+  const cs = getComputedStyle(document.querySelector(sel));
+  return [cs.borderTopStyle, cs.borderTopWidth, cs.borderLeftWidth, cs.borderRadius].join(' ');
+};
+async function assertCheckboxInput(page, name) {
+  const box = '.cf-checkbox';
+  if (name === 'Disabled') {
+    const dimmed = await page.evaluate(controlLook, box);
+    await page.hover(box);
+    expect(await page.evaluate(controlLook, box)).toEqual(dimmed);
+    await page.mouse.move(0, 0);
+    return;
+  }
+  const rest = await page.evaluate(controlLook, box);
+  await page.keyboard.press('Tab');
+  expect(await page.evaluate((sel) => document.activeElement.matches(sel), box)).toBe(true);
+  expect(await page.evaluate(controlLook, box)).toEqual({ ...rest, outline: `solid 2px ${ACCENT}` });
+  if (name !== 'Unchecked') return;
+  const [offShape, onShape] = await underForcedColours(page, async () => {
+    const off = await page.evaluate(shapeOf, box);
+    await page.click(box);
+    const on = await page.evaluate(shapeOf, box);
+    await page.click(box);
+    return [off, on];
+  });
+  expect(onShape).not.toBe(offShape);
+}
+
+// Contract (#131): the arrow keys move the choice in a radio group, natively. The Group story:
+// BBC1 on, then BBC2, ITV. Leaves the group as rendered.
+async function assertRadioKeys(page) {
+  const focused = () => [document.activeElement.value, document.activeElement.checked];
+  await page.keyboard.press('Tab');
+  expect(await page.evaluate(focused)).toEqual(['BBC1', true]);
+  await page.keyboard.press('ArrowDown');
+  expect(await page.evaluate(focused)).toEqual(['BBC2', true]);
+  expect(await page.evaluate(() => document.querySelector('[value="BBC1"]').checked)).toBe(false);
+  await page.keyboard.press('ArrowUp');
+  expect(await page.evaluate(focused)).toEqual(['BBC1', true]);
+}
+
 const ignoreAxePseudo = () => {
   const { options } = window.axe._audit.checks['color-contrast'];
   window.axe.configure({ checks: [{ id: 'color-contrast', options: { ...options, ignorePseudo: true } }] });
@@ -221,6 +340,12 @@ export default {
     if (title === 'Components/Notice') await assertNoticeBlink(page);
     if (title === 'Components/Header row' && name === 'In the Screen frame') await assertHeaderRowNarrow(page);
     if (title === 'Components/Table' && name === 'Wide, with long text') await assertTableNarrow(page);
+    if (title === 'Components/Form/Field' && name === 'Field') await assertFieldInput(page);
+    if (title === 'Components/Form/Input' && name === 'Disabled') await assertDisabledForced(page, 'input');
+    if (title === 'Components/Form/Select' && name === 'Default') await assertSelectForced(page);
+    if (title === 'Components/Form/Checkbox' && ['Unchecked', 'Character', 'Disabled'].includes(name))
+      await assertCheckboxInput(page, name);
+    if (title === 'Components/Form/Radio' && name === 'Group') await assertRadioKeys(page);
 
     await injectAxe(page);
     // The scanline overlay is an absolutely positioned ::after with a background-image, which axe
