@@ -51,7 +51,7 @@ export const Field = {
 
 <div class="cf-field">
   <label for="postcode">Postcode</label>
-  <input class="cf-input" id="postcode" name="postcode" autocomplete="postal-code"
+  <input class="cf-input" id="postcode" name="postcode" type="text" autocomplete="postal-code"
          aria-invalid="true" aria-describedby="postcode-err">
   <p class="cf-field__error" id="postcode-err">Enter a postcode like W12 7RJ.</p>
 </div>`),
@@ -137,7 +137,7 @@ export const ComposedForm = {
 
       <div class="cf-field">
         <label for="s-postcode">Postcode</label>
-        <input class="cf-input" id="s-postcode" name="postcode" autocomplete="postal-code"
+        <input class="cf-input" id="s-postcode" name="postcode" type="text" autocomplete="postal-code"
                aria-invalid="true" aria-describedby="s-postcode-err">
         <p class="cf-field__error" id="s-postcode-err">Enter a postcode like W12 7RJ.</p>
       </div>
@@ -207,11 +207,11 @@ export const InScreenFrame = {
     <form class="cf-stack" action="#" method="post">
       <div class="cf-field">
         <label for="f-name">Name</label>
-        <input class="cf-input" id="f-name" name="name" autocomplete="name" size="20">
+        <input class="cf-input" id="f-name" name="name" type="text" autocomplete="name" size="20">
       </div>
       <div class="cf-field">
         <label for="f-postcode">Postcode</label>
-        <input class="cf-input" id="f-postcode" name="postcode" autocomplete="postal-code" size="8"
+        <input class="cf-input" id="f-postcode" name="postcode" type="text" autocomplete="postal-code" size="8"
                aria-invalid="true" aria-describedby="f-postcode-err">
         <p class="cf-field__error" id="f-postcode-err">Enter a postcode like W12 7RJ.</p>
       </div>

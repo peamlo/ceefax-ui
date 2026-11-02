@@ -95,18 +95,20 @@ export const Bands = () => {
   d.appendChild(heading('Bands · band × ink'));
   const table = document.createElement('table');
   table.style.cssText = 'border-collapse:collapse;font-size:13px;text-align:left';
-  const th = (text) => {
+  const th = (text, scope = 'col') => {
     const c = document.createElement('th');
+    c.scope = scope;
     c.style.cssText = 'padding:6px 1ch;font-weight:normal;color:var(--cf-fg-dim)';
     c.textContent = text;
     return c;
   };
   const head = table.createTHead().insertRow();
-  head.append(th('band ↓ · ink →'), ...['default', ...COLOURS].map(th));
+  head.append(th('band ↓ · ink →'), ...['default', ...COLOURS].map((ink) => th(ink)));
+  const body = table.createTBody();
   const cells = [];
   for (const band of COLOURS) {
-    const tr = table.insertRow();
-    tr.append(th(band));
+    const tr = body.insertRow();
+    tr.append(th(band, 'row'));
     for (const ink of ['', ...COLOURS]) {
       const td = tr.insertCell();
       td.style.cssText = 'padding:6px 1ch;vertical-align:top;white-space:nowrap';

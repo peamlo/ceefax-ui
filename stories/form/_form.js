@@ -39,12 +39,14 @@ export const uid = (name) => `${name}-${++count}`;
 export const field = ({ label, labelVisible = true, hint, error }, control) => {
   const id = uid('field');
   const describedBy = [hint && `${id}-hint`, error && `${id}-err`].filter(Boolean).join(' ');
-  return html(`<div class="cf-field">
-  ${labelVisible ? `<label for="${id}">${label}</label>` : ''}
-  ${control(id, describedBy)}
-  ${hint ? `<p class="cf-field__hint" id="${id}-hint">${hint}</p>` : ''}
-  ${error ? `<p class="cf-field__error" id="${id}-err">${error}</p>` : ''}
-</div>`).firstElementChild;
+  // Only the parts present, one per line: an empty slot would leave a whitespace-only line.
+  const parts = [
+    labelVisible && `<label for="${id}">${label}</label>`,
+    control(id, describedBy),
+    hint && `<p class="cf-field__hint" id="${id}-hint">${hint}</p>`,
+    error && `<p class="cf-field__error" id="${id}-err">${error}</p>`,
+  ].filter(Boolean);
+  return html(`<div class="cf-field">\n  ${parts.join('\n  ')}\n</div>`).firstElementChild;
 };
 
 // A control, with a submit button beside it when the story asks for one (a search box and
