@@ -85,7 +85,9 @@ export default {
           '`cf-input` styles every text-like `<input>`: square, thin-bordered, on the page background. ' +
           'Focus adds an accent ring and the text keeps its colours. An invalid control (`:user-invalid` after ' +
           'the user has interacted, or `aria-invalid="true"` from the server) gets a thicker danger border. ' +
-          '`disabled` dims it like a disabled `cf-btn`. Size it in characters with `size`.',
+          "`disabled` dims it like a disabled `cf-btn`. Size it in characters with `size`. A number field's " +
+          "spinner and a search field's clear button stay the browser's own, drawn as a thin ▲▼ or ✕ in the " +
+          "field's colour (Chrome and Safari; Firefox keeps its own).",
       },
     },
   },
@@ -132,19 +134,24 @@ export const Password = {
   },
 };
 
+// The spinner, drawn as a thin ▲▼ at the end: the top or bottom half steps the number (asserted
+// with real clicks in .storybook/test-runner.js). A number field ignores `size`; the default
+// width leaves room for two digits and the mark.
 export const NumberInput = {
   name: 'Number',
-  args: { label: 'Nights', type: 'number', value: '7' },
+  args: { label: 'Nights', type: 'number', value: '14' },
   play: async ({ canvasElement }) => assertTextLook(input(canvasElement)),
 };
 
 // No visible label: the search box is named with aria-label, and lines up with its button.
+// With a value, the clear button shows as a thin ✕ (asserted with a real click in the test-runner).
 export const Search = {
   args: {
     label: 'Search pages',
     labelVisible: false,
     type: 'search',
     placeholder: 'e.g. football',
+    value: 'weather',
     size: 16,
     button: 'Go',
   },

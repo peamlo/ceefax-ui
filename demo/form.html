@@ -46,13 +46,14 @@
             </p>
           </nav>
 
-          <!-- A search box with no visible label is named with aria-label; it lines up with its button. -->
+          <!-- A search box with no visible label is named with aria-label; it lines up with its button. Its value shows the drawn ✕ that clears it. -->
           <search>
             <form class="cf-cluster" data-gap="2" action="/holidays/search">
               <input
                 class="cf-input"
                 type="search"
                 name="q"
+                value="Majorca"
                 size="20"
                 placeholder="e.g. Majorca"
                 aria-label="Search holidays"
@@ -92,6 +93,7 @@
               </select>
             </div>
 
+            <!-- Number fields: the drawn ▲▼ at the end steps the number. -->
             <div class="cf-cluster" data-gap="4" data-align="start">
               <div class="cf-field">
                 <label for="nights">Nights</label>
