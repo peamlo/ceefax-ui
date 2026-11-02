@@ -63,8 +63,8 @@ output limited to what it actually gates. Making the whole story catalogue runna
 under the test-runner was tracked separately; when fixed, the path filter is dropped and
 the gate widens with no change to the stories.
 
-**Update (2026-11):** the hangs are gone. With Storybook 10 and the runner as of #136, all 83
-stories (the 24 documentation ones included) pass locally in about 19 s, run after run, with no
+**Update (2026-11):** the hangs are gone. With Storybook 10 and the runner as of #136, all 114
+stories (the 24 documentation ones included) pass locally in about 36 s, run after run, with no
 hangs; the CI `test-storybook` job of the PR that dropped the filter is the runner-side proof. So the path filter is dropped: the gate runs every story (smoke test, `play()` and
 html-validate), while axe stays gated to `Components/*` and the screen frame in the hook,
 for the reason above. A story that must stay out of the gate takes the `!test` tag.
