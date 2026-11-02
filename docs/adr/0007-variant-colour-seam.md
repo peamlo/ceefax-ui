@@ -41,7 +41,8 @@ colours and leaves the `--cf-*` semantic aliases untouched, so the accessible th
   therefore reads `var(--_variant, <its own default>)`. This also fixed a latent bug in
   the card, which previously fell back to `currentColor` and would have diverged from
   `--cf-border` as soon as the accessible theme remapped it.
-- **Non-colour variants stay local and stay last.** `ghost` (button) and `nav` (link)
+- **Non-colour variants stay local and stay last.** `ghost` (button), `nav` (link) and
+  `character` (checkbox and radio, [ADR-0020](0020-native-form-controls-appearance-none.md))
   get no `--_variant`; a component rule matching one must sit _after_ the component's
   generic `[data-variant]` rule, since both have the same specificity and order decides.
 - **The accepted variant surface widened.** Because a component matches `[data-variant]`

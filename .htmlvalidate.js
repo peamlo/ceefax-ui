@@ -23,6 +23,11 @@ export default {
     'no-inline-style': 'off',
     // The browser serializes every boolean attribute as name="", so its style isn't the story's.
     'attribute-boolean-style': 'off',
+    // Checkboxes sharing a name are one multi-value control (a group, README "Forms"), like radios.
+    'form-dup-name': ['error', { shared: ['radio', 'checkbox', 'button', 'reset', 'submit'] }],
+    // A group may be named by the heading above it with aria-labelledby, not a <legend>
+    // (README "Forms": no repeated or hidden text). The rule only accepts a <legend>.
+    'wcag/h71': 'off',
     // On, minus one role. The rule reports an element given a role that a native element already
     // has, here <div role="region"> where it wants <section>. The table's cf-table__scroll is
     // exactly that markup by contract (README "The contract"), so role="region" is exempt: every
