@@ -354,6 +354,12 @@ async function assertSelectOpen(page) {
       getComputedStyle(document.activeElement).backgroundColor,
     ]),
   ).toEqual([true, 'Scotland', ACCENT]);
+  // The list is exactly as wide as the select, not its longest option.
+  const [list, field] = await page.evaluate(() => {
+    const select = document.querySelector('select');
+    return [parseFloat(getComputedStyle(select, '::picker(select)').inlineSize), select.offsetWidth];
+  });
+  expect(Math.abs(list - field)).toBeLessThan(1);
 }
 
 // Contract (#139): the number spinner and the search clear button are the browser's own parts,

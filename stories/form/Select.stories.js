@@ -116,10 +116,17 @@ export const WithButton = {
 // Where the browser supports base-select (#140), the open list takes the field's look: its
 // border, the page background and type, and a ► on the chosen option. Elsewhere it stays the
 // browser's own. Opening it needs a real click, so the test runner opens it and runs axe on it.
+// The select is as wide as a default cf-input whatever is chosen, and the list as wide as the
+// select: the last option is cut short in the select and wraps in the list.
 export const OpenList = {
   name: 'Open list',
+  args: { options: ['London', 'Scotland', 'Wales', 'Northern Ireland', 'Channel Islands and the Isle of Man'] },
   play: async ({ canvasElement }) => {
     const control = select(canvasElement);
+    const width = box(control).width;
+    control.selectedIndex = control.options.length - 1;
+    await expect(box(control).width).toBe(width);
+    control.selectedIndex = 0;
     if (!CSS.supports('appearance', 'base-select')) {
       await expect(style(control).appearance).toBe('none');
       return;
