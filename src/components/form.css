@@ -108,7 +108,7 @@
   color: var(--cf-fg);
 }
 /* The open list in the field's own look where the browser lets CSS draw it (base-select, #140):
-   the field's border, the page background, a ► on the chosen option and an accent bar under the
+   the field's border, the page background, a ► on the chosen option and the inversion on the
    hovered or focused one. Elsewhere it stays the browser's own. Keyboard and screen readers are
    the browser's either way. */
 @supports (appearance: base-select) {
@@ -116,7 +116,7 @@
   :where(.cf-select)::picker(select) {
     appearance: base-select;
   }
-  /* base-select makes the select a flex box with its text at the top */
+  /* base-select makes the select a flex box, with its text at the top unless centred. */
   :where(.cf-select) {
     align-items: center;
   }
@@ -130,8 +130,8 @@
     border-radius: var(--cf-radius);
     background: var(--cf-bg);
     color: var(--cf-fg);
-    /* without it the list renders smaller and shows a native scrollbar */
-    font: var(--cf-text-body) / 1.4 var(--cf-font-mono);
+    /* The field's type, or the list renders smaller and shows a native scrollbar. */
+    font: var(--cf-text-body) / var(--cf-leading-normal) var(--cf-font-mono);
   }
   :where(.cf-select option) {
     padding: 0.2em 1ch;

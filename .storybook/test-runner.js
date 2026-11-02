@@ -317,8 +317,8 @@ async function assertDisabledForced(page, sel) {
   expect(opacity).toBe('0.4');
 }
 
-// Forced colours drop the drawn ▼ (a gradient background), so the select falls back to the
-// system's own arrow and list, base-select or not.
+// Forced colours would drop the drawn ▼ (a gradient background), so the select is the system's
+// own, arrow and list, base-select or not.
 async function assertSelectForced(page) {
   const appearance = await underForcedColours(page, () =>
     page.evaluate(() => getComputedStyle(document.querySelector('select')).appearance),
@@ -326,10 +326,11 @@ async function assertSelectForced(page) {
   expect(appearance).toBe('auto');
 }
 
-// Contract (#140): a real click opens the list, and the arrow keys move the accent bar, natively.
+// Contract (#140): a real click opens the list, and the arrow keys move the inversion, natively.
 // Leaves the list open on the second option, so axe audits it in both themes.
 async function assertSelectOpen(page) {
-  if (!(await page.evaluate(() => CSS.supports('appearance', 'base-select')))) return;
+  // The runner's Chromium supports base-select: fail rather than skip if it ever doesn't.
+  expect(await page.evaluate(() => CSS.supports('appearance', 'base-select'))).toBe(true);
   await page.click('select');
   await page.keyboard.press('ArrowDown');
   expect(

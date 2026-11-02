@@ -18,4 +18,10 @@ Every form control is the real native element with one semantic class (`cf-input
 
 - Keyboard, form submission, `:indeterminate`, `:user-invalid` and screen readers behave exactly as the browser's own controls do.
 - The character variant depends on unspecified behaviour. A story test fails if its glyph stops rendering. If a browser drops it, only opt-in users are affected.
-- Amended (#140): where the browser supports `appearance: base-select`, the open select list is drawn too, in the field's own look; keyboard and screen readers stay the browser's. Elsewhere, and under forced colours, it stays native. Under base-select Chrome sizes the closed select to its chosen option, not its widest. Other parts the browser draws itself stay native. Their dark-page colours (`color-scheme`) are left to a later theme decision. The number spinners and the search clear button are hidden instead, like the select's arrow: the arrow keys still step a number.
+- The open select list and similar parts the browser draws itself stay native (amended below for the select list). Their dark-page colours (`color-scheme`) are left to a later theme decision. The number spinners and the search clear button are hidden instead, like the select's arrow: the arrow keys still step a number.
+
+## Amendment: the open select list ([#140](https://github.com/peamlo/ceefax-ui/issues/140))
+
+Chrome's `appearance: base-select` lets CSS draw the open select list, so where it is supported the list takes the field's own look: its border, the page background and type, a ► on the chosen option and the inversion on the hovered or focused one. The closed select keeps its drawn ▼. Keyboard and screen readers stay the browser's. Other browsers, and forced colours, keep the native list.
+
+Under base-select Chrome sizes the closed select to its chosen option, not its widest, so it changes width as the choice changes. A consumer who doesn't want that sets an `inline-size`.
