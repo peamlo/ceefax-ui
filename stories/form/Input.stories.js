@@ -135,10 +135,11 @@ export const Password = {
 };
 
 // The spinner, drawn as a thin ▲▼ at the end: the top or bottom half steps the number (asserted
-// with real clicks in .storybook/test-runner.js). A number field ignores `size`.
+// with real clicks in .storybook/test-runner.js). A number field ignores `size`; the default
+// width leaves room for two digits and the mark.
 export const NumberInput = {
   name: 'Number',
-  args: { label: 'Nights', type: 'number', value: '7' },
+  args: { label: 'Nights', type: 'number', value: '14' },
   play: async ({ canvasElement }) => assertTextLook(input(canvasElement)),
 };
 

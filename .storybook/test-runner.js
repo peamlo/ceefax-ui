@@ -350,23 +350,28 @@ const markCell = () => {
   const em = parseFloat(cs.fontSize);
   return { x: end - ch, y: r.top + r.height / 2 - 0.6 * em, width: ch, height: 1.2 * em, ink: cs.color };
 };
-const near = (p, rgb) => p.every((c, i) => Math.abs(c - rgb[i]) < 32);
-async function assertDrawnMark(page, name) {
+// How many pixels of the mark's cell are in the field's text colour (the system's, when forced).
+async function inkPixels(page) {
   const { ink, ...cell } = await page.evaluate(markCell);
   const rgb = ink.match(/\d+/g).map(Number);
-  expect((await pixels(page, cell)).filter((p) => near(p, rgb)).length).toBeGreaterThan(4);
-  const forced = await underForcedColours(page, () => pixels(page, cell));
-  expect(forced.filter((p) => Math.max(...p) < 64).length).toBeGreaterThan(4); // CanvasText on Canvas
+  const closeTo = (p) => p.every((c, i) => Math.abs(c - rgb[i]) < 32);
+  return (await pixels(page, cell)).filter(closeTo).length;
+}
+async function assertDrawnMark(page, name) {
+  expect(await inkPixels(page)).toBeGreaterThan(4);
+  expect(await underForcedColours(page, () => inkPixels(page))).toBeGreaterThan(4);
+  const cell = await page.evaluate(markCell);
   const value = () => page.inputValue('input');
   const rendered = await value();
-  const at = (y) => page.mouse.click(cell.x + cell.width / 2, cell.y + cell.height * y);
+  // A click at a fraction of the cell's height, in the middle of its width.
+  const clickAt = (fy) => page.mouse.click(cell.x + cell.width / 2, cell.y + cell.height * fy);
   if (name === 'Number') {
-    await at(0.3);
+    await clickAt(0.3);
     expect(await value()).toBe(String(+rendered + 1));
-    await at(0.7);
+    await clickAt(0.7);
     expect(await value()).toBe(rendered);
   } else {
-    await at(0.5);
+    await clickAt(0.5);
     expect(await value()).toBe('');
     await page.fill('input', rendered);
   }
