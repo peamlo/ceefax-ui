@@ -1,4 +1,4 @@
-/* Mosaic — teletext's graphics characters, written as text (ADR-0020): each character is a 2×3
+/* Mosaic — teletext's graphics characters, written as text (ADR-0021): each character is a 2×3
    block pattern filling one cell, from Bedstead's glyphs at their standard Unicode code points.
    Contiguous mosaics are U+1FB00–1FB3B plus ▌ ▐ █; separated ones (data-mosaic="separated", a
    presentational marker: the characters carry the look) are U+1CE51–1CE8F. A space is an empty cell,

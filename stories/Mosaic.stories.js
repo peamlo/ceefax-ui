@@ -1,7 +1,7 @@
 import { expect, within } from 'storybook/test';
 import { ART, COLOURS, cell, lettering, logo, rule, toMosaic } from './_mosaic.js';
 
-// cf-mosaic (#75, ADR-0020): teletext mosaics written as characters. The controls are the
+// cf-mosaic (#75, ADR-0021): teletext mosaics written as characters. The controls are the
 // component's own inputs: data-variant (ink), data-band (background), data-mosaic="separated" and
 // the accessible name. Each story applies them to its main mosaic; the rest is fixed content. The
 // rendered markup (Show code) is what a consumer writes. The art is built from pixel rows in ./_mosaic.js.

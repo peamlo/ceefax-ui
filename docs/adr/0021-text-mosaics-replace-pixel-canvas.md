@@ -1,4 +1,4 @@
-# ADR-0020: Text mosaics replace the pixel canvas, and art is drawn in the zxnet editor
+# ADR-0021: Text mosaics replace the pixel canvas, and art is drawn in the zxnet editor
 
 ## Context
 

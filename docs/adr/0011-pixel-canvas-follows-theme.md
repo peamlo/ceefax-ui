@@ -1,6 +1,6 @@
 # ADR-0011: Pixel canvas art follows the theme through `--cf-variant-*`
 
-> **Superseded by [ADR-0020](0020-text-mosaics-replace-pixel-canvas.md).**
+> **Superseded by [ADR-0021](0021-text-mosaics-replace-pixel-canvas.md).**
 
 ## Context
 
