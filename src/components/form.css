@@ -79,11 +79,34 @@
   line-height: var(--cf-leading-normal);
   resize: vertical; /* keeps the cols width */
 }
-/* The browser's own number spinners and search clear button go too, like the select's arrow:
-   they are drawn for a light page. The arrow keys still step a number. */
+/* The number spinner and the search clear button stay the browser's own parts (the top or
+   bottom half steps the number, the ✕ clears the field), redrawn like the select's ▼: a thin
+   ▲▼ or ✕ one cell wide after a one-cell gap, a mask over the field's own colour.
+   Chrome and Safari only; Firefox has no hook for either, so its own stay. */
 :where(.cf-input)::-webkit-inner-spin-button,
 :where(.cf-input)::-webkit-search-cancel-button {
   appearance: none;
+  inline-size: 1ch;
+  block-size: 1.2em; /* height: 100% collapses to nothing */
+  margin-inline-start: 1ch;
+  background: currentcolor;
+  mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2 5'><path d='M0 2 1 0 2 2zm0 1h2L1 5z'/></svg>")
+    center / contain no-repeat;
+  opacity: 1; /* Chrome shows its own only on hover */
+  cursor: pointer;
+}
+:where(.cf-input)::-webkit-search-cancel-button {
+  mask-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'><path d='m1 1 6 6m0-6-6 6' stroke='red' stroke-width='1.5'/></svg>");
+}
+/* Forced colours would paint the mark in the system background, and with forced-color-adjust:
+   none alone it keeps the unforced field colour, light on the system's light field. So the
+   mark takes the system text colour outright. */
+@media (forced-colors: active) {
+  :where(.cf-input)::-webkit-inner-spin-button,
+  :where(.cf-input)::-webkit-search-cancel-button {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
 }
 :where(.cf-input, .cf-textarea)::placeholder {
   color: var(--cf-fg-dim);

@@ -223,6 +223,18 @@ async function assertMosaicForcedColours(page) {
   await page.emulateMedia({ forcedColors: 'none' });
 }
 
+// The [r, g, b] of every pixel in a screenshot of `clip`, decoded in the page.
+async function pixels(page, clip) {
+  const png = (await page.screenshot({ clip })).toString('base64');
+  return page.evaluate(async (data) => {
+    const img = await createImageBitmap(await (await fetch(`data:image/png;base64,${data}`)).blob());
+    const ctx = new OffscreenCanvas(img.width, img.height).getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    const px = ctx.getImageData(0, 0, img.width, img.height).data;
+    return Array.from({ length: px.length / 4 }, (_, i) => [px[4 * i], px[4 * i + 1], px[4 * i + 2]]);
+  }, png);
+}
+
 // Contract (#75): inside the Screen frame mosaic cells tile with no gap, across or down. Layout
 // can't show it (a glyph's ink isn't its box), so read the pixels: a screenshot of the temperature
 // key's solid colour runs, decoded in the page, has no page-black pixel inside a 1px inset. Leaves
@@ -235,17 +247,8 @@ async function assertMosaicTiles(page) {
     const [first, , last] = [...document.querySelectorAll(`${sel} > span`)].map((r) => r.getBoundingClientRect());
     return { x: first.left, y: first.top, width: first.width, height: last.bottom - first.top };
   }, KEY);
-  const png = (await page.screenshot({ clip })).toString('base64');
-  const dark = await page.evaluate(async (data) => {
-    const img = await createImageBitmap(await (await fetch(`data:image/png;base64,${data}`)).blob());
-    const ctx = new OffscreenCanvas(img.width, img.height).getContext('2d');
-    ctx.drawImage(img, 0, 0);
-    const { data: px } = ctx.getImageData(1, 1, img.width - 2, img.height - 2);
-    let n = 0;
-    for (let i = 0; i < px.length; i += 4) if (Math.max(px[i], px[i + 1], px[i + 2]) < 64) n++;
-    return n;
-  }, png);
-  expect(dark).toBe(0);
+  const inset = { x: clip.x + 1, y: clip.y + 1, width: clip.width - 2, height: clip.height - 2 };
+  expect((await pixels(page, inset)).filter((p) => Math.max(...p) < 64)).toHaveLength(0);
   // Colour runs inside a mosaic keep their own inks under forced colours too.
   const runs = (sel) => [...document.querySelectorAll(`${sel} > span`)].map((s) => getComputedStyle(s).color);
   const inks = await page.evaluate(runs, KEY);
@@ -329,6 +332,47 @@ async function assertSelectForced(page) {
   expect(backgroundImage.includes('gradient') || appearance !== 'none').toBe(true);
 }
 
+// Contract (#139): the number spinner and the search clear button are the browser's own parts,
+// drawn as a ▲▼ or ✕ in the field's own colour, in the last cell of the content box. Their
+// computed style can't be read (getComputedStyle ignores ::-webkit-* parts), so read the pixels,
+// as rendered and under forced colours, then click them for real: the top or bottom half steps
+// the number, the ✕ clears the search. One control per story. Leaves its value as rendered.
+const markCell = () => {
+  const control = document.querySelector('input');
+  const cs = getComputedStyle(control);
+  const r = control.getBoundingClientRect();
+  const cell = document.createElement('span');
+  cell.style.cssText = `font: ${cs.font}; inline-size: 1ch; display: inline-block`;
+  control.after(cell);
+  const ch = cell.getBoundingClientRect().width;
+  cell.remove();
+  const end = r.right - parseFloat(cs.borderRightWidth) - parseFloat(cs.paddingRight);
+  const em = parseFloat(cs.fontSize);
+  return { x: end - ch, y: r.top + r.height / 2 - 0.6 * em, width: ch, height: 1.2 * em, ink: cs.color };
+};
+const near = (p, rgb) => p.every((c, i) => Math.abs(c - rgb[i]) < 32);
+async function assertDrawnMark(page, name) {
+  const { ink, ...cell } = await page.evaluate(markCell);
+  const rgb = ink.match(/\d+/g).map(Number);
+  expect((await pixels(page, cell)).filter((p) => near(p, rgb)).length).toBeGreaterThan(4);
+  const forced = await underForcedColours(page, () => pixels(page, cell));
+  expect(forced.filter((p) => Math.max(...p) < 64).length).toBeGreaterThan(4); // CanvasText on Canvas
+  const value = () => page.inputValue('input');
+  const rendered = await value();
+  const at = (y) => page.mouse.click(cell.x + cell.width / 2, cell.y + cell.height * y);
+  if (name === 'Number') {
+    await at(0.3);
+    expect(await value()).toBe(String(+rendered + 1));
+    await at(0.7);
+    expect(await value()).toBe(rendered);
+  } else {
+    await at(0.5);
+    expect(await value()).toBe('');
+    await page.fill('input', rendered);
+  }
+  await page.mouse.move(0, 0);
+}
+
 // Contract (#131, #132): a real Tab to a checkbox, drawn or a character, shows the accent ring
 // and keeps its shape; a disabled one doesn't change on hover; under forced colours a checked
 // box still differs from an unchecked one by its shape (a border, which the system keeps, not a
@@ -408,6 +452,7 @@ export default {
     if (title === 'Components/Mosaic' && name === 'In the Screen frame') await assertMosaicTiles(page);
     if (title === 'Components/Form/Field' && name === 'Field') await assertFieldInput(page);
     if (title === 'Components/Form/Input' && name === 'Disabled') await assertDisabledForced(page, 'input');
+    if (title === 'Components/Form/Input' && ['Number', 'Search'].includes(name)) await assertDrawnMark(page, name);
     if (title === 'Components/Form/Select' && name === 'Default') await assertSelectForced(page);
     if (title === 'Components/Form/Checkbox' && ['Unchecked', 'Character', 'Disabled'].includes(name))
       await assertCheckboxInput(page, name);
