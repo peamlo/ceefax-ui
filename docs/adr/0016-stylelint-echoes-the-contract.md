@@ -22,4 +22,5 @@ The `Foundations/Token layering` story stays the gate for the base tier (ADR-000
 - This partly reverses ADR-0008's "standalone lint script" option: the overlap is accepted because the lint rule is advisory to the story, not a peer.
 - The shadow-DOM `<style>` blocks inside the elements' JS template strings, and the demo pages' inline `<style>`, are out of Stylelint's reach.
 - Purely stylistic `stylelint-config-standard` rules that fight the source (grouped token blocks, authentic 6-digit hex, exact 1/64 fractions) are off. Formatting is Prettier's job.
+- Stylelint also holds every width media query in `src/` to the one 40em breakpoint (ADR-0009, issue #146). That isn't a contract rule, and no story checks it, so here the lint rule is the only check.
 - The one-time reformat landed as its own `style:` PR so `git blame` can skip its squash commit via `.git-blame-ignore-revs`.
