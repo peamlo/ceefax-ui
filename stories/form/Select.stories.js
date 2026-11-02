@@ -1,5 +1,6 @@
 import { expect, within } from 'storybook/test';
 import {
+  ACCENT,
   assertDisabled,
   assertError,
   assertInvalidLook,
@@ -16,7 +17,7 @@ import {
 } from './_form.js';
 
 // cf-select (#130): a single <select> with a drawn ▼ in the field's own colour; the open list
-// stays the browser's own picker.
+// takes the field's look where base-select is supported, and is the browser's own elsewhere.
 const render = ({ label, labelVisible, options, required, disabled, hint, error, button }) =>
   field({ label, labelVisible, hint, error }, (id, describedBy) =>
     withButton(
@@ -73,7 +74,7 @@ export const Default = {
     await assertMarkupContract(canvasElement);
     const control = within(canvasElement).getByRole('combobox', { name: 'Region' });
     await assertTextLook(control);
-    await expect(style(control).appearance).toBe('none'); // no operating-system arrow
+    await expect(style(control).appearance).not.toBe('auto'); // no operating-system arrow
     // The ▼: two triangle halves in the field's own text colour.
     const arrow = style(control).backgroundImage;
     await expect(arrow.match(/linear-gradient\(/g)?.length).toBe(2);
@@ -109,5 +110,30 @@ export const WithButton = {
     await assertMarkupContract(canvasElement);
     const go = within(canvasElement).getByRole('button', { name: 'Go' });
     await expect(Math.abs(box(select(canvasElement)).height - box(go).height)).toBeLessThan(0.5);
+  },
+};
+
+// Where the browser supports base-select (#140), the open list takes the field's look: its
+// border, the page background and type, and a ► on the chosen option. Elsewhere it stays the
+// browser's own. Opening it needs a real click, so the test runner opens it and runs axe on it.
+export const OpenList = {
+  name: 'Open list',
+  play: async ({ canvasElement }) => {
+    const control = select(canvasElement);
+    if (!CSS.supports('appearance', 'base-select')) {
+      await expect(style(control).appearance).toBe('none');
+      return;
+    }
+    await expect(style(control).appearance).toBe('base-select');
+    await expect(style(control).alignItems).toBe('center'); // the closed text stays centred
+    await expect(style(control, '::picker-icon').display).toBe('none'); // the drawn ▼ stays
+    const picker = style(control, '::picker(select)');
+    await expect(picker.appearance).toBe('base-select');
+    await expect(picker.borderTopColor).toBe(WHITE);
+    await expect(picker.backgroundColor).toBe(BLACK);
+    await expect(picker.fontFamily).toBe(style(control).fontFamily);
+    const checkmark = style(control.options[0], '::checkmark');
+    await expect(checkmark.content).toBe('"►"');
+    await expect(checkmark.color).toBe(ACCENT);
   },
 };

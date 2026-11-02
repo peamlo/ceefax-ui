@@ -318,15 +318,27 @@ async function assertDisabledForced(page, sel) {
 }
 
 // Forced colours drop the drawn ▼ (a gradient background), so the select falls back to the
-// system's own arrow.
+// system's own arrow and list, base-select or not.
 async function assertSelectForced(page) {
-  const { backgroundImage, appearance } = await underForcedColours(page, () =>
-    page.evaluate(() => {
-      const cs = getComputedStyle(document.querySelector('select'));
-      return { backgroundImage: cs.backgroundImage, appearance: cs.appearance };
-    }),
+  const appearance = await underForcedColours(page, () =>
+    page.evaluate(() => getComputedStyle(document.querySelector('select')).appearance),
   );
-  expect(backgroundImage.includes('gradient') || appearance !== 'none').toBe(true);
+  expect(appearance).toBe('auto');
+}
+
+// Contract (#140): a real click opens the list, and the arrow keys move the accent bar, natively.
+// Leaves the list open on the second option, so axe audits it in both themes.
+async function assertSelectOpen(page) {
+  if (!(await page.evaluate(() => CSS.supports('appearance', 'base-select')))) return;
+  await page.click('select');
+  await page.keyboard.press('ArrowDown');
+  expect(
+    await page.evaluate(() => [
+      document.querySelector('select').matches(':open'),
+      document.activeElement.textContent,
+      getComputedStyle(document.activeElement).backgroundColor,
+    ]),
+  ).toEqual([true, 'Scotland', ACCENT]);
 }
 
 // Contract (#131, #132): a real Tab to a checkbox, drawn or a character, shows the accent ring
@@ -409,6 +421,7 @@ export default {
     if (title === 'Components/Form/Field' && name === 'Field') await assertFieldInput(page);
     if (title === 'Components/Form/Input' && name === 'Disabled') await assertDisabledForced(page, 'input');
     if (title === 'Components/Form/Select' && name === 'Default') await assertSelectForced(page);
+    if (title === 'Components/Form/Select' && name === 'Open list') await assertSelectOpen(page);
     if (title === 'Components/Form/Checkbox' && ['Unchecked', 'Character', 'Disabled'].includes(name))
       await assertCheckboxInput(page, name);
     if (title === 'Components/Form/Radio' && name === 'Group') await assertRadioKeys(page);
