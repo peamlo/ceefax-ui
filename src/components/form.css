@@ -88,6 +88,7 @@
   appearance: none;
   inline-size: 1ch;
   block-size: 1.2em; /* height: 100% collapses to nothing */
+  align-self: center; /* Chrome stretches the spinner, so a set height sits at the top */
   margin-inline-start: 1ch;
   background: currentcolor;
   mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2 5'><path d='M0 2 1 0 2 2zm0 1h2L1 5z'/></svg>")
