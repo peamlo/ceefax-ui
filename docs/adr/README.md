@@ -27,3 +27,4 @@ Each ADR records **one** decision that was hard to reverse, surprising without c
 - [0017 — A band is a background attribute plus an ink alias tier the theme can collapse](./0017-bands-background-attribute-and-ink-tier.md)
 - [0018 — Foundations are tokens and semantic HTML; `data-*` is for the teletext domain](./0018-foundations-are-tokens-and-semantic-html.md)
 - [0019 — Scrollbars are a page-shell look, styled through inherited private properties](./0019-scrollbars-page-shell-look-private-properties.md)
+- [0020 — Form controls keep the native element and restyle it with `appearance: none`](./0020-native-form-controls-appearance-none.md)
