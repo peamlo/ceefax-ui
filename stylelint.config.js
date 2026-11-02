@@ -17,6 +17,15 @@ export default {
     'import-notation': null,
     'font-family-name-quotes': null,
     'media-feature-range-notation': null,
+    // One breakpoint (ADR-0009). @media can't read custom properties, so 40em is
+    // written out in each stylesheet; this keeps every copy the same.
+    // ponytail: every 40em copy kept in step by lint. Replace them with one
+    // `@custom-media --cf-wide (min-width: 40em)` once every browser ships it (Media Queries 5 §10).
+    'media-feature-name-value-allowed-list': {
+      'min-width': ['40em'],
+      'max-width': ['40em'],
+      width: ['40em'],
+    },
     // One semantic class: cf-<block> or cf-<block>__<element>. No --modifier — state
     // comes from native/ARIA attributes, presentational variants from data-*.
     'selector-class-pattern': [
