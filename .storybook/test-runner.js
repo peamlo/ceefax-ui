@@ -67,7 +67,8 @@ async function assertFastextHover(page) {
   await page.mouse.move(0, 0);
 }
 
-// Contract: below the narrow breakpoint the 4:3 frame is dropped and the page is full-bleed.
+// Contract: below the narrow breakpoint the 4:3 frame is dropped and the page is full-bleed,
+// with one non-zero inline padding shared by header, body and footer (#145).
 // Needs a real viewport resize, which in-page play() cannot do. Restores the wide viewport.
 async function assertScreenFrame(page) {
   await page.setViewportSize({ width: 400, height: 800 });
@@ -78,6 +79,16 @@ async function assertScreenFrame(page) {
   expect(aspectRatio).toBe('auto');
   expect(width).toBeGreaterThanOrEqual(380); // viewport minus scrollbar, i.e. full-bleed
   expect(fontFamily).toMatch(/^"?Space Mono/); // no grid, no Bedstead body text
+  // #145: body and footer get the header row's inline padding, so all three start on one column.
+  const pads = await page.evaluate(() =>
+    ['.cf-header-row', '.cf-page__body', '.cf-page__footer'].map((s) => {
+      const cs = getComputedStyle(document.querySelector(`.cf-page[data-frame] > ${s}`));
+      return [cs.paddingLeft, cs.paddingRight];
+    }),
+  );
+  expect(parseFloat(pads[0][0])).toBeGreaterThan(0);
+  expect(pads[1]).toEqual(pads[0]);
+  expect(pads[2]).toEqual(pads[0]);
   // A width-bound frame (taller viewport than 4:3): the 40-character row still fills the body.
   await page.setViewportSize({ width: 900, height: 1000 });
   const [rowW, spanW] = await page.evaluate(() => {

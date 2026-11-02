@@ -185,7 +185,7 @@ export const Framed = {
           'colours appear (unless the Accessible theme applies, which wins: toolbar → Theme).\n' +
           '- **Grid size:** `data-cells="60"` or `"80"` for a denser, terminal-like grid (the `cells` control); ' +
           '`--cf-frame-cells` takes any count.\n' +
-          '- **Below 40em (phones):** the frame is dropped and the page is full-bleed at normal type sizes.\n' +
+          "- **Below 40em (phones):** the frame is dropped and the page is full-bleed at normal type sizes, with the header row's side padding on every slot.\n" +
           '- **Keyboard:** give the body `tabindex="0"` so the scroll region is reachable; `#hash` links scroll inside it.\n' +
           '- **Other ratios:** set `--cf-frame-ratio` (default `1.3333`).\n\n' +
           'Use the viewport toolbar to try it at phone and desktop widths.',
