@@ -78,6 +78,16 @@ async function assertScreenFrame(page) {
   expect(aspectRatio).toBe('auto');
   expect(width).toBeGreaterThanOrEqual(380); // viewport minus scrollbar, i.e. full-bleed
   expect(fontFamily).toMatch(/^"?Space Mono/); // no grid, no Bedstead body text
+  // #145: body and footer keep the header row's inline padding, so all three start on one column.
+  const pads = await page.evaluate(() =>
+    ['.cf-header-row', '.cf-page__body', '.cf-page__footer'].map((s) => {
+      const cs = getComputedStyle(document.querySelector(`.cf-page[data-frame] > ${s}`));
+      return [cs.paddingLeft, cs.paddingRight];
+    }),
+  );
+  expect(parseFloat(pads[0][0])).toBeGreaterThan(0);
+  expect(pads[1]).toEqual(pads[0]);
+  expect(pads[2]).toEqual(pads[0]);
   // A width-bound frame (taller viewport than 4:3): the 40-character row still fills the body.
   await page.setViewportSize({ width: 900, height: 1000 });
   const [rowW, spanW] = await page.evaluate(() => {

@@ -55,6 +55,20 @@
 .cf-page[data-cells='80'] {
   --cf-frame-cells: 80;
 }
+/* Below the breakpoint every slot takes the header row's inline padding, resolved once on the
+   frame so it is one length (1ch differs between the header row's font and the body's) and
+   header, body and footer start on the same column. The one-cell margin replaces it from 40em. */
+@property --_gutter {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0;
+}
+.cf-page[data-frame] {
+  --_gutter: var(--cf-space-2);
+}
+.cf-page[data-frame] > * {
+  padding-inline: var(--_gutter);
+}
 @media (min-width: 40em) {
   .cf-page[data-frame] {
     --_r: var(--cf-frame-ratio, 1.3333);
