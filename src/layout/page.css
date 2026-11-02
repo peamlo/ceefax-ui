@@ -21,8 +21,9 @@
    fits its container and the viewport's height, centred. Header/footer stay pinned; only
    the body scrolls (give it tabindex="0" so keyboard users can reach it). Ratio escape
    hatch: --cf-frame-ratio. Below the one breakpoint a 4:3 box would be tiny, so the frame
-   simply isn't applied (full-bleed, fixed type; only the slots' shared padding below). The breakpoint is a literal: @media
-   can't read custom props.
+   simply isn't applied (full-bleed, fixed type; only the slots' shared padding below). The
+   breakpoint is a literal: @media can't read custom props. Stylelint holds every copy in src/
+   to 40em.
    The authentic mode (ADR-0014): a row is 40 cells (--_cell, one cell's width) inside a
    one-cell margin on each side, so header, body and footer start on the same column.
    data-cells="60" and "80" make denser, terminal-like grids; --cf-frame-cells is the escape hatch
