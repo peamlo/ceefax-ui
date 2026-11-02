@@ -18,7 +18,7 @@ Every form control is the real native element with one semantic class (`cf-input
 
 - Keyboard, form submission, `:indeterminate`, `:user-invalid` and screen readers behave exactly as the browser's own controls do.
 - The character variant depends on unspecified behaviour. A story test fails if its glyph stops rendering. If a browser drops it, only opt-in users are affected.
-- The open select list and similar parts the browser draws itself stay native (amended below for the select list). Their dark-page colours (`color-scheme`) are left to a later theme decision. The number spinners and the search clear button are hidden instead, like the select's arrow: the arrow keys still step a number.
+- The open select list and similar parts the browser draws itself stay native (amended below for the select list). Their dark-page colours (`color-scheme`) are left to a later theme decision. The number spinner and the search clear button stay the browser's own parts too, but drawn: a thin ▲▼ and ✕ in the field's own colour, like the select's arrow (#139). Clicking them still steps the number or clears the field. Chrome and Safari only: Firefox has no hook for either, so it keeps its own spinner and shows no clear button.
 
 ## Amendment: the open select list ([#140](https://github.com/peamlo/ceefax-ui/issues/140))
 
