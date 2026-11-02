@@ -1,6 +1,6 @@
 // Compressed size budgets per public entry point (issue #47, ADR-0015). Brotli,
 // like the bytes a browser downloads. A JS entry counts the files it imports
-// (relative static imports), so the barrel carries both elements.
+// (relative static imports), so the barrel carries every element.
 //
 //   node scripts/size.mjs <pkgDir> [basePkgDir]   # Markdown report, with deltas
 //
@@ -13,11 +13,10 @@ import { brotliCompressSync } from 'node:zlib';
 // Bytes, brotli. Sized to the open roadmap (ADR-0015), so they catch accidents,
 // not planned components. Raising one is a deliberate, one-line change.
 export const BUDGETS = {
-  './css': 5000,
+  './css': 6000,
   './tokens': 1200,
-  './elements': 6500,
+  './elements': 1500,
   './elements/cf-loader': 1000,
-  './elements/cf-canvas': 5000,
 };
 
 const brotli = (file) => brotliCompressSync(readFileSync(file)).length;

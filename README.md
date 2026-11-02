@@ -17,7 +17,7 @@ Import the stylesheet once (in your Astro layout, Svelte root, or `<head>`), the
 ```astro
 ---
 import "@peamlo/ceefax-ui";           // all styles
-import "@peamlo/ceefax-ui/elements";  // optional — registers <cf-loader> + <cf-canvas>
+import "@peamlo/ceefax-ui/elements";  // optional — registers <cf-loader>
 ---
 <a class="cf-link" href="/about" aria-current={pathname === "/about" ? "page" : undefined}>ABOUT</a>
 ```
@@ -58,7 +58,7 @@ real form, a holiday enquiry.
 
 - **Never** write state-modifier classes (`cf-btn--disabled`, `cf-btn--active`). Use the real `disabled` attribute, `:focus-visible`, `[aria-current]`, `[aria-pressed]`.
 - **`data-variant`** is only for a presentational colour — any of the six named authentic colours (`red`/`green`/`yellow`/`blue`/`cyan`/`magenta`), plus the look-only `ghost` on a button, `nav` on a link and `character` on a checkbox or radio. Each component decides how it paints that colour: the button fills, the card borders, the fastext key colours its label. An unrecognised name renders the component's default, unstyled look. A **fastext bar** has one to four keys, shown as red / green / yellow / cyan on screen. Any seam colour works, but blue text on the black page fails contrast.
-- **`data-band`** sets a coloured **band** behind a text part, one of the same six colours. On a banded part `data-variant` names the ink; without it the band gets the readable default ink (black, white on blue). Only parts whose `data-variant` is a text colour take a band (the header row's parts, the table's and fastext keys); blocks such as buttons never do. An unknown name renders no band. See [Bands](#bands).
+- **`data-band`** sets a coloured **band** behind a text part, one of the same six colours. On a banded part `data-variant` names the ink; without it the band gets the readable default ink (black, white on blue). Only parts whose `data-variant` is a text colour take a band (the header row's parts, the table's, fastext keys and mosaics); blocks such as buttons never do. An unknown name renders no band. See [Bands](#bands).
 - No utility classes, no compound-class soup.
 
 ### States
@@ -83,7 +83,7 @@ real form, a holiday enquiry.
 | `cf-input` / `cf-textarea` / `cf-select`                                                  | text-like `<input>` / `<textarea>` / single `<select>`                     | — (`size`, `cols`, `rows` set the size)                                                                                                                                                                    | `:focus-visible`, `:user-invalid`, `[aria-invalid="true"]`, `:disabled`                                          |
 | `cf-checkbox` / `cf-radio`                                                                | `<input type="checkbox">` / `<input type="radio">` in a wrapping `<label>` | `variant="character"`                                                                                                                                                                                      | `:checked`, `:indeterminate` (checkbox), `:focus-visible`, `:user-invalid`, `[aria-invalid="true"]`, `:disabled` |
 | `<cf-loader>`                                                                             | Web Component                                                              | —                                                                                                                                                                                                          | blink (reduced-motion aware)                                                                                     |
-| `<cf-canvas>`                                                                             | Web Component                                                              | `size` sm/md/lg/full                                                                                                                                                                                       | `alt` → `role="img"`                                                                                             |
+| `cf-mosaic`                                                                               | `<span>`                                                                   | `variant` (ink) · `band` (background) on the mosaic or a span inside it · `mosaic="separated"`                                                                                                             | `aria-hidden` (decorative) or `role="img"` + `aria-label`                                                        |
 | `cf-page` + `data-frame`                                                                  | `<section>` with `header`/`main`/`footer`                                  | `frame` (4:3 screen; `--cf-frame-ratio` to change) · `cells` 40/60/80 (`--cf-frame-cells` for any count) · `crt` adds scanlines + glow (opt-in, below AA on red/magenta) · `scrollbar` fastext/mosaic/thin | —                                                                                                                |
 
 ### Notice (`cf-notice`)
@@ -256,29 +256,35 @@ The real native controls, one class each, restyled: square boxes on the page bac
 - **No hidden labels:** a control with no visible label (a search box) is named with `aria-label`. A group whose heading is already on screen points at it with `aria-labelledby` instead of repeating it in a `<legend>`: `<h2 id="reply-heading">How should we reply?</h2>` then `<fieldset class="cf-field" aria-labelledby="reply-heading">`.
 - **Override with your own CSS:** every form rule is `:where()`, states (`:focus-visible`, `:disabled`, invalid) included, so your selector wins without `!important` ([ADR-0018](docs/adr/0018-foundations-are-tokens-and-semantic-html.md)).
 
-### Pixel canvas (`<cf-canvas>`)
+### Mosaic (`cf-mosaic`)
 
-A render-only [custom element](./CONTEXT.md) that draws teletext-style **pixel art** on a `<canvas>` — headers, logos, scenes. Import it from the opt-in `./elements` export. The artwork is the element's **text content**: newline-separated rows of single-char palette codes.
+Teletext mosaics, graphics written as text: banners, rules, logo blocks, small charts and pictures that sit on the same row as the words around them, as on a real set. Each character is a 2×3 block pattern filling one cell, drawn by Bedstead. A mosaic is CSS on characters you write: the line wraps around it like a word, it copies like text, and it needs no JavaScript.
 
+<!-- prettier-ignore -->
 ```html
-<script type="module">
-  import '@peamlo/ceefax-ui/elements/cf-canvas';
-</script>
+<p>
+  <span class="cf-mosaic" role="img" aria-label="A red heart" data-variant="red">🬻🬺█🬓
+🬁🬬🬆 </span> Valentine’s Day: page 520
+</p>
 
-<cf-canvas alt="CEEFAX holidays — palm tree" data-size="md">
-  bbbbggbbbbggbbbbbbbb bbggggggggggggbbbbbb bbbgggggrgggggbbbbbb bbbbbbbrbbbbbbbbbbbb yyyyyyyyyyyyyyyyyyyy
-</cf-canvas>
+<div><span class="cf-mosaic" aria-hidden="true" data-variant="yellow">🬋🬋🬋🬋🬋🬋🬋🬋🬋🬋</span></div>
 ```
 
-- **Palette codes:** `k` black · `r` red · `g` green · `y` yellow · `b` blue · `m` magenta · `c` cyan · `w` white · `.` (or space) transparent. Colours are the authentic values by default and follow the [accessible theme](#accessible-theme) like `data-variant` blocks (black and white never change); unknown codes render transparent (with a dev-console warning). Free per-pixel colour — no one-colour-per-cell limit.
-- **Grid** dimensions are inferred from the text (ragged rows pad with transparent; common leading indentation is stripped — use `.` for intentional left-edge transparent pixels).
-- **Sizing** is fluid and crisp (`image-rendering: pixelated`), capped at one teletext page (`40ch`), not the wider `--cf-content-max` prose measure. Pick a tier with `data-size` (`sm`/`md`/`lg`/`full`) or set an exact scale with the `--cf-pixels-scale` escape hatch (`style="--cf-pixels-scale: 8"` = 8 CSS px per pixel).
-- **Accessibility:** provide `alt` for a meaningful image (→ `role="img"` + `aria-label`); omit it to mark the canvas decorative (`aria-hidden`).
-- **Live edits** re-render automatically (the future paint-it-yourself editor builds on this).
+The heart is 8 × 6 blocks, so 4 cells across and 2 rows down: the newline inside the mosaic starts its second row. Its first cell, `🬻`, has every block lit except the top-left one: 2 + 4 + 8 + 16 + 32 = 62, and U+1FB00 + 62 − 1 − 2 = U+1FB3B. The rule repeats `🬋`, a cell with only its middle row lit (4 + 8 = 12).
 
-![A CEEFAX·UI header drawn with cf-canvas](docs/images/cf-canvas.png)
+- **Cells are code points.** Number a cell's blocks 1, 2, 4, 8, 16, 32 from the top-left, row by row, and add the lit ones (`bits`, 1–63; a space is an empty cell). Contiguous: `0x1FB00 + bits − 1`, skipping the three that Unicode encodes as block elements (`▌` U+258C for 21, `▐` U+2590 for 42, `█` U+2588 for 63), so subtract one more above 21 and another above 42. Separated, with `data-mosaic="separated"`: `0x1CE51 + bits − 1` (Unicode 16, no exceptions). It is one inline box, so a picture keeps its shape beside text.
+- **Draw art in the [zxnet teletext editor](https://zxnet.co.uk/teletext/editor/)** ([reference](./docs/reference/zxnet-teletext.md)), not by hand. It paints with teletext's own rules (two colours per cell, contiguous and separated) and keeps the whole page in its URL. The library ships no editor of its own ([ADR-0021](./docs/adr/0021-text-mosaics-replace-pixel-canvas.md)).
+- **Two colours per cell:** `data-variant` is the ink and `data-band` the background, on the mosaic or on a `<span>` inside it for each colour run. A banded run names its ink beside its band, which follows the band rules (see [Bands](#bands)). Letters inside a mosaic fall back to Bedstead, so text can share a mosaic's band.
+- **Accessibility:** most mosaics decorate, so put `aria-hidden="true"` on them, or a screen reader announces every glyph by its Unicode name. A mosaic that carries meaning gets `role="img"` and an `aria-label`. In a chart keep the figures as text and hide only the bars. A rule on a line of its own goes in a `<div>`, not a `<p>`, so no empty paragraph is left behind.
+- **Forced colours:** a mosaic is a picture, so it keeps its colours, on its own `--cf-bg` background.
+- **Font loading:** mosaics use a `font-display: block` face (the same Bedstead file, no second download), so cells stay blank rather than showing tofu while it loads. Text keeps `swap`. On pages with mosaics, preload the font (from wherever you serve the package's `fonts/`) so the cells appear with the text:
 
-See [ADR-0004](./docs/adr/0004-cf-canvas-pixel-art.md) for the reasoning.
+  ```html
+  <link rel="preload" href="/fonts/bedstead-3.261-regular.woff2" as="font" type="font/woff2" crossorigin />
+  ```
+
+- **Inside the Screen frame** mosaics sit on the cell grid and tile edge to edge.
+- **Your CSS wins** (every rule is `:where()`), font included: a rule that sets a font on every `span` turns mosaics into empty boxes. Set it back with `.cf-mosaic { font-family: 'Bedstead Mosaic', 'Bedstead Cell', monospace }`.
 
 ## Tokens
 
@@ -287,7 +293,7 @@ Colour tokens come in two tiers, both under the `cf` namespace:
 - **`--cf-base-*`** — the authentic 8 broadcast colours (`--cf-base-red`, …). Fixed and **never** remapped, so a theme cannot change them.
 - **Semantic aliases** — every other `--cf-*` colour (`--cf-bg`, `--cf-fg`, `--cf-link`, `--cf-danger`, …). They say what a colour is _for_, and they are what themes remap.
 
-Use the semantic aliases in your own CSS so it follows the active theme; reach for `--cf-base-*` only when you deliberately want the authentic colour whatever the theme (e.g. pixel art). The library's own component and layout stylesheets, and the variant seam, use semantic aliases only — CI enforces it.
+Use the semantic aliases in your own CSS so it follows the active theme; reach for `--cf-base-*` only when you deliberately want the authentic colour whatever the theme. The library's own component and layout stylesheets, and the variant seam, use semantic aliases only — CI enforces it.
 
 Type follows web conventions on an 8px grid: `--cf-text-small` 12 · `body` 16 · `subheading` 24 · `heading` 32 · `display-lg` 48 · `display-xl` 72 (px). `--cf-content-max` is a prose reading measure (~65ch); only the Screen frame is one teletext page (40 cells) wide.
 
@@ -312,7 +318,7 @@ In the default theme the ink is used as written, so contrast is yours to choose.
 | `yellow` · `cyan` · `green` | default (black) · `blue` 8.0 / 6.9 / 6.3                  |
 | `red` · `magenta`           | default (black) only                                      |
 
-Under the [accessible theme](#accessible-theme) every band's ink is black, whatever ink the markup names, so every band clears AAA. Storybook's `Foundations/Colors` → Bands shows the live grid of pairs and ratios. Bands are presentational only: the text and its semantics are unchanged. Parts that take a band today: every `cf-header-row` part, a `cf-table`'s caption, row groups, rows and cells, and a `cf-fastext__key` (the filled fastext look).
+Under the [accessible theme](#accessible-theme) every band's ink is black, whatever ink the markup names, so every band clears AAA. Storybook's `Foundations/Colors` → Bands shows the live grid of pairs and ratios. Bands are presentational only: the text and its semantics are unchanged. Parts that take a band today: every `cf-header-row` part, a `cf-table`'s caption, row groups, rows and cells, a `cf-fastext__key` (the filled fastext look), and a `cf-mosaic` or a span inside it.
 
 ## Accessible theme
 
@@ -336,7 +342,7 @@ The theme is colour-vision-deficiency optimised (Okabe–Ito-inspired): every co
 | `cyan` · `--cf-link`, `--cf-info`                           | ice `#99E6FF`     | 15.1:1   |
 | `--cf-fg-dim`                                               | grey `#B3B3B3`    | 10.0:1   |
 
-Every block colour is light, so the ink on a variant block is black — blue included. The theme only remaps semantic aliases (including the `--cf-variant-*` tier the variant colours resolve through); `--cf-base-*` keeps the authentic colours. Pixel art (`<cf-canvas>`) follows the theme too, repainting when the attribute changes; art that pairs two colours (yellow on blue) loses some contrast between them, so give meaningful art an `alt`. Colour is still never the only cue: fastext keys keep their labels and the current page its caret. Try it in Storybook (toolbar → Theme) or on the demo page's switch.
+Every block colour is light, so the ink on a variant block is black — blue included. The theme only remaps semantic aliases (including the `--cf-variant-*` tier the variant colours resolve through); `--cf-base-*` keeps the authentic colours. Mosaics follow the theme too, through the same `data-variant` and `data-band` colours, so a banded run's ink turns black like any band's. Colour is still never the only cue: fastext keys keep their labels and the current page its caret. Try it in Storybook (toolbar → Theme) or on the demo page's switch.
 
 ## Develop
 

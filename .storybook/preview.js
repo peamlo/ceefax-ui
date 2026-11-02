@@ -64,7 +64,7 @@ export default {
             'Table',
             'Form',
             ['Field', 'Input', 'Textarea', 'Select', 'Checkbox', 'Radio'],
-            'Pixel canvas',
+            'Mosaic',
           ],
         ],
       },

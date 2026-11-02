@@ -7,10 +7,8 @@ export default {
   elements: [
     'html5',
     {
-      // The two opt-in Web Components (src/elements/): the loader sits in running text, the canvas is a block.
+      // The opt-in Web Component (src/elements/): the loader sits in running text.
       'cf-loader': { flow: true, phrasing: true, permittedContent: ['@phrasing'] },
-      // Its text content is the char-grid source, read by the element and drawn to a canvas.
-      'cf-canvas': { flow: true, permittedContent: [] },
     },
   ],
   rules: {
@@ -21,6 +19,9 @@ export default {
     'long-title': 'off',
     // Valid HTML: stories lay out their demos and set custom properties with style="".
     'no-inline-style': 'off',
+    // A cf-mosaic row may end in empty cells, and an empty cell is a space (README "Mosaic"), so
+    // trailing whitespace is part of the picture there: white-space: pre keeps it.
+    'no-trailing-whitespace': 'off',
     // The browser serializes every boolean attribute as name="", so its style isn't the story's.
     'attribute-boolean-style': 'off',
     // Checkboxes sharing a name are one multi-value control (a group, README "Forms"), like radios.

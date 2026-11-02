@@ -8,7 +8,7 @@
 
     <!-- Consume the library the real way: one stylesheet, then plain class="…". -->
     <link rel="stylesheet" href="../src/index.css" />
-    <!-- The opt-in custom elements, <cf-loader> and <cf-canvas>: one more import. -->
+    <!-- The opt-in custom element, <cf-loader>: one more import. -->
     <script type="module" src="../src/elements/index.js"></script>
 
     <style>
@@ -574,8 +574,8 @@
         <article
           class="ex"
           data-page="600"
-          data-title="Notices, loader and pixel art"
-          data-note='cf-notice flags what the reader must not miss: danger by default, any data-variant for another tone, and the flag flashes five times then holds (data-blink="off" keeps it still). The flag word is repeated in the body, so neither colour nor flash is the only cue. The cf-loader and cf-canvas elements come from the elements import.'
+          data-title="Notices, loader and mosaics"
+          data-note='cf-notice flags what the reader must not miss: danger by default, any data-variant for another tone, and the flag flashes five times then holds (data-blink="off" keeps it still). The flag word is repeated in the body, so neither colour nor flash is the only cue. The cf-loader element comes from the elements import; the cf-mosaic heart is CSS on text, a role="img" picture with a name.'
         >
           <script type="text/plain">
             <!-- plus: import '@peamlo/ceefax-ui/elements' -->
@@ -592,14 +592,10 @@
                 The A55 is open again in both directions.
               </div>
 
-              <cf-canvas alt="a red heart" data-size="sm">
-                .rr.rr.
-                rrrrrrr
-                rrrrrrr
-                .rrrrr.
-                ..rrr..
-                ...r...
-              </cf-canvas>
+              <p>
+                <span class="cf-mosaic" role="img" aria-label="A red heart" data-variant="red">🬻🬺█🬓
+            🬁🬬🬆 </span> Valentine’s Day: page 520
+              </p>
             </div>
           </script>
         </article>
@@ -692,8 +688,8 @@
           ><span class="cheat-val">sm · lg</span><span class="cheat-desc">button size</span>
         </div>
         <div class="cheat-row">
-          <code>data-size</code><span class="cheat-on"><span>&lt;cf-canvas&gt;</span></span
-          ><span class="cheat-val">sm · md · lg · full</span><span class="cheat-desc">widest the art may grow</span>
+          <code>data-mosaic</code><span class="cheat-on"><span>cf-mosaic</span></span
+          ><span class="cheat-val">separated</span><span class="cheat-desc">marks separated glyphs</span>
         </div>
         <div class="cheat-row">
           <code>data-blink</code><span class="cheat-on"><span>cf-notice</span></span
@@ -758,10 +754,6 @@
           <code>--cf-table-rule</code><span class="cheat-on"><span>cf-table</span></span
           ><span class="cheat-val">a colour · transparent</span
           ><span class="cheat-desc">the rule between row groups</span>
-        </div>
-        <div class="cheat-row">
-          <code>--cf-pixels-scale</code><span class="cheat-on"><span>&lt;cf-canvas&gt;</span></span
-          ><span class="cheat-val">e.g. 4</span><span class="cheat-desc">exact screen px per art pixel</span>
         </div>
       </section>
 
