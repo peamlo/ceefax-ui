@@ -39,7 +39,7 @@
 /* The same file again, for mosaics only (components/mosaic.css): fallback fonts have no mosaic glyphs, so
    swap would show tofu boxes while Bedstead loads. block keeps mosaic cells blank instead; text keeps swap.
    The range is the standard mosaic code points plus U+EE00–EE7F, Bedstead's private-use copy of them
-   in ZVBI's layout, so art pasted from ZVBI-based tools blanks while loading too. */
+   in ZVBI's layout, so mosaics in that layout blank while loading too. */
 @font-face {
   font-family: 'Bedstead Mosaic';
   font-style: normal;
