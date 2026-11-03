@@ -22,6 +22,12 @@ on:
 permissions:
   contents: read
 
+# A newer push to the PR supersedes its in-flight runs (issue #158). Pushes
+# to main share the ref group but never cancel, so every main run finishes.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   docs:
     runs-on: ubuntu-latest
