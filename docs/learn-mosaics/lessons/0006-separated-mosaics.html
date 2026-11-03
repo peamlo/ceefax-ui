@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Separated mosaics</title>
+<link rel="stylesheet" href="../../../src/index.css">
+<link rel="stylesheet" href="../assets/course.css">
+<script src="../assets/kit.js" defer></script>
+</head>
+<body>
+<div class="cf-page" data-scrollbar="thin">
+<header class="cf-page__header cf-header-row">
+  <span class="cf-header-row__page">P406</span><span class="cf-header-row__service">MOSAICS</span><span class="cf-header-row__rolling">406</span>
+  <time class="cf-header-row__time" datetime="2026-11-03"><span class="cf-header-row__date">Nov03</span> LESSON 6</time>
+</header>
+<main class="cf-page__body"><div class="cf-center">
+<p class="kicker">Mosaics · Lesson 6</p>
+<h1>Separated mosaics</h1>
+<p class="lede">
+  The Banner's dotted rule is drawn in separated mosaics. What “separated” looks like, where the look comes from,
+  and what <code>data-mosaic="separated"</code> really does.
+</p>
+
+<h2>Warm-up, from memory</h2>
+<div class="quiz" data-answer="2" data-explain="2 + 4 + 8 + 16 + 32 = 62. Range 43–62: 62 − 3 = 59 = 3 × 16 + 11 = 0x3B.">
+  <p>Contiguous. Which code point draws this cell?</p>
+<pre class="pixels"><code>. #
+# #
+# #</code></pre>
+  <div class="options"><button>U+1FB3D</button><button>U+1CE8E</button><button>U+1FB3B</button><button>U+1FB3A</button></div>
+</div>
+<div class="quiz" data-answer="3" data-explain="A sliver of space after every cell: inherited tracking. letter-spacing: 0 was missing.">
+  <div class="screen"><p class="bug"><span class="glyphs no-ls">🬝🬎🬎🬬 🬝🬎🬎🬬
+▌▐██ ▌🬠🬰█
+🬺🬹🬹🬻 🬺🬻██</span></p></div>
+  <div class="options"><button>line-height</button><button>white-space</button><button>display</button><button>letter-spacing</button></div>
+</div>
+<div class="quiz" data-answer="0" data-explain="Separated is always sum − 1: 14. 81 + 14 = 95 = 5 × 16 + 15 = 0x5F.">
+  <p>Separated, sum 15. Which code point?</p>
+  <div class="options"><button>U+1CE5F</button><button>U+1CE60</button><button>U+1FB0E</button><button>U+1CE0E</button></div>
+</div>
+
+<h2>Same sums, a different look</h2>
+<p>Here is the logo twice: the same sums in every cell, written with the contiguous characters, then the separated ones.</p>
+<div class="screen">
+<span class="glyphs">🬝🬎🬎🬬 🬝🬎🬎🬬
+▌▐██ ▌🬠🬰█
+🬺🬹🬹🬻 🬺🬻██</span>   <span class="glyphs">𜹯𜹟𜹟𜹿 𜹯𜹟𜹟𜹿
+𜹥𜹺𜺏𜺏 𜹥𜹲𜺃𜺏
+𜺍𜺌𜺌𜺎 𜺍𜺎𜺏𜺏</span>
+</div>
+<p>
+  In a separated mosaic every block shrinks and a gap opens around it, so a solid area becomes a grid of tiles. On
+  teletext sets this was a mode of its own. The Mosaic story <em>Artwork</em> uses it by default, as most portrait art
+  on air did.
+</p>
+
+<h2>Where the gaps come from</h2>
+<p>
+  Look at one cell, big, with its box dashed: <code>█</code> (sum 63, contiguous) beside <code>𜺏</code> (sum 63,
+  separated).
+</p>
+<div class="screen"><span class="glyphs boxed"><span>█</span><span>𜺏</span><span>🬋</span><span>𜹜</span></span></div>
+<p>
+  In Bedstead, each separated block loses a strip on its <strong>left</strong> (a sixth of the cell's width) and at its
+  <strong>bottom</strong> (about a tenth of its height), measured by drawing the glyphs at 100px. Because every
+  cell has its gaps on the same sides, they line up into an even grid across a whole mosaic. You can also see that the
+  middle row of blocks is taller than the top and bottom ones (30 : 40 : 30 of the cell's height). The last pair is the
+  Banner's rule cell: <code>🬋</code> and <code>𜹜</code>, both sum 12.
+</p>
+<p>
+  The gaps are not drawn: they're the parts of the cell the glyph leaves empty, so whatever is behind the mosaic shows
+  through. On a band, that's the band:
+</p>
+<div class="screen">
+<span class="glyphs yellow on-blue"> 𜹠 𜹰 𜺀𜺀𜺀 𜹰𜺀𜹠 𜺀𜺀𜺀 𜺀 𜺀 𜺀𜺀𜺀 𜺀𜺀𜹠
+ 𜺅𜺌𜺊 𜺏𜹜𜹔 𜺏𜹜𜺏  𜺏  𜺏𜹜𜺏 𜺏𜹜𜹔 𜺏𜹼𜹧
+ 𜹓 𜹓 𜹓𜹓𜹓 𜹓 𜹓  𜹓  𜹓 𜹓 𜹓𜹓𜹓 𜹓 𜹓 </span>
+</div>
+<p>Yellow blocks, blue gaps: the two colours a cell can have, which is lesson 7.</p>
+
+<h2>The attribute only labels it</h2>
+<p>
+  Look for a <code>[data-mosaic]</code> rule in <a href="../../../src/components/mosaic.css"><code>mosaic.css</code></a>:
+  there isn't one. The comment calls the attribute “a presentational marker: the characters carry the look”. So:
+</p>
+<table>
+  <tr><th>characters</th><th>attribute</th><th>looks</th></tr>
+  <tr><td>separated</td><td><code>data-mosaic="separated"</code></td><td>separated ✓</td></tr>
+  <tr><td>separated</td><td>none</td><td>separated, but unlabelled</td></tr>
+  <tr><td>contiguous</td><td><code>data-mosaic="separated"</code></td><td>contiguous: the label is wrong</td></tr>
+</table>
+<p>
+  The attribute tells a reader of the markup, and your own CSS if it wants a hook, what the characters are. The stories
+  keep the two in step: <code>assertSeparated</code> in
+  <a href="../../../stories/Mosaic.stories.js"><code>Mosaic.stories.js</code></a> fails if any cell's characters disagree
+  with the attribute.
+</p>
+
+<h2>Your turn: separate a row</h2>
+<p>
+  To make a mosaic separated, keep every cell's sum and rewrite it with the separated formula:
+  <strong>U+1CE51 + (sum − 1)</strong>. That includes <code>▌ ▐ █</code>: the separated row has no gaps, so their
+  separated twins are ordinary members of it.
+</p>
+<p>Convert the C's middle row, <code>▌▐██</code>. Cell 1, worked through:</p>
+<ol class="steps">
+  <li><code>▌</code> is the whole left column: sum 1 + 4 + 16 = 21</li>
+  <li>separated: always sum − 1 = 20</li>
+  <li>0x51 = 81, and 81 + 20 = 101</li>
+  <li>101 = 6 × 16 + 5 = 0x65 → <strong>U+1CE65</strong></li>
+</ol>
+<p>
+  Do cells 2–4 the same way (<code>▐</code>, then <code>█</code> twice, so cells 3 and 4 are the same). Replace the code points
+  in the box: the converted cells turn separated in the logo as you type.
+</p>
+<div data-edit data-row="1" data-col="0" data-target="1CE65 1CE7A 1CE8F 1CE8F"
+  data-done="The C's middle row is separated now, next to the contiguous F: same sums, different characters. In a real mosaic you'd convert every cell and add data-mosaic=&quot;separated&quot;.">
+🬝🬎🬎🬬 🬝🬎🬎🬬
+▌▐██ ▌🬠🬰█
+🬺🬹🬹🬻 🬺🬻██
+</div>
+
+<hr>
+
+<h2>Check yourself</h2>
+<div class="quiz" data-answer="2" data-explain="No CSS reads it. The separated look is in the characters themselves; the attribute names it.">
+  <p>What does <code>data-mosaic="separated"</code> change on screen?</p>
+  <div class="options">
+    <button>It insets every block by a gutter</button>
+    <button>It swaps in a separated font face</button>
+    <button>Nothing: the characters carry the look</button>
+    <button>It converts the code points for you</button>
+  </div>
+</div>
+<div class="quiz" data-answer="1" data-explain="The gaps are empty parts of the glyph, so the band behind shows through.">
+  <p>A separated mosaic in yellow on a blue band. What colour are its gaps?</p>
+  <div class="options"><button>Black, the page colour</button><button>Blue, the band colour</button><button>Yellow, the ink colour</button><button>Grey, a gutter colour</button></div>
+</div>
+<div class="quiz" data-answer="3" data-explain="81 + 62 = 143 = 8 × 16 + 15 = 0x8F. U+2588 is the contiguous one; separated has no older characters to reuse.">
+  <p>Which code point is the separated <code>█</code> (sum 63)?</p>
+  <div class="options"><button>U+2588</button><button>U+1FB3B</button><button>U+1CE8E</button><button>U+1CE8F</button></div>
+</div>
+<div class="quiz" data-answer="0" data-explain="Each character draws its own cell; nothing converts it. The Mosaic stories' assertSeparated would flag the mismatch.">
+  <p>A mosaic has <code>data-mosaic="separated"</code>, but one cell is U+1FB0B. What happens?</p>
+  <div class="options">
+    <button>That one cell looks contiguous</button>
+    <button>The browser converts that cell</button>
+    <button>That one cell is not drawn</button>
+    <button>The whole mosaic looks contiguous</button>
+  </div>
+</div>
+
+<hr>
+
+<h2>Read next</h2>
+<p>
+  The primary source is Unicode's <a href="https://www.unicode.org/charts/PDF/U1CC00.pdf">Symbols for Legacy Computing
+  Supplement chart</a>: the separated sextants are near its end (U+1CE51–1CE8F), 63 in a row with no gaps. Then open the
+  Mosaic story <em>Separated</em> in Storybook and flip its separated control: the story rewrites every character, as you
+  just did by hand.
+</p>
+<p class="aside">
+  Anything unclear? Ask me, your agent, in the chat. Next up: colour, two per cell, with <code>data-variant</code> and
+  <code>data-band</code>.
+</p>
+
+</div></main>
+<footer class="cf-page__footer"><nav aria-label="Lessons"><ul class="cf-fastext">
+    <li><a class="cf-fastext__key" data-variant="red" href="0005-reading-the-banner.html">LESSON 5</a></li>
+    <li><a class="cf-fastext__key" data-variant="green" href="../reference/sextants.html">REFERENCE</a></li>
+    <li><a class="cf-fastext__key" data-variant="yellow" href="0007-two-colours-per-cell.html">LESSON 7</a></li>
+  </ul></nav></footer>
+</div>
+</body>
+</html>

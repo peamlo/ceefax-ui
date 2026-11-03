@@ -6,3 +6,5 @@ package-lock.json
 dist/
 storybook-static/
 docs/reviews/
+# Lesson pages: their mosaic text is whitespace-sensitive, and reflowing it breaks the pictures.
+docs/learn-mosaics/**/*.html
