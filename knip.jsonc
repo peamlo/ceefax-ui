@@ -8,6 +8,8 @@
   "storybook": {
     "entry": [".storybook/{preview,test-runner}.js", "stories/**/*.stories.js"],
   },
+  // The teaching course loads its script from HTML lessons, which knip doesn't read either.
+  "ignore": ["docs/learn-mosaics/**"],
   // Run as `npm exec publint` inside assert-package.mjs, which knip can't see.
   "ignoreDependencies": ["publint"],
 }

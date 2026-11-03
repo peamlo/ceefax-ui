@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>From sum to code point</title>
+<link rel="stylesheet" href="../../../src/index.css">
+<link rel="stylesheet" href="../assets/course.css">
+<script src="../assets/kit.js" defer></script>
+</head>
+<body>
+<div class="cf-page" data-scrollbar="thin">
+<header class="cf-page__header cf-header-row">
+  <span class="cf-header-row__page">P403</span><span class="cf-header-row__service">MOSAICS</span><span class="cf-header-row__rolling">403</span>
+  <time class="cf-header-row__time" datetime="2026-11-03"><span class="cf-header-row__date">Nov03</span> LESSON 3</time>
+</header>
+<main class="cf-page__body"><div class="cf-center">
+<p class="kicker">Mosaics · Lesson 3</p>
+<h1>From sum to code point</h1>
+<p class="lede">
+  <a href="0001-six-pixels-per-character.html">Lesson 1</a> turned a cell into a sum;
+  <a href="0002-code-points-and-hex.html">lesson 2</a> showed that a character is a numbered seat. This one finds the
+  seat for every sum, and explains the two odd subtractions in <code>cell()</code>.
+</p>
+
+<h2>Warm-up, from memory</h2>
+<div class="quiz" data-answer="0" data-explain="2 + 32: the right column's top and bottom blocks, from the F in the CF logo.">
+  <p>Which sum is this cell? <span class="q-glyph">🬠</span></p>
+  <div class="options"><button>34</button><button>33</button><button>40</button><button>18</button></div>
+</div>
+<div class="quiz" data-answer="2" data-explain="Top and bottom rows lit, middle dark: 3 + 48 = 51.">
+  <p>Which sum is this cell? <span class="q-glyph">🬰</span></p>
+  <div class="options"><button>48</button><button>15</button><button>51</button><button>60</button></div>
+</div>
+
+<h2>The sextants are in sum order</h2>
+<p>
+  Unicode 13.0 added the mosaics as <a href="https://www.unicode.org/charts/PDF/U1FB00.pdf">“block sextants”</a>,
+  starting at U+1FB00, and seats them in sum order: sum 1 in U+1FB00 (offset 0), sum 2 in U+1FB01 (offset 1), and so
+  on. The offset is one less than the sum, because sum 1 takes the first seat. So the code point is
+  <strong>U+1FB00 + (sum − 1)</strong>. Almost: there are 63 sums but only 60 seats, U+1FB00 to U+1FB3B. Look at 21:
+</p>
+<table>
+  <tr><th>sum</th><th>cell</th><th>offset</th><th>code point</th></tr>
+  <tr><td>19</td><td><span class="glyphs">🬒</span></td><td>18</td><td><code>U+1FB12</code></td></tr>
+  <tr><td>20</td><td><span class="glyphs">🬓</span></td><td>19</td><td><code>U+1FB13</code></td></tr>
+  <tr class="mark"><td>21</td><td><span class="glyphs">▌</span></td><td>–</td><td><code>U+258C</code></td></tr>
+  <tr><td>22</td><td><span class="glyphs">🬔</span></td><td>20</td><td><code>U+1FB14</code></td></tr>
+  <tr><td>23</td><td><span class="glyphs">🬕</span></td><td>21</td><td><code>U+1FB15</code></td></tr>
+</table>
+<p>
+  Sum 21 is the whole left column, and Unicode already had that shape: <code>▌</code> LEFT HALF BLOCK, in Block
+  Elements since <a href="https://www.unicode.org/Public/16.0.0/ucd/DerivedAge.txt">Unicode 1.1</a>. So 21 gets no seat
+  in the row, and 22 takes the seat 21 would have had. From there on, every offset is one lower. The same happens at
+  42 (<code>▐</code> RIGHT HALF BLOCK, U+2590) and 63 (<code>█</code> FULL BLOCK, U+2588).
+</p>
+
+<h2>Three ranges</h2>
+<p>So the row splits into three ranges. Find the sum's range, subtract, then write the offset in hex:</p>
+<table>
+  <tr><th>sum</th><th>offset</th><th>offsets</th></tr>
+  <tr><td>1–20</td><td>sum − 1</td><td>0–19</td></tr>
+  <tr><td>22–41</td><td>sum − 2</td><td>20–39</td></tr>
+  <tr><td>43–62</td><td>sum − 3</td><td>40–59</td></tr>
+  <tr class="mark"><td>21, 42, 63</td><td colspan="2">not in the row: <code>▌</code> <code>▐</code> <code>█</code></td></tr>
+</table>
+<ol class="steps">
+  <li>sum 48 is in 43–62</li>
+  <li>48 − 3 = 45</li>
+  <li>45 = 2 × 16 + 13 = <code>0x2D</code></li>
+  <li><strong>U+1FB2D</strong></li>
+</ol>
+<p>
+  Backwards, the offsets column tells you the range: U+1FB14 is offset <code>0x14</code> = 20, which is in 20–39, so
+  the sum is 20 + 2 = <strong>22</strong>.
+</p>
+
+<h2>The formula, as the code writes it</h2>
+<p>From <a href="../../../stories/_mosaic.js"><code>stories/_mosaic.js</code></a>:</p>
+<pre><code>if (bits === 21) return '▌';
+if (bits === 42) return '▐';
+if (bits === 63) return '█';
+return String.fromCodePoint(0x1fb00 + bits - 1 - (bits &gt; 21) - (bits &gt; 42));</code></pre>
+<p>
+  <code>(bits &gt; 21)</code> is a boolean, and JavaScript counts it as 1 or 0 in arithmetic. So the code subtracts 1,
+  plus 1 more once the sum is past 21, plus 1 more once it is past 42: the three ranges in one line.
+</p>
+
+<h2>Try it</h2>
+<p>Click blocks and follow the arithmetic. Try 20, 22, 21, then something above 42.</p>
+<div class="screen"><div data-builder data-steps data-start="22"></div></div>
+
+<h2>Separated: no gaps, but a different start</h2>
+<p>
+  Unicode 16.0 added the separated mosaics at U+1CE51. There were no older separated characters to reuse, so all 63
+  are in sum order with no gaps: the offset is <strong>always sum − 1</strong>, with no ranges.
+</p>
+<p>
+  The row starts at <code>…51</code>, not <code>…00</code>, so the last two digits are <em>not</em> the offset. You
+  have to add it to <code>0x51</code>. The Banner's dotted rule is sum 12, the middle row:
+</p>
+<ol class="steps">
+  <li>offset: 12 − 1 = 11</li>
+  <li>0x51 = 5 × 16 + 1 = 81, and 81 + 11 = 92</li>
+  <li>92 = 5 × 16 + 12 = <code>0x5C</code></li>
+  <li><strong>U+1CE5C</strong>, <code>𜹜</code> (not U+1CE0B, which is 11 seats on from U+1CE00)</li>
+</ol>
+<p>In decimal terms: if a row starts at seat 151, the 12th seat is 162, not 111.</p>
+<table>
+  <tr><th></th><th>contiguous</th><th>separated</th></tr>
+  <tr><th>starts at</th><td><code>U+1FB00</code></td><td><code>U+1CE51</code></td></tr>
+  <tr><th>offset</th><td>by range</td><td>sum − 1</td></tr>
+  <tr><th>code point</th><td>last 2 digits</td><td>0x51 + offset</td></tr>
+</table>
+
+<h2>Where this shows up in the repo</h2>
+<p>
+  The mosaic font face in <a href="../../../src/tokens/typography.css"><code>src/tokens/typography.css</code></a> covers
+  only the characters a mosaic uses:
+</p>
+<pre><code>unicode-range: U+2580-259F, U+1FB00-1FB3B, U+1CE51-1CE8F, U+EE00-EE7F;</code></pre>
+<p>You can now read three of those four ranges. U+EE00–EE7F is Bedstead's private-use copy, for a later lesson.</p>
+
+<hr>
+
+<h2>Check yourself</h2>
+<p>From memory: scroll up only after you have picked.</p>
+
+<div class="quiz" data-answer="1" data-explain="Range 1–20: 12 − 1 = 11 = 0x0B, so U+1FB0B, 🬋.">
+  <p>Contiguous, sum 12. Which code point?</p>
+  <div class="options"><button>U+1FB0C</button><button>U+1FB0B</button><button>U+1FB0A</button><button>U+1FB11</button></div>
+</div>
+<div class="quiz" data-answer="2" data-explain="Range 43–62: 48 − 3 = 45 = 0x2D, so U+1FB2D, 🬭, the top edge of WEATHER.">
+  <p>Contiguous, sum 48. Which code point?</p>
+  <div class="options"><button>U+1FB2F</button><button>U+1FB2E</button><button>U+1FB2D</button><button>U+1FB30</button></div>
+</div>
+<div class="quiz" data-answer="3" data-explain="63 is FULL BLOCK, an older character at U+2588. U+1FB3B is 62, and U+1CE8F is the separated 63.">
+  <p>Contiguous, sum 63. Which code point?</p>
+  <div class="options"><button>U+1FB3C</button><button>U+1FB3B</button><button>U+1CE8F</button><button>U+2588</button></div>
+</div>
+<div class="quiz" data-answer="0" data-explain="U+1CE51 + 11 = U+1CE5C, the Banner's dotted rule. The separated set has no gaps: one range, sum − 1.">
+  <p>Separated, sum 12. Which code point?</p>
+  <div class="options"><button>U+1CE5C</button><button>U+1CE5B</button><button>U+1FB0B</button><button>U+1CE5D</button></div>
+</div>
+<div class="quiz" data-answer="2" data-explain="Separated is always sum − 1: 47. Then 81 + 47 = 128 = 0x80. U+1CE7E used the contiguous − 3, and U+1CE2F wrote the offset in as the last two digits.">
+  <p>Separated, sum 48. Which code point?</p>
+  <div class="options"><button>U+1CE7E</button><button>U+1CE2F</button><button>U+1CE80</button><button>U+1FB2D</button></div>
+</div>
+<div class="quiz" data-answer="2" data-explain="Offset 0x14 = 20 is in 20–39, the range of sums 22–41: 20 + 2 = 22. Check: SEXTANT-235 is 2 + 4 + 16.">
+  <p>Backwards: U+1FB14 is which sum?</p>
+  <div class="options"><button>20</button><button>21</button><button>22</button><button>23</button></div>
+</div>
+<div class="quiz" data-answer="1" data-explain="▌ ▐ █ are Block Elements (U+258C, U+2590, U+2588), so a mosaic needs that range too.">
+  <p>Why does the mosaic font's range include U+2580–259F?</p>
+  <div class="options">
+    <button>The separated mosaics begin at U+2580</button>
+    <button>Three mosaic cells are Block Elements</button>
+    <button>Browsers require it for any font</button>
+    <button>Bedstead stores its private copies there</button>
+  </div>
+</div>
+
+<hr>
+
+<h2>Read next</h2>
+<p>
+  The primary source is Unicode's own <a href="https://www.unicode.org/Public/16.0.0/ucd/NamesList.txt">NamesList.txt</a>:
+  search it for “Block mosaic terminal graphic characters” and read the 60 names in order, spotting the three missing
+  patterns. The <a href="https://www.unicode.org/charts/PDF/U1FB00.pdf">U+1FB00 chart</a> shows the same list with
+  glyphs. The <a href="../reference/sextants.html">sextant reference sheet</a> has all 64 cells and both formulas.
+</p>
+<p class="aside">
+  Something unclear, or want more practice? Ask me, your agent, in the chat. I'm your teacher here, and your
+  questions decide lesson 4: why the cells tile into one picture.
+</p>
+
+</div></main>
+<footer class="cf-page__footer"><nav aria-label="Lessons"><ul class="cf-fastext">
+    <li><a class="cf-fastext__key" data-variant="red" href="0002-code-points-and-hex.html">LESSON 2</a></li>
+    <li><a class="cf-fastext__key" data-variant="green" href="../reference/sextants.html">REFERENCE</a></li>
+    <li><a class="cf-fastext__key" data-variant="yellow" href="0004-why-the-cells-tile.html">LESSON 4</a></li>
+  </ul></nav></footer>
+</div>
+</body>
+</html>

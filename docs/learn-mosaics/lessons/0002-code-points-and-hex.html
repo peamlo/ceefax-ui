@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Code points and hex</title>
+<link rel="stylesheet" href="../../../src/index.css">
+<link rel="stylesheet" href="../assets/course.css">
+<script src="../assets/kit.js" defer></script>
+</head>
+<body>
+<div class="cf-page" data-scrollbar="thin">
+<header class="cf-page__header cf-header-row">
+  <span class="cf-header-row__page">P402</span><span class="cf-header-row__service">MOSAICS</span><span class="cf-header-row__rolling">402</span>
+  <time class="cf-header-row__time" datetime="2026-11-03"><span class="cf-header-row__date">Nov03</span> LESSON 2</time>
+</header>
+<main class="cf-page__body"><div class="cf-center">
+<p class="kicker">Mosaics · Lesson 2</p>
+<h1>Code points and hex</h1>
+<p class="lede">
+  Two words lesson 3 leans on: a character is a <em>number</em>, its code point, and those numbers are written in
+  <em>hex</em>.
+</p>
+
+<h2>Warm-up, from memory</h2>
+<div class="quiz" data-answer="1" data-explain="4 + 16: the left column's middle and bottom blocks.">
+  <p>Which sum is this cell? <span class="q-glyph">🬓</span></p>
+  <div class="options"><button>24</button><button>20</button><button>18</button><button>36</button></div>
+</div>
+
+<h2>A character is a number</h2>
+<p>
+  Your HTML file doesn't store shapes. Unicode gives every character one number, its
+  <a href="https://www.unicode.org/glossary/#code_point"><strong>code point</strong></a>, and the file stores those
+  numbers. To show one, the browser asks the font for the shape it has for that number, its
+  <a href="https://www.unicode.org/glossary/#glyph"><strong>glyph</strong></a>.
+</p>
+<table>
+  <tr><th>character</th><th>code point</th></tr>
+  <tr><td><code>A</code></td><td><code>U+0041</code></td></tr>
+  <tr><td><code>€</code></td><td><code>U+20AC</code></td></tr>
+  <tr><td><code>🬀</code> (sum 1)</td><td><code>U+1FB00</code></td></tr>
+</table>
+<p>
+  So the CF logo is 27 numbers (plus the spaces and newlines between them), and it only looks like a logo because
+  <a href="../../../src/components/mosaic.css"><code>mosaic.css</code></a> sets the font to Bedstead, which has a glyph
+  for every mosaic number. Type or paste anything below, for example the logo's top row
+  <code>🬝🬎🬎🬬 🬝🬎🬎🬬</code>:
+</p>
+<div data-inspect="A€🬀🬎▌"></div>
+
+<h2>Hex: counting in sixteens</h2>
+<p>
+  <code>U+</code> means “a code point, written in hexadecimal”. Hex has sixteen digits instead of ten:
+</p>
+<table class="compact">
+  <tr><th>hex</th><td>0–9</td><td>A</td><td>B</td><td>C</td><td>D</td><td>E</td><td>F</td></tr>
+  <tr><th>value</th><td>0–9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td></tr>
+</table>
+<p>
+  In a two-digit hex number the left digit counts sixteens and the right one counts ones, the way decimal counts
+  tens and ones. So <code>0x13</code> = 1 × 16 + 3 = <strong>19</strong>, and <code>0x2D</code> = 2 × 16 + 13 =
+  <strong>45</strong>. <code>0x</code> is how JavaScript and CSS mark a hex number; <code>U+</code> is how Unicode does.
+  Same digits underneath.
+</p>
+
+<h2>Converting by hand</h2>
+<p><strong>Hex → decimal: multiply and add.</strong> Each place is worth 16 times the place to its right
+(1, 16, 256, 4096, …). Turn letters into their values, multiply each digit by its place, add:</p>
+<ol class="steps">
+  <li><code>0x2D</code>: D is 13</li>
+  <li>2 × 16 + 13 × 1</li>
+  <li>32 + 13 = <strong>45</strong></li>
+</ol>
+
+<p><strong>Decimal → hex: divide by 16.</strong> The quotient is the left digit, the remainder the right one (turn
+10–15 into A–F):</p>
+<ol class="steps">
+  <li>45 ÷ 16 = 2, remainder 13</li>
+  <li>13 is D</li>
+  <li>so 45 = <strong><code>0x2D</code></strong></li>
+</ol>
+<p>
+  That covers 0–255, every two-digit hex number, which is all the mosaic offsets need. For bigger numbers keep
+  going: <code>0x258C</code> (<code>▌</code>) = 2 × 4096 + 5 × 256 + 8 × 16 + 12 = 9612. Backwards, divide the
+  quotient again until it reaches 0, then read the remainders from last to first: 9612 → remainder 12 (C), 600 →
+  8, 37 → 5, 2 → 2, so <code>0x258C</code>.
+</p>
+<p class="aside">
+  In real work, let the browser console do it: <code>(45).toString(16)</code> gives <code>'2d'</code>,
+  <code>parseInt('2D', 16)</code> gives <code>45</code>, and <code>0x2D</code> typed as-is is already 45. Doing it by
+  hand a few times is what makes a code point readable at a glance.
+</p>
+<p>Practise until you get five in a row. Answer hex with or without <code>0x</code>:</p>
+<div data-drill></div>
+
+<h2>Start + offset</h2>
+<p>
+  The mosaics sit in a row of code points starting at U+1FB00, like numbered seats. A seat's <strong>offset</strong> is
+  how far it is from the first one. Because the row starts at <code>…00</code>, the last two hex digits of a mosaic's
+  code point <em>are</em> its offset: U+1FB13 is offset <code>0x13</code>, which is 19. That shortcut only works
+  because the start ends in <code>00</code>; a row starting anywhere else means adding (lesson 3 has one). Slide
+  through the row:
+</p>
+<div class="screen"><div data-hex></div></div>
+<p>
+  Which sum sits in which seat, and why the row has three gaps, is <a href="0003-from-sum-to-code-point.html">lesson 3</a>.
+</p>
+
+<hr>
+
+<h2>Check yourself</h2>
+<p>From memory: scroll up only after you have picked.</p>
+
+<div class="quiz" data-answer="1" data-explain="1 × 16 + 3 = 19. Reading it as thirteen is the classic slip.">
+  <p>What is <code>0x13</code> in decimal?</p>
+  <div class="options"><button>13</button><button>19</button><button>31</button><button>21</button></div>
+</div>
+<div class="quiz" data-answer="0" data-explain="D is 13, so 2 × 16 + 13 = 45.">
+  <p>What is <code>0x2D</code> in decimal?</p>
+  <div class="options"><button>45</button><button>29</button><button>42</button><button>35</button></div>
+</div>
+<div class="quiz" data-answer="2" data-explain="26 = 1 × 16 + 10, and 10 is A: 0x1A.">
+  <p>What is 26 in hex?</p>
+  <div class="options"><button>0x26</button><button>0x2A</button><button>0x1A</button><button>0x1C</button></div>
+</div>
+<div class="quiz" data-answer="3" data-explain="The last two digits are the offset: 0x0E = 14. That seat holds 🬎, the logo's sum-15 cell.">
+  <p>U+1FB0E is which offset from U+1FB00?</p>
+  <div class="options"><button>11</button><button>13</button><button>15</button><button>14</button></div>
+</div>
+<div class="quiz" data-answer="1" data-explain="The text is numbers; the font turns each one into a glyph. Without Bedstead there is no mosaic shape to draw.">
+  <p>What does a mosaic string in your HTML actually store?</p>
+  <div class="options">
+    <button>A small bitmap for each cell</button>
+    <button>A code point for each cell</button>
+    <button>A colour value for each cell</button>
+    <button>A font reference for each cell</button>
+  </div>
+</div>
+
+<hr>
+
+<h2>Read next</h2>
+<p>
+  The primary source is the <a href="https://www.unicode.org/glossary/">Unicode Glossary</a>: read its entries for
+  <a href="https://www.unicode.org/glossary/#code_point">code point</a>,
+  <a href="https://www.unicode.org/glossary/#character">character</a> and
+  <a href="https://www.unicode.org/glossary/#glyph">glyph</a>. They are short, and the split between a character
+  and its glyph is exactly the split between your HTML and Bedstead.
+</p>
+<p class="aside">
+  Still fuzzy on any of it? Ask me, your agent, in the chat. I'm your teacher here, and it's better to stop now than
+  to carry a gap into lesson 3.
+</p>
+
+</div></main>
+<footer class="cf-page__footer"><nav aria-label="Lessons"><ul class="cf-fastext">
+    <li><a class="cf-fastext__key" data-variant="red" href="0001-six-pixels-per-character.html">LESSON 1</a></li>
+    <li><a class="cf-fastext__key" data-variant="green" href="../reference/sextants.html">REFERENCE</a></li>
+    <li><a class="cf-fastext__key" data-variant="yellow" href="0003-from-sum-to-code-point.html">LESSON 3</a></li>
+  </ul></nav></footer>
+</div>
+</body>
+</html>

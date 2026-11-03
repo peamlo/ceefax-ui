@@ -1,0 +1,406 @@
+/* Shared stylesheet for every lesson and reference sheet in docs/learn-mosaics: B2 from the style prototype.
+   Load it after src/index.css. Everything reads the library's --cf-* tokens; the only overrides are an off-white
+   text colour and relaxed leading. Pages use the cf-page shell (header row, body, fastext footer), and kit.js
+   adds the Accessible palette switch. */
+:root {
+  --cf-fg: #dfe3e8;
+  --cf-leading-normal: var(--cf-leading-relaxed);
+  --dim: color-mix(in srgb, var(--cf-fg) 22%, transparent); /* rules and frames */
+  --lit: #fff;
+  --unlit: #2a2a2a;
+}
+
+body {
+  margin: 0;
+  background: var(--cf-bg);
+  color: var(--cf-fg);
+}
+.cf-page__body {
+  padding-block: var(--cf-space-6) var(--cf-space-7);
+}
+.cf-page__body > .cf-center {
+  padding-inline: var(--cf-space-3);
+}
+h1 {
+  margin: 0 0 var(--cf-space-2);
+  font: var(--cf-weight-regular) var(--cf-text-heading)/var(--cf-leading-tight) var(--cf-font-display);
+  color: var(--cf-accent);
+}
+/* A section heading is a band, as on a set's page. */
+h2 {
+  display: table;
+  margin: var(--cf-space-6) 0 var(--cf-space-2);
+  padding: 0 1ch;
+  background: var(--cf-variant-cyan);
+  color: var(--cf-on-variant);
+  font: var(--cf-weight-regular) var(--cf-text-subheading)/1.2 var(--cf-font-display);
+}
+p {
+  margin: 0 0 var(--cf-space-3);
+}
+.kicker {
+  margin: 0;
+  color: var(--cf-fg-dim);
+  font-size: 0.85rem;
+  letter-spacing: var(--cf-tracking-wide);
+  text-transform: uppercase;
+}
+.lede {
+  color: var(--cf-fg-dim);
+  margin-bottom: var(--cf-space-5);
+}
+main a {
+  color: var(--cf-link);
+  text-underline-offset: 3px;
+}
+main a:hover {
+  color: var(--cf-link-hover);
+}
+code,
+pre {
+  font-family: 'Bedstead Mosaic', var(--cf-font-mono);
+  font-size: 0.9em;
+}
+:not(pre) > code {
+  overflow-wrap: anywhere;
+} /* long commands and URLs wrap on a phone */
+pre {
+  margin: var(--cf-space-3) 0;
+  padding: var(--cf-space-3);
+  border: var(--cf-border-thin) solid var(--cf-border);
+  overflow-x: auto;
+  line-height: var(--cf-leading-normal);
+}
+hr {
+  border: 0;
+  border-top: var(--cf-border-thin) solid var(--dim);
+  margin: var(--cf-space-6) 0;
+}
+.aside {
+  padding: var(--cf-space-3);
+  border: var(--cf-border-thin) solid var(--cf-variant-cyan);
+  font-size: 0.95rem;
+}
+.palette-toggle {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 var(--cf-space-4);
+}
+
+/* Tables: set like cf-table, a heading row and no rule under every row. */
+table {
+  border-collapse: collapse;
+  margin: var(--cf-space-3) 0;
+  font-variant-numeric: tabular-nums;
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+th,
+td {
+  padding: 0.25rem 1ch;
+  text-align: center;
+}
+th {
+  color: var(--cf-accent);
+  font-weight: var(--cf-weight-bold);
+}
+tr:first-child th {
+  border-bottom: var(--cf-border-thin) solid var(--dim);
+}
+tr.mark td {
+  background: color-mix(in srgb, var(--cf-accent) 18%, transparent);
+}
+td .glyphs {
+  font-size: 1.5rem;
+}
+td code {
+  white-space: nowrap;
+}
+.compact :is(th, td) {
+  padding: 0.25rem 0.6ch;
+  white-space: nowrap;
+}
+
+/* A screen: a framed panel for mosaics and widgets. */
+.screen {
+  margin: var(--cf-space-3) 0;
+  padding: var(--cf-space-3);
+  border: var(--cf-border-thin) solid var(--dim);
+  overflow-x: auto;
+}
+/* Like .cf-mosaic: one atomic box, rows on newlines, cells touching. */
+.glyphs {
+  display: inline-block;
+  vertical-align: bottom;
+  font-family: 'Bedstead', monospace;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: pre;
+  font-size: min(1.5rem, 3.4vw);
+}
+.yellow {
+  color: var(--cf-variant-yellow);
+}
+/* A hand-made band follows the band ink tier like cf-mosaic's: black on it under the Accessible palette. */
+.on-blue {
+  background: var(--cf-variant-blue);
+  color: var(--cf-on-variant-dark);
+}
+.on-blue.yellow {
+  color: var(--cf-ink-yellow);
+}
+
+/* An exploded mosaic: each cell drawn as 2×3 blocks, cells pulled apart. */
+.cells {
+  display: inline-grid;
+  gap: var(--gap, 6px);
+}
+.cells.together {
+  --gap: 0px;
+}
+.cells .row {
+  display: flex;
+  gap: var(--gap, 6px);
+}
+.cell {
+  display: grid;
+  grid-template: repeat(3, var(--block, 16px)) / repeat(2, var(--block, 16px));
+  gap: 2px;
+  position: relative;
+}
+.cells.together .cell {
+  gap: 0;
+}
+.cell i {
+  background: var(--unlit);
+}
+.cell i.on {
+  background: var(--lit);
+}
+.cells.together .cell i:not(.on) {
+  background: transparent;
+}
+.cell[data-sum]::after {
+  content: attr(data-sum);
+  position: absolute;
+  inset: auto 0 -1.3em;
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--cf-fg-dim);
+}
+.cells.labelled {
+  row-gap: 1.6em;
+}
+.cells.labelled .row {
+  margin-bottom: 1.3em;
+}
+
+/* The block builder and the hex dial. */
+:is(.builder, .hexdial) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cf-space-5);
+  align-items: center;
+}
+.builder .pad {
+  display: grid;
+  grid-template: repeat(3, 3.5rem) / repeat(2, 3.5rem);
+  gap: 4px;
+}
+.builder .pad button {
+  border: 0;
+  background: var(--unlit);
+  color: #888;
+  font: 0.9rem var(--cf-font-mono);
+  cursor: pointer;
+}
+.builder .pad button[aria-pressed='true'] {
+  background: var(--lit);
+  color: #000;
+}
+:is(.builder, .hexdial) dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 0.2rem 2ch;
+  font-size: 0.95rem;
+}
+:is(.builder, .hexdial) dt {
+  color: var(--cf-fg-dim);
+}
+:is(.builder, .hexdial) dd {
+  margin: 0;
+}
+:is(.builder, .hexdial) .big {
+  font-size: 4.5rem;
+}
+.hexdial label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: var(--cf-fg-dim);
+  font-size: 0.9rem;
+}
+.hexdial input {
+  width: 12rem;
+  accent-color: var(--cf-accent);
+}
+
+/* Text inputs are cf-input (kit.js); these only lay them out. */
+:is(.inspect, .edit) label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2ch;
+  font-size: 0.9rem;
+  color: var(--cf-fg-dim);
+}
+:is(.inspect, .edit) input {
+  flex: 1;
+  min-width: 14rem;
+}
+.inspect input {
+  font-family: 'Bedstead Mosaic', var(--cf-font-mono);
+}
+.inspect td {
+  font-size: 0.9rem;
+}
+.inspect .cell {
+  --block: 7px;
+  gap: 1px;
+  display: inline-grid;
+  vertical-align: middle;
+  padding: 3px;
+}
+
+/* Quiz and drill: framed like a cf-card; the buttons are cf-btn (kit.js). */
+:is(.quiz, .drill) {
+  margin: var(--cf-space-4) 0;
+  padding: var(--cf-space-3);
+  border: var(--cf-border-thin) solid var(--cf-border);
+}
+.quiz p {
+  margin: 0 0 var(--cf-space-2);
+}
+.quiz .options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cf-space-2);
+}
+.quiz .feedback,
+.drill .feedback,
+.edit .feedback {
+  min-height: 1.6em;
+  margin: var(--cf-space-2) 0 0;
+  font-size: 0.95rem;
+  color: var(--cf-fg-dim);
+}
+.feedback.right {
+  color: var(--cf-success);
+}
+.feedback.wrong {
+  color: var(--cf-danger);
+}
+.quiz .q-glyph {
+  font-family: 'Bedstead', monospace;
+  font-size: 3rem;
+  line-height: 1;
+  padding: 0.25rem 0.5rem;
+  border: var(--cf-border-thin) solid var(--dim);
+  display: inline-block;
+  vertical-align: middle;
+}
+.drill .drill-q {
+  margin: 0 0 var(--cf-space-2);
+}
+.drill form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cf-space-2);
+}
+.drill input {
+  width: 10rem;
+}
+.drill .streak {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--cf-fg-dim);
+}
+.steps {
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+
+/* One mosaic.css declaration switched back to what a page would give it (lesson 4's lab and quiz). */
+.glyphs.no-font {
+  font-family: monospace;
+}
+.glyphs.no-pre {
+  white-space: normal;
+}
+.glyphs.no-lh {
+  line-height: 1.5;
+} /* .cf-page's --cf-leading-normal */
+.glyphs.no-ls {
+  letter-spacing: 0.08em;
+} /* --cf-tracking-wide, set by buttons, links, fastext */
+.glyphs.no-ib {
+  display: inline;
+}
+.lab fieldset {
+  border: var(--cf-border-thin) solid var(--dim);
+  margin: 0 0 var(--cf-space-2);
+  padding: var(--cf-space-2) var(--cf-space-3);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 2.5ch;
+}
+.lab legend {
+  font-size: 0.8rem;
+  color: var(--cf-fg-dim);
+  padding: 0 1ch;
+}
+.lab label {
+  display: inline-flex;
+  align-items: center;
+  gap: 1ch;
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.lab-line,
+.bug {
+  margin: 0;
+  line-height: 1.6;
+}
+/* Inline cell boxes: each character in its own outlined 0.6em × 1em box. */
+.boxed {
+  font-size: 5rem;
+}
+.boxed > span {
+  display: inline-block;
+  margin-right: 0.15em;
+  outline: 1px dashed var(--cf-variant-yellow);
+  outline-offset: 2px;
+}
+
+/* Edit-and-check: retype cells as code points (lesson 5). */
+.edit {
+  margin: var(--cf-space-3) 0;
+}
+.edit .big {
+  font-size: 3rem;
+}
+.edit-row {
+  display: flex;
+  gap: 8px;
+  margin: 1rem 0 1.4rem;
+}
+.edit-row .cell {
+  --block: 12px;
+}
+.pixels {
+  line-height: 1.15;
+  letter-spacing: 0.15em;
+}

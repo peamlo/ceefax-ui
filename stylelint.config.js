@@ -5,6 +5,8 @@ const ALIAS = 'use a --cf-* semantic alias (ADR-0008)';
 
 export default {
   extends: ['stylelint-config-standard'],
+  // The teaching course styles its own lesson pages; the library's class contract isn't theirs.
+  ignoreFiles: ['docs/learn-mosaics/**'],
   rules: {
     // Off: house style the contract doesn't care about, or that fights the source —
     // grouped token blocks, the authentic 6-digit broadcast hex, exact 1/64 fractions.
