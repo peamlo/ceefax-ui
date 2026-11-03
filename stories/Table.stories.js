@@ -36,9 +36,8 @@ const LEAGUE = [
 let ids = 0;
 const table = ({ caption, captionAttrs = '', attrs = '', body }) => {
   const id = `cf-table-caption-${++ids}`;
-  const region = document.createElement('div');
+  const region = document.createElement('section');
   region.className = 'cf-table__scroll';
-  region.setAttribute('role', 'region');
   region.tabIndex = 0;
   region.setAttribute('aria-labelledby', id);
   region.innerHTML = `<table class="cf-table"${attrs}><caption id="${id}"${captionAttrs}>${caption}</caption>${body}</table>`;
@@ -122,7 +121,7 @@ export default {
     docs: {
       description: {
         component:
-          '`cf-table` on a native `<table>`, inside a `cf-table__scroll` region (`role="region"`, `tabindex="0"`, ' +
+          '`cf-table` on a native `<table>`, inside a `cf-table__scroll` region (a `<section>` with `tabindex="0"` and ' +
           '`aria-labelledby` → the caption). Group rows with native `<tbody>` elements: the only rule is between ' +
           'groups (`--cf-table-rule` changes it). `data-align="end"` end-aligns a figure cell. Typography comes from ' +
           'the `--cf-*` tokens in your own CSS, never attributes.',

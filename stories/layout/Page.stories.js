@@ -257,13 +257,12 @@ export const FramedTable = {
   render: () => {
     const page = framedPage();
     const region = el(
-      'div',
+      'section',
       'cf-table__scroll',
       '<table class="cf-table" data-stripe-rows="text"><caption id="listings">BBC ONE TONIGHT</caption><tbody>' +
         '<tr><td>18:00</td><td>BBC News</td></tr><tr><td>18:30</td><td>Regional News</td></tr>' +
         '<tr><td>19:00</td><td>The One Show</td></tr><tr><td>19:30</td><td>EastEnders</td></tr></tbody></table>',
     );
-    region.setAttribute('role', 'region');
     region.tabIndex = 0;
     region.setAttribute('aria-labelledby', 'listings');
     page.querySelector('.cf-page__body h1').after(region);
