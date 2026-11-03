@@ -47,7 +47,7 @@
   background: var(--_fg);
   color: var(--_bg);
   border-color: var(--_fg);
-  outline: none;
+  outline: var(--cf-border-thin) solid transparent;
 }
 .cf-btn[data-variant='ghost']:hover,
 .cf-btn[data-variant='ghost']:focus-visible {

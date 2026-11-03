@@ -43,7 +43,7 @@
    with its text in the band colour. Same specificity as the rules above, so these follow. */
 .cf-fastext__key:hover,
 .cf-fastext__key:focus-visible {
-  outline: none;
+  outline: var(--cf-border-thin) solid transparent;
   background: var(--cf-fg);
   color: var(--cf-bg);
   border-color: currentcolor;

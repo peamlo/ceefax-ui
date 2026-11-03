@@ -11,7 +11,7 @@
   text-decoration: underline;
 }
 .cf-link:focus-visible {
-  outline: none;
+  outline: var(--cf-border-thin) solid transparent;
   background: var(--cf-link);
   color: var(--cf-bg);
   text-decoration: none;

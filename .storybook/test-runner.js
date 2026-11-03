@@ -112,6 +112,25 @@ async function underForcedColours(page, read) {
   }
 }
 
+// Contract (#149): under forced colours the Inversion is gone (the system replaces every colour),
+// so a real Tab onto a link or fastext key must still show a ring: the transparent outline, which
+// the system paints. Leaves forced colours off and nothing focused, so axe audits the resting look.
+const outlineOf = (sel) => {
+  const cs = getComputedStyle(document.querySelector(sel));
+  return { style: cs.outlineStyle, width: cs.outlineWidth, color: cs.outlineColor };
+};
+async function assertForcedFocusRing(page, sel) {
+  const [rest, focused] = await underForcedColours(page, async () => {
+    const before = await page.evaluate(outlineOf, sel);
+    await page.keyboard.press('Tab');
+    return [before, await page.evaluate(outlineOf, sel)];
+  });
+  await page.evaluate(() => document.activeElement.blur());
+  expect(rest.style).toBe('none');
+  expect(focused).toMatchObject({ style: 'solid', width: '2px' });
+  expect(focused.color).not.toBe('rgba(0, 0, 0, 0)');
+}
+
 // Contract (#76): the CRT look renders neither scanlines nor glow under forced colours or the
 // Accessible theme. Needs emulated media, which play() cannot set. Leaves both switches off.
 async function assertCrtOffSwitches(page) {
@@ -479,6 +498,8 @@ export default {
     if (!title.startsWith('Components/') && !isFrame) return;
 
     if (title === 'Components/Button') await assertButtonContract(page, name);
+    if (title === 'Components/Link' && name === 'Inline') await assertForcedFocusRing(page, '.cf-link');
+    if (title === 'Components/Fastext bar' && name === 'Text') await assertForcedFocusRing(page, FIRST_KEY);
     if (title === 'Components/Fastext bar') await assertFastextHover(page);
     if (title === 'Components/Notice') await assertNoticeBlink(page);
     if (title === 'Components/Header row' && name === 'In the Screen frame') await assertHeaderRowNarrow(page);
