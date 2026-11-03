@@ -1,17 +1,18 @@
 # Mosaic logic: where it lives, and whether a library already does it
 
 Research note, 2026-11-03, revised the same day after the maintainer corrected the workflow. It asks where
-the conversion between pixel art, 2×3 block sums and Unicode sextants should live, and whether
-`stories/_mosaic.js` reinvents an existing library. It changes no code and no docs; §3 proposes wording only.
+the conversion between pixel art, 2×3 block sums and Unicode sextants should live, what a consumer such as
+an Astro blog pays for mosaics, and whether `stories/_mosaic.js` reinvents an existing library.
 
 ## Summary
 
-- **How mosaics are made today.** Every mosaic in the project was generated, either by
-  `stories/_mosaic.js` or by an agent asked for the characters. Nobody draws in the zxnet editor and pastes.
-  The plan is a **live mosaic editor of the project's own**, similar to the
-  [zxnet teletext editor](https://zxnet.co.uk/teletext/editor/), which is a reference for that editor and
-  not the consumer workflow. ADR-0021, the README, the Mosaic docs page and two comments in `_mosaic.js` still
-  say "draw in zxnet and paste" (§3).
+- **How mosaics are made.** Every mosaic in the project so far was generated, either by
+  `stories/_mosaic.js` or by an agent asked for the characters. A **live mosaic editor** is planned as a
+  future project, with the [zxnet teletext editor](https://zxnet.co.uk/teletext/editor/) as its reference.
+  The docs no longer tell anyone to draw in zxnet and paste (§3).
+- **For an Astro blog** a mosaic is static text: no JavaScript in the browser, one shared font file and a
+  few bytes of HTML a cell. Pasting or hand-writing characters needs no code. Generating them from pixel
+  rows today means copying about 25 lines out of the stories, which is the duplication to remove (§3).
 - **Recommendation: option (b), one shared module.** Put the conversion in one pure ES module in `src/`
   (for example `src/mosaic/cells.js`) with four functions:
   - `cell(bits, separated)` and its inverse `bitsOf(char)`;
@@ -62,69 +63,65 @@ The formula checks out against the Unicode Character Database
 
 ## 2. Who needs the conversion
 
-| Consumer                  | Direction                                                                                  | Contiguous / separated | Notes                                                                                                                                                                                                                                                                                                                                                                |
-| ------------------------- | ------------------------------------------------------------------------------------------ | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| The planned mosaic editor | pixels → characters (export); characters → pixels (reopen pasted markup, toggle separated) | both                   | Also image → pixels (import, later) and colour runs → `data-variant`/`data-band` spans. Both of those are editor-only.                                                                                                                                                                                                                                               |
-| Stories                   | pixels → characters                                                                        | both                   | `rule()`, `lettering()` and `logo()` are story content built on top, not conversion.                                                                                                                                                                                                                                                                                 |
-| Lessons (`kit.js`)        | both                                                                                       | both                   | A classic script so it opens from `file://`, so it can't `import` a module. If the lessons are served (GitHub Pages, a dev server), it can switch to `<script type="module">` and import the shared module.                                                                                                                                                          |
-| Runtime consumers         | pixels → characters                                                                        | both                   | Charts, sparklines, rules sized to data. The simple cases need only `█`, `▌` or one repeated character (the **Bar chart** story). The roadmap's chart components ([#16](https://github.com/peamlo/ceefax-ui/issues/16), [#17](https://github.com/peamlo/ceefax-ui/issues/17), [#18](https://github.com/peamlo/ceefax-ui/issues/18)) are specced in CSS, not mosaics. |
+| Consumer                  | Direction                                                                                    | Contiguous / separated | Notes                                                                                                                                                                                                                                                                                                                                                                |
+| ------------------------- | -------------------------------------------------------------------------------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The planned mosaic editor | pixels → characters (export); characters → pixels (reopen existing markup, toggle separated) | both                   | Also image → pixels (import, later) and colour runs → `data-variant`/`data-band` spans. Both of those are editor-only.                                                                                                                                                                                                                                               |
+| Stories                   | pixels → characters                                                                          | both                   | `rule()`, `lettering()` and `logo()` are story content built on top, not conversion.                                                                                                                                                                                                                                                                                 |
+| Lessons (`kit.js`)        | both                                                                                         | both                   | A classic script so it opens from `file://`, so it can't `import` a module. If the lessons are served (GitHub Pages, a dev server), it can switch to `<script type="module">` and import the shared module.                                                                                                                                                          |
+| Runtime consumers         | pixels → characters                                                                          | both                   | Charts, sparklines, rules sized to data. The simple cases need only `█`, `▌` or one repeated character (the **Bar chart** story). The roadmap's chart components ([#16](https://github.com/peamlo/ceefax-ui/issues/16), [#17](https://github.com/peamlo/ceefax-ui/issues/17), [#18](https://github.com/peamlo/ceefax-ui/issues/18)) are specced in CSS, not mosaics. |
 
 With an editor planned, the conversion has **at least three in-repo users in both directions**. That's what
 changes the earlier answer: one shared module beats three hand-kept copies.
 
-### What the zxnet editor actually outputs
+## 3. Using mosaics in an Astro blog
 
-This is relevant because the docs still point at zxnet, and because importing zxnet or edit.tf pages is a
-possible editor feature. It's from the editor's source
-([`editor.js`](https://zxnet.co.uk/teletext/editor/editor.js), fetched 2026-11-03):
+An Astro page renders on the server or at build time, so a mosaic reaches the browser as finished HTML:
 
-- **Exports:** `tti7`, `ep1`, `ttx`, `bin`, `bbc`, `t42`, `png`, `pngHiRes`, `gif`, `gifHiRes`, `edit.tf`,
-  `viewdata`. None of them is Unicode text.
-- **Clipboard copy** (`copyArea()`): a `#ZX#rows#cols#` header, then raw 7-bit codes, with control codes
-  written as ESC + code | 0x40.
+```astro
+<span class="cf-mosaic" role="img" aria-label="A red heart" data-variant="red">🬻🬺█🬓
+🬁🬬🬆 </span>
+```
 
-So the documented "paste the characters" step never worked: a sum-62 mosaic cell pastes as `~`.
+**Performance.**
 
-An importer would need four steps:
+- **JavaScript:** none. `cf-mosaic` is CSS on characters (ADR-0001, ADR-0021).
+- **CSS:** `cf-mosaic` is part of `./css`, 5.1 kB brotli for the whole library today (`node scripts/size.mjs .`).
+- **Font:** mosaics use Bedstead, `bedstead-3.261-regular.woff2`, 52 kB. It's the same file the display face
+  (`--cf-font-display`) uses, so a page with headings in Bedstead downloads it once. The mosaic face blocks
+  while it loads (the browser gives up after about 3 s), so cells stay blank rather than showing tofu, and
+  text keeps `swap`. Preload it on pages with mosaics (README → Mosaic).
+- **Rendering:** a mosaic is one inline text box. ADR-0021's prototype measured 21 ms of style recalculation
+  for 1000 mosaics, against 493 ms for 1000 of the canvases it replaced.
+- **Bytes:** each cell is one 4-byte UTF-8 character (`▌ ▐ █` are 3), so a full 40 × 25 screen is about
+  4 kB of HTML before compression.
 
-1. Decode the page. The edit.tf hash is 7 bits per cell, base64url
-   ([edit.tf README](https://github.com/rawles/edit.tf/blob/master/README.md)).
-2. Walk each row's spacing attributes: graphics colour 0x11–0x17, contiguous 0x19, separated 0x1A, hold
-   0x1E/0x1F, new background 0x1D.
-3. Map each G1 code to a sum: `(c & 0x1F) | ((c & 0x40) >> 1)`.
-4. Call `cell()`.
+**Duplicated code.**
 
-That's an optional editor feature, not something consumers need.
+- **Characters written in the page** (pasted, or generated once by an agent or a script): no code at all.
+- **Characters generated from pixel rows** (data at build time, a rule sized to its content): the
+  conversion isn't exported, so today you'd copy `cell()` and `toMosaic()` (about 25 lines) out of
+  `stories/_mosaic.js`. That's the duplication to fix. With the `./mosaic` export recommended in §5,
+  the Astro frontmatter imports it, runs at build time, and the browser gets 0 bytes of JS:
 
-## 3. Doc lines that state the zxnet workflow, and proposed wording
+  ```astro
+  ---
+  import { toMosaic } from '@peamlo/ceefax-ui/mosaic';
+  const heart = toMosaic(['.##.##..', '#######.', '#######.', '.#####..', '..###...', '...#....']);
+  ---
+  <span class="cf-mosaic" aria-hidden="true" data-variant="red">{heart}</span>
+  ```
 
-These are proposals only; none of these files is edited here. "ADR-NNNN" is the next free ADR number.
-The draft for that ADR is in §5.
+- **Mosaics that change in the browser** (live data): the same import inside a `<script>`, about 0.5 kB
+  brotli.
+- **Bars and rules** need no conversion at all: `'█'.repeat(n)`, `▌` for a half, or one repeated character
+  (the **Bar chart** story).
 
-| #   | File and line                                                                        | Says now                                                                                                                                                                                                                 | Proposed                                                                                                                                                                                                                                                                                                                                                                                       |
-| --- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | [`README.md`](../../README.md) line 276                                              | "**Draw art in the zxnet teletext editor** (reference), not by hand. It paints with teletext's own rules … The library ships no editor of its own (ADR-0021)."                                                           | "**Generate art, don't type it.** Draw it as rows of pixels and convert it with the formula above; the stories do this in `stories/_mosaic.js`. A mosaic editor of the project's own is planned (ADR-NNNN)." Once the module ships, replace the middle sentence with "`import { toMosaic } from '@peamlo/ceefax-ui/mosaic'` converts pixel rows in code." Once the editor ships, link it.      |
-| 2   | [`stories/Mosaic.stories.js`](../../stories/Mosaic.stories.js) lines 99–101 (`DOCS`) | "Don't type them by hand: draw in the zxnet teletext editor and paste the characters. It paints with teletext's own rules. These stories build their art in code (`stories/_mosaic.js`), so the controls can change it." | "Don't type them by hand: generate them from pixel art. These stories do it in code (`stories/_mosaic.js`), so the controls can change the art. A mosaic editor of the project's own, after the [zxnet teletext editor](https://zxnet.co.uk/teletext/editor/), is planned."                                                                                                                    |
-| 3   | [`stories/_mosaic.js`](../../stories/_mosaic.js) lines 1–3                           | "Builds mosaic markup for the stories from pixel art … Consumers draw in the zxnet editor instead and paste the characters (README → Mosaic); this is the same formula in code."                                         | "Builds mosaic markup for the stories from pixel art, so their controls can change it. Art is rows of pixels ('#' on); every 2×3 pixels become one cell, by the README's formula (README → Mosaic). The lessons' `kit.js` mirrors `cell()`." Once the shared module exists, this file keeps only the story content (`ART`, `FONT`, `rule`, `lettering`, `logo`) and imports `cell`/`toMosaic`. |
-| 4   | [`stories/_mosaic.js`](../../stories/_mosaic.js) lines 41–42                         | "… with a two-band ring in front of it and behind it. Computed once and pasted, as you'd paste from the zxnet editor."                                                                                                   | "… with a two-band ring in front of it and behind it. The rows were computed once by a script and kept as data."                                                                                                                                                                                                                                                                               |
-| 5   | [ADR-0021](../adr/0021-text-mosaics-replace-pixel-canvas.md) line 1 (title)          | "…, and art is drawn in the zxnet editor"                                                                                                                                                                                | Keep the title (ADRs are history). Add a banner under it, as ADR-0004 has: "> **Authoring amended by ADR-NNNN.** Art is not drawn in the zxnet editor: it's generated from pixel art, and the project will have its own mosaic editor. zxnet's editor is that editor's reference."                                                                                                             |
-| 6   | ADR-0021 lines 20–21 (Decision)                                                      | "Art is authored in the zxnet teletext editor, not in a format of the library's own."                                                                                                                                    | Unchanged under the banner. If you'd rather edit in place: "Art is generated from pixel art; the zxnet teletext editor is a reference for a future editor of the project's own (ADR-NNNN)."                                                                                                                                                                                                    |
-| 7   | ADR-0021 lines 33–34 (Consequences)                                                  | "Supersedes ADR-0004 and ADR-0011, including ADR-0004's planned 'paint it yourself' editor and PNG export: the zxnet editor replaces both."                                                                              | Covered by the banner. The new ADR says ADR-0004's planned editor comes back as the mosaic editor, on text mosaics instead of a canvas.                                                                                                                                                                                                                                                        |
-| 8   | ADR-0021 line 40 (Consequences)                                                      | "Authoring and PNG export come from the zxnet editor; the library ships neither."                                                                                                                                        | Covered by the banner. The new ADR replaces it with: "Authoring comes from the project's mosaic editor, a published tool page; the npm package ships the conversion module, not the editor. PNG export is undecided."                                                                                                                                                                          |
-| 9   | [`docs/adr/README.md`](../adr/README.md) line 31 (index)                             | "0021 — Text mosaics replace the pixel canvas, and art is drawn in the zxnet editor"                                                                                                                                     | Append "(authoring amended by NNNN)", as the index marks superseded ADRs, and add the new ADR's own line.                                                                                                                                                                                                                                                                                      |
-| 10  | [ADR-0004](../adr/0004-cf-canvas-pixel-art.md) lines 3–4 (banner)                    | "Its planned editor and PNG export are replaced by the zxnet teletext editor."                                                                                                                                           | "Its planned editor returns as the project's own mosaic editor (ADR-NNNN), drawing text mosaics, not canvas pixels."                                                                                                                                                                                                                                                                           |
-
-Lines checked and left alone:
-
-- `src/tokens/typography.css:42` ("art pasted from ZVBI-based tools") is about Bedstead's private-use copy,
-  not the zxnet workflow.
-- [`docs/reference/zxnet-teletext.md`](zxnet-teletext.md), rows 18 and 35, describes zxnet as reference
-  material, which is still true. Optionally add "the reference for the planned mosaic editor" to row 18's
-  "Useful for ceefax-ui" column.
-- [`CONTEXT.md`](../../CONTEXT.md) doesn't mention zxnet. When the editor lands, add a **Mosaic editor**
-  term. Suggested _Avoid_ list: "canvas editor" and "drawing tool".
-- The lessons (`docs/learn-mosaics/`, uncommitted) already describe the plan. Lesson 5 says the docs'
-  zxnet wording "predates the plan".
+**Docs.** The zxnet "draw and paste" wording is gone from the README, the Mosaic docs page,
+`stories/_mosaic.js`, `typography.css`, ADR-0021 (its title, decision and consequences), its index entry
+and ADR-0004's banner. zxnet appears only as the reference for the future editor (ADR-0021 and
+[`zxnet-teletext.md`](zxnet-teletext.md)). Its editor couldn't have been the workflow anyway: its exports
+(TTI, EP1, TTX, BIN, BBC, T42, PNG, GIF, edit.tf, viewdata) and clipboard copy are teletext bytes, not
+Unicode ([`editor.js`](https://zxnet.co.uk/teletext/editor/editor.js), fetched 2026-11-03).
 
 ## 4. Existing libraries, re-checked as an editor core
 
@@ -177,7 +174,7 @@ share one implementation?
 | Package bytes | 0                                                       | ≈ 460 B brotli minified, ≈ 560 B as shipped source (sketch with `cell`, `bitsOf`, `toMosaic`, `fromMosaic`). `./css` stays 0 bytes of JS.                                                                                           | 1.75–13.5 kB brotli           |
 | ADR-0001      | Fine                                                    | A pure, side-effect-free function module is a new kind of opt-in JS export. ADR-0001 left "logic-bearing" JS to a future ADR, and this is that ADR. Not in the `./elements` barrel: that barrel registers elements (`sideEffects`). | A JS runtime dependency       |
 | ADR-0015      | n/a                                                     | New entry point, new budget line in `scripts/size.mjs` (1000 B leaves room)                                                                                                                                                         | Budget for a dependency       |
-| ADR-0021      | Contradicted by the editor plan anyway                  | Amend "the library ships no authoring". The conversion module is a primitive, not an editor. The editor is a tool page, so the package still ships no authoring UI.                                                                 | Same, plus licence            |
+| ADR-0021      | Fine                                                    | Fine: the conversion module is a primitive, not an authoring tool, and the editor stays outside the package.                                                                                                                        | Same, plus licence            |
 | Licence       | MIT                                                     | MIT                                                                                                                                                                                                                                 | GPL / AGPL / CC BY: ruled out |
 
 **Recommendation: (b).** One module, used by everything:
@@ -197,7 +194,7 @@ share one implementation?
   - zxnet or edit.tf hash import, if it's ever wanted.
 
   It saves `cf-mosaic` markup itself, so there's still no format of the library's own, and `fromMosaic` can
-  reopen any pasted mosaic. If consumers later want to embed editing in their own apps, promote it to an
+  reopen any existing mosaic. If consumers later want to embed editing in their own apps, promote it to an
   opt-in element under `./elements` then, with its own budget.
 
 - **Lessons:** `kit.js` keeps its copy while the lessons must open from `file://`. If they're published
@@ -211,11 +208,10 @@ share one implementation?
 > conversion (sum ↔ U+1FB00/U+1CE51 character, pixel rows ↔ mosaic text, contiguous and separated) lives
 > in one pure ES module, published as the opt-in `./mosaic` export with a brotli budget (ADR-0015). It's the
 > first JS export that isn't a Web Component, which settles the question ADR-0001 left open for
-> side-effect-free helpers. The CSS entry points stay JS-free. Art is authored in a mosaic editor of the
-> project's own, modelled on the zxnet teletext editor and published as a tool page, not in the npm package.
-> It imports the module and saves `cf-mosaic` markup. This amends ADR-0021: art is not drawn in the zxnet
-> editor (whose exports are teletext bytes, not Unicode), and "the library ships no authoring" now means it
-> ships no authoring UI. ADR-0004's planned editor returns, drawing text mosaics, not canvas pixels.
+> side-effect-free helpers. The CSS entry points stay JS-free. Art will be authored in a live mosaic editor, a
+> future project, modelled on the zxnet teletext editor, not in the npm package. It imports the module and
+> saves `cf-mosaic` markup. ADR-0021's "the library ships no authoring tool" stays true of the package.
+> ADR-0004's planned editor returns, drawing text mosaics, not canvas pixels.
 > Considered: keeping the formula in the stories (three copies once the editor exists); building on an
 > existing teletext editor or library (GPL, AGPL, CC BY or no licence, a byte model where colour changes
 > take up cells, and no separated sextants at U+1CE51); shipping the editor as an element from the start
@@ -223,11 +219,10 @@ share one implementation?
 
 ## Follow-ups (not done here)
 
-1. **Reword the docs in §3.** Rows 1–4 can land now, without the editor. Rows 5–10 land with the ADR.
-2. **Extract the module and the `./mosaic` export.** That means moving `cell`/`toMosaic` out of the stories,
+1. **Extract the module and the `./mosaic` export.** That means moving `cell`/`toMosaic` out of the stories,
    adding `bitsOf`/`fromMosaic`, adding the budget line, and adding the round-trip check. This is the first
    slice of the editor work and can ship before the editor does.
-3. **Spec the editor.** It needs answers on:
+2. **Spec the editor.** It needs answers on:
    - what it enforces: two colours per cell, contiguous/separated per cell or per run;
    - where it's published;
    - whether it imports zxnet or edit.tf pages;

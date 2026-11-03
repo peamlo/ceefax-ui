@@ -1,7 +1,7 @@
 # ADR-0004: `<cf-canvas>` — canvas pixel-art element and its char-grid source
 
-> **Superseded by [ADR-0021](0021-text-mosaics-replace-pixel-canvas.md).** Its planned editor and PNG export are
-> replaced by the zxnet teletext editor.
+> **Superseded by [ADR-0021](0021-text-mosaics-replace-pixel-canvas.md).** Its planned editor becomes a separate,
+> future live mosaic editor that draws text mosaics; PNG export is dropped.
 
 ## Context
 
