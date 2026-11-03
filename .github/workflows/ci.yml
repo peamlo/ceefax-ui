@@ -20,10 +20,10 @@ on:
 permissions:
   contents: read
 
-# A newer push to the PR supersedes its in-flight runs (issue #158). Pushes
-# to main share the ref group but never cancel, so every main run finishes.
+# A newer push to the PR cancels its in-flight runs (issue #158). Pushes to
+# main get a group of their own (the run id), so no main run is ever dropped.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
