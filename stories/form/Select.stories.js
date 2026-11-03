@@ -18,7 +18,7 @@ import {
 
 // cf-select (#130): a single <select> with a drawn ▼ in the field's own colour; the open list
 // takes the field's look where base-select is supported, and is the browser's own elsewhere.
-const render = ({ label, labelVisible, options, width, required, disabled, hint, error, button }) =>
+const render = ({ label, labelVisible, options, size, required, disabled, hint, error, button }) =>
   field({ label, labelVisible, hint, error }, (id, describedBy) =>
     withButton(
       `<select${attrs({
@@ -30,7 +30,8 @@ const render = ({ label, labelVisible, options, width, required, disabled, hint,
         'aria-label': !labelVisible && label,
         'aria-invalid': !!error && 'true',
         'aria-describedby': describedBy,
-        style: width && `inline-size: ${width}ch`,
+        // As wide as an input of the same size. Not the native size: a select's is a row count.
+        style: size && `inline-size: ${size + 2}ch`,
       })}>${options.map((o) => `<option>${o}</option>`).join('')}</select>`,
       button,
     ),
@@ -47,10 +48,10 @@ export default {
       description: 'Off: no `<label>`; the control is named with `aria-label` instead',
     },
     options: { control: 'object', description: 'The option texts' },
-    width: {
+    size: {
       control: { type: 'number', min: 5 },
       description:
-        'Width in characters, its padding and ▼ (four) included: `inline-size` in `ch`, as a select has no `size` for it. Empty: 22, as wide as a default `cf-input`',
+        "Width in characters, as an input's `size`: as wide as a `cf-input` of the same size, the ▼ taking two of them. Set as `inline-size: <size + 2>ch`, since a select's own `size` is a row count. Empty: 20, a default input",
     },
     required: { control: 'boolean' },
     disabled: { control: 'boolean' },
