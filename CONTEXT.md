@@ -69,7 +69,7 @@ The component for something the reader mustn't miss (`cf-notice`): a thick-borde
 _Avoid_: toast, banner, callout, live region
 
 **Stat**:
-A headline figure (`cf-stat`): a large **value** (`cf-stat__value`) in the display typeface, accent by default or any `data-variant` colour, above a small **label** (`cf-stat__label`) that says what it means. Not a heading. At most three equally weighted per screen; more figures belong in a table.
+A headline figure (`cf-stat`): a double-height **value** (`cf-stat__value`) in the display typeface, accent by default or any `data-variant` colour, optionally on a `data-band`, above a **label** (`cf-stat__label`) that says what it means. Not a heading. At most three equally weighted per screen; more figures belong in a table.
 _Avoid_: KPI, metric, counter, big number
 
 **Header row**:
