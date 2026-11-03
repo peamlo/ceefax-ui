@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.6.0](https://github.com/peamlo/ceefax-ui/compare/v0.5.1...v0.6.0) (2026-11-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* **components:** <cf-canvas>, its ./elements/cf-canvas export, parseCharGrid and src/tokens/palette.js are removed. Draw pictures as cf-mosaic text, in the zxnet teletext editor (ADR-0020).
+
+### Features
+
+* **components:** add cf-mosaic text mosaics and remove cf-canvas ([#137](https://github.com/peamlo/ceefax-ui/issues/137)) ([66077e7](https://github.com/peamlo/ceefax-ui/commit/66077e7a443e4e7e8d6dbf468f3f36d36818b818))
+* **components:** add cf-stat headline figure ([#161](https://github.com/peamlo/ceefax-ui/issues/161)) ([cf34b67](https://github.com/peamlo/ceefax-ui/commit/cf34b67487316a7b49b0e93445448c1e4246cc1b))
+* **components:** add form controls and cf-field ([#138](https://github.com/peamlo/ceefax-ui/issues/138)) ([ad51692](https://github.com/peamlo/ceefax-ui/commit/ad5169274f57bd27e2b44d56c43d69aa38c7b683))
+* **components:** draw the number spinner and search clear button ([#154](https://github.com/peamlo/ceefax-ui/issues/154)) ([a4576a2](https://github.com/peamlo/ceefax-ui/commit/a4576a2840b5bb5ed7f663814ec1d02872c129a8))
+* **components:** style the open select list with base-select ([#153](https://github.com/peamlo/ceefax-ui/issues/153)) ([cb8e12b](https://github.com/peamlo/ceefax-ui/commit/cb8e12bf897399edd9480307402a79de883b011d))
+
+
+### Bug Fixes
+
+* **layout:** give the Screen frame side padding below 40em ([#152](https://github.com/peamlo/ceefax-ui/issues/152)) ([e2c5c28](https://github.com/peamlo/ceefax-ui/commit/e2c5c28e6456501acaeb57ec799319ebd243229f))
+
 ## [0.5.1](https://github.com/peamlo/ceefax-ui/compare/v0.5.0...v0.5.1) (2026-10-31)
 
 
