@@ -1,0 +1,38 @@
+/* Stat — a headline figure read before the text around it: the value in the display face, in
+   the accent colour, then a label that says what it means, so colour is never the only cue.
+   Any data-variant follows the variant seam (base.css). Not a heading: no outline entry.
+   Every rule is wrapped in :where(), so consumer CSS wins without !important (ADR-0018). */
+:where(.cf-stat) {
+  --_tone: var(--cf-accent);
+  display: block;
+  margin: 0;
+  font-family: var(--cf-font-mono);
+}
+:where(.cf-stat[data-variant]) {
+  --_tone: var(--_variant, var(--cf-accent));
+}
+:where(.cf-stat__value) {
+  display: block;
+  font-family: var(--cf-font-display);
+  font-weight: var(--cf-weight-regular);
+  /* Shrinks on a phone, so a short figure fits a half-width column; a longer one still wraps
+     in its column rather than scrolling the page.
+     ponytail: sized by the viewport, not the column, so a narrow column on a wide screen wraps.
+     Size by the column (a container) once a stat in a cf-cluster no longer collapses with it. */
+  font-size: min(var(--cf-text-display-xl), 10vw);
+  line-height: var(--cf-leading-tight);
+  color: var(--_tone);
+  overflow-wrap: anywhere;
+}
+:where(.cf-stat__label) {
+  display: block;
+  font-size: var(--cf-text-small);
+  color: var(--cf-fg-dim);
+}
+/* The Screen frame is the authentic mode (ADR-0014): the value is teletext double height, two
+   cells, on the grid (display-xl is 4.5). Only where the frame applies; the breakpoint is page.css's literal. */
+@media (min-width: 40em) {
+  :where(.cf-page[data-frame] .cf-stat__value) {
+    font-size: var(--cf-text-heading);
+  }
+}

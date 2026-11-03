@@ -77,6 +77,7 @@ real form, a holiday enquiry.
 | `cf-card`                                                                                 | any block                                                                  | `variant` red/green/yellow/blue/cyan/magenta                                                                                                                                                               | —                                                                                                                |
 | `cf-fastext` / `cf-fastext__key`                                                          | `<ul>` / `<a>`                                                             | `variant` (text colour) · `band` (filled key, ADR-0017); 1–4 keys in equal columns                                                                                                                         | `:focus-visible`                                                                                                 |
 | `cf-notice` / `cf-notice__flag`                                                           | block + `role="note"` / `<strong>`                                         | `variant` red (default, danger)/yellow (warning)/green (success)/blue/cyan/magenta · `blink="off"`                                                                                                         | flash (reduced-motion aware)                                                                                     |
+| `cf-stat` / `cf-stat__value` / `cf-stat__label`                                           | `<p>` or `<div>` / `<span>` / `<span>`                                     | `variant` red/green/yellow/blue/cyan/magenta (accent by default)                                                                                                                                           | —                                                                                                                |
 | `cf-header-row` / `cf-header-row__page` / `__service` / `__rolling` / `__time` / `__date` | `<header>` / `<span>` ×3 / `<time datetime>` / `<span>` in the `<time>`    | `variant` on any part (text colour) · `band` on any part (background; `variant` is then the ink)                                                                                                           | —                                                                                                                |
 | `cf-table` / `cf-table__scroll`                                                           | `<table>` / `<div role="region">`                                          | `stripe-rows` / `stripe-cols` text/band · `variant` / `band` on any part · `align="end"` / `leader` on a cell · `side="bottom"` on the caption                                                             | `[aria-current="true"]` on a row                                                                                 |
 | `cf-field` / `cf-field__hint` / `cf-field__error`                                         | block with `<label>` + control / `<p>` / `<p>`                             | —                                                                                                                                                                                                          | —                                                                                                                |
@@ -100,6 +101,27 @@ For something the reader mustn't miss: a thick border and a short capitalised fl
 - **`role="note"`, not `role="alert"`:** a static notice shouldn't interrupt a screen reader on page load.
 - **Repeat the flag in the body.** The flag is one terse word; the body must carry its meaning too, so neither the colour nor the flash is the only cue.
 - **One flashing notice per screen.** Put `data-blink="off"` on the others. The flash is always off under `prefers-reduced-motion: reduce`.
+
+### Stat (`cf-stat`)
+
+A headline figure, read before the text around it: the value large in the display typeface, in the accent colour, then a small label that says what it means. `data-variant` picks another colour from the same six names the card and button take. The label is required, so the colour is never the only cue. Write the figure already formatted; the stat doesn't format numbers.
+
+```html
+<div class="cf-grid" data-cols="3">
+  <p class="cf-stat"><span class="cf-stat__value">€75,000</span> <span class="cf-stat__label">to allocate</span></p>
+  <p class="cf-stat" data-variant="green">
+    <span class="cf-stat__value">€90,000</span> <span class="cf-stat__label">deposit and costs</span>
+  </p>
+  <p class="cf-stat" data-variant="cyan">
+    <span class="cf-stat__value">≈23 months</span> <span class="cf-stat__label">to get there</span>
+  </p>
+</div>
+```
+
+- **Value first, then the label,** in one neutral block, so a screen reader hears "€75,000 to allocate". It isn't a heading; if the stat really is the section title, wrap it in one.
+- **No more than three equally weighted stats per screen.** Lay them out with `cf-grid` or `cf-cluster`; for a long list of figures, use a [table](#table-cf-table).
+- **In the Screen frame** the value is teletext double height (two cells) and the label is the frame's authentic green.
+- **A long figure wraps** in its column rather than scrolling the page. Authentic blue text is hard to read on black (about 2.4:1); the Accessible theme lifts it.
 
 ### Header row (`cf-header-row`)
 
