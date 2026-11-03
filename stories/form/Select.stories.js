@@ -1,5 +1,6 @@
 import { expect, within } from 'storybook/test';
 import {
+  ACCENT,
   assertDisabled,
   assertError,
   assertInvalidLook,
@@ -16,8 +17,8 @@ import {
 } from './_form.js';
 
 // cf-select (#130): a single <select> with a drawn ▼ in the field's own colour; the open list
-// stays the browser's own picker.
-const render = ({ label, labelVisible, options, required, disabled, hint, error, button }) =>
+// takes the field's look where base-select is supported, and is the browser's own elsewhere.
+const render = ({ label, labelVisible, options, size, required, disabled, hint, error, button }) =>
   field({ label, labelVisible, hint, error }, (id, describedBy) =>
     withButton(
       `<select${attrs({
@@ -29,6 +30,8 @@ const render = ({ label, labelVisible, options, required, disabled, hint, error,
         'aria-label': !labelVisible && label,
         'aria-invalid': !!error && 'true',
         'aria-describedby': describedBy,
+        // As wide as an input of the same size. Not the native size: a select's is a row count.
+        style: size && `inline-size: ${size + 2}ch`,
       })}>${options.map((o) => `<option>${o}</option>`).join('')}</select>`,
       button,
     ),
@@ -45,6 +48,11 @@ export default {
       description: 'Off: no `<label>`; the control is named with `aria-label` instead',
     },
     options: { control: 'object', description: 'The option texts' },
+    size: {
+      control: { type: 'number', min: 5 },
+      description:
+        "Width in characters, as an input's `size`: as wide as a `cf-input` of the same size, the ▼ taking two of them. Set as `inline-size: <size + 2>ch`, since a select's own `size` is a row count. Empty: 20, a default input",
+    },
     required: { control: 'boolean' },
     disabled: { control: 'boolean' },
     hint: { control: 'text', description: 'A `cf-field__hint`, linked with `aria-describedby`' },
@@ -73,7 +81,7 @@ export const Default = {
     await assertMarkupContract(canvasElement);
     const control = within(canvasElement).getByRole('combobox', { name: 'Region' });
     await assertTextLook(control);
-    await expect(style(control).appearance).toBe('none'); // no operating-system arrow
+    await expect(style(control).appearance).not.toBe('auto'); // no operating-system arrow
     // The ▼: two triangle halves in the field's own text colour.
     const arrow = style(control).backgroundImage;
     await expect(arrow.match(/linear-gradient\(/g)?.length).toBe(2);
@@ -109,5 +117,37 @@ export const WithButton = {
     await assertMarkupContract(canvasElement);
     const go = within(canvasElement).getByRole('button', { name: 'Go' });
     await expect(Math.abs(box(select(canvasElement)).height - box(go).height)).toBeLessThan(0.5);
+  },
+};
+
+// Where the browser supports base-select (#140), the open list takes the field's look: its
+// border, the page background and type, and a ► on the chosen option. Elsewhere it stays the
+// browser's own. Opening it needs a real click, so the test runner opens it and runs axe on it.
+// The select is as wide as a default cf-input whatever is chosen, and the list as wide as the
+// select: the last option is cut short in the select and wraps in the list.
+export const OpenList = {
+  name: 'Open list',
+  args: { options: ['London', 'Scotland', 'Wales', 'Northern Ireland', 'Channel Islands and the Isle of Man'] },
+  play: async ({ canvasElement }) => {
+    const control = select(canvasElement);
+    const width = box(control).width;
+    control.selectedIndex = control.options.length - 1;
+    await expect(box(control).width).toBe(width);
+    control.selectedIndex = 0;
+    if (!CSS.supports('appearance', 'base-select')) {
+      await expect(style(control).appearance).toBe('none');
+      return;
+    }
+    await expect(style(control).appearance).toBe('base-select');
+    await expect(style(control).alignItems).toBe('center'); // the closed text stays centred
+    await expect(style(control, '::picker-icon').display).toBe('none'); // the drawn ▼ stays
+    const picker = style(control, '::picker(select)');
+    await expect(picker.appearance).toBe('base-select');
+    await expect(picker.borderTopColor).toBe(WHITE);
+    await expect(picker.backgroundColor).toBe(BLACK);
+    await expect(picker.fontFamily).toBe(style(control).fontFamily);
+    const checkmark = style(control.options[0], '::checkmark');
+    await expect(checkmark.content).toBe('"►"');
+    await expect(checkmark.color).toBe(ACCENT);
   },
 };

@@ -331,16 +331,35 @@ async function assertDisabledForced(page, sel) {
   expect(opacity).toBe('0.4');
 }
 
-// Forced colours drop the drawn ▼ (a gradient background), so the select falls back to the
-// system's own arrow.
+// Forced colours would drop the drawn ▼ (a gradient background), so the select is the system's
+// own, arrow and list, base-select or not.
 async function assertSelectForced(page) {
-  const { backgroundImage, appearance } = await underForcedColours(page, () =>
-    page.evaluate(() => {
-      const cs = getComputedStyle(document.querySelector('select'));
-      return { backgroundImage: cs.backgroundImage, appearance: cs.appearance };
-    }),
+  const appearance = await underForcedColours(page, () =>
+    page.evaluate(() => getComputedStyle(document.querySelector('select')).appearance),
   );
-  expect(backgroundImage.includes('gradient') || appearance !== 'none').toBe(true);
+  expect(appearance).toBe('auto');
+}
+
+// Contract (#140): a real click opens the list, and the arrow keys move the inversion, natively.
+// Leaves the list open on the second option, so axe audits it in both themes.
+async function assertSelectOpen(page) {
+  // The runner's Chromium supports base-select: fail rather than skip if it ever doesn't.
+  expect(await page.evaluate(() => CSS.supports('appearance', 'base-select'))).toBe(true);
+  await page.click('select');
+  await page.keyboard.press('ArrowDown');
+  expect(
+    await page.evaluate(() => [
+      document.querySelector('select').matches(':open'),
+      document.activeElement.textContent,
+      getComputedStyle(document.activeElement).backgroundColor,
+    ]),
+  ).toEqual([true, 'Scotland', ACCENT]);
+  // The list is exactly as wide as the select, not its longest option.
+  const [list, field] = await page.evaluate(() => {
+    const select = document.querySelector('select');
+    return [parseFloat(getComputedStyle(select, '::picker(select)').inlineSize), select.offsetWidth];
+  });
+  expect(Math.abs(list - field)).toBeLessThan(1);
 }
 
 // Contract (#139): the number spinner and the search clear button are the browser's own parts,
@@ -470,6 +489,7 @@ export default {
     if (title === 'Components/Form/Input' && name === 'Disabled') await assertDisabledForced(page, 'input');
     if (title === 'Components/Form/Input' && ['Number', 'Search'].includes(name)) await assertDrawnMark(page, name);
     if (title === 'Components/Form/Select' && name === 'Default') await assertSelectForced(page);
+    if (title === 'Components/Form/Select' && name === 'Open list') await assertSelectOpen(page);
     if (title === 'Components/Form/Checkbox' && ['Unchecked', 'Character', 'Disabled'].includes(name))
       await assertCheckboxInput(page, name);
     if (title === 'Components/Form/Radio' && name === 'Group') await assertRadioKeys(page);

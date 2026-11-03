@@ -117,9 +117,12 @@
   color: var(--cf-fg-dim);
   opacity: 1;
 }
-/* A drawn ▼ in the field's own colour, in the middle of three cells at the end; the open list
-   stays the browser's own. */
+/* A drawn ▼ in the field's own colour, in the middle of three cells at the end. As wide as a
+   default cf-input (20 characters and its two padding cells), whatever the options: under
+   base-select the browser would size it to the chosen one, so it would change width with the
+   choice. */
 :where(.cf-select) {
+  inline-size: 22ch;
   padding-inline-end: calc(3ch - var(--_bw));
   background-image:
     linear-gradient(to bottom left, currentcolor 50%, transparent 50%),
@@ -132,15 +135,66 @@
   background-repeat: no-repeat;
   cursor: pointer;
 }
-/* Forced colours drop a gradient background, and the ▼ with it: the system draws its own. */
+:where(.cf-select option) {
+  background-color: var(--cf-bg);
+  color: var(--cf-fg);
+}
+/* The open list in the field's own look where the browser lets CSS draw it (base-select, #140):
+   the field's border, the page background, a ► on the chosen option and the inversion on the
+   hovered or focused one. Elsewhere it stays the browser's own. Keyboard and screen readers are
+   the browser's either way. */
+@supports (appearance: base-select) {
+  :where(.cf-select),
+  :where(.cf-select)::picker(select) {
+    appearance: base-select;
+  }
+  /* base-select makes the select a flex box, with its text at the top unless centred, and lets
+     a long choice wrap and run under the ▼: one line, cut at the content edge, as natively. */
+  :where(.cf-select) {
+    align-items: center;
+    overflow: clip;
+    overflow-clip-margin: content-box;
+    white-space: nowrap;
+  }
+  :where(.cf-select)::picker-icon {
+    display: none; /* the drawn ▼ stays */
+  }
+  /* Exactly the select's width, not its longest option's. */
+  :where(.cf-select)::picker(select) {
+    inline-size: anchor-size(self-inline);
+    margin-block-start: var(--cf-border-thin);
+    padding: 0;
+    border: var(--cf-border-thin) solid var(--cf-fg);
+    border-radius: var(--cf-radius);
+    background: var(--cf-bg);
+    color: var(--cf-fg);
+    /* The field's type, or the list renders smaller and shows a native scrollbar. */
+    font: var(--cf-text-body) / var(--cf-leading-normal) var(--cf-font-mono);
+  }
+  /* A long option wraps in the list, which is only as wide as the select. */
+  :where(.cf-select option) {
+    padding: 0.2em 1ch;
+    white-space: normal;
+  }
+  :where(.cf-select option)::checkmark {
+    content: '►';
+    color: var(--cf-accent);
+  }
+  :where(.cf-select option:is(:hover, :focus-visible)) {
+    background: var(--cf-accent);
+    color: var(--cf-on-variant);
+    outline: 0;
+  }
+  :where(.cf-select option:is(:hover, :focus-visible))::checkmark {
+    color: inherit;
+  }
+}
+/* Forced colours drop a gradient background, and the ▼ with it: the system draws its own, and
+   the list is the system's too. After base-select, so it wins on order. */
 @media (forced-colors: active) {
   :where(.cf-select) {
     appearance: auto;
   }
-}
-:where(.cf-select option) {
-  background-color: var(--cf-bg);
-  color: var(--cf-fg);
 }
 /* Checkbox and radio: a square and a circle two characters across (two cells in the Screen
    frame), outlined in the foreground colour. On, the border becomes a double border filling the

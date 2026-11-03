@@ -268,8 +268,8 @@ export const InScreenFrame = {
       await expectCells(box(name).width, 20 + 2, cell);
       await expectCells(box(page.querySelector('#f-postcode')).width, 8 + 2, cell);
       await expectCells(box(page.querySelector('textarea')).width, 30 + 2, cell);
-      // The select: its longest option, one cell before it, three after (the ▼ in the middle one).
-      await expectCells(box(page.querySelector('select')).width, 'London'.length + 4, cell);
+      // The select: as wide as a default input, whatever its options.
+      await expectCells(box(page.querySelector('select')).width, 20 + 2, cell);
       // A checkbox or radio is two cells across (a character-variant glyph three), and its text
       // starts one cell after it.
       for (const label of page.querySelectorAll('label:has(.cf-checkbox, .cf-radio), legend')) {
