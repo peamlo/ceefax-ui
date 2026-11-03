@@ -59,6 +59,7 @@ export default {
             'Button',
             'Link',
             'Card',
+            'Stat',
             'Fastext bar',
             'Header row',
             'Table',

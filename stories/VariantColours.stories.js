@@ -87,6 +87,13 @@ const COMPONENTS = {
     base: (p) => ({ borderTopColor: p.red[0], borderTopWidth: '4px' }),
     paint: (colour) => ({ borderTopColor: colour }),
   },
+  // The stat's figure inherits the colour; the default is the accent, yellow in every theme.
+  stat: {
+    tag: 'p',
+    className: 'cf-stat',
+    base: { color: YELLOW },
+    paint: (colour) => ({ color: colour }),
+  },
 };
 
 // The computed values a consumer sees for one pair under one palette.
@@ -109,6 +116,7 @@ const NESTED = [
   ['btn', ''],
   ['btn', 'ghost'],
   ['card', ''],
+  ['stat', ''],
 ];
 
 const build = ([kind, variant], i) => {

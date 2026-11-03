@@ -1,0 +1,37 @@
+/* Stat — a headline figure read before the text around it: the value in the display face, in
+   the accent colour, then a label that says what it means, so colour is never the only cue.
+   Any data-variant follows the variant seam (base.css). Not a heading: no outline entry.
+   The value is teletext double height, twice the label, which the Screen frame puts on two
+   cells and one (ADR-0014). Every rule is wrapped in :where(), so consumer CSS wins without
+   !important (ADR-0018). */
+:where(.cf-stat) {
+  display: block;
+  color: var(--cf-accent);
+  font-size: var(--cf-text-body);
+}
+:where(.cf-stat[data-variant]) {
+  color: var(--_variant, var(--cf-accent));
+}
+/* A band (ADR-0017) sits behind the whole stat; data-variant beside it is the ink of both
+   parts. A typo band stays unbanded and keeps the label dim. */
+:where(.cf-stat[data-band]) {
+  padding-inline: var(--cf-space-1);
+  background: var(--_band, transparent);
+  color: var(--_band-ink, var(--_variant, var(--cf-accent)));
+}
+:where(.cf-stat__value) {
+  display: block;
+  font-family: var(--cf-font-display);
+  font-weight: var(--cf-weight-regular);
+  font-size: var(--cf-text-heading);
+  line-height: var(--cf-leading-tight);
+  overflow-wrap: anywhere; /* a long figure wraps in its column, never scrolls the page */
+}
+:where(.cf-stat__label) {
+  display: block;
+  font-family: var(--cf-font-mono);
+  color: var(--cf-fg-dim);
+}
+:where(.cf-stat[data-band] .cf-stat__label) {
+  color: var(--_band-ink, var(--cf-fg-dim));
+}
