@@ -113,22 +113,19 @@ async function underForcedColours(page, read) {
 }
 
 // Contract (#149): under forced colours the Inversion is gone (the system replaces every colour),
-// so a real Tab onto a link or fastext key must still show a ring: the transparent outline, which
-// the system paints. Leaves forced colours off and nothing focused, so axe audits the resting look.
-const outlineOf = (sel) => {
-  const cs = getComputedStyle(document.querySelector(sel));
-  return { style: cs.outlineStyle, width: cs.outlineWidth, color: cs.outlineColor };
-};
+// so a real Tab onto a link or fastext key must still show a ring: an outline, transparent as
+// rendered and painted in a system colour when forced. Leaves forced colours off and nothing
+// focused, so axe audits the resting look.
 async function assertForcedFocusRing(page, sel) {
-  const [rest, focused] = await underForcedColours(page, async () => {
-    const before = await page.evaluate(outlineOf, sel);
-    await page.keyboard.press('Tab');
-    return [before, await page.evaluate(outlineOf, sel)];
-  });
+  const outline = async () => (await page.evaluate(controlLook, sel)).outline;
+  const rest = await underForcedColours(page, outline);
+  await page.keyboard.press('Tab');
+  expect(await outline()).toBe('solid 2px rgba(0, 0, 0, 0)');
+  const focused = await underForcedColours(page, outline);
   await page.evaluate(() => document.activeElement.blur());
-  expect(rest.style).toBe('none');
-  expect(focused).toMatchObject({ style: 'solid', width: '2px' });
-  expect(focused.color).not.toBe('rgba(0, 0, 0, 0)');
+  expect(rest).toMatch(/^none/);
+  expect(focused).toMatch(/^solid 2px /);
+  expect(focused).not.toMatch(/rgba\(0, 0, 0, 0\)$/);
 }
 
 // Contract (#76): the CRT look renders neither scanlines nor glow under forced colours or the

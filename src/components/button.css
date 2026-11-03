@@ -41,7 +41,7 @@
   --_fg: var(--cf-link);
   --_bd: transparent;
 }
-/* inversion on hover + keyboard focus */
+/* inversion on hover + keyboard focus; the transparent outline is the ring forced colours paint */
 .cf-btn:hover,
 .cf-btn:focus-visible {
   background: var(--_fg);

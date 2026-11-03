@@ -40,7 +40,8 @@
   color: var(--_band-ink, var(--_variant, var(--cf-fg)));
 }
 /* Inversion: a text key fills with its colour in its ink; a banded key drops to the page
-   with its text in the band colour. Same specificity as the rules above, so these follow. */
+   with its text in the band colour. Same specificity as the rules above, so these follow.
+   The transparent outline is the ring forced colours paint, on hover as on focus. */
 .cf-fastext__key:hover,
 .cf-fastext__key:focus-visible {
   outline: var(--cf-border-thin) solid transparent;

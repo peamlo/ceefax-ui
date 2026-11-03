@@ -1,5 +1,6 @@
 /* Link — one class. Current page via [aria-current="page"] (persistent caret).
-   Focus = instant inversion. Nav style via [data-variant="nav"]. */
+   Focus = instant inversion, plus a transparent outline forced colours paint as the ring.
+   Nav style via [data-variant="nav"]. */
 .cf-link {
   font-family: var(--cf-font-mono);
   color: var(--cf-link);
