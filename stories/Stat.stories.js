@@ -11,18 +11,14 @@ const stat = ({ value, label, variant }) => {
   return el;
 };
 
-// Contract: the label is there and read after the value, and the value is in `colour`.
-const assertStat = async (el, colour) => {
+// Contract: the label is there and read after the value. The variant colours are pinned
+// by Foundations/Variant colours.
+const assertOrder = async (el) => {
   const value = el.querySelector('.cf-stat__value');
   const label = el.querySelector('.cf-stat__label');
   await expect(label.textContent.trim()).not.toBe('');
   await expect(value.compareDocumentPosition(label) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-  await expect(getComputedStyle(value).color).toBe(colour);
 };
-const playStat =
-  (colour) =>
-  ({ canvasElement }) =>
-    assertStat(canvasElement.querySelector('.cf-stat'), colour);
 
 export default {
   title: 'Components/Stat',
@@ -36,36 +32,27 @@ export default {
   args: { variant: '', value: '€75,000', label: 'to allocate' },
 };
 
-export const Default = { play: playStat('rgb(255, 255, 0)') }; // --cf-accent, no attribute
-export const Red = {
-  args: { variant: 'red', value: '−€5,000', label: 'short of the deposit' },
-  play: playStat('rgb(255, 0, 0)'),
+export const Default = {
+  play: async ({ canvasElement }) => {
+    const el = canvasElement.querySelector('.cf-stat');
+    await assertOrder(el);
+    await expect(getComputedStyle(el.querySelector('.cf-stat__value')).color).toBe('rgb(255, 255, 0)'); // --cf-accent, no attribute
+  },
 };
-export const Green = {
-  args: { variant: 'green', value: '€90,000', label: 'deposit and costs' },
-  play: playStat('rgb(0, 255, 0)'),
-};
-export const Yellow = {
-  args: { variant: 'yellow', value: '+€1,000', label: 'every month' },
-  play: playStat('rgb(255, 255, 0)'),
-};
-export const Magenta = {
-  args: { variant: 'magenta', value: '+€300', label: 'into the fund each month' },
-  play: playStat('rgb(255, 0, 255)'),
-};
-export const Cyan = {
-  args: { variant: 'cyan', value: '≈23 months', label: 'to reach the deposit' },
-  play: playStat('rgb(0, 255, 255)'),
-};
+export const Red = { args: { variant: 'red', value: '−€5,000', label: 'short of the deposit' } };
+export const Green = { args: { variant: 'green', value: '€90,000', label: 'deposit and costs' } };
+export const Yellow = { args: { variant: 'yellow', value: '+€1,000', label: 'every month' } };
+export const Magenta = { args: { variant: 'magenta', value: '+€300', label: 'into the fund each month' } };
+export const Cyan = { args: { variant: 'cyan', value: '≈23 months', label: 'to reach the deposit' } };
 
 const ROW = [
   ['', '€75,000', 'to allocate today'],
   ['green', '€90,000', 'deposit and costs for a €300,000 home'],
   ['cyan', '≈23 months', 'to get there on the adjusted plan'],
 ];
-const COLOURS = { '': 'rgb(255, 255, 0)', green: 'rgb(0, 255, 0)', cyan: 'rgb(0, 255, 255)' };
 
 // Up to three equally weighted stats per screen, in a layout primitive. More figures: use a table.
+// The grid's column sizes each figure, so "€75,000" stays on one line in a third of the row.
 export const Row = {
   name: 'Row of three',
   render: () => {
@@ -76,8 +63,10 @@ export const Row = {
     return grid;
   },
   play: async ({ canvasElement }) => {
-    const stats = canvasElement.querySelectorAll('.cf-stat');
-    for (const [i, [variant]] of ROW.entries()) await assertStat(stats[i], COLOURS[variant]);
+    const stats = [...canvasElement.querySelectorAll('.cf-stat')];
+    for (const el of stats) await assertOrder(el);
+    const value = stats[0].querySelector('.cf-stat__value');
+    await expect(value.getBoundingClientRect().height).toBeLessThan(parseFloat(getComputedStyle(value).fontSize) * 2); // one line
   },
 };
 
@@ -98,11 +87,12 @@ export const InScreenFrame = {
     return page;
   },
   play: async ({ canvasElement }) => {
-    const value = canvasElement.querySelector('.cf-stat__value');
-    await assertStat(canvasElement.querySelector('.cf-stat'), 'rgb(255, 255, 0)');
-    // Only where the frame applies: below 40em it drops and the value keeps display-xl.
-    if (!matchMedia('(min-width: 40em)').matches) return;
+    const el = canvasElement.querySelector('.cf-stat');
+    await assertOrder(el);
+    // A cell is one line of body text (1em, line height 1); the value is two, the label one.
     const cell = parseFloat(getComputedStyle(canvasElement.querySelector('.cf-page__body > p')).fontSize);
-    await expect(value.getBoundingClientRect().height).toBeCloseTo(cell * 2, 0);
+    const height = (part) => el.querySelector(part).getBoundingClientRect().height;
+    await expect(height('.cf-stat__value')).toBeCloseTo(cell * 2, 0);
+    await expect(height('.cf-stat__label')).toBeCloseTo(cell, 0);
   },
 };

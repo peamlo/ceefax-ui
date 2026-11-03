@@ -121,7 +121,7 @@ A headline figure, read before the text around it: the value large in the displa
 - **Value first, then the label,** in one neutral block, so a screen reader hears "€75,000 to allocate". It isn't a heading; if the stat really is the section title, wrap it in one.
 - **No more than three equally weighted stats per screen.** Lay them out with `cf-grid` or `cf-cluster`; for a long list of figures, use a [table](#table-cf-table).
 - **In the Screen frame** the value is teletext double height (two cells) and the label is the frame's authentic green.
-- **A long figure wraps** in its column rather than scrolling the page. Authentic blue text is hard to read on black (about 2.4:1); the Accessible theme lifts it.
+- **In a `cf-grid` the column sizes the figure,** so about eight characters fit a line; a longer figure wraps in its column rather than scrolling the page. Authentic blue text is hard to read on black (about 2.4:1); the Accessible theme lifts it.
 
 ### Header row (`cf-header-row`)
 
