@@ -1,4 +1,4 @@
-/* Shared stylesheet for every lesson and reference sheet in docs/learn-mosaics: B2 from the style prototype.
+/* Shared stylesheet for every lesson and reference sheet in docs/courses/mosaics: B2 from the style prototype.
    Load it after src/index.css. Everything reads the library's --cf-* tokens; the only overrides are an off-white
    text colour and relaxed leading. Pages use the cf-page shell (header row, body, fastext footer), and kit.js
    adds the Accessible palette switch. */

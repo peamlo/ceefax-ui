@@ -18,7 +18,7 @@ string and know what it draws, review mosaic art in PRs, and change or debug the
 ## Constraints
 
 - Short lessons, grounded in this repo's real stories and code.
-- Stored in the repo under `docs/learn-mosaics/`.
+- Stored in the repo under `docs/courses/mosaics/`.
 
 ## Out of scope
 

@@ -1,4 +1,4 @@
-// Shared lesson widgets for docs/learn-mosaics. A classic script (not a module) so lessons work
+// Shared lesson widgets for docs/courses/mosaics. A classic script (not a module) so lessons work
 // opened straight from disk. Same formula as stories/_mosaic.js, plus its inverse.
 (() => {
   const BLOCKS = [1, 2, 4, 8, 16, 32]; // top-left, top-right, middle-left, … bottom-right

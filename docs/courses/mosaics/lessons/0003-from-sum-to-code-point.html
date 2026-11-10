@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>From sum to code point</title>
-<link rel="stylesheet" href="../../../src/index.css">
+<link rel="stylesheet" href="../../../../src/index.css">
 <link rel="stylesheet" href="../assets/course.css">
 <script src="../assets/kit.js" defer></script>
 </head>
@@ -76,7 +76,7 @@
 </p>
 
 <h2>The formula, as the code writes it</h2>
-<p>From <a href="../../../stories/_mosaic.js"><code>stories/_mosaic.js</code></a>:</p>
+<p>From <a href="../../../../stories/_mosaic.js"><code>stories/_mosaic.js</code></a>:</p>
 <pre><code>if (bits === 21) return '▌';
 if (bits === 42) return '▐';
 if (bits === 63) return '█';
@@ -115,7 +115,7 @@ return String.fromCodePoint(0x1fb00 + bits - 1 - (bits &gt; 21) - (bits &gt; 42)
 
 <h2>Where this shows up in the repo</h2>
 <p>
-  The mosaic font face in <a href="../../../src/tokens/typography.css"><code>src/tokens/typography.css</code></a> covers
+  The mosaic font face in <a href="../../../../src/tokens/typography.css"><code>src/tokens/typography.css</code></a> covers
   only the characters a mosaic uses:
 </p>
 <pre><code>unicode-range: U+2580-259F, U+1FB00-1FB3B, U+1CE51-1CE8F, U+EE00-EE7F;</code></pre>

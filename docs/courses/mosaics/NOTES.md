@@ -6,7 +6,7 @@
   pixels), **sum** (the cell's value, 1–63), **contiguous** / **separated**, **ink** (`data-variant`) and
   **band** (`data-band`). No GLOSSARY.md until Pedro can use them back.
 - Show it, don't tabulate it: colour and shape decisions need a rendered visual.
-- Lessons need http (`npm run demo`, then `/docs/learn-mosaics/lessons/…`): from disk the font and scripts don't load.
+- Lessons need http (`npm run demo`, then `/docs/courses/mosaics/lessons/…`): from disk the font and scripts don't load.
   The app keeps stopping its own preview server, so run `npx --yes serve . -l 3000` in a terminal tab of Pedro's.
 - **Styling (2026-11-03, replaces the earlier paper-page decision):** "B2" from `prototype-ceefax-styles.html`.
   Every page loads `src/index.css` then `assets/course.css` and sits in the `cf-page` shell (header row

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sextant reference</title>
-<link rel="stylesheet" href="../../../src/index.css">
+<link rel="stylesheet" href="../../../../src/index.css">
 <link rel="stylesheet" href="../assets/course.css">
 <script src="../assets/kit.js" defer></script>
 <style>
@@ -41,7 +41,7 @@
   <li><strong>Contiguous</strong>: <code>U+1FB00 + offset</code>, by range: sums 1–20 → sum − 1 · 22–41 → sum − 2 · 43–62 → sum − 3.
     Sums 21, 42, 63 are older block elements: <code>▌</code> U+258C, <code>▐</code> U+2590, <code>█</code> U+2588.</li>
   <li><strong>Separated</strong>: <code>U+1CE51 + (sum − 1)</code>, always − 1, no ranges (Unicode 16.0). Add in decimal: 81 + offset, back to hex. Sum 12 → 81 + 11 = 92 = <code>0x5C</code> → U+1CE5C. Mark the mosaic <code>data-mosaic="separated"</code>.</li>
-  <li>In code: <code>cell(sum, separated)</code> in <a href="../../../stories/_mosaic.js">stories/_mosaic.js</a>.</li>
+  <li>In code: <code>cell(sum, separated)</code> in <a href="../../../../stories/_mosaic.js">stories/_mosaic.js</a>.</li>
   <li>Reverse (contiguous): offsets 0–19 → offset + 1 · 20–39 → offset + 2 · 40–59 → offset + 3.</li>
   <li>Unicode versions: ▌ ▐ █ 1.1 (Block Elements, U+2580–259F) · sextants 13.0 · separated 16.0. Hence the font's
     <code>unicode-range: U+2580-259F, U+1FB00-1FB3B, U+1CE51-1CE8F, U+EE00-EE7F</code>.</li>
@@ -58,7 +58,7 @@
 
 <h2>The mosaic font's four ranges</h2>
 <p><code>unicode-range: U+2580-259F, U+1FB00-1FB3B, U+1CE51-1CE8F, U+EE00-EE7F</code> in
-<a href="../../../src/tokens/typography.css">src/tokens/typography.css</a>:</p>
+<a href="../../../../src/tokens/typography.css">src/tokens/typography.css</a>:</p>
 <table>
   <tr><th>range</th><th>what</th><th>mosaics use</th></tr>
   <tr><td><code>U+2580–259F</code></td><td>Block Elements (Unicode 1.1)</td><td>3 of 32: <code>▌</code> 21 · <code>▐</code> 42 · <code>█</code> 63</td></tr>

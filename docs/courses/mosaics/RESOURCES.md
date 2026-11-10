@@ -29,10 +29,10 @@
   [letter-spacing](https://developer.mozilla.org/en-US/docs/Web/CSS/letter-spacing),
   [display](https://developer.mozilla.org/en-US/docs/Web/CSS/display). Use for: the five declarations in
   `mosaic.css` (lesson 4). The white-space values table is the one to read.
-- In this repo: [ADR-0021](../adr/0021-text-mosaics-replace-pixel-canvas.md),
-  [`src/components/mosaic.css`](../../src/components/mosaic.css),
-  [`stories/_mosaic.js`](../../stories/_mosaic.js) (pixels → characters in 30 lines), the Mosaic docs page
-  in Storybook, and [`docs/reference/zxnet-teletext.md`](../reference/zxnet-teletext.md).
+- In this repo: [ADR-0021](../../adr/0021-text-mosaics-replace-pixel-canvas.md),
+  [`src/components/mosaic.css`](../../../src/components/mosaic.css),
+  [`stories/_mosaic.js`](../../../stories/_mosaic.js) (pixels → characters in 30 lines), the Mosaic docs page
+  in Storybook, and [`docs/reference/zxnet-teletext.md`](../../reference/zxnet-teletext.md).
 
 ## Wisdom (Communities)
 

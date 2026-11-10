@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Two colours per cell</title>
 <!-- The demos are the real component: the library's colour tokens, base (the variant seam) and mosaic.css. -->
-<link rel="stylesheet" href="../../../src/index.css">
+<link rel="stylesheet" href="../../../../src/index.css">
 <link rel="stylesheet" href="../assets/course.css">
 <script src="../assets/kit.js" defer></script>
 <style>
@@ -55,7 +55,7 @@
   separated mosaic's gaps. Here is one cell of the Banner's title, big:
 </p>
 <div class="screen demo"><span class="cf-mosaic cell-big" data-band="blue" data-variant="yellow" aria-hidden="true">🬎</span></div>
-<p>The two attributes, as <a href="../../../src/components/mosaic.css"><code>mosaic.css</code></a> reads them:</p>
+<p>The two attributes, as <a href="../../../../src/components/mosaic.css"><code>mosaic.css</code></a> reads them:</p>
 <pre><code>:where(.cf-mosaic[data-variant], .cf-mosaic [data-variant]) {
   color: var(--_variant, currentcolor);
 }
@@ -73,7 +73,7 @@
 </table>
 <p class="aside">
   The colour names are the six teletext colours: red, green, yellow, blue, cyan, magenta. The variant seam in
-  <a href="../../../src/base.css"><code>base.css</code></a> turns each name into <code>--_variant</code>,
+  <a href="../../../../src/base.css"><code>base.css</code></a> turns each name into <code>--_variant</code>,
   <code>--_band</code> and <code>--_band-ink</code>, the same for every component, not just mosaics.
 </p>
 
@@ -93,7 +93,7 @@
 <p>
   A span can change colour at any cell, but it can't give one cell a third colour: a glyph still has one ink and
   one background. A picture that needs three colours in a cell has to be redrawn so each colour gets whole cells,
-  as teletext artists did (<a href="../../adr/0021-text-mosaics-replace-pixel-canvas.md">ADR-0021</a>). On a real
+  as teletext artists did (<a href="../../../adr/0021-text-mosaics-replace-pixel-canvas.md">ADR-0021</a>). On a real
   set it was stricter still: colour changed through control characters that each took up a cell of their own
   (<a href="https://teletext.wiki.zxnet.co.uk/wiki/Teletext_art">Teletext Wiki</a>).
 </p>
@@ -102,7 +102,7 @@
 <p>
   The colours are tokens, so a theme moves them. Under the Accessible theme (<code>data-theme="accessible"</code>) the
   band colours lighten and every banded ink turns black, so shapes keep their contrast
-  (<a href="../../adr/0017-bands-background-attribute-and-ink-tier.md">ADR-0017</a>). The Banner's title, default and
+  (<a href="../../../adr/0017-bands-background-attribute-and-ink-tier.md">ADR-0017</a>). The Banner's title, default and
   Accessible:
 </p>
 <div class="screen demo"><span class="cf-mosaic" data-band="blue" data-variant="yellow" aria-hidden="true"> 🬏 🬞 🬭🬭🬭 🬞🬭🬏
@@ -173,7 +173,7 @@
   empty boxes, because fallback fonts may lack the glyphs. So the mosaic face blocks: cells stay blank until the font
   arrives, while text keeps <code>swap</code>. Browsers stop blocking after about three seconds, so the Mosaic docs
   suggest preloading the font on pages with mosaics. That's in
-  <a href="../../../src/tokens/typography.css"><code>src/tokens/typography.css</code></a> and the Storybook Mosaic page.
+  <a href="../../../../src/tokens/typography.css"><code>src/tokens/typography.css</code></a> and the Storybook Mosaic page.
 </p>
 
 <h2>That's the course</h2>
@@ -194,7 +194,7 @@
 
 <h2>Read next</h2>
 <p>
-  The primary source is <a href="../../adr/0017-bands-background-attribute-and-ink-tier.md">ADR-0017</a>: why a band
+  The primary source is <a href="../../../adr/0017-bands-background-attribute-and-ink-tier.md">ADR-0017</a>: why a band
   is an attribute, and why the ink has its own tier that themes can collapse.
 </p>
 <p class="aside">
