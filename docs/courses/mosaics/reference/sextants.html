@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sextant reference</title>
+<link rel="stylesheet" href="../../../../src/index.css">
+<link rel="stylesheet" href="../assets/course.css">
+<script src="../assets/kit.js" defer></script>
+<style>
+  .all { display: grid; grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr)); gap: .5rem; }
+  .all figure { margin: 0; padding: .5rem; border: var(--cf-border-thin) solid var(--dim); text-align: center; }
+  .all .glyphs { font-size: 1.75rem; display: block; margin: .35rem 0; }
+  .all figcaption { font: .7rem/1.3 var(--mono); color: #aaa; }
+  .all figcaption b { color: var(--lit); font-weight: 400; }
+  .all .cell { --block: 7px; display: inline-grid; }
+</style>
+</head>
+<body>
+<div class="cf-page" data-scrollbar="thin">
+<header class="cf-page__header cf-header-row">
+  <span class="cf-header-row__page">P400</span><span class="cf-header-row__service">MOSAICS</span><span class="cf-header-row__rolling">400</span>
+  <time class="cf-header-row__time" datetime="2026-11-03"><span class="cf-header-row__date">Nov03</span> REFERENCE</time>
+</header>
+<main class="cf-page__body"><div class="cf-center" data-max="layout">
+<p class="kicker">Mosaics · Reference</p>
+<h1>Sextants</h1>
+<p class="lede">One mosaic character = one cell = 2 × 3 blocks. Lessons: <a href="../lessons/0001-six-pixels-per-character.html">1, cells and sums</a> · <a href="../lessons/0002-code-points-and-hex.html">2, code points and hex</a> · <a href="../lessons/0003-from-sum-to-code-point.html">3, sum to code point</a> · <a href="../lessons/0004-why-the-cells-tile.html">4, why the cells tile</a> · <a href="../lessons/0005-reading-the-banner.html">5, reading the Banner</a> · <a href="../lessons/0006-separated-mosaics.html">6, separated</a> · <a href="../lessons/0007-two-colours-per-cell.html">7, colour</a>.</p>
+
+<h2>Block values</h2>
+<table>
+  <tr><th></th><th>left</th><th>right</th></tr>
+  <tr><th>top</th><td>1</td><td>2</td></tr>
+  <tr><th>middle</th><td>4</td><td>8</td></tr>
+  <tr><th>bottom</th><td>16</td><td>32</td></tr>
+</table>
+<p>Sum = total of lit blocks, 0–63. 0 is a space. Mostly lit? Sum = 63 − dark blocks.</p>
+
+<h2>Sum → code point</h2>
+<ul>
+  <li><strong>Contiguous</strong>: <code>U+1FB00 + offset</code>, by range: sums 1–20 → sum − 1 · 22–41 → sum − 2 · 43–62 → sum − 3.
+    Sums 21, 42, 63 are older block elements: <code>▌</code> U+258C, <code>▐</code> U+2590, <code>█</code> U+2588.</li>
+  <li><strong>Separated</strong>: <code>U+1CE51 + (sum − 1)</code>, always − 1, no ranges (Unicode 16.0). Add in decimal: 81 + offset, back to hex. Sum 12 → 81 + 11 = 92 = <code>0x5C</code> → U+1CE5C. Mark the mosaic <code>data-mosaic="separated"</code>.</li>
+  <li>In code: <code>cell(sum, separated)</code> in <a href="../../../../stories/_mosaic.js">stories/_mosaic.js</a>.</li>
+  <li>Reverse (contiguous): offsets 0–19 → offset + 1 · 20–39 → offset + 2 · 40–59 → offset + 3.</li>
+  <li>Unicode versions: ▌ ▐ █ 1.1 (Block Elements, U+2580–259F) · sextants 13.0 · separated 16.0. Hence the font's
+    <code>unicode-range: U+2580-259F, U+1FB00-1FB3B, U+1CE51-1CE8F, U+EE00-EE7F</code>.</li>
+</ul>
+
+<h2>Hex ↔ decimal</h2>
+<ul>
+  <li>Digits: A 10 · B 11 · C 12 · D 13 · E 14 · F 15. Places: 1, 16, 256, 4096.</li>
+  <li><strong>Hex → dec</strong>: digit × place, add. <code>0x2D</code> = 2 × 16 + 13 = 45.</li>
+  <li><strong>Dec → hex</strong>: ÷ 16, remainders read last to first. 45 ÷ 16 = 2 r 13 → <code>0x2D</code>.</li>
+  <li>Console: <code>(45).toString(16)</code> → <code>'2d'</code> · <code>parseInt('2D', 16)</code> → 45.</li>
+  <li>Contiguous offset = last two hex digits (the row starts at …00): U+1FB13 → <code>0x13</code> = 19. Separated starts at …51: add, <code>0x51</code> + offset.</li>
+</ul>
+
+<h2>The mosaic font's four ranges</h2>
+<p><code>unicode-range: U+2580-259F, U+1FB00-1FB3B, U+1CE51-1CE8F, U+EE00-EE7F</code> in
+<a href="../../../../src/tokens/typography.css">src/tokens/typography.css</a>:</p>
+<table>
+  <tr><th>range</th><th>what</th><th>mosaics use</th></tr>
+  <tr><td><code>U+2580–259F</code></td><td>Block Elements (Unicode 1.1)</td><td>3 of 32: <code>▌</code> 21 · <code>▐</code> 42 · <code>█</code> 63</td></tr>
+  <tr><td><code>U+1FB00–1FB3B</code></td><td>contiguous sextants (13.0)</td><td>the other 60 sums</td></tr>
+  <tr><td><code>U+1CE51–1CE8F</code></td><td>separated sextants (16.0)</td><td>all 63 sums</td></tr>
+  <tr><td><code>U+EE00–EE7F</code></td><td>Private Use: Bedstead's copy</td><td>for text in ZVBI's layout only</td></tr>
+</table>
+<p><strong>Block Elements</strong>: halves <code>▀ ▄ ▌ ▐</code> and <code>█</code> · eighths <code>▁▂▃▅▆▇ ▉▊▋▍▎▏ ▔ ▕</code> ·
+shades <code>░ ▒ ▓</code> · 2 × 2 quadrants <code>▖▗▘▙▚▛▜▝▞▟</code>. Only ▌ ▐ █ fit a 2 × 3 grid (▀ is a row and a half).
+Bedstead draws all 32.</p>
+<p><strong>Private Use copy</strong> (each quarter: offset = sum, sum 0 is a blank seat; checked against Bedstead 3.261):</p>
+<table class="compact">
+  <tr><th></th><th>sums 0–31</th><th>sums 32–63</th></tr>
+  <tr><th>contiguous</th><td><code>U+EE20</code> + sum</td><td><code>U+EE60</code> + (sum − 32)</td></tr>
+  <tr><th>separated</th><td><code>U+EE00</code> + sum</td><td><code>U+EE40</code> + (sum − 32)</td></tr>
+</table>
+<p>That's teletext's own byte order: a mosaic is 0x20–0x3F or 0x60–0x7F on air, the 32 block moves it up to the 0x60s,
+and contiguous = U+EE00 + byte. Write the standard code points: private-use ones mean nothing outside this font.</p>
+
+<h2>Why cells tile</h2>
+<ul>
+  <li>Every Bedstead cell is <strong>0.6em × 1em</strong>; mosaic glyphs are drawn to its edges, letters aren't.</li>
+  <li><code>white-space: pre</code>: newline = new row, space = empty cell (without: one line, spaces collapse).</li>
+  <li><code>line-height: 1</code>: row = one cell tall (without: gaps; <code>.cf-page</code> is 1.5).</li>
+  <li><code>letter-spacing: 0</code>: cells touch (without: inherited 0.08em from buttons, links, fastext).</li>
+  <li><code>display: inline-block</code>: one box beside text (without: text shears the rows).</li>
+</ul>
+
+<h2>Typing a code point</h2>
+<ul>
+  <li>HTML: <code>&amp;#x1FB39;</code> · JavaScript: <code>'\u{1FB39}'</code> or <code>String.fromCodePoint(0x1fb39)</code>.</li>
+  <li>One-cell fix: work out the sum, write the code point. New art: generate it from pixel art (<code>stories/_mosaic.js</code>); a live editor of the project's own is planned (the <a href="https://zxnet.co.uk/teletext/editor/">zxnet editor</a> is the reference).</li>
+</ul>
+
+<h2>Separated</h2>
+<ul>
+  <li>Same sum, separated code point: <code>U+1CE51 + (sum − 1)</code>. ▌ ▐ █ → U+1CE65 · U+1CE7A · U+1CE8F.</li>
+  <li>Bedstead: each block loses a strip on its left (1/6 width) and bottom (~1/10 height); the gaps show the background or band.</li>
+  <li><code>data-mosaic="separated"</code> is a label only (no CSS reads it); keep it in step with the characters (<code>assertSeparated</code>).</li>
+</ul>
+
+<h2>Colour</h2>
+<ul>
+  <li>Two colours per cell: <strong>ink</strong> (lit blocks, CSS <code>color</code>) and <strong>band</strong> (background, incl. separated gaps).</li>
+  <li><code>data-variant</code> = ink · <code>data-band</code> = band; band alone → readable ink (black, white on blue); on the mosaic or a span inside it (a run).</li>
+  <li>Accessible theme: bands lighten, banded ink → black. Forced colours: mosaics opt out, keep colours on <code>--cf-bg</code>.</li>
+  <li>Three colours in a cell: impossible, redraw on whole cells. Mosaic font face: <code>font-display: block</code>, blank not tofu while loading.</li>
+</ul>
+
+<h2>Unicode names</h2>
+<p>
+  Unicode names a sextant by lit <em>positions</em> 1–6 (left to right, top to bottom), not values:
+  position <i>n</i> has value 2<sup><i>n</i>−1</sup>. <code>BLOCK SEXTANT-35</code> = blocks 4 + 16 = sum 20 = U+1FB13.
+  Look one up: <code>curl -s https://www.unicode.org/Public/16.0.0/ucd/UnicodeData.txt | grep ^1FB13</code>.
+</p>
+
+<h2>All 64 cells</h2>
+<div class="all" id="all"></div>
+
+<p class="aside">Sources: <a href="https://www.unicode.org/charts/PDF/U1FB00.pdf">Unicode U+1FB00 chart</a>,
+<a href="https://www.unicode.org/charts/PDF/U1CC00.pdf">Unicode U+1CC00 chart</a>,
+<a href="https://bjh21.me.uk/bedstead/">Bedstead</a>.</p>
+</div></main>
+<footer class="cf-page__footer"><nav aria-label="Lessons"><ul class="cf-fastext">
+    <li><a class="cf-fastext__key" data-variant="red" href="../lessons/0001-six-pixels-per-character.html">LESSON 1</a></li>
+    <li><a class="cf-fastext__key" data-variant="yellow" href="../lessons/0007-two-colours-per-cell.html">LESSON 7</a></li>
+  </ul></nav></footer>
+</div>
+<script>
+  // The 64 cells, drawn from the shared formula.
+  document.addEventListener('DOMContentLoaded', () => {
+    const { char, hex } = window.Mosaic;
+    const all = document.getElementById('all');
+    for (let s = 0; s < 64; s++) {
+      const fig = document.createElement('figure');
+      const blocks = [1, 2, 4, 8, 16, 32].map((b) => `<i class="${s & b ? 'on' : ''}"></i>`).join('');
+      fig.innerHTML =
+        `<span class="cell">${blocks}</span>` +
+        `<span class="glyphs">${char(s)}</span>` +
+        `<figcaption><b>${s}</b><br>${hex(char(s))}</figcaption>`;
+      all.append(fig);
+    }
+  });
+</script>
+</body>
+</html>

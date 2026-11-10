@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two colours per cell</title>
+<!-- The demos are the real component: the library's colour tokens, base (the variant seam) and mosaic.css. -->
+<link rel="stylesheet" href="../../../../src/index.css">
+<link rel="stylesheet" href="../assets/course.css">
+<script src="../assets/kit.js" defer></script>
+<style>
+  .demo .cf-mosaic { font-size: 2rem; }
+  .cell-big { font-size: 7rem; }
+  td.swatch { background: #000; padding: .4rem .6rem; }
+  td.swatch .cf-mosaic { font-size: 1.5rem; }
+  .quiz .options .cf-mosaic { font-size: 1.75rem; }
+  .quiz .options button:has(.cf-mosaic) { background: #000; padding: .5rem .75rem; }
+</style>
+</head>
+<body>
+<div class="cf-page" data-scrollbar="thin">
+<header class="cf-page__header cf-header-row">
+  <span class="cf-header-row__page">P407</span><span class="cf-header-row__service">MOSAICS</span><span class="cf-header-row__rolling">407</span>
+  <time class="cf-header-row__time" datetime="2026-11-03"><span class="cf-header-row__date">Nov03</span> LESSON 7</time>
+</header>
+<main class="cf-page__body"><div class="cf-center">
+<p class="kicker">Mosaics · Lesson 7</p>
+<h1>Two colours per cell</h1>
+<p class="lede">
+  The last piece of the Banner: yellow lettering on a blue band. Every cell has exactly two colours, and two
+  attributes choose them.
+</p>
+
+<h2>Warm-up, from memory</h2>
+<div class="quiz" data-answer="1" data-explain="▐ is sum 42 (2 + 8 + 32). Separated: 42 − 1 = 41, and 81 + 41 = 122 = 7 × 16 + 10 = 0x7A.">
+  <p>Which code point is the separated <code>▐</code>?</p>
+  <div class="options"><button>U+2590</button><button>U+1CE7A</button><button>U+1CE79</button><button>U+1CE29</button></div>
+</div>
+<div class="quiz" data-answer="0" data-explain="No CSS reads data-mosaic: the look is in the characters.">
+  <p>You add <code>data-mosaic="separated"</code> to a contiguous mosaic. What changes on screen?</p>
+  <div class="options"><button>Nothing on screen</button><button>Blocks get gaps</button><button>Cells turn blank</button><button>The font changes</button></div>
+</div>
+<div class="quiz" data-answer="3" data-explain="Top row 1 + 2, bottom row 16 + 32: 51.">
+  <p>Which sum is this cell?</p>
+<pre class="pixels"><code># #
+. .
+# #</code></pre>
+  <div class="options"><button>60</button><button>48</button><button>15</button><button>51</button></div>
+</div>
+
+<h2>Ink and band</h2>
+<p>
+  A glyph is drawn in one colour, the CSS <code>color</code>, and sits on one background. So every cell has two
+  colours: the <strong>ink</strong> paints its lit blocks, the <strong>band</strong> everything else, including a
+  separated mosaic's gaps. Here is one cell of the Banner's title, big:
+</p>
+<div class="screen demo"><span class="cf-mosaic cell-big" data-band="blue" data-variant="yellow" aria-hidden="true">🬎</span></div>
+<p>The two attributes, as <a href="../../../../src/components/mosaic.css"><code>mosaic.css</code></a> reads them:</p>
+<pre><code>:where(.cf-mosaic[data-variant], .cf-mosaic [data-variant]) {
+  color: var(--_variant, currentcolor);
+}
+:where(.cf-mosaic[data-band], .cf-mosaic [data-band]) {
+  background: var(--_band, transparent);
+  color: var(--_band-ink, var(--_variant, currentcolor));
+}</code></pre>
+<table>
+  <tr><th>markup</th><th>looks</th><th>why</th></tr>
+  <tr><td>no attributes</td><td class="swatch"><span class="cf-mosaic" aria-hidden="true">🬝🬎🬎🬬</span></td><td>page colour, white</td></tr>
+  <tr><td><code>data-variant="red"</code></td><td class="swatch"><span class="cf-mosaic" data-variant="red" aria-hidden="true">🬝🬎🬎🬬</span></td><td>the ink</td></tr>
+  <tr><td><code>data-band="cyan"</code></td><td class="swatch"><span class="cf-mosaic" data-band="cyan" aria-hidden="true">🬝🬎🬎🬬</span></td><td>band; ink defaults to black</td></tr>
+  <tr><td><code>data-band="blue"</code></td><td class="swatch"><span class="cf-mosaic" data-band="blue" aria-hidden="true">🬝🬎🬎🬬</span></td><td>on blue the default is white</td></tr>
+  <tr><td><code>data-band="blue" data-variant="yellow"</code></td><td class="swatch"><span class="cf-mosaic" data-band="blue" data-variant="yellow" aria-hidden="true">🬝🬎🬎🬬</span></td><td>band and named ink</td></tr>
+</table>
+<p class="aside">
+  The colour names are the six teletext colours: red, green, yellow, blue, cyan, magenta. The variant seam in
+  <a href="../../../../src/base.css"><code>base.css</code></a> turns each name into <code>--_variant</code>,
+  <code>--_band</code> and <code>--_band-ink</code>, the same for every component, not just mosaics.
+</p>
+
+<h2>Colour runs</h2>
+<p>
+  Both attributes also work on a <code>&lt;span&gt;</code> <em>inside</em> the mosaic, so one mosaic can hold several
+  colours, one run of cells each. Letters typed into a mosaic fall back to Bedstead text. This is the temperature key
+  from the story <em>In the Screen frame</em>:
+</p>
+<pre><code>&lt;span class="cf-mosaic" role="img" aria-label="Temperature key: red hot, yellow mild, cyan cold"&gt;
+&lt;span data-variant="red"&gt;████&lt;/span&gt; HOT
+&lt;span data-variant="yellow"&gt;████&lt;/span&gt; MILD
+&lt;span data-variant="cyan"&gt;████&lt;/span&gt; COLD&lt;/span&gt;</code></pre>
+<div class="screen demo"><span class="cf-mosaic" role="img" aria-label="Temperature key: red hot, yellow mild, cyan cold"><span data-variant="red">████</span> HOT
+<span data-variant="yellow">████</span> MILD
+<span data-variant="cyan">████</span> COLD</span></div>
+<p>
+  A span can change colour at any cell, but it can't give one cell a third colour: a glyph still has one ink and
+  one background. A picture that needs three colours in a cell has to be redrawn so each colour gets whole cells,
+  as teletext artists did (<a href="../../../adr/0021-text-mosaics-replace-pixel-canvas.md">ADR-0021</a>). On a real
+  set it was stricter still: colour changed through control characters that each took up a cell of their own
+  (<a href="https://teletext.wiki.zxnet.co.uk/wiki/Teletext_art">Teletext Wiki</a>).
+</p>
+
+<h2>Themes and forced colours</h2>
+<p>
+  The colours are tokens, so a theme moves them. Under the Accessible theme (<code>data-theme="accessible"</code>) the
+  band colours lighten and every banded ink turns black, so shapes keep their contrast
+  (<a href="../../../adr/0017-bands-background-attribute-and-ink-tier.md">ADR-0017</a>). The Banner's title, default and
+  Accessible:
+</p>
+<div class="screen demo"><span class="cf-mosaic" data-band="blue" data-variant="yellow" aria-hidden="true"> 🬏 🬞 🬭🬭🬭 🬞🬭🬏
+ 🬲🬹🬷 █🬋🬃 █🬋█
+ 🬂 🬂 🬂🬂🬂 🬂 🬂 </span>   <span data-theme="accessible"><span class="cf-mosaic" data-band="blue" data-variant="yellow" aria-hidden="true"> 🬏 🬞 🬭🬭🬭 🬞🬭🬏
+ 🬲🬹🬷 █🬋🬃 █🬋█
+ 🬂 🬂 🬂🬂🬂 🬂 🬂 </span></span></div>
+<p>
+  Under Windows' forced colours, the browser would repaint all text in one system colour and drop backgrounds, and a
+  picture would lose its shape. So <code>mosaic.css</code> opts mosaics out (<code>forced-color-adjust: none</code>) and
+  keeps their colours on the teletext black.
+</p>
+
+<h2>Read the markup, predict the cell</h2>
+<p>Each question gives markup; pick how it renders.</p>
+<div class="quiz" data-answer="2" data-explain="A band alone: cyan background, and the ink defaults to a readable black.">
+  <p><code>&lt;span class="cf-mosaic" data-band="cyan"&gt;🬝🬎🬎🬬&lt;/span&gt;</code></p>
+  <div class="options">
+    <button><span class="cf-mosaic" data-variant="cyan">🬝🬎🬎🬬</span></button>
+    <button><span class="cf-mosaic" data-band="cyan" data-variant="red">🬝🬎🬎🬬</span></button>
+    <button><span class="cf-mosaic" data-band="cyan">🬝🬎🬎🬬</span></button>
+    <button><span class="cf-mosaic" data-band="green">🬝🬎🬎🬬</span></button>
+  </div>
+</div>
+<div class="quiz" data-answer="0" data-explain="On blue the readable default ink is white, not black: blue is the one dark band.">
+  <p><code>&lt;span class="cf-mosaic" data-band="blue"&gt;🬝🬎🬎🬬&lt;/span&gt;</code></p>
+  <div class="options">
+    <button><span class="cf-mosaic" data-band="blue">🬝🬎🬎🬬</span></button>
+    <button><span class="cf-mosaic" data-band="blue" data-variant="yellow">🬝🬎🬎🬬</span></button>
+    <button><span class="cf-mosaic" data-variant="blue">🬝🬎🬎🬬</span></button>
+    <button><span data-theme="accessible"><span class="cf-mosaic" data-band="blue">🬝🬎🬎🬬</span></span></button>
+  </div>
+</div>
+<div class="quiz" data-answer="3" data-explain="The outer span is red ink; the inner span switches the last two cells to green. Two runs, each cell still two colours.">
+  <p><code>&lt;span class="cf-mosaic" data-variant="red"&gt;🬝🬎&lt;span data-variant="green"&gt;🬎🬬&lt;/span&gt;&lt;/span&gt;</code></p>
+  <div class="options">
+    <button><span class="cf-mosaic" data-variant="red">🬝🬎🬎🬬</span></button>
+    <button><span class="cf-mosaic" data-variant="green">🬝🬎<span data-variant="red">🬎🬬</span></span></button>
+    <button><span class="cf-mosaic" data-band="red">🬝🬎<span data-band="green">🬎🬬</span></span></button>
+    <button><span class="cf-mosaic" data-variant="red">🬝🬎<span data-variant="green">🬎🬬</span></span></button>
+  </div>
+</div>
+<div class="quiz" data-answer="1" data-explain="Under the Accessible theme the blue band lightens and the banded ink collapses to black, even though yellow was named.">
+  <p>Inside <code>data-theme="accessible"</code>: <code>&lt;span class="cf-mosaic" data-band="blue" data-variant="yellow"&gt;🬝🬎🬎🬬&lt;/span&gt;</code></p>
+  <div class="options">
+    <button><span class="cf-mosaic" data-band="blue" data-variant="yellow">🬝🬎🬎🬬</span></button>
+    <button><span data-theme="accessible"><span class="cf-mosaic" data-band="blue" data-variant="yellow">🬝🬎🬎🬬</span></span></button>
+    <button><span data-theme="accessible"><span class="cf-mosaic" data-variant="yellow">🬝🬎🬎🬬</span></span></button>
+    <button><span class="cf-mosaic" data-band="cyan">🬝🬎🬎🬬</span></button>
+  </div>
+</div>
+<div class="quiz" data-answer="2" data-explain="A cell's glyph has one colour and one background. More colours means redrawing so each colour gets whole cells.">
+  <p>A picture needs red, yellow and blue inside one cell. What do you do?</p>
+  <div class="options">
+    <button>Nest a third span in that cell</button>
+    <button>Add a data-band to its ink span</button>
+    <button>Redraw so each colour has whole cells</button>
+    <button>Switch that cell to a separated glyph</button>
+  </div>
+</div>
+
+<hr>
+
+<h2>Last piece: why the font blocks</h2>
+<p>
+  You've met the mosaic font face's <code>unicode-range</code> (lessons 2 and 3). Its other line is
+  <code>font-display: block</code>. While Bedstead downloads, text in the fallback font is fine, but mosaics would show
+  empty boxes, because fallback fonts may lack the glyphs. So the mosaic face blocks: cells stay blank until the font
+  arrives, while text keeps <code>swap</code>. Browsers stop blocking after about three seconds, so the Mosaic docs
+  suggest preloading the font on pages with mosaics. That's in
+  <a href="../../../../src/tokens/typography.css"><code>src/tokens/typography.css</code></a> and the Storybook Mosaic page.
+</p>
+
+<h2>That's the course</h2>
+<table>
+  <tr><th>you can now</th><th>from</th></tr>
+  <tr><td>read a cell's six blocks and its sum, both ways</td><td><a href="0001-six-pixels-per-character.html">1</a></td></tr>
+  <tr><td>turn a sum into its code point and back, contiguous and separated</td><td><a href="0002-code-points-and-hex.html">2</a>, <a href="0003-from-sum-to-code-point.html">3</a>, <a href="0006-separated-mosaics.html">6</a></td></tr>
+  <tr><td>say why 27 characters draw one logo: font, then CSS</td><td><a href="0004-why-the-cells-tile.html">4</a></td></tr>
+  <tr><td>read the Banner and hand-edit a cell</td><td><a href="0005-reading-the-banner.html">5</a></td></tr>
+  <tr><td>read <code>data-variant</code> / <code>data-band</code> markup and predict it</td><td>7</td></tr>
+</table>
+<p>
+  The <a href="../reference/sextants.html">reference sheet</a> holds all of it in one page. From here, the best practice
+  is real: review the next mosaic in a PR cell by cell, and follow the shared <code>./mosaic</code> helpers
+  (<a href="https://github.com/peamlo/ceefax-ui/issues/163">#163</a>) and the planned live editor, which will run on
+  exactly this arithmetic.
+</p>
+
+<h2>Read next</h2>
+<p>
+  The primary source is <a href="../../../adr/0017-bands-background-attribute-and-ink-tier.md">ADR-0017</a>: why a band
+  is an attribute, and why the ink has its own tier that themes can collapse.
+</p>
+<p class="aside">
+  Anything unclear, or a part you'd like to drill again? Ask me, your agent, in the chat.
+</p>
+
+</div></main>
+<footer class="cf-page__footer"><nav aria-label="Lessons"><ul class="cf-fastext">
+    <li><a class="cf-fastext__key" data-variant="red" href="0006-separated-mosaics.html">LESSON 6</a></li>
+    <li><a class="cf-fastext__key" data-variant="green" href="../reference/sextants.html">REFERENCE</a></li>
+  </ul></nav></footer>
+</div>
+</body>
+</html>

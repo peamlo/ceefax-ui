@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Six pixels per character</title>
+<link rel="stylesheet" href="../../../../src/index.css">
+<link rel="stylesheet" href="../assets/course.css">
+<script src="../assets/kit.js" defer></script>
+</head>
+<body>
+<div class="cf-page" data-scrollbar="thin">
+<header class="cf-page__header cf-header-row">
+  <span class="cf-header-row__page">P401</span><span class="cf-header-row__service">MOSAICS</span><span class="cf-header-row__rolling">401</span>
+  <time class="cf-header-row__time" datetime="2026-11-03"><span class="cf-header-row__date">Nov03</span> LESSON 1</time>
+</header>
+<main class="cf-page__body"><div class="cf-center">
+<p class="kicker">Mosaics · Lesson 1</p>
+<h1>Six pixels per character</h1>
+<p class="lede">Why 27 characters are enough to draw the CF logo, and how to read any mosaic character by eye.</p>
+
+<div class="screen" aria-label="The Banner story's logo and title, as cf-mosaic renders them">
+<span class="glyphs">🬝🬎🬎🬬 🬝🬎🬎🬬
+▌▐██ ▌🬠🬰█
+🬺🬹🬹🬻 🬺🬻██</span> <span class="glyphs yellow on-blue"> 🬏 🬞 🬭🬭🬭 🬞🬭🬏 🬭🬭🬭 🬭 🬭 🬭🬭🬭 🬭🬭🬏
+ 🬲🬹🬷 █🬋🬃 █🬋█  █  █🬋█ █🬋🬃 █🬩🬕
+ 🬂 🬂 🬂🬂🬂 🬂 🬂  🬂  🬂 🬂 🬂🬂🬂 🬂 🬂 </span>
+</div>
+
+<h2>The trick: a character is a tiny picture</h2>
+<p>
+  Each of those characters is a <strong>cell</strong>, split into 2 × 3 <strong>blocks</strong>. Unicode
+  gives every on/off pattern of six blocks its own character
+  (<a href="https://www.unicode.org/charts/PDF/U1FB00.pdf">“block sextants”</a>), and the
+  <a href="https://bjh21.me.uk/bedstead/">Bedstead</a> font draws each one as exactly that pattern,
+  filling the whole cell. So one character carries six pixels, and characters side by side join into a picture.
+</p>
+<p>
+  The logo is three lines of nine characters: 27 cells, 162 blocks. In the story's source the gaps between
+  lines are newlines (<code>\n</code>); your copy shows them as spaces, but
+  <code>white-space: pre</code> in <a href="../../../../src/components/mosaic.css">mosaic.css</a> keeps them as rows.
+  Here is the same text with every cell pulled apart:
+</p>
+
+<div class="screen">
+<div id="logo" data-explode data-labels>
+🬝🬎🬎🬬 🬝🬎🬎🬬
+▌▐██ ▌🬠🬰█
+🬺🬹🬹🬻 🬺🬻██
+</div>
+</div>
+<p><button class="toggle" data-together="logo">Push the cells together</button></p>
+
+<h2>Every block has a value</h2>
+<p>A cell's <strong>sum</strong> is the total of its lit blocks. Six blocks, each on or off, gives 64 sums, 0 to 63:</p>
+<table>
+  <tr><th></th><th>left</th><th>right</th></tr>
+  <tr><th>top</th><td>1</td><td>2</td></tr>
+  <tr><th>middle</th><td>4</td><td>8</td></tr>
+  <tr><th>bottom</th><td>16</td><td>32</td></tr>
+</table>
+<p>
+  The number under each cell above is its sum. The logo's second cell, <code>🬎</code>, is 1 + 2 + 4 + 8 = 15:
+  top and middle rows lit, bottom row dark, which is the top of the C's hollow. The sum is what
+  <a href="../../../../stories/_mosaic.js"><code>cell()</code></a> in <code>stories/_mosaic.js</code> turns
+  into a character; how it picks the code point is the next lesson.
+</p>
+
+<h2>Try it</h2>
+<p>Click blocks to light them. Watch the sum and the character Bedstead draws for it.</p>
+<div class="screen"><div data-builder data-start="15"></div></div>
+
+<h2>The rest of the Banner, pulled apart</h2>
+<p>
+  The WEATHER title is the same idea at 3 lines × 29 cells. The letters are 5 blocks tall, so they straddle
+  the rows: the top line holds only their top edge.
+</p>
+<div class="screen"><div id="weather" data-explode style="--block: 6px; --gap: 4px">
+ 🬏 🬞 🬭🬭🬭 🬞🬭🬏 🬭🬭🬭 🬭 🬭 🬭🬭🬭 🬭🬭🬏
+ 🬲🬹🬷 █🬋🬃 █🬋█  █  █🬋█ █🬋🬃 █🬩🬕
+ 🬂 🬂 🬂🬂🬂 🬂 🬂  🬂  🬂 🬂 🬂🬂🬂 🬂 🬂
+</div></div>
+<p><button class="toggle" data-together="weather">Push the cells together</button></p>
+<p>And the dotted rule under the strapline is one character, <code>𜹜</code>, forty times.</p>
+
+<hr>
+
+<h2>Check yourself</h2>
+<p>From memory: scroll up only after you have picked.</p>
+
+<div class="quiz" data-answer="1" data-explain="The bottom row: 16 + 32 = 48. It is the top edge of each WEATHER letter.">
+  <p>Which sum is this cell? <span class="q-glyph">🬭</span></p>
+  <div class="options"><button>12</button><button>48</button><button>33</button><button>51</button></div>
+</div>
+
+<div class="quiz" data-answer="3" data-explain="4 + 8, the middle row: the bar across E, A and H. Its separated twin, 𜹜, is the Banner's dotted rule.">
+  <p>Which sum is this cell? <span class="q-glyph">🬋</span></p>
+  <div class="options"><button>48</button><button>15</button><button>30</button><button>12</button></div>
+</div>
+
+<div class="quiz" data-answer="0" data-explain="63 − 2 = 61. When most blocks are lit, subtract the dark ones from 63.">
+  <p>Every block is lit except the top-right one. Which sum?</p>
+  <div class="options"><button>61</button><button>62</button><button>59</button><button>31</button></div>
+</div>
+
+<div class="quiz" data-answer="2" data-explain="All but the bottom-right block: 63 − 32 = 31. That dark block is where the C's hollow begins.">
+  <p>The logo's top-left cell. Which sum? <span class="q-glyph">🬝</span></p>
+  <div class="options"><button>47</button><button>55</button><button>31</button><button>62</button></div>
+</div>
+
+<div class="quiz" data-answer="2" data-explain="Six blocks, each on or off: 2⁶ = 64, counting the empty cell, which you write as a space.">
+  <p>How many different cells can a mosaic draw?</p>
+  <div class="options"><button>36</button><button>60</button><button>64</button><button>63</button></div>
+</div>
+
+<hr>
+
+<h2>Read next</h2>
+<p>
+  The primary source is the Unicode chart
+  <a href="https://www.unicode.org/charts/PDF/U1FB00.pdf">Symbols for Legacy Computing</a>: its first page
+  lists the sextants. Unicode names them by <em>position</em>, 1 to 6, rather than value, so
+  <code>BLOCK SEXTANT-35</code> is positions 3 and 5, blocks 4 and 16, sum 20. Keep the
+  <a href="../reference/sextants.html">sextant reference sheet</a> open beside it.
+</p>
+<p class="aside">
+  Anything unclear, or want to go deeper on one part? Ask me (your agent) in the chat: I'm your teacher here,
+  and your questions shape the next lesson.
+</p>
+
+</div></main>
+<footer class="cf-page__footer"><nav aria-label="Lessons"><ul class="cf-fastext">
+    <li><a class="cf-fastext__key" data-variant="green" href="../reference/sextants.html">REFERENCE</a></li>
+    <li><a class="cf-fastext__key" data-variant="yellow" href="0002-code-points-and-hex.html">LESSON 2</a></li>
+  </ul></nav></footer>
+</div>
+</body>
+</html>

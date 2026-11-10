@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reading the Banner</title>
+<link rel="stylesheet" href="../../../../src/index.css">
+<link rel="stylesheet" href="../assets/course.css">
+<script src="../assets/kit.js" defer></script>
+</head>
+<body>
+<div class="cf-page" data-scrollbar="thin">
+<header class="cf-page__header cf-header-row">
+  <span class="cf-header-row__page">P405</span><span class="cf-header-row__service">MOSAICS</span><span class="cf-header-row__rolling">405</span>
+  <time class="cf-header-row__time" datetime="2026-11-03"><span class="cf-header-row__date">Nov03</span> LESSON 5</time>
+</header>
+<main class="cf-page__body"><div class="cf-center">
+<p class="kicker">Mosaics · Lesson 5</p>
+<h1>Reading the Banner</h1>
+<p class="lede">
+  Everything from lessons 1–4 on the story you started from: how its three mosaics are built, then a hand edit that
+  turns <strong>CF</strong> into <strong>CE</strong>.
+</p>
+
+<h2>Warm-up, from memory</h2>
+<div class="quiz" data-answer="2" data-explain="Offset 0x2C = 44, in offsets 40–59, so sum = 44 + 3 = 47: the logo's top-right corner, 🬬.">
+  <p>U+1FB2C is which sum?</p>
+  <div class="options"><button>45</button><button>46</button><button>47</button><button>44</button></div>
+</div>
+<div class="quiz" data-answer="0" data-explain="Rows taller than their cells leave a stripe between them: line-height: 1 was missing.">
+  <div class="screen"><p class="bug"><span class="glyphs no-lh">🬝🬎🬎🬬 🬝🬎🬎🬬
+▌▐██ ▌🬠🬰█
+🬺🬹🬹🬻 🬺🬻██</span></p></div>
+  <div class="options"><button>line-height</button><button>white-space</button><button>display</button><button>letter-spacing</button></div>
+</div>
+<div class="quiz" data-answer="1" data-explain="3 × 16 + 11 = 59.">
+  <p>What is <code>0x3B</code> in decimal?</p>
+  <div class="options"><button>61</button><button>59</button><button>53</button><button>49</button></div>
+</div>
+
+<h2>Three mosaics and a line of text</h2>
+<div class="screen">
+<span class="glyphs">🬝🬎🬎🬬 🬝🬎🬎🬬
+▌▐██ ▌🬠🬰█
+🬺🬹🬹🬻 🬺🬻██</span> <span class="glyphs yellow on-blue"> 🬏 🬞 🬭🬭🬭 🬞🬭🬏 🬭🬭🬭 🬭 🬭 🬭🬭🬭 🬭🬭🬏
+ 🬲🬹🬷 █🬋🬃 █🬋█  █  █🬋█ █🬋🬃 █🬩🬕
+ 🬂 🬂 🬂🬂🬂 🬂 🬂  🬂  🬂 🬂 🬂🬂🬂 🬂 🬂 </span>
+</div>
+<table>
+  <tr><th>mosaic</th><th>cells</th><th>how it's built</th></tr>
+  <tr><td>logo</td><td>9 × 3</td><td>each letter cut out of a solid 4 × 3-cell block, one empty cell between</td></tr>
+  <tr><td>title</td><td>29 × 3</td><td>5-pixel capitals, 4 cells a letter, a cell of margin at each end, yellow on a blue band</td></tr>
+  <tr><td>rule</td><td>40 × 1</td><td><code>𜹜</code> (separated, sum 12) forty times, in blue</td></tr>
+</table>
+<p>
+  The logo and title have <code>role="img"</code> and an <code>aria-label</code> (“CF”, “Weather”); the rule has
+  <code>aria-hidden="true"</code>. Otherwise a screen reader would read every cell by its Unicode name, as the Mosaic docs
+  warn. The strapline between them is ordinary text.
+</p>
+
+<h2>Why the title's top row is all 🬭</h2>
+<p>
+  The title is 9 pixel rows: 2 blank, 5 of letters, 2 blank. Split into cell rows of 3, the letters straddle them. Here
+  is the W, with a line every 3 pixel rows:
+</p>
+<pre class="pixels"><code>. . . . . . . . . .
+. . . . . . . . . .
+. . # . . . . # . .   ← letter row 1: the bottom third of cell row 1
+───────────────────
+. . # . . . . # . .
+. . # . # # . # . .   ← letter rows 2–4: cell row 2
+. . # # # # # # . .
+───────────────────
+. . # # . . # # . .   ← letter row 5: the top third of cell row 3
+. . . . . . . . . .
+. . . . . . . . . .</code></pre>
+<p>
+  So cell row 1 only ever has its bottom blocks lit: <code>🬭</code> (16 + 32 = 48), <code>🬏</code> (16) or
+  <code>🬞</code> (32). Cell row 3 only has its top blocks: <code>🬂</code> (1 + 2 = 3). All the letter detail is in
+  row 2. The blank pixel rows are what give the letters room on the band.
+</p>
+<p>
+  <a href="../../../../stories/_mosaic.js"><code>stories/_mosaic.js</code></a> builds these characters from pixel art (<code>logo()</code>, <code>lettering()</code>, <code>rule()</code>), with the same sum
+  arithmetic you've been doing. So far every mosaic in the project has been generated like that, by code or by asking
+  an agent for the characters. A live editor of the project's own is planned, with the
+  <a href="https://zxnet.co.uk/teletext/editor/">zxnet teletext editor</a> as its reference
+  (<a href="../../../adr/0021-text-mosaics-replace-pixel-canvas.md">ADR-0021</a>).
+</p>
+
+<h2>Your turn: CF → CE</h2>
+<p>
+  An E is an F with a bottom bar. Cut out of its block, that changes just the pixel row where the bar goes, so only the
+  F's <strong>bottom cell row</strong> changes. Here are its pixels now and after:
+</p>
+<pre class="pixels"><code>F (now)              E (after)
+# . . # # # # #      # . . . . . . #
+# # # # # # # #      # # # # # # # #
+# # # # # # # #      # # # # # # # #</code></pre>
+<p>
+  These are the last four characters of the logo's bottom row, the ones under the F (<code>🬺 🬻 █ █</code>). The logo
+  is white blocks with the letters carved out, so <code>#</code> is a lit block and <code>.</code> a dark one. Cut the
+  E's rows into 4 cells, 2 pixels wide each:
+</p>
+<pre class="pixels"><code>cell 1    cell 2    cell 3    cell 4
+# .       . .       . .       . #
+# #       # #       # #       # #
+# #       # #       # #       # #</code></pre>
+<p>Cell 1, worked through:</p>
+<ol class="steps">
+  <li>lit: top-left 1, middle 4 + 8, bottom 16 + 32</li>
+  <li>sum 1 + 4 + 8 + 16 + 32 = 61</li>
+  <li>range 43–62: 61 − 3 = 58</li>
+  <li>58 = 3 × 16 + 10 = 0x3A → <strong>U+1FB3A</strong></li>
+</ol>
+<p>
+  That's already the first code point in the box: cell 1 is the same in the F and the E. Do cells 2, 3 and 4 the same
+  way. Hint: cell 2 is cell 1 without its top-left block.
+</p>
+<p>The box starts with the F's current code points. Write <code>U+1FB39</code>, <code>1FB39</code> or <code>&amp;#x1FB39;</code>, whichever you like:</p>
+<div data-edit data-row="2" data-col="5" data-target="1FB3A 1FB39 1FB39 1FB3B"
+  data-done="Look at the logo's bottom row now: the E's cells are the same four characters as the C's. Same pixels, same characters.">
+🬝🬎🬎🬬 🬝🬎🬎🬬
+▌▐██ ▌🬠🬰█
+🬺🬹🬹🬻 🬺🬻██
+</div>
+
+<h2>Typing a code point into source</h2>
+<p>
+  Pasting the characters is what the repo does, but you can also write the number itself. Both of these give
+  <code>🬹</code>:
+</p>
+<table>
+  <tr><th>in</th><th>write</th></tr>
+  <tr><td>HTML</td><td><code>&amp;#x1FB39;</code> (<code>&amp;#x</code>, the hex, <code>;</code>)</td></tr>
+  <tr><td>JavaScript</td><td><code>'\u{1FB39}'</code> or <code>String.fromCodePoint(0x1fb39)</code></td></tr>
+</table>
+<p>
+  For a one-cell fix that's quicker than redrawing. New art is hundreds of cells: generate it from pixel art, as
+  <code>stories/_mosaic.js</code> does, or, once it exists, draw it in the project's live editor.
+</p>
+
+<hr>
+
+<h2>Check yourself</h2>
+<div class="quiz" data-answer="2" data-explain="One margin cell, then 4 per letter (3 of letter, 1 of gap) × 7 = 29. 58 is the width in pixels. The Banner story checks exactly this: 1 + 4 × 7.">
+  <p>How many cells wide is the WEATHER title?</p>
+  <div class="options"><button>28</button><button>58</button><button>29</button><button>35</button></div>
+</div>
+<div class="quiz" data-answer="3" data-explain="Two blank pixel rows sit above the letters, so only the third pixel row, the bottom third of each cell, holds anything.">
+  <p>Why is the title's top row only 🬭, 🬏, 🬞 and spaces?</p>
+  <div class="options">
+    <button>The band needs a row of its own</button>
+    <button>Bedstead draws capitals lower down</button>
+    <button>The rule sits on the first row</button>
+    <button>Letters start on the third pixel row</button>
+  </div>
+</div>
+<div class="quiz" data-answer="1" data-explain="60 is in 43–62: 60 − 3 = 57 = 0x39. &amp;#x1CE8C; is the separated 60; &amp;#x1FB3B; is what sum − 1 alone gives.">
+  <p>Which HTML writes the contiguous cell with sum 60?</p>
+  <div class="options"><button>&amp;#x1FB3B;</button><button>&amp;#x1FB39;</button><button>&amp;#x1CE8C;</button><button>&amp;#x1FB3A;</button></div>
+</div>
+<div class="quiz" data-answer="0" data-explain="A new picture is hundreds of cells: let code or an editor do the arithmetic. A single wrong cell is quicker to fix by hand.">
+  <p>Which job needs a generator or an editor, not a hand edit?</p>
+  <div class="options">
+    <button>Drawing a new picture from scratch</button>
+    <button>Fixing one wrong cell in a logo</button>
+    <button>Changing the band colour of a title</button>
+    <button>Hiding a rule from screen readers</button>
+  </div>
+</div>
+
+<hr>
+
+<h2>Read next</h2>
+<p>
+  The primary source is the repo's own <a href="../../../../stories/_mosaic.js"><code>stories/_mosaic.js</code></a>:
+  about 30 lines of logic, and you can now read all of it (<code>cell()</code>, <code>toMosaic()</code>,
+  <code>logo()</code>, <code>lettering()</code>). For a feel of the planned live editor, try its reference, the
+  <a href="https://zxnet.co.uk/teletext/editor/">zxnet editor</a>: draw one letter there with the same 2×3 blocks.
+</p>
+<p class="aside">
+  Anything unclear? Ask me, your agent, in the chat. Next on the roadmap: separated mosaics and the
+  <code>data-mosaic</code> attribute, then colour.
+</p>
+
+</div></main>
+<footer class="cf-page__footer"><nav aria-label="Lessons"><ul class="cf-fastext">
+    <li><a class="cf-fastext__key" data-variant="red" href="0004-why-the-cells-tile.html">LESSON 4</a></li>
+    <li><a class="cf-fastext__key" data-variant="green" href="../reference/sextants.html">REFERENCE</a></li>
+    <li><a class="cf-fastext__key" data-variant="yellow" href="0006-separated-mosaics.html">LESSON 6</a></li>
+  </ul></nav></footer>
+</div>
+</body>
+</html>

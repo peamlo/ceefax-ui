@@ -9,7 +9,7 @@ export default [
   { ignores: ['dist/', 'storybook-static/', '.agents/', '.claude/'] },
   js.configs.recommended,
   {
-    files: ['src/**/*.js', 'stories/**/*.js', '.storybook/preview.js'],
+    files: ['src/**/*.js', 'stories/**/*.js', '.storybook/preview.js', 'docs/courses/**/*.js'],
     languageOptions: { globals: globals.browser },
   },
   {
