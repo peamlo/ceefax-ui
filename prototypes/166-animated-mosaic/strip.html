@@ -1,0 +1,110 @@
+<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="/repo/src/index.css"><style>
+/* A: wrapper clips, mosaic moves */
+.cf-mosaic-frames { display: inline-block; vertical-align: top; height: calc(var(--rows) * 1em); overflow: clip; }
+.cf-mosaic-frames > .cf-mosaic { animation: cf-mosaic-frames calc(var(--frames) * var(--frame-time, 500ms)) steps(var(--frames)) infinite; }
+/* B: one element, box = one frame, content overflows, clip-path follows translate */
+.cf-mosaic[data-frames] { height: calc(var(--rows) * 1em); vertical-align: top;
+  animation: cf-mosaic-one calc(var(--frames) * var(--frame-time, 500ms)) steps(var(--frames)) infinite; }
+@keyframes cf-mosaic-frames { to { translate: 0 -100%; } }
+@keyframes cf-mosaic-one {
+  from { translate: 0 0; clip-path: inset(0 0 0 0); }
+  to { translate: 0 calc(var(--frames) * -100%); clip-path: inset(calc(var(--frames) * 100%) 0 calc(var(--frames) * -100%) 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cf-mosaic-frames > .cf-mosaic, .cf-mosaic[data-frames] { animation: none; }
+}
+.once { animation-iteration-count: 1 !important; }
+
+body{margin:0;padding:16px;background:var(--cf-bg);color:var(--cf-fg)} .row{display:flex;gap:24px;align-items:flex-start;margin-bottom:12px} .lbl{font:12px monospace;color:#888;width:70px}</style>
+<div class="row"><span class="lbl">A 20px</span><span id="a" class="cf-mosaic-frames" style="--rows:2;--frames:4;font-size:20px"><span class="cf-mosaic" aria-hidden="true"><span data-variant="red">🬻🬺█🬓</span> 1
+<span data-variant="red">🬁🬬🬆 </span> <span data-variant="yellow" data-band="blue">F</span>
+<span data-variant="green">🬞🬻🬺🬏</span> 2
+<span data-variant="green">🬨🬕🬨🬕</span> <span data-variant="yellow" data-band="blue">F</span>
+<span data-variant="yellow">█🬹🬭 </span> 3
+<span data-variant="yellow">██🬎🬂</span> <span data-variant="yellow" data-band="blue">F</span>
+<span data-variant="cyan">𜺎𜺍𜺏𜹤</span> 4
+<span data-variant="cyan">𜹒𜹿𜹗 </span> <span data-variant="yellow" data-band="blue">F</span></span></span>
+ <span class="lbl">B 20px</span><span id="b" class="cf-mosaic" data-frames style="--rows:2;--frames:4;font-size:20px" aria-hidden="true"><span data-variant="red">🬻🬺█🬓</span> 1
+<span data-variant="red">🬁🬬🬆 </span> <span data-variant="yellow" data-band="blue">F</span>
+<span data-variant="green">🬞🬻🬺🬏</span> 2
+<span data-variant="green">🬨🬕🬨🬕</span> <span data-variant="yellow" data-band="blue">F</span>
+<span data-variant="yellow">█🬹🬭 </span> 3
+<span data-variant="yellow">██🬎🬂</span> <span data-variant="yellow" data-band="blue">F</span>
+<span data-variant="cyan">𜺎𜺍𜺏𜹤</span> 4
+<span data-variant="cyan">𜹒𜹿𜹗 </span> <span data-variant="yellow" data-band="blue">F</span></span>
+ <span class="lbl">A once</span><span class="cf-mosaic-frames" style="--rows:2;--frames:4;font-size:20px"><span class="cf-mosaic once" aria-hidden="true"><span data-variant="red">🬻🬺█🬓</span> 1
+<span data-variant="red">🬁🬬🬆 </span> <span data-variant="yellow" data-band="blue">F</span>
+<span data-variant="green">🬞🬻🬺🬏</span> 2
+<span data-variant="green">🬨🬕🬨🬕</span> <span data-variant="yellow" data-band="blue">F</span>
+<span data-variant="yellow">█🬹🬭 </span> 3
+<span data-variant="yellow">██🬎🬂</span> <span data-variant="yellow" data-band="blue">F</span>
+<span data-variant="cyan">𜺎𜺍𜺏𜹤</span> 4
+<span data-variant="cyan">𜹒𜹿𜹗 </span> <span data-variant="yellow" data-band="blue">F</span></span></span></div>
+<div class="row"><span class="lbl">A 13.3px</span><span id="af" class="cf-mosaic-frames" style="--rows:2;--frames:4;font-size:13.3px"><span class="cf-mosaic" aria-hidden="true"><span data-variant="red">🬻🬺█🬓</span> 1
+<span data-variant="red">🬁🬬🬆 </span> <span data-variant="yellow" data-band="blue">F</span>
+<span data-variant="green">🬞🬻🬺🬏</span> 2
+<span data-variant="green">🬨🬕🬨🬕</span> <span data-variant="yellow" data-band="blue">F</span>
+<span data-variant="yellow">█🬹🬭 </span> 3
+<span data-variant="yellow">██🬎🬂</span> <span data-variant="yellow" data-band="blue">F</span>
+<span data-variant="cyan">𜺎𜺍𜺏𜹤</span> 4
+<span data-variant="cyan">𜹒𜹿𜹗 </span> <span data-variant="yellow" data-band="blue">F</span></span></span>
+ <span class="lbl">B 13.3px</span><span class="cf-mosaic" data-frames style="--rows:2;--frames:4;font-size:13.3px" aria-hidden="true"><span data-variant="red">🬻🬺█🬓</span> 1
+<span data-variant="red">🬁🬬🬆 </span> <span data-variant="yellow" data-band="blue">F</span>
+<span data-variant="green">🬞🬻🬺🬏</span> 2
+<span data-variant="green">🬨🬕🬨🬕</span> <span data-variant="yellow" data-band="blue">F</span>
+<span data-variant="yellow">█🬹🬭 </span> 3
+<span data-variant="yellow">██🬎🬂</span> <span data-variant="yellow" data-band="blue">F</span>
+<span data-variant="cyan">𜺎𜺍𜺏𜹤</span> 4
+<span data-variant="cyan">𜹒𜹿𜹗 </span> <span data-variant="yellow" data-band="blue">F</span></span>
+ <span class="lbl">static</span><span class="cf-mosaic" style="font-size:13.3px" aria-hidden="true"><span data-variant="red">🬻🬺█🬓</span> 1
+<span data-variant="red">🬁🬬🬆 </span> <span data-variant="yellow" data-band="blue">F</span>
+<span data-variant="green">🬞🬻🬺🬏</span> 2
+<span data-variant="green">🬨🬕🬨🬕</span> <span data-variant="yellow" data-band="blue">F</span>
+<span data-variant="yellow">█🬹🬭 </span> 3
+<span data-variant="yellow">██🬎🬂</span> <span data-variant="yellow" data-band="blue">F</span>
+<span data-variant="cyan">𜺎𜺍𜺏𜹤</span> 4
+<span data-variant="cyan">𜹒𜹿𜹗 </span> <span data-variant="yellow" data-band="blue">F</span></span></div>
+<div class="row"><span class="lbl">A sep 20</span><span id="as" class="cf-mosaic-frames" style="--rows:2;--frames:4;font-size:20px"><span class="cf-mosaic" aria-hidden="true"><span data-variant="red">🬻🬺█🬓</span> 1
+<span data-variant="red">🬁🬬🬆 </span> <span data-variant="yellow" data-band="blue">F</span>
+ 
+<span data-variant="green">🬞🬻🬺🬏</span> 2
+<span data-variant="green">🬨🬕🬨🬕</span> <span data-variant="yellow" data-band="blue">F</span>
+ 
+<span data-variant="yellow">█🬹🬭 </span> 3
+<span data-variant="yellow">██🬎🬂</span> <span data-variant="yellow" data-band="blue">F</span>
+ 
+<span data-variant="cyan">𜺎𜺍𜺏𜹤</span> 4
+<span data-variant="cyan">𜹒𜹿𜹗 </span> <span data-variant="yellow" data-band="blue">F</span>
+ </span></span>
+ <span class="lbl">B sep 20</span><span class="cf-mosaic" data-frames style="--rows:2;--frames:4;font-size:20px" aria-hidden="true"><span data-variant="red">🬻🬺█🬓</span> 1
+<span data-variant="red">🬁🬬🬆 </span> <span data-variant="yellow" data-band="blue">F</span>
+ 
+<span data-variant="green">🬞🬻🬺🬏</span> 2
+<span data-variant="green">🬨🬕🬨🬕</span> <span data-variant="yellow" data-band="blue">F</span>
+ 
+<span data-variant="yellow">█🬹🬭 </span> 3
+<span data-variant="yellow">██🬎🬂</span> <span data-variant="yellow" data-band="blue">F</span>
+ 
+<span data-variant="cyan">𜺎𜺍𜺏𜹤</span> 4
+<span data-variant="cyan">𜹒𜹿𜹗 </span> <span data-variant="yellow" data-band="blue">F</span>
+ </span>
+ <span class="lbl">A sep 13.3</span><span id="asf" class="cf-mosaic-frames" style="--rows:2;--frames:4;font-size:13.3px"><span class="cf-mosaic" aria-hidden="true"><span data-variant="red">🬻🬺█🬓</span> 1
+<span data-variant="red">🬁🬬🬆 </span> <span data-variant="yellow" data-band="blue">F</span>
+ 
+<span data-variant="green">🬞🬻🬺🬏</span> 2
+<span data-variant="green">🬨🬕🬨🬕</span> <span data-variant="yellow" data-band="blue">F</span>
+ 
+<span data-variant="yellow">█🬹🬭 </span> 3
+<span data-variant="yellow">██🬎🬂</span> <span data-variant="yellow" data-band="blue">F</span>
+ 
+<span data-variant="cyan">𜺎𜺍𜺏𜹤</span> 4
+<span data-variant="cyan">𜹒𜹿𜹗 </span> <span data-variant="yellow" data-band="blue">F</span>
+ </span></span></div>
+<p style="font-size:20px">text <span class="cf-mosaic-frames" style="--rows:2;--frames:4"><span class="cf-mosaic" aria-hidden="true"><span data-variant="red">🬻🬺█🬓</span> 1
+<span data-variant="red">🬁🬬🬆 </span> <span data-variant="yellow" data-band="blue">F</span>
+<span data-variant="green">🬞🬻🬺🬏</span> 2
+<span data-variant="green">🬨🬕🬨🬕</span> <span data-variant="yellow" data-band="blue">F</span>
+<span data-variant="yellow">█🬹🬭 </span> 3
+<span data-variant="yellow">██🬎🬂</span> <span data-variant="yellow" data-band="blue">F</span>
+<span data-variant="cyan">𜺎𜺍𜺏𜹤</span> 4
+<span data-variant="cyan">𜹒𜹿𜹗 </span> <span data-variant="yellow" data-band="blue">F</span></span></span> after</p>
