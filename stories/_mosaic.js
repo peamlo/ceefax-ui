@@ -1,6 +1,5 @@
 // Builds mosaic markup for the stories from pixel art, so their controls can change it. Art is
-// rows of pixels ('#' on); every 2×3 pixels become one cell. Consumers draw in the zxnet editor
-// instead and paste the characters (README → Mosaic); this is the same formula in code.
+// rows of pixels ('#' on); every 2×3 pixels become one cell, by the formula in README → Mosaic.
 
 export const COLOURS = ['red', 'green', 'yellow', 'blue', 'cyan', 'magenta'];
 
@@ -39,7 +38,7 @@ export const ART = {
   house: ['...##...', '..####..', '.######.', '########', '.##..##.', '.##..##.'],
   arrow: ['##......', '####....', '######..', '########', '######..', '####....'],
   // Original art, 24 × 13 cells: a lit sphere, ordered-dithered for shading, with a two-band ring in
-  // front of it and behind it. Computed once and pasted, as you'd paste from the zxnet editor.
+  // front of it and behind it. The rows were computed once by a script and kept as data.
   saturn: [
     '.................#..............................',
     '..............................#.................',

@@ -96,9 +96,8 @@ The first cell has every block lit but the top-left one: 2 + 4 + 8 + 16 + 32 = 6
 - Bedstead also has a private-use copy of every mosaic at U+EE00–EE7F, in the layout ZVBI-based tools use. It
   renders the same; write the standard code points so the text means something outside this font.
 
-Don't type them by hand: draw in the [zxnet teletext editor](https://zxnet.co.uk/teletext/editor/) and paste
-the characters. It paints with teletext's own rules. These stories build their art in code
-(\`stories/_mosaic.js\`), so the controls can change it.
+Don't type them by hand: generate them from pixel art. These stories do it in code (\`stories/_mosaic.js\`), so
+the controls can change the art.
 
 ### Colour: two per cell
 
