@@ -24,6 +24,8 @@ export default {
     'no-trailing-whitespace': 'off',
     // The browser serializes every boolean attribute as name="", so its style isn't the story's.
     'attribute-boolean-style': 'off',
+    // So is an enumerated attribute whose empty value is valid: <div popover> becomes popover="".
+    'attribute-empty-style': 'off',
     // Checkboxes sharing a name are one multi-value control (a group, README "Forms"), like radios.
     'form-dup-name': ['error', { shared: ['radio', 'checkbox', 'button', 'reset', 'submit'] }],
     // A group may be named by the heading above it with aria-labelledby, not a <legend>
