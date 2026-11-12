@@ -32,17 +32,3 @@
 [data-gap='8'] {
   --cf-gap: var(--cf-space-8);
 }
-
-/* Cross-axis alignment — consumed by cf-cluster (and any flex primitive). */
-[data-align='start'] {
-  --cf-align: flex-start;
-}
-[data-align='center'] {
-  --cf-align: center;
-}
-[data-align='end'] {
-  --cf-align: flex-end;
-}
-[data-align='baseline'] {
-  --cf-align: baseline;
-}
