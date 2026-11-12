@@ -284,6 +284,34 @@ async function assertMosaicTiles(page) {
   await page.emulateMedia({ forcedColors: 'none' });
 }
 
+// Contract (#167): a real click on the invoker opens the dialog modally, moves focus inside it
+// and stops the page scrolling; a real Esc closes it and hands focus back to the invoker, and so
+// does a real click on the backdrop (closedby="any"). All native, so this proves the markup, not
+// library code. Leaves the dialog closed and nothing focused.
+async function assertDialogInvoker(page) {
+  const state = () => {
+    const dialog = document.querySelector('.cf-dialog');
+    return {
+      modal: dialog.matches(':modal'),
+      inside: dialog.contains(document.activeElement),
+      locked: getComputedStyle(document.documentElement).overflowY === 'hidden',
+    };
+  };
+  const OPEN = { modal: true, inside: true, locked: true };
+  const CLOSED = { modal: false, inside: false, locked: false };
+  const onInvoker = () => document.activeElement.getAttribute('command') === 'show-modal';
+  await page.click('[command="show-modal"]');
+  expect(await page.evaluate(state)).toEqual(OPEN);
+  await page.keyboard.press('Escape');
+  expect(await page.evaluate(state)).toEqual(CLOSED);
+  expect(await page.evaluate(onInvoker)).toBe(true);
+  await page.click('[command="show-modal"]');
+  await page.mouse.click(1, 1); // the backdrop: the dialog is centred, nowhere near the corner
+  expect(await page.evaluate(state)).toEqual(CLOSED);
+  expect(await page.evaluate(onInvoker)).toBe(true);
+  await page.evaluate(() => document.activeElement.blur());
+}
+
 const htmlValidate = new HtmlValidate(htmlValidateConfig);
 
 // Contract (#127): every story renders valid HTML, so markup a consumer copies from "Show
@@ -409,15 +437,18 @@ async function assertDrawnMark(page, name) {
   const cell = await page.evaluate(markCell);
   const value = () => page.inputValue('input');
   const rendered = await value();
-  // A click at a fraction of the cell's height, in the middle of its width.
-  const clickAt = (fy) => page.mouse.click(cell.x + cell.width / 2, cell.y + cell.height * fy);
+  // #171: the part is the gap and the cell, at least 24px each way (WCAG 2.2 target size), so
+  // click just inside its far corners: top left steps up, bottom right steps down.
+  const [w, h] = [Math.max(24, 2 * cell.width), Math.max(24, cell.height)];
+  const [left, mid] = [cell.x - cell.width, cell.y + cell.height / 2];
+  const clickAt = (x, dy) => page.mouse.click(left + x, mid + dy);
   if (name === 'Number') {
-    await clickAt(0.3);
+    await clickAt(2, 2 - h / 2);
     expect(await value()).toBe(String(+rendered + 1));
-    await clickAt(0.7);
+    await clickAt(w - 2, h / 2 - 2);
     expect(await value()).toBe(rendered);
   } else {
-    await clickAt(0.5);
+    await clickAt(2, 2 - h / 2);
     expect(await value()).toBe('');
     await page.fill('input', rendered);
   }
@@ -470,17 +501,72 @@ async function assertRadioKeys(page) {
   expect(await page.evaluate(focused)).toEqual(['BBC1', true]);
 }
 
+// Contract (#20): a real Tab focuses the reveal's summary and inverts the row, marker included;
+// a real Enter opens it natively, which the accessibility tree announces as expanded, and flips
+// the marker ▼ → ▲. The marker stays out of the accessible name (empty alt text). The Single
+// story starts closed. Leaves it open and nothing focused.
+const SUMMARY = '.cf-reveal > summary';
+const marker = (sel) => {
+  const after = getComputedStyle(document.querySelector(sel), '::after');
+  return { marker: after.color, glyph: after.content };
+};
+const revealLook = async (page) => ({
+  ...(await page.evaluate(colours, SUMMARY)),
+  ...(await page.evaluate(marker, SUMMARY)),
+});
+// Chrome's own accessibility tree: Playwright's aria snapshot doesn't model <summary>.
+async function disclosure(page) {
+  const cdp = await page.context().newCDPSession(page);
+  const { nodes } = await cdp.send('Accessibility.getFullAXTree');
+  await cdp.detach();
+  const node = nodes.find((n) => n.role?.value === 'DisclosureTriangle');
+  return { name: node.name.value, expanded: node.properties.find((p) => p.name === 'expanded').value.value };
+}
+
+async function assertRevealKeys(page) {
+  expect((await page.evaluate(marker, SUMMARY)).glyph).toContain('\u25BC');
+  expect(await disclosure(page)).toEqual({ name: 'What does TAE mean?', expanded: false });
+  await page.keyboard.press('Tab');
+  expect(await page.evaluate((sel) => document.activeElement.matches(sel), SUMMARY)).toBe(true);
+  expect(await revealLook(page)).toMatchObject({ ...INVERTED, marker: BLACK });
+  await page.keyboard.press('Enter');
+  expect((await disclosure(page)).expanded).toBe(true);
+  expect((await page.evaluate(marker, SUMMARY)).glyph).toContain('\u25B2');
+  await page.evaluate(() => document.activeElement.blur());
+}
+
+// Contract (#20): inside the Screen frame the reveal's marker is Bedstead's own ▼ glyph, not a
+// fallback face's. Only Chrome's renderer knows which font drew a glyph, so this reads it over CDP.
+async function assertRevealFrameMarker(page) {
+  await page.evaluate(() => document.fonts.ready);
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('DOM.enable');
+  await cdp.send('CSS.enable');
+  const { nodeId } = await cdp.send('DOM.querySelector', {
+    nodeId: (await cdp.send('DOM.getDocument')).root.nodeId,
+    selector: SUMMARY,
+  });
+  const { node } = await cdp.send('DOM.describeNode', { nodeId, depth: 0 });
+  const after = node.pseudoElements.find((p) => p.pseudoType === 'after');
+  const { fonts } = await cdp.send('CSS.getPlatformFontsForNode', { nodeId: after.nodeId });
+  await cdp.detach();
+  expect(fonts.map((f) => f.familyName)).toEqual(['Bedstead']);
+}
+
 const ignoreAxePseudo = () => {
   const { options } = window.axe._audit.checks['color-contrast'];
   window.axe.configure({ checks: [{ id: 'color-contrast', options: { ...options, ignorePseudo: true } }] });
 };
 
-// `aaa` also enables axe's AAA contrast rule — the accessible theme's promise (#12).
+// target-size (WCAG 2.2 AA, 24px pointer targets, #171) is off by default in axe; `aaa` also
+// enables axe's AAA contrast rule — the accessible theme's promise (#12).
 const axe = async (page, { aaa = false } = {}) => {
   await checkA11y(page, '#storybook-root', {
     detailedReport: true,
     detailedReportOptions: { html: true },
-    ...(aaa && { axeOptions: { rules: { 'color-contrast-enhanced': { enabled: true } } } }),
+    axeOptions: {
+      rules: { 'target-size': { enabled: true }, ...(aaa && { 'color-contrast-enhanced': { enabled: true } }) },
+    },
   });
 };
 
@@ -511,6 +597,9 @@ export default {
     if (title === 'Components/Form/Checkbox' && ['Unchecked', 'Character', 'Disabled'].includes(name))
       await assertCheckboxInput(page, name);
     if (title === 'Components/Form/Radio' && name === 'Group') await assertRadioKeys(page);
+    if (title === 'Components/Dialog' && name === 'Closed') await assertDialogInvoker(page);
+    if (title === 'Components/Reveal' && name === 'Single') await assertRevealKeys(page);
+    if (title === 'Components/Reveal' && name === 'In the Screen frame') await assertRevealFrameMarker(page);
 
     await injectAxe(page);
     // The scanline overlay is an absolutely positioned ::after with a background-image, which axe

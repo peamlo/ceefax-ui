@@ -81,18 +81,20 @@
 }
 /* The number spinner and the search clear button stay the browser's own parts (the top or
    bottom half steps the number, the ✕ clears the field), redrawn like the select's ▼: a thin
-   ▲▼ or ✕ one cell wide after a one-cell gap, a mask over the field's own colour.
+   ▲▼ or ✕ one cell wide after a one-cell gap, a mask over the field's own colour. The part
+   itself is the gap and the cell, at least 24px each way (WCAG 2.2 target size): what the two
+   cells lack spills into the end padding, and the mark stays in the last cell.
    Chrome and Safari only; Firefox has no hook for either, so its own stay. */
 :where(.cf-input)::-webkit-inner-spin-button,
 :where(.cf-input)::-webkit-search-cancel-button {
   appearance: none;
-  inline-size: 1ch;
-  block-size: 1.2em; /* height: 100% collapses to nothing */
+  inline-size: max(2ch, 24px);
+  block-size: max(1.2em, 24px); /* height: 100% collapses to nothing */
   align-self: center; /* Chrome stretches the spinner, so a set height sits at the top */
-  margin-inline-start: 1ch;
+  margin-inline-end: calc(2ch - max(2ch, 24px));
   background: currentcolor;
   mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2 5'><path d='M0 2 1 0 2 2zm0 1h2L1 5z'/></svg>")
-    center / contain no-repeat;
+    1ch center / 1ch 1.2em no-repeat;
   opacity: 1; /* Chrome shows its own only on hover */
   cursor: pointer;
 }

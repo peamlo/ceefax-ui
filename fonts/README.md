@@ -1,6 +1,6 @@
 # Fonts (self-hosted)
 
-`src/tokens/typography.css` loads each weight as `unicode-range` subsets (ADR-0022), so a page
+`src/tokens/typography.css` loads each weight as `unicode-range` subsets (ADR-0023), so a page
 downloads only the ones its characters need:
 
 - `bedstead-3.261-{regular,bold}-{latin,mosaic,other}.woff2`

@@ -60,6 +60,7 @@ real form, a holiday enquiry.
 - **`data-variant`** is only for a presentational colour — any of the six named authentic colours (`red`/`green`/`yellow`/`blue`/`cyan`/`magenta`), plus the look-only `ghost` on a button, `nav` on a link and `character` on a checkbox or radio. Each component decides how it paints that colour: the button fills, the card borders, the fastext key colours its label. An unrecognised name renders the component's default, unstyled look. A **fastext bar** has one to four keys, shown as red / green / yellow / cyan on screen. Any seam colour works, but blue text on the black page fails contrast.
 - **`data-band`** sets a coloured **band** behind a text part, one of the same six colours. On a banded part `data-variant` names the ink; without it the band gets the readable default ink (black, white on blue). Only parts whose `data-variant` is a text colour take a band (the header row's parts, the table's, fastext keys and mosaics); blocks such as buttons never do. An unknown name renders no band. See [Bands](#bands).
 - No utility classes, no compound-class soup.
+- **Interactive widgets** follow an [APG pattern](https://www.w3.org/WAI/ARIA/apg/patterns/), and their state comes from that pattern's native or ARIA attributes ([ADR-0022](./docs/adr/0022-interactive-widgets-are-native-elements.md)).
 
 ### States
 
@@ -68,21 +69,27 @@ real form, a holiday enquiry.
 - **Hover** → same inversion as focus (intentional).
 - **Active** → instant `scale(.96)`, no colour ramp.
 
+### Accessibility
+
+The library targets WCAG 2.2 AA (AAA contrast under the [Accessible theme](#accessible-theme)) and follows [APG patterns](https://www.w3.org/WAI/ARIA/apg/patterns/), but conformance belongs to your site, not to the library: it depends on the content and markup you put in the components.
+
 ## Components
 
 | Class                                                                                     | Element                                                                    | Variants (`data-*`)                                                                                                                                                                                        | State                                                                                                            |
 | ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `cf-btn`                                                                                  | `<button>` / `<a>`                                                         | `variant` red/green/yellow/blue/ghost · `size` sm/md/lg                                                                                                                                                    | `:disabled`, `:focus-visible`, `:active`                                                                         |
+| `cf-btn`                                                                                  | `<button>` / `<a>`                                                         | `variant` red/green/yellow/blue/ghost · `size` sm/md/lg (`sm` is still a 24px target)                                                                                                                      | `:disabled`, `:focus-visible`, `:active`                                                                         |
 | `cf-link`                                                                                 | `<a>`                                                                      | `variant="nav"`                                                                                                                                                                                            | `[aria-current="page"]`                                                                                          |
 | `cf-card`                                                                                 | any block                                                                  | `variant` red/green/yellow/blue/cyan/magenta                                                                                                                                                               | —                                                                                                                |
 | `cf-fastext` / `cf-fastext__key`                                                          | `<ul>` / `<a>`                                                             | `variant` (text colour) · `band` (filled key, ADR-0017); 1–4 keys in equal columns                                                                                                                         | `:focus-visible`                                                                                                 |
 | `cf-notice` / `cf-notice__flag`                                                           | block + `role="note"` / `<strong>`                                         | `variant` red (default, danger)/yellow (warning)/green (success)/blue/cyan/magenta · `blink="off"`                                                                                                         | flash (reduced-motion aware)                                                                                     |
 | `cf-stat` / `cf-stat__value` / `cf-stat__label`                                           | `<p>` or `<div>` / `<span>` / `<span>`                                     | `variant` (text colour, accent by default) · `band` (background; `variant` is then the ink)                                                                                                                | —                                                                                                                |
+| `cf-reveal` / `cf-reveal__index`                                                          | `<details>` / `<span>` in `<summary>`                                      | `variant` (number colour)                                                                                                                                                                                  | `[open]`, `:focus-visible`, `name` (accordion)                                                                   |
 | `cf-header-row` / `cf-header-row__page` / `__service` / `__rolling` / `__time` / `__date` | `<header>` / `<span>` ×3 / `<time datetime>` / `<span>` in the `<time>`    | `variant` on any part (text colour) · `band` on any part (background; `variant` is then the ink)                                                                                                           | —                                                                                                                |
 | `cf-table` / `cf-table__scroll`                                                           | `<table>` / `<section>`                                                    | `stripe-rows` / `stripe-cols` text/band · `variant` / `band` on any part · `align="end"` / `leader` on a cell · `side="bottom"` on the caption                                                             | `[aria-current="true"]` on a row                                                                                 |
 | `cf-field` / `cf-field__hint` / `cf-field__error`                                         | block with `<label>` + control / `<p>` / `<p>`                             | —                                                                                                                                                                                                          | —                                                                                                                |
 | `cf-input` / `cf-textarea` / `cf-select`                                                  | text-like `<input>` / `<textarea>` / single `<select>`                     | — (`size`, `cols`, `rows` set the size)                                                                                                                                                                    | `:focus-visible`, `:user-invalid`, `[aria-invalid="true"]`, `:disabled`                                          |
 | `cf-checkbox` / `cf-radio`                                                                | `<input type="checkbox">` / `<input type="radio">` in a wrapping `<label>` | `variant="character"`                                                                                                                                                                                      | `:checked`, `:indeterminate` (checkbox), `:focus-visible`, `:user-invalid`, `[aria-invalid="true"]`, `:disabled` |
+| `cf-dialog`                                                                               | `<dialog>`                                                                 | `variant` (border colour) · `size` sm/lg                                                                                                                                                                   | `[open]`, `:modal`, Esc, backdrop click (`closedby="any"`)                                                       |
 | `<cf-loader>`                                                                             | Web Component                                                              | —                                                                                                                                                                                                          | blink (reduced-motion aware)                                                                                     |
 | `cf-mosaic`                                                                               | `<span>`                                                                   | `variant` (ink) · `band` (background) on the mosaic or a span inside it · `mosaic="separated"`                                                                                                             | `aria-hidden` (decorative) or `role="img"` + `aria-label`                                                        |
 | `cf-page` + `data-frame`                                                                  | `<section>` with `header`/`main`/`footer`                                  | `frame` (4:3 screen; `--cf-frame-ratio` to change) · `cells` 40/60/80 (`--cf-frame-cells` for any count) · `crt` adds scanlines + glow (opt-in, below AA on red/magenta) · `scrollbar` fastext/mosaic/thin | —                                                                                                                |
@@ -122,6 +129,57 @@ A headline figure, read before the text around it: the value in the display type
 - **No more than three equally weighted stats per screen.** Lay them out with `cf-grid` or `cf-cluster`; for a long list of figures, use a [table](#table-cf-table).
 - **In the Screen frame** the value is two cells high and the label one, and the label is the frame's authentic green.
 - **A long figure wraps** in its column rather than scrolling the page. Authentic blue text is hard to read on black (about 2.4:1); the Accessible theme lifts it.
+
+### Reveal (`cf-reveal`)
+
+Follows the APG [Disclosure](https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/) pattern, on the native `<details>`: content the reader opens only if they care, such as a FAQ, questions to prepare for a meeting, an exercise's solution, a glossary or "show details". It's named after the REVEAL button on a teletext remote. One class on the `<details>`; the `<summary>` is a full-width row with a ▼ when closed and a ▲ when open, and anything after it is revealed in place, indented under the summary text. No JavaScript: the browser toggles it on click, Enter and Space, and announces whether it's expanded. Add `open` to render it expanded.
+
+```html
+<details class="cf-reveal">
+  <summary>Show the fees</summary>
+  <p>0.12% a year, charged monthly. No fee to join or leave.</p>
+</details>
+```
+
+Reveals in a row stack into a **list**, sharing one rule between neighbours, with no wrapper. Several can be open at once. Give them the same `name` and they become an **accordion**: the HTML standard's exclusive `<details>` group, where opening one closes the others. That attribute is the only difference.
+
+```html
+<details class="cf-reveal" name="glossary" open>
+  <summary>TAE</summary>
+  <p>The annual rate you earn once compounding is counted.</p>
+</details>
+<details class="cf-reveal" name="glossary">
+  <summary>Money-market fund</summary>
+  <p>A fund that lends for days or weeks, so its price barely moves.</p>
+</details>
+```
+
+Group a list with a heading per group, here "your questions" and "suggested", with a number variant each:
+
+```html
+<h3>Your questions</h3>
+<details class="cf-reveal" data-variant="green">
+  <summary><span class="cf-reveal__index">1</span>What does TAE mean?</summary>
+  <p>The annual rate you earn once compounding is counted.</p>
+</details>
+<details class="cf-reveal" data-variant="green">
+  <summary><span class="cf-reveal__index">2</span>Can I take the money out early?</summary>
+  <p>From the account, any day. From the fund, in one to three working days.</p>
+</details>
+
+<h3>Suggested questions</h3>
+<details class="cf-reveal" data-variant="yellow">
+  <summary><span class="cf-reveal__index">3</span>What happens if the bank fails?</summary>
+  <p>Deposits are covered up to €100,000 per person and bank.</p>
+</details>
+```
+
+- **`cf-reveal__index` is optional:** a number so a FAQ can say "question 3". `data-variant` colours it (accent by default); without a number the variant has no effect.
+- **Label groups in text,** with a heading each as above, so colour isn't the only grouping cue.
+- **Reveal items aren't headings.** A `<summary>` isn't one, and a heading inside it is announced inconsistently, so screen-reader users can't jump item to item. Split a long FAQ into headed groups instead of nesting headings in `<summary>`.
+- **Don't hide critical information in a reveal.** Readers skim past closed items; anything they must see belongs on the page.
+- **Use the native element.** The stylesheet doesn't style a headless library's `button[aria-expanded]` plus panel: `<details name>` works in every engine, so a library adds nothing here (ADR-0022).
+- **Instant,** like teletext: no open or close animation.
 
 ### Header row (`cf-header-row`)
 
@@ -307,6 +365,40 @@ The heart is 8 × 6 blocks, so 4 cells across and 2 rows down: the newline insid
 
 - **Inside the Screen frame** mosaics sit on the cell grid and tile edge to edge.
 - **Your CSS wins** (every rule is `:where()`), font included: a rule that sets a font on every `span` turns mosaics into empty boxes. Set it back with `.cf-mosaic { font-family: 'Bedstead Mosaic', 'Bedstead Cell', monospace }`.
+
+### Dialog (`cf-dialog`)
+
+Follows the APG [Dialog (Modal)](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/) pattern. A modal panel on the native `<dialog>`, opened and closed by HTML invoker commands, so it needs no JavaScript: the browser draws it in the top layer, moves focus in, closes it on Esc or a click on the backdrop, hands focus back to the button that opened it and makes the page behind inert. The library paints the box only: a thick square border on the page background over a dimmed backdrop, opening and closing instantly.
+
+```html
+<button class="cf-btn" type="button" command="show-modal" commandfor="delete-page">Delete page</button>
+
+<dialog
+  class="cf-dialog"
+  id="delete-page"
+  aria-labelledby="delete-page-title"
+  closedby="any"
+  data-size="sm"
+  data-variant="red"
+>
+  <h2 id="delete-page-title">Delete P100?</h2>
+  <p>The page and its 12 subpages go off air for good.</p>
+  <form method="dialog" class="cf-cluster">
+    <button class="cf-btn" type="submit" value="cancel" autofocus>Cancel</button>
+    <button class="cf-btn" type="submit" value="delete" data-variant="red">Delete</button>
+  </form>
+</dialog>
+```
+
+- **Open and close:** `command="show-modal"` and `commandfor="<id>"` on a button open it; `command="close"` closes it, and so does Esc. With `closedby="any"` a click on the backdrop closes it too; a browser without `closedby` ignores it, and Esc and the buttons still work. Only the modal form is supported: a non-modal `show()` has no invoker and needs script.
+- **Name it from its heading** with `aria-labelledby`, and state its purpose in the heading and the button labels: the border colour is never the only cue. `data-variant` colours the border, like `cf-card`.
+- **Focus:** put `autofocus` on the control that should take focus. On a destructive confirmation that is Cancel, not Delete.
+- **`<form method="dialog">`** closes the dialog when submitted and sets its `returnValue` to the pressed button's `value`, so you can read the answer without extra code.
+- **Sizes** name the text measure in Cells (characters), with the padding and border outside it: `data-size="sm"` is 30 Cells (a confirmation), the default 60 (a form or a message) and `data-size="lg"` 80 (longer reading). Only the width changes. Every size is capped to the viewport minus a gutter, and a dialog taller than the screen scrolls inside itself, with the page's [scrollbar](#scrollbars) inside `.cf-page`.
+- **The page stops scrolling** while a `cf-dialog` is open as a modal, in CSS alone (`:root:has(.cf-dialog:modal)`). Its scrollbar's gutter stays, so the page doesn't shift sideways.
+- **Actions** are a `cf-cluster` of `cf-btn`s; the buttons and links inside keep their own Inversion, and the box itself never inverts.
+- **Browser support:** invoker commands are in Chromium, Firefox and Safari since 2025. Older browsers need an invoker-commands polyfill, which you add.
+- **Headless libraries** (Radix, Melt/Bits, Reka, Zag): `cf-dialog` paints a `<div role="dialog">` they drive the same way, since it keys off nothing library-specific; the library positions it. Set the library's portal container inside `.cf-page` (or put the theme on `<html>`), or portalled content loses the Screen frame and theme. Paint its overlay element with `background: var(--cf-backdrop)` to match the native backdrop. The library locks the page scroll and handles a click outside itself: its dialog isn't `:modal`, so the CSS lock doesn't apply. A native `<dialog>` needs neither: the top layer changes only where it's drawn, and it still inherits through its place in the DOM.
 
 ## Tokens
 

@@ -9,11 +9,13 @@
 @import './components/card.css';
 @import './components/fastext.css';
 @import './components/notice.css';
+@import './components/reveal.css';
 @import './components/stat.css';
 @import './components/header-row.css';
 @import './components/table.css';
 @import './components/form.css';
 @import './components/mosaic.css';
+@import './components/dialog.css';
 @import './layout/_shared.css';
 @import './layout/stack.css';
 @import './layout/cluster.css';

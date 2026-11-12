@@ -1,3 +1,5 @@
+import { expect } from 'storybook/test';
+
 export default {
   title: 'Components/Button',
   tags: ['autodocs'],
@@ -28,5 +30,13 @@ export const Default = {};
 export const FastextRed = { args: { variant: 'red', label: '\u25B8 RED \u00B7 INDEX' } };
 export const FastextGreen = { args: { variant: 'green', label: '\u25B8 GREEN \u00B7 POSTS' } };
 export const Ghost = { args: { variant: 'ghost', label: 'Cancel' } };
+export const Small = {
+  args: { size: 'sm', label: 'MORE' },
+  // #171: a small button is still a 24px pointer target (WCAG 2.2). axe's target-size rule
+  // passes a lone small button on spacing alone, so it can't see this.
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector('.cf-btn').offsetHeight).toBeGreaterThanOrEqual(24);
+  },
+};
 export const Large = { args: { size: 'lg', label: 'START' } };
 export const Disabled = { args: { disabled: true, label: 'OFF AIR' } };

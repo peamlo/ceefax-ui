@@ -1,4 +1,4 @@
-# Splits a font into unicode-range subsets (ADR-0022), so a page downloads only the
+# Splits a font into unicode-range subsets (ADR-0023), so a page downloads only the
 # glyphs it shows: Latin text with the symbols UIs use, the mosaics, and everything else.
 # The ranges must match the @font-face rules in src/tokens/typography.css.
 #

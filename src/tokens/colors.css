@@ -27,6 +27,8 @@
   /* CRT look (data-frame="crt"): the scanline shade, and the glow, which mixes each text's own colour */
   --cf-crt-scanline: color-mix(in srgb, var(--cf-bg) 21%, transparent); /* below AA on red/magenta, ADR-0014 */
   --cf-crt-glow: color-mix(in srgb, currentcolor 45%, transparent);
+  /* the dimmed page behind an open dialog (cf-dialog's ::backdrop, or a headless library's overlay) */
+  --cf-backdrop: color-mix(in srgb, var(--cf-bg) 75%, transparent);
   /* ink (readable foreground) on a variant block: light blocks, and dark ones (authentic blue) */
   --cf-on-variant: var(--cf-base-black);
   --cf-on-variant-dark: var(--cf-base-white);

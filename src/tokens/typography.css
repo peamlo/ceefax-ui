@@ -1,5 +1,5 @@
 /* Self-hosted webfonts: Bedstead (public domain) and Space Mono (SIL OFL 1.1) — see fonts/README.md.
-   Each weight is split into unicode-range subsets (scripts/subset-fonts.py, ADR-0022), so a page
+   Each weight is split into unicode-range subsets (scripts/subset-fonts.py, ADR-0023), so a page
    downloads only what it shows: -latin (Latin with the arrows, maths, shapes and ticks UIs use),
    -mosaic, and -other for everything else. The ranges must match the script's, which prints
    -other's: its code points merged into a few runs, never over a Latin character the font lacks,
