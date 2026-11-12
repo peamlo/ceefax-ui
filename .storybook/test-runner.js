@@ -284,6 +284,34 @@ async function assertMosaicTiles(page) {
   await page.emulateMedia({ forcedColors: 'none' });
 }
 
+// Contract (#167): a real click on the invoker opens the dialog modally, moves focus inside it
+// and stops the page scrolling; a real Esc closes it and hands focus back to the invoker, and so
+// does a real click on the backdrop (closedby="any"). All native, so this proves the markup, not
+// library code. Leaves the dialog closed and nothing focused.
+async function assertDialogInvoker(page) {
+  const state = () => {
+    const dialog = document.querySelector('.cf-dialog');
+    return {
+      modal: dialog.matches(':modal'),
+      inside: dialog.contains(document.activeElement),
+      locked: getComputedStyle(document.documentElement).overflowY === 'hidden',
+    };
+  };
+  const OPEN = { modal: true, inside: true, locked: true };
+  const CLOSED = { modal: false, inside: false, locked: false };
+  const onInvoker = () => document.activeElement.getAttribute('command') === 'show-modal';
+  await page.click('[command="show-modal"]');
+  expect(await page.evaluate(state)).toEqual(OPEN);
+  await page.keyboard.press('Escape');
+  expect(await page.evaluate(state)).toEqual(CLOSED);
+  expect(await page.evaluate(onInvoker)).toBe(true);
+  await page.click('[command="show-modal"]');
+  await page.mouse.click(1, 1); // the backdrop: the dialog is centred, nowhere near the corner
+  expect(await page.evaluate(state)).toEqual(CLOSED);
+  expect(await page.evaluate(onInvoker)).toBe(true);
+  await page.evaluate(() => document.activeElement.blur());
+}
+
 const htmlValidate = new HtmlValidate(htmlValidateConfig);
 
 // Contract (#127): every story renders valid HTML, so markup a consumer copies from "Show
@@ -517,6 +545,7 @@ export default {
     if (title === 'Components/Form/Checkbox' && ['Unchecked', 'Character', 'Disabled'].includes(name))
       await assertCheckboxInput(page, name);
     if (title === 'Components/Form/Radio' && name === 'Group') await assertRadioKeys(page);
+    if (title === 'Components/Dialog' && name === 'Closed') await assertDialogInvoker(page);
 
     await injectAxe(page);
     // The scanline overlay is an absolutely positioned ::after with a background-image, which axe
