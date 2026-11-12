@@ -64,6 +64,13 @@ const COMPONENTS = {
     base: { borderTopColor: WHITE },
     paint: (colour) => ({ borderTopColor: colour }),
   },
+  // Paints the border only, like the card (closed: computed styles still resolve).
+  dialog: {
+    tag: 'dialog',
+    className: 'cf-dialog',
+    base: { borderTopColor: WHITE },
+    paint: (colour) => ({ borderTopColor: colour }),
+  },
   key: {
     tag: 'a',
     className: 'cf-fastext__key',

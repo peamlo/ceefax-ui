@@ -12,7 +12,7 @@
   --_edge: calc(2 * (var(--cf-space-3) * 2 + var(--cf-border-thick))); /* gutter + padding + border, both sides */
   box-sizing: content-box;
   inline-size: var(--_measure);
-  max-inline-size: calc(100vw - var(--_edge));
+  max-inline-size: calc(100% - var(--_edge)); /* the viewport, a modal dialog's containing block */
   max-block-size: calc(100dvh - var(--_edge));
   overflow: auto;
   border: var(--cf-border-thick) solid var(--cf-border);
