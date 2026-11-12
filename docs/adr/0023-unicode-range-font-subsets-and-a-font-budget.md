@@ -39,8 +39,8 @@ that does the same.
 ## Consequences
 
 - Amends ADR-0015: `./fonts/*` is no longer out of scope. The subset rules cost about 200 B brotli
-  in `./tokens` and 260 B in `./css`, which was already at 5.9 of its 6 kB. The budgets go from
-  1,200 B to 1,500 B and from 6,000 B to 7,000 B.
+  in `./tokens`, so its budget goes from 1,200 B to 1,500 B, and about 260 B in `./css`, which fits
+  its 7,000 B budget.
 - The font file names change: `bedstead-3.261-regular.woff2` and the others are gone. A consumer
   who preloads or links a font by name must use the subset names. The mosaic preload is now about
   4 kB instead of 52 kB.

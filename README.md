@@ -82,6 +82,7 @@ The library targets WCAG 2.2 AA (AAA contrast under the [Accessible theme](#acce
 | `cf-card`                                                                                 | any block                                                                  | `variant` red/green/yellow/blue/cyan/magenta                                                                                                                                                               | —                                                                                                                |
 | `cf-fastext` / `cf-fastext__key`                                                          | `<ul>` / `<a>`                                                             | `variant` (text colour) · `band` (filled key, ADR-0017); 1–4 keys in equal columns                                                                                                                         | `:focus-visible`                                                                                                 |
 | `cf-notice` / `cf-notice__flag`                                                           | block + `role="note"` / `<strong>`                                         | `variant` red (default, danger)/yellow (warning)/green (success)/blue/cyan/magenta · `blink="off"`                                                                                                         | flash (reduced-motion aware)                                                                                     |
+| `cf-popover`                                                                              | element with `popover`                                                     | `variant` (border colour)                                                                                                                                                                                  | `:popover-open`, Esc, light dismiss                                                                              |
 | `cf-stat` / `cf-stat__value` / `cf-stat__label`                                           | `<p>` or `<div>` / `<span>` / `<span>`                                     | `variant` (text colour, accent by default) · `band` (background; `variant` is then the ink)                                                                                                                | —                                                                                                                |
 | `cf-reveal` / `cf-reveal__index`                                                          | `<details>` / `<span>` in `<summary>`                                      | `variant` (number colour)                                                                                                                                                                                  | `[open]`, `:focus-visible`, `name` (accordion)                                                                   |
 | `cf-header-row` / `cf-header-row__page` / `__service` / `__rolling` / `__time` / `__date` | `<header>` / `<span>` ×3 / `<time datetime>` / `<span>` in the `<time>`    | `variant` on any part (text colour) · `band` on any part (background; `variant` is then the ink)                                                                                                           | —                                                                                                                |
@@ -108,6 +109,29 @@ For something the reader mustn't miss: a thick border and a short capitalised fl
 - **`role="note"`, not `role="alert"`:** a static notice shouldn't interrupt a screen reader on page load.
 - **Repeat the flag in the body.** The flag is one terse word; the body must carry its meaning too, so neither the colour nor the flash is the only cue.
 - **One flashing notice per screen.** Put `data-blink="off"` on the others. The flash is always off under `prefers-reduced-motion: reduce`.
+
+### Popover (`cf-popover`)
+
+Follows the APG [Disclosure](https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/) pattern. A small floating panel tied to a button: a short explanation next to an "Info" button, a few pages under a "Pages ▾" button. It is the native `popover` attribute, opened by an invoker command on the button, so the browser does the rest with no JavaScript ([ADR-0022](docs/adr/0022-interactive-widgets-are-native-elements.md)): it opens in the top layer, closes on a click outside or Esc, and opening one closes any other. It is painted like a [card](#components): a thin border, the page background, `--cf-space-3` padding, fitting its content up to one 40-cell row and never wider than the screen. `data-variant` colours the border; carry the meaning in the text and the button's label, never the colour alone.
+
+```html
+<button class="cf-btn" type="button" command="toggle-popover" commandfor="pages">
+  Pages <span aria-hidden="true">▾</span>
+</button>
+<div popover class="cf-popover" id="pages">
+  <ul>
+    <li><a class="cf-link" href="/101">News 101</a></li>
+    <li><a class="cf-link" href="/300">Sport 300</a></li>
+    <li><a class="cf-link" href="/400">Weather 400</a></li>
+  </ul>
+</div>
+```
+
+- **A dropdown is a popover holding a `<ul>` of `cf-link`s** (or ghost `cf-btn`s), not a component of its own. It is APG's [disclosure navigation menu](https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/examples/disclosure-navigation/), not an ARIA `role="menu"`: Tab walks the items right after the trigger, and there are no arrow keys. The list's bullets and indent are removed; the links keep their own inversion.
+- **Anchored to its trigger** where the browser supports CSS anchor positioning: below the button at its start edge, one thin border off it, and flipped above or to the other side where there's no room. The button that opened it is its anchor, so you write no `anchor-name`. Move it with `--cf-popover-area`, which takes any `position-area` value: `block-start span-inline-end` opens it above, `inline-end span-block-end` to the end. The thin-border gap is above and below only, so the popover lines up with the trigger's start edge; beside the trigger, add `margin-inline: var(--cf-border-thin)` for the same gap.
+- **Write the ▾ in the trigger's label.** The browser tells assistive technology whether the popover is expanded, but it writes no `aria-expanded` into the page, so the library has no open style for the trigger.
+- **Browser support:** invoker commands (`command` / `commandfor`) are in Chromium, Firefox and Safari since 2025; add a polyfill for older browsers. Anchor positioning is newer: without it the browser centres the popover on the screen, which still works.
+- **With a headless library** (Radix, Melt/Bits, Reka, Zag) driving its own element, `cf-popover` paints the look only and leaves the position to the library. Put the library's portal container inside `.cf-page` (or the theme on `<html>`), or the portalled panel loses the Screen frame and the theme. A native popover needs none of this: the top layer only changes where it's drawn, and it still inherits from its place in the page.
 
 ### Stat (`cf-stat`)
 

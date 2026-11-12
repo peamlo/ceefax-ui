@@ -42,8 +42,12 @@ and therefore no browser-support caveats.
 
 ## Consequences
 
-- One `data-*` → token resolver (`src/layout/_shared.css`) serves every primitive,
-  so the config vocabulary is uniform and DRY.
+- One `data-*` → token resolver (`src/layout/_shared.css`) serves the attributes
+  several primitives share (`data-gap`), so the config vocabulary is uniform and DRY.
+  An attribute only one primitive reads lives in that primitive's stylesheet, scoped
+  to its class: `data-align` is `cf-cluster`'s, because other elements carry
+  `data-align` for their own reasons (`cf-table` cells, headless-library popovers)
+  and an unscoped rule would leak its inherited value into a nested cluster.
 - The chosen grid formula realises the "collapse on the grid's own width" behaviour
   without container queries. If a future need genuinely requires `@container`
   (e.g. changing more than track count at a breakpoint), it is a localised swap and
