@@ -83,6 +83,7 @@ The library targets WCAG 2.2 AA (AAA contrast under the [Accessible theme](#acce
 | `cf-fastext` / `cf-fastext__key`                                                          | `<ul>` / `<a>`                                                             | `variant` (text colour) · `band` (filled key, ADR-0017); 1–4 keys in equal columns                                                                                                                         | `:focus-visible`                                                                                                 |
 | `cf-notice` / `cf-notice__flag`                                                           | block + `role="note"` / `<strong>`                                         | `variant` red (default, danger)/yellow (warning)/green (success)/blue/cyan/magenta · `blink="off"`                                                                                                         | flash (reduced-motion aware)                                                                                     |
 | `cf-stat` / `cf-stat__value` / `cf-stat__label`                                           | `<p>` or `<div>` / `<span>` / `<span>`                                     | `variant` (text colour, accent by default) · `band` (background; `variant` is then the ink)                                                                                                                | —                                                                                                                |
+| `cf-reveal` / `cf-reveal__n`                                                              | `<details>` / `<span>` in `<summary>`                                      | `variant` (number colour)                                                                                                                                                                                  | `[open]`, `:focus-visible`, `name` (accordion)                                                                   |
 | `cf-header-row` / `cf-header-row__page` / `__service` / `__rolling` / `__time` / `__date` | `<header>` / `<span>` ×3 / `<time datetime>` / `<span>` in the `<time>`    | `variant` on any part (text colour) · `band` on any part (background; `variant` is then the ink)                                                                                                           | —                                                                                                                |
 | `cf-table` / `cf-table__scroll`                                                           | `<table>` / `<section>`                                                    | `stripe-rows` / `stripe-cols` text/band · `variant` / `band` on any part · `align="end"` / `leader` on a cell · `side="bottom"` on the caption                                                             | `[aria-current="true"]` on a row                                                                                 |
 | `cf-field` / `cf-field__hint` / `cf-field__error`                                         | block with `<label>` + control / `<p>` / `<p>`                             | —                                                                                                                                                                                                          | —                                                                                                                |
@@ -128,6 +129,57 @@ A headline figure, read before the text around it: the value in the display type
 - **No more than three equally weighted stats per screen.** Lay them out with `cf-grid` or `cf-cluster`; for a long list of figures, use a [table](#table-cf-table).
 - **In the Screen frame** the value is two cells high and the label one, and the label is the frame's authentic green.
 - **A long figure wraps** in its column rather than scrolling the page. Authentic blue text is hard to read on black (about 2.4:1); the Accessible theme lifts it.
+
+### Reveal (`cf-reveal`)
+
+Follows the APG [Disclosure](https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/) pattern, on the native `<details>`: content the reader opens only if they care, such as a FAQ, questions to prepare for a meeting, an exercise's solution, a glossary or "show details". It's named after the REVEAL button on a teletext remote. One class on the `<details>`; the `<summary>` is a full-width row with a ▼ when closed and a ▲ when open, and anything after it is revealed in place, indented under the summary text. No JavaScript: the browser toggles it on click, Enter and Space, and announces whether it's expanded. Add `open` to render it expanded.
+
+```html
+<details class="cf-reveal">
+  <summary>Show the fees</summary>
+  <p>0.12% a year, charged monthly. No fee to join or leave.</p>
+</details>
+```
+
+Reveals in a row stack into a **list**, sharing one rule between neighbours, with no wrapper. Several can be open at once. Give them the same `name` and they become an **accordion**: the HTML standard's exclusive `<details>` group, where opening one closes the others. That attribute is the only difference.
+
+```html
+<details class="cf-reveal" name="glossary" open>
+  <summary>TAE</summary>
+  <p>The annual rate you earn once compounding is counted.</p>
+</details>
+<details class="cf-reveal" name="glossary">
+  <summary>Money-market fund</summary>
+  <p>A fund that lends for days or weeks, so its price barely moves.</p>
+</details>
+```
+
+Group a list with a heading per group, here "your questions" and "suggested", with a number variant each:
+
+```html
+<h3>Your questions</h3>
+<details class="cf-reveal" data-variant="green">
+  <summary><span class="cf-reveal__n">1</span>What does TAE mean?</summary>
+  <p>The annual rate you earn once compounding is counted.</p>
+</details>
+<details class="cf-reveal" data-variant="green">
+  <summary><span class="cf-reveal__n">2</span>Can I take the money out early?</summary>
+  <p>From the account, any day. From the fund, in one to three working days.</p>
+</details>
+
+<h3>Suggested questions</h3>
+<details class="cf-reveal" data-variant="yellow">
+  <summary><span class="cf-reveal__n">3</span>What happens if the bank fails?</summary>
+  <p>Deposits are covered up to €100,000 per person and bank.</p>
+</details>
+```
+
+- **`cf-reveal__n` is optional:** a number so a FAQ can say "question 3". `data-variant` colours it (accent by default); without a number the variant has no effect.
+- **Label groups in text,** with a heading each as above, so colour isn't the only grouping cue.
+- **Reveal items aren't headings.** A `<summary>` isn't one, and a heading inside it is announced inconsistently, so screen-reader users can't jump item to item. Split a long FAQ into headed groups instead of nesting headings in `<summary>`.
+- **Don't hide critical information in a reveal.** Readers skim past closed items; anything they must see belongs on the page.
+- **Use the native element.** The stylesheet doesn't style a headless library's `button[aria-expanded]` plus panel: `<details name>` works in every engine, so a library adds nothing here (ADR-0022).
+- **Instant,** like teletext: no open or close animation.
 
 ### Header row (`cf-header-row`)
 

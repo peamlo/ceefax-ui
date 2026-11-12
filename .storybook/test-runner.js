@@ -501,6 +501,28 @@ async function assertRadioKeys(page) {
   expect(await page.evaluate(focused)).toEqual(['BBC1', true]);
 }
 
+// Contract (#20): a real Tab focuses the reveal's summary and inverts the whole row, number and
+// marker included; a real Enter opens it natively and flips the marker ▼ → ▲. The Single story
+// starts closed with no number. Leaves it open and nothing focused.
+async function assertRevealKeys(page) {
+  const SUMMARY = '.cf-reveal > summary';
+  const look = (sel) => {
+    const el = document.querySelector(sel);
+    const cs = getComputedStyle(el);
+    const marker = getComputedStyle(el, '::after');
+    return { backgroundColor: cs.backgroundColor, color: cs.color, marker: marker.color, glyph: marker.content };
+  };
+  const open = () => document.querySelector('.cf-reveal').open;
+  expect((await page.evaluate(look, SUMMARY)).glyph).toContain('\u25BC');
+  await page.keyboard.press('Tab');
+  expect(await page.evaluate((sel) => document.activeElement.matches(sel), SUMMARY)).toBe(true);
+  expect(await page.evaluate(look, SUMMARY)).toMatchObject({ ...INVERTED, marker: BLACK });
+  await page.keyboard.press('Enter');
+  expect(await page.evaluate(open)).toBe(true);
+  expect((await page.evaluate(look, SUMMARY)).glyph).toContain('\u25B2');
+  await page.evaluate(() => document.activeElement.blur());
+}
+
 const ignoreAxePseudo = () => {
   const { options } = window.axe._audit.checks['color-contrast'];
   window.axe.configure({ checks: [{ id: 'color-contrast', options: { ...options, ignorePseudo: true } }] });
@@ -546,6 +568,7 @@ export default {
       await assertCheckboxInput(page, name);
     if (title === 'Components/Form/Radio' && name === 'Group') await assertRadioKeys(page);
     if (title === 'Components/Dialog' && name === 'Closed') await assertDialogInvoker(page);
+    if (title === 'Components/Reveal' && name === 'Single') await assertRevealKeys(page);
 
     await injectAxe(page);
     // The scanline overlay is an absolutely positioned ::after with a background-image, which axe

@@ -1,0 +1,72 @@
+/* Reveal — a disclosure on the native <details>/<summary> (APG Disclosure), named after the
+   teletext remote's REVEAL button. State is the native [open] only: the browser toggles it on
+   click, Enter and Space, announces it, and closes the others in a group sharing a `name`
+   (the accordion). No JS. The ▼ / ▲ marker is generated content with empty alt text, so the
+   native expanded state is the only announced cue, and its shape, not its colour, carries the
+   state. Every rule is wrapped in :where(), so consumer CSS wins without !important (ADR-0018). */
+:where(.cf-reveal) {
+  --_indent: var(--cf-space-2);
+  display: block;
+  border-block: var(--cf-border-thin) solid var(--cf-border);
+  color: var(--cf-fg);
+  font-family: var(--cf-font-mono);
+  line-height: var(--cf-leading-relaxed);
+}
+/* A run of reveals is a list: each one after the first drops its top rule, so neighbours share one. */
+:where(.cf-reveal + .cf-reveal) {
+  border-block-start: 0;
+}
+/* With a number, the summary text and the revealed content start past it, so both line up. */
+:where(.cf-reveal:has(> summary > .cf-reveal__n)) {
+  --_indent: calc(var(--cf-space-2) * 2 + 3ch);
+}
+/* The number and the marker sit in the summary's padding, so a long title wraps under itself. */
+:where(.cf-reveal > summary) {
+  position: relative;
+  display: block;
+  padding-block: var(--cf-space-1);
+  padding-inline: var(--_indent) calc(var(--cf-space-2) * 2 + 1ch);
+  font-weight: var(--cf-weight-bold);
+  list-style: none;
+  cursor: pointer;
+}
+:where(.cf-reveal > summary)::-webkit-details-marker {
+  display: none;
+}
+:where(.cf-reveal > summary)::after {
+  content: '\25BC' / '';
+  position: absolute;
+  inset-block-start: var(--cf-space-1);
+  inset-inline-end: var(--cf-space-2);
+  color: var(--cf-accent);
+}
+:where(.cf-reveal[open] > summary)::after {
+  content: '\25B2' / '';
+}
+:where(.cf-reveal__n) {
+  position: absolute;
+  inset-inline-start: var(--cf-space-2);
+  color: var(--cf-accent);
+}
+/* data-variant colours the number only, through the variant seam (base.css). */
+:where(.cf-reveal[data-variant] > summary > .cf-reveal__n) {
+  color: var(--_variant, var(--cf-accent));
+}
+/* Inversion across the whole row, number and marker included. The transparent outline is the
+   ring forced colours paint, on hover as on focus. */
+:where(.cf-reveal > summary:is(:hover, :focus-visible)) {
+  outline: var(--cf-border-thin) solid transparent;
+  background: var(--cf-fg);
+  color: var(--cf-bg);
+}
+:where(.cf-reveal > summary:is(:hover, :focus-visible) > .cf-reveal__n),
+:where(.cf-reveal > summary:is(:hover, :focus-visible))::after {
+  color: inherit;
+}
+/* Any content after the summary: no wrapper class, indented under the summary text. */
+:where(.cf-reveal > :not(summary)) {
+  margin-inline: var(--_indent) var(--cf-space-2);
+}
+:where(.cf-reveal > :last-child:not(summary)) {
+  margin-block-end: var(--cf-space-2);
+}

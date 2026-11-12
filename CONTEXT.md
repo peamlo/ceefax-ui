@@ -76,6 +76,10 @@ _Avoid_: modal (as a noun), popup, lightbox, overlay
 A headline figure (`cf-stat`): a double-height **value** (`cf-stat__value`) in the display typeface, accent by default or any `data-variant` colour, optionally on a `data-band`, above a **label** (`cf-stat__label`) that says what it means. Not a heading. At most three equally weighted per screen; more figures belong in a table.
 _Avoid_: KPI, metric, counter, big number
 
+**Reveal**:
+The disclosure component (`cf-reveal`) on a native `<details>`, named after the teletext remote's REVEAL button: a summary row with a ▼ / ▲ marker whose content opens in place. Reveals in a row stack into a list; sharing a native `name` makes them an **accordion**, where only one is open at a time.
+_Avoid_: accordion (for a single item), collapsible, spoiler, dropdown
+
 **Header row**:
 The single top line of a teletext page (`cf-header-row`) on a native `<header>`: the requested page number (`__page`), service name (`__service`), the rolling page number (`__rolling`, the page on air), then date and time (`__time`, a static `<time datetime>` the consumer writes, with the date in `__date`), in broadcast colours. `data-variant` on any part recolours its text; `data-band` sets any part on a band. The only place the page number appears. Static; a ticking clock, a page number that actually rolls, or page-number entry would be opt-in behaviour.
 _Avoid_: top bar, navbar, masthead, title band
