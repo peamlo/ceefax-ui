@@ -284,6 +284,22 @@ async function assertMosaicTiles(page) {
   await page.emulateMedia({ forcedColors: 'none' });
 }
 
+// Contract (#167): a real click on the invoker opens the dialog modally and moves focus inside it;
+// a real Esc closes it and hands focus back to the invoker. All native, so this proves the
+// markup, not library code. Leaves the dialog closed and nothing focused.
+async function assertDialogInvoker(page) {
+  const state = () => {
+    const dialog = document.querySelector('.cf-dialog');
+    return { modal: dialog.matches(':modal'), inside: dialog.contains(document.activeElement) };
+  };
+  await page.click('[command="show-modal"]');
+  expect(await page.evaluate(state)).toEqual({ modal: true, inside: true });
+  await page.keyboard.press('Escape');
+  expect(await page.evaluate(state)).toEqual({ modal: false, inside: false });
+  expect(await page.evaluate(() => document.activeElement.getAttribute('command'))).toBe('show-modal');
+  await page.evaluate(() => document.activeElement.blur());
+}
+
 const htmlValidate = new HtmlValidate(htmlValidateConfig);
 
 // Contract (#127): every story renders valid HTML, so markup a consumer copies from "Show
@@ -511,6 +527,7 @@ export default {
     if (title === 'Components/Form/Checkbox' && ['Unchecked', 'Character', 'Disabled'].includes(name))
       await assertCheckboxInput(page, name);
     if (title === 'Components/Form/Radio' && name === 'Group') await assertRadioKeys(page);
+    if (title === 'Components/Dialog' && name === 'Closed') await assertDialogInvoker(page);
 
     await injectAxe(page);
     // The scanline overlay is an absolutely positioned ::after with a background-image, which axe

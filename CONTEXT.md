@@ -68,6 +68,10 @@ _Avoid_: active indicator, highlight
 The component for something the reader mustn't miss (`cf-notice`): a thick-bordered block with a short capitalised **flag** (`cf-notice__flag`) that flashes for a few seconds like teletext flash text, then holds solid. Danger by default, warning with `data-variant="yellow"`, success with `data-variant="green"`. A note, not a live-region alert; the flag's word is always repeated in the body.
 _Avoid_: toast, banner, callout, live region
 
+**Dialog**:
+The modal panel (`cf-dialog`) on a native `<dialog>`, opened and closed with invoker commands and Esc: a thick-bordered teletext panel over a dimmed **backdrop**, 30, 40 or 60 Cells wide (`data-size="sm"`, default, `data-size="lg"`). Instant, never animated.
+_Avoid_: modal (as a noun), popup, lightbox, overlay
+
 **Stat**:
 A headline figure (`cf-stat`): a double-height **value** (`cf-stat__value`) in the display typeface, accent by default or any `data-variant` colour, optionally on a `data-band`, above a **label** (`cf-stat__label`) that says what it means. Not a heading. At most three equally weighted per screen; more figures belong in a table.
 _Avoid_: KPI, metric, counter, big number

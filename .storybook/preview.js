@@ -66,6 +66,7 @@ export default {
             'Form',
             ['Field', 'Input', 'Textarea', 'Select', 'Checkbox', 'Radio'],
             'Mosaic',
+            'Dialog',
           ],
         ],
       },

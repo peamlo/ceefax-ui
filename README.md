@@ -60,6 +60,7 @@ real form, a holiday enquiry.
 - **`data-variant`** is only for a presentational colour — any of the six named authentic colours (`red`/`green`/`yellow`/`blue`/`cyan`/`magenta`), plus the look-only `ghost` on a button, `nav` on a link and `character` on a checkbox or radio. Each component decides how it paints that colour: the button fills, the card borders, the fastext key colours its label. An unrecognised name renders the component's default, unstyled look. A **fastext bar** has one to four keys, shown as red / green / yellow / cyan on screen. Any seam colour works, but blue text on the black page fails contrast.
 - **`data-band`** sets a coloured **band** behind a text part, one of the same six colours. On a banded part `data-variant` names the ink; without it the band gets the readable default ink (black, white on blue). Only parts whose `data-variant` is a text colour take a band (the header row's parts, the table's, fastext keys and mosaics); blocks such as buttons never do. An unknown name renders no band. See [Bands](#bands).
 - No utility classes, no compound-class soup.
+- **Interactive widgets** follow an [APG pattern](https://www.w3.org/WAI/ARIA/apg/patterns/), and their state comes from that pattern's native or ARIA attributes ([ADR-0022](./docs/adr/0022-interactive-widgets-are-native-elements.md)).
 
 ### States
 
@@ -67,6 +68,10 @@ real form, a holiday enquiry.
 - **Selected** (`[aria-current="page"]`) → persistent **▸ caret**. "You are on this page."
 - **Hover** → same inversion as focus (intentional).
 - **Active** → instant `scale(.96)`, no colour ramp.
+
+### Accessibility
+
+The library targets WCAG 2.2 AA (AAA contrast under the [Accessible theme](#accessible-theme)) and follows [APG patterns](https://www.w3.org/WAI/ARIA/apg/patterns/), but conformance belongs to your site, not to the library: it depends on the content and markup you put in the components.
 
 ## Components
 
@@ -83,6 +88,7 @@ real form, a holiday enquiry.
 | `cf-field` / `cf-field__hint` / `cf-field__error`                                         | block with `<label>` + control / `<p>` / `<p>`                             | —                                                                                                                                                                                                          | —                                                                                                                |
 | `cf-input` / `cf-textarea` / `cf-select`                                                  | text-like `<input>` / `<textarea>` / single `<select>`                     | — (`size`, `cols`, `rows` set the size)                                                                                                                                                                    | `:focus-visible`, `:user-invalid`, `[aria-invalid="true"]`, `:disabled`                                          |
 | `cf-checkbox` / `cf-radio`                                                                | `<input type="checkbox">` / `<input type="radio">` in a wrapping `<label>` | `variant="character"`                                                                                                                                                                                      | `:checked`, `:indeterminate` (checkbox), `:focus-visible`, `:user-invalid`, `[aria-invalid="true"]`, `:disabled` |
+| `cf-dialog`                                                                               | `<dialog>`                                                                 | `variant` (border colour) · `size` sm/lg                                                                                                                                                                   | `[open]`, `:modal`, Esc                                                                                          |
 | `<cf-loader>`                                                                             | Web Component                                                              | —                                                                                                                                                                                                          | blink (reduced-motion aware)                                                                                     |
 | `cf-mosaic`                                                                               | `<span>`                                                                   | `variant` (ink) · `band` (background) on the mosaic or a span inside it · `mosaic="separated"`                                                                                                             | `aria-hidden` (decorative) or `role="img"` + `aria-label`                                                        |
 | `cf-page` + `data-frame`                                                                  | `<section>` with `header`/`main`/`footer`                                  | `frame` (4:3 screen; `--cf-frame-ratio` to change) · `cells` 40/60/80 (`--cf-frame-cells` for any count) · `crt` adds scanlines + glow (opt-in, below AA on red/magenta) · `scrollbar` fastext/mosaic/thin | —                                                                                                                |
@@ -307,6 +313,32 @@ The heart is 8 × 6 blocks, so 4 cells across and 2 rows down: the newline insid
 
 - **Inside the Screen frame** mosaics sit on the cell grid and tile edge to edge.
 - **Your CSS wins** (every rule is `:where()`), font included: a rule that sets a font on every `span` turns mosaics into empty boxes. Set it back with `.cf-mosaic { font-family: 'Bedstead Mosaic', 'Bedstead Cell', monospace }`.
+
+### Dialog (`cf-dialog`)
+
+Follows the APG [Dialog (Modal)](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/) pattern. A modal panel on the native `<dialog>`, opened and closed by HTML invoker commands, so it needs no JavaScript: the browser draws it in the top layer, moves focus in, closes it on Esc, hands focus back to the button that opened it and makes the page behind inert. The library paints the box only: a thick square border on the page background over a dimmed backdrop, opening and closing instantly.
+
+```html
+<button class="cf-btn" type="button" command="show-modal" commandfor="delete-page">Delete page</button>
+
+<dialog class="cf-dialog" id="delete-page" aria-labelledby="delete-page-title" data-size="sm" data-variant="red">
+  <h2 id="delete-page-title">Delete P100?</h2>
+  <p>The page and its 12 subpages go off air for good.</p>
+  <form method="dialog" class="cf-cluster">
+    <button class="cf-btn" type="submit" value="cancel" autofocus>Cancel</button>
+    <button class="cf-btn" type="submit" value="delete" data-variant="red">Delete</button>
+  </form>
+</dialog>
+```
+
+- **Open and close:** `command="show-modal"` and `commandfor="<id>"` on a button open it; `command="close"` closes it, and so does Esc. Only the modal form is supported: a non-modal `show()` has no invoker and needs script.
+- **Name it from its heading** with `aria-labelledby`, and state its purpose in the heading and the button labels: the border colour is never the only cue. `data-variant` colours the border, like `cf-card`.
+- **Focus:** put `autofocus` on the control that should take focus. On a destructive confirmation that is Cancel, not Delete.
+- **`<form method="dialog">`** closes the dialog when submitted and sets its `returnValue` to the pressed button's `value`, so you can read the answer without extra code.
+- **Sizes** name the text measure in Cells (characters), with the padding and border outside it: `data-size="sm"` is 30 Cells (a confirmation), the default 40 (one teletext row: a short form or message) and `data-size="lg"` 60 (longer reading). Only the width changes. Every size is capped to the viewport minus a gutter, and a dialog taller than the screen scrolls inside itself, with the page's [scrollbar](#scrollbars) inside `.cf-page`.
+- **Actions** are a `cf-cluster` of `cf-btn`s; the buttons and links inside keep their own Inversion, and the box itself never inverts.
+- **Browser support:** invoker commands are in Chromium, Firefox and Safari since 2025. Older browsers need an invoker-commands polyfill, which you add.
+- **Headless libraries** (Radix, Melt/Bits, Reka, Zag): `cf-dialog` paints a `<div role="dialog">` they drive the same way, since it keys off nothing library-specific; the library positions it. Set the library's portal container inside `.cf-page` (or put the theme on `<html>`), or portalled content loses the Screen frame and theme. Paint its overlay element with `background: var(--cf-backdrop)` to match the native backdrop. A native `<dialog>` needs neither: the top layer changes only where it's drawn, and it still inherits through its place in the DOM.
 
 ## Tokens
 

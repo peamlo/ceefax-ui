@@ -1,0 +1,46 @@
+/* Dialog — a teletext panel on the native <dialog>, opened with invoker commands (ADR-0022).
+   The browser does the behaviour (top layer, focus in and back, Esc, the inert page) and
+   centres a modal <dialog>; this sets the look only, never position or inset, so it paints a
+   headless library's <div role="dialog"> the same way. State is native only ([open], :modal,
+   ::backdrop); never display, which would show a closed <dialog>. The width names the text
+   measure in Cells (30, 40 or 60): the content box, with the padding and border outside it.
+   Every size is capped to the viewport minus a gutter, and tall content scrolls inside, with
+   the page's Scrollbar variant inside .cf-page. Instant, never animated. Every rule is wrapped
+   in :where(), so consumer CSS wins without !important (ADR-0018). */
+:where(.cf-dialog) {
+  --_measure: 40ch;
+  --_edge: calc(2 * (var(--cf-space-3) * 2 + var(--cf-border-thick))); /* gutter + padding + border, both sides */
+  box-sizing: content-box;
+  inline-size: var(--_measure);
+  max-inline-size: calc(100vw - var(--_edge));
+  max-block-size: calc(100dvh - var(--_edge));
+  overflow: auto;
+  border: var(--cf-border-thick) solid var(--cf-border);
+  border-radius: var(--cf-radius);
+  background: var(--cf-bg);
+  color: var(--cf-fg);
+  padding: var(--cf-space-3);
+  font-family: var(--cf-font-mono);
+  line-height: var(--cf-leading-relaxed);
+  outline: none; /* the box never shows focus; the controls inside keep their Inversion */
+}
+:where(.cf-dialog[data-size='sm']) {
+  --_measure: 30ch;
+}
+:where(.cf-dialog[data-size='lg']) {
+  --_measure: 60ch;
+}
+/* Colour comes from the variant seam (base.css); the dialog paints the border only. */
+:where(.cf-dialog[data-variant]) {
+  border-color: var(--_variant, var(--cf-border));
+}
+:where(.cf-dialog > :first-child) {
+  margin-block-start: 0;
+}
+:where(.cf-dialog > :last-child) {
+  margin-block-end: 0;
+}
+/* ::backdrop inherits from its dialog, so the alias resolves in the frame and the theme. */
+:where(.cf-dialog)::backdrop {
+  background: var(--cf-backdrop);
+}
