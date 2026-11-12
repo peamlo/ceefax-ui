@@ -43,11 +43,7 @@ export default {
   tags: ['autodocs'],
   render: popover,
   argTypes: {
-    content: {
-      control: 'inline-radio',
-      options: ['text', 'dropdown'],
-      description: 'A paragraph, or a dropdown: a `<ul>` of `cf-link`s',
-    },
+    content: { table: { disable: true } }, // the Text and Dropdown stories
     variant: {
       control: 'select',
       options: ['', 'red', 'green', 'yellow', 'blue', 'cyan', 'magenta'],
