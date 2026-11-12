@@ -501,6 +501,58 @@ async function assertRadioKeys(page) {
   expect(await page.evaluate(focused)).toEqual(['BBC1', true]);
 }
 
+// Contract (#20): a real Tab focuses the reveal's summary and inverts the row, marker included;
+// a real Enter opens it natively, which the accessibility tree announces as expanded, and flips
+// the marker ▼ → ▲. The marker stays out of the accessible name (empty alt text). The Single
+// story starts closed. Leaves it open and nothing focused.
+const SUMMARY = '.cf-reveal > summary';
+const marker = (sel) => {
+  const after = getComputedStyle(document.querySelector(sel), '::after');
+  return { marker: after.color, glyph: after.content };
+};
+const revealLook = async (page) => ({
+  ...(await page.evaluate(colours, SUMMARY)),
+  ...(await page.evaluate(marker, SUMMARY)),
+});
+// Chrome's own accessibility tree: Playwright's aria snapshot doesn't model <summary>.
+async function disclosure(page) {
+  const cdp = await page.context().newCDPSession(page);
+  const { nodes } = await cdp.send('Accessibility.getFullAXTree');
+  await cdp.detach();
+  const node = nodes.find((n) => n.role?.value === 'DisclosureTriangle');
+  return { name: node.name.value, expanded: node.properties.find((p) => p.name === 'expanded').value.value };
+}
+
+async function assertRevealKeys(page) {
+  expect((await page.evaluate(marker, SUMMARY)).glyph).toContain('\u25BC');
+  expect(await disclosure(page)).toEqual({ name: 'What does TAE mean?', expanded: false });
+  await page.keyboard.press('Tab');
+  expect(await page.evaluate((sel) => document.activeElement.matches(sel), SUMMARY)).toBe(true);
+  expect(await revealLook(page)).toMatchObject({ ...INVERTED, marker: BLACK });
+  await page.keyboard.press('Enter');
+  expect((await disclosure(page)).expanded).toBe(true);
+  expect((await page.evaluate(marker, SUMMARY)).glyph).toContain('\u25B2');
+  await page.evaluate(() => document.activeElement.blur());
+}
+
+// Contract (#20): inside the Screen frame the reveal's marker is Bedstead's own ▼ glyph, not a
+// fallback face's. Only Chrome's renderer knows which font drew a glyph, so this reads it over CDP.
+async function assertRevealFrameMarker(page) {
+  await page.evaluate(() => document.fonts.ready);
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('DOM.enable');
+  await cdp.send('CSS.enable');
+  const { nodeId } = await cdp.send('DOM.querySelector', {
+    nodeId: (await cdp.send('DOM.getDocument')).root.nodeId,
+    selector: SUMMARY,
+  });
+  const { node } = await cdp.send('DOM.describeNode', { nodeId, depth: 0 });
+  const after = node.pseudoElements.find((p) => p.pseudoType === 'after');
+  const { fonts } = await cdp.send('CSS.getPlatformFontsForNode', { nodeId: after.nodeId });
+  await cdp.detach();
+  expect(fonts.map((f) => f.familyName)).toEqual(['Bedstead']);
+}
+
 const ignoreAxePseudo = () => {
   const { options } = window.axe._audit.checks['color-contrast'];
   window.axe.configure({ checks: [{ id: 'color-contrast', options: { ...options, ignorePseudo: true } }] });
@@ -546,6 +598,8 @@ export default {
       await assertCheckboxInput(page, name);
     if (title === 'Components/Form/Radio' && name === 'Group') await assertRadioKeys(page);
     if (title === 'Components/Dialog' && name === 'Closed') await assertDialogInvoker(page);
+    if (title === 'Components/Reveal' && name === 'Single') await assertRevealKeys(page);
+    if (title === 'Components/Reveal' && name === 'In the Screen frame') await assertRevealFrameMarker(page);
 
     await injectAxe(page);
     // The scanline overlay is an absolutely positioned ::after with a background-image, which axe
