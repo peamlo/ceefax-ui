@@ -1,13 +1,13 @@
 # Fonts (self-hosted)
 
-`src/tokens/typography.css` loads these (exact names):
+`src/tokens/typography.css` loads each weight as `unicode-range` subsets (ADR-0022), so a page
+downloads only the ones its characters need:
 
-- `bedstead-3.261-regular.woff2`
-- `bedstead-3.261-bold.woff2`
-- `space-mono-v15-latin-regular.woff2`
-- `space-mono-v15-latin-700.woff2`
+- `bedstead-3.261-{regular,bold}-{latin,mosaic,other}.woff2`
+- `space-mono-v15-{regular,bold}-{latin,other}.woff2`
 
-The npm package ships only these `.woff2` files and `OFL.txt` from this folder (the built
+`-latin` is Latin-1, Latin Extended-A and the common symbols, `-mosaic` the teletext mosaics, and
+`-other` everything else. The npm package ships only these `.woff2` files and `OFL.txt` from this folder (the built
 `dist/*.css` point here). The Space Mono TTFs stay in the repo as its regeneration sources (the demo
 loads them too); Bedstead is regenerated from its upstream release zip.
 
@@ -28,16 +28,17 @@ Both faces are free for commercial use and self-hosting.
 
 ## Regenerating
 
-The `.woff2` files are compressed from the OTFs in Bedstead's release zip and the Space Mono TTFs here:
+The `.woff2` subsets are cut from the OTFs in Bedstead's release zip and the Space Mono TTFs here,
+from this folder, by `scripts/subset-fonts.py` (its ranges must match the `@font-face` rules):
 
 ```sh
 pip install fonttools brotli
 curl -fsSLO https://bjh21.me.uk/bedstead/bedstead-3.261.zip && unzip -q bedstead-3.261.zip
-fonttools ttLib.woff2 compress -o bedstead-3.261-regular.woff2 bedstead-3.261/bedstead.otf
-fonttools ttLib.woff2 compress -o bedstead-3.261-bold.woff2 bedstead-3.261/bedstead-bold.otf
+python3 ../scripts/subset-fonts.py bedstead-3.261/bedstead.otf bedstead-3.261-regular
+python3 ../scripts/subset-fonts.py bedstead-3.261/bedstead-bold.otf bedstead-3.261-bold
 rm -r bedstead-3.261 bedstead-3.261.zip
-fonttools ttLib.woff2 compress -o space-mono-v15-latin-regular.woff2 SpaceMono-Regular.ttf
-fonttools ttLib.woff2 compress -o space-mono-v15-latin-700.woff2 SpaceMono-Bold.ttf
+python3 ../scripts/subset-fonts.py SpaceMono-Regular.ttf space-mono-v15-regular
+python3 ../scripts/subset-fonts.py SpaceMono-Bold.ttf space-mono-v15-bold
 ```
 
 To move to a newer Bedstead, change the version in the zip URL and file names above, rename the

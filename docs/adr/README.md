@@ -29,3 +29,4 @@ Each ADR records **one** decision that was hard to reverse, surprising without c
 - [0019 — Scrollbars are a page-shell look, styled through inherited private properties](./0019-scrollbars-page-shell-look-private-properties.md)
 - [0020 — Form controls keep the native element and restyle it with `appearance: none`](./0020-native-form-controls-appearance-none.md)
 - [0021 — Text mosaics replace the pixel canvas](./0021-text-mosaics-replace-pixel-canvas.md)
+- [0022 — Fonts ship as unicode-range subsets, with a budget for a Latin page](./0022-unicode-range-font-subsets-and-a-font-budget.md)

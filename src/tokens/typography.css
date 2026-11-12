@@ -1,4 +1,9 @@
 /* Self-hosted webfonts: Bedstead (public domain) and Space Mono (SIL OFL 1.1) — see fonts/README.md.
+   Each weight is split into unicode-range subsets (scripts/subset-fonts.py, ADR-0022), so a page
+   downloads only what it shows: -latin (Latin with the arrows, maths, shapes and ticks UIs use),
+   -mosaic, and -other for everything else. The ranges must match the script's, which prints
+   -other's: its code points merged into a few runs, never over a Latin character the font lacks,
+   so a ✓ falls back to another font instead of downloading -other for nothing.
    Bedstead ships both weights so it can also be the body face inside the Screen frame. Its own metrics
    (ascent 800, descent 200, caps 700) sit capitals high in the line box; 90%/20% centres them and keeps
    descenders inside. Safari ignores the overrides and keeps the font's own metrics. */
@@ -7,7 +12,30 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('../../fonts/bedstead-3.261-regular.woff2') format('woff2');
+  src: url('../../fonts/bedstead-3.261-regular-other.woff2') format('woff2');
+  unicode-range:
+    U+180-5EA, U+1D00-1EF5, U+2070-209C, U+2150-218B, U+2302-257F, U+2607-268F, U+27CA-2E5D, U+A726-A7FD, U+F100-F24C,
+    U+FB01-FB02, U+FFE8-FFFD, U+10450-1047F, U+1CC21-1D56B, U+1DF04-1DF10, U+1F680-1F69A, U+1FB82-1FBE7;
+  ascent-override: 90%;
+  descent-override: 20%;
+}
+@font-face {
+  font-family: 'Bedstead';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../fonts/bedstead-3.261-regular-mosaic.woff2') format('woff2');
+  unicode-range: U+2580-259F, U+1FB00-1FB3B, U+1CE51-1CE8F, U+EE00-EE7F;
+  ascent-override: 90%;
+  descent-override: 20%;
+}
+@font-face {
+  font-family: 'Bedstead';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../fonts/bedstead-3.261-regular-latin.woff2') format('woff2');
+  unicode-range: U+0-17F, U+2000-206F, U+20A0-20CF, U+2100-214F, U+2190-22FF, U+25A0-25FF, U+2700-27BF;
   ascent-override: 90%;
   descent-override: 20%;
 }
@@ -16,7 +44,30 @@
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url('../../fonts/bedstead-3.261-bold.woff2') format('woff2');
+  src: url('../../fonts/bedstead-3.261-bold-other.woff2') format('woff2');
+  unicode-range:
+    U+180-5EA, U+1D00-1EF5, U+2070-209C, U+2150-218B, U+2302-257F, U+2607-268F, U+27CA-2E5D, U+A726-A7FD, U+F100-F24C,
+    U+FB01-FB02, U+FFE8-FFFD, U+10450-1047F, U+1CC21-1D56B, U+1DF04-1DF10, U+1F680-1F69A, U+1FB82-1FBE7;
+  ascent-override: 90%;
+  descent-override: 20%;
+}
+@font-face {
+  font-family: 'Bedstead';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../fonts/bedstead-3.261-bold-mosaic.woff2') format('woff2');
+  unicode-range: U+2580-259F, U+1FB00-1FB3B, U+1CE51-1CE8F, U+EE00-EE7F;
+  ascent-override: 90%;
+  descent-override: 20%;
+}
+@font-face {
+  font-family: 'Bedstead';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../fonts/bedstead-3.261-bold-latin.woff2') format('woff2');
+  unicode-range: U+0-17F, U+2000-206F, U+20A0-20CF, U+2100-214F, U+2190-22FF, U+25A0-25FF, U+2700-27BF;
   ascent-override: 90%;
   descent-override: 20%;
 }
@@ -27,25 +78,63 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('../../fonts/bedstead-3.261-regular.woff2') format('woff2');
+  src: url('../../fonts/bedstead-3.261-regular-other.woff2') format('woff2');
+  unicode-range:
+    U+180-5EA, U+1D00-1EF5, U+2070-209C, U+2150-218B, U+2302-257F, U+2607-268F, U+27CA-2E5D, U+A726-A7FD, U+F100-F24C,
+    U+FB01-FB02, U+FFE8-FFFD, U+10450-1047F, U+1CC21-1D56B, U+1DF04-1DF10, U+1F680-1F69A, U+1FB82-1FBE7;
+}
+@font-face {
+  font-family: 'Bedstead Cell';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../fonts/bedstead-3.261-regular-mosaic.woff2') format('woff2');
+  unicode-range: U+2580-259F, U+1FB00-1FB3B, U+1CE51-1CE8F, U+EE00-EE7F;
+}
+@font-face {
+  font-family: 'Bedstead Cell';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../fonts/bedstead-3.261-regular-latin.woff2') format('woff2');
+  unicode-range: U+0-17F, U+2000-206F, U+20A0-20CF, U+2100-214F, U+2190-22FF, U+25A0-25FF, U+2700-27BF;
 }
 @font-face {
   font-family: 'Bedstead Cell';
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url('../../fonts/bedstead-3.261-bold.woff2') format('woff2');
+  src: url('../../fonts/bedstead-3.261-bold-other.woff2') format('woff2');
+  unicode-range:
+    U+180-5EA, U+1D00-1EF5, U+2070-209C, U+2150-218B, U+2302-257F, U+2607-268F, U+27CA-2E5D, U+A726-A7FD, U+F100-F24C,
+    U+FB01-FB02, U+FFE8-FFFD, U+10450-1047F, U+1CC21-1D56B, U+1DF04-1DF10, U+1F680-1F69A, U+1FB82-1FBE7;
 }
-/* The same file again, for mosaics only (components/mosaic.css): fallback fonts have no mosaic glyphs, so
+@font-face {
+  font-family: 'Bedstead Cell';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../fonts/bedstead-3.261-bold-mosaic.woff2') format('woff2');
+  unicode-range: U+2580-259F, U+1FB00-1FB3B, U+1CE51-1CE8F, U+EE00-EE7F;
+}
+@font-face {
+  font-family: 'Bedstead Cell';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../fonts/bedstead-3.261-bold-latin.woff2') format('woff2');
+  unicode-range: U+0-17F, U+2000-206F, U+20A0-20CF, U+2100-214F, U+2190-22FF, U+25A0-25FF, U+2700-27BF;
+}
+/* The mosaic subset again, for mosaics only (components/mosaic.css): fallback fonts have no mosaic glyphs, so
    swap would show tofu boxes while Bedstead loads. block keeps mosaic cells blank instead; text keeps swap.
    The range is the standard mosaic code points plus U+EE00–EE7F, Bedstead's private-use copy of them
-   in ZVBI's layout, so mosaics in that layout blank while loading too. */
+   in ZVBI's layout, so art pasted from ZVBI-based tools blanks while loading too. */
 @font-face {
   font-family: 'Bedstead Mosaic';
   font-style: normal;
   font-weight: 400;
   font-display: block;
-  src: url('../../fonts/bedstead-3.261-regular.woff2') format('woff2');
+  src: url('../../fonts/bedstead-3.261-regular-mosaic.woff2') format('woff2');
   unicode-range: U+2580-259F, U+1FB00-1FB3B, U+1CE51-1CE8F, U+EE00-EE7F;
 }
 @font-face {
@@ -53,14 +142,32 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('../../fonts/space-mono-v15-latin-regular.woff2') format('woff2');
+  src: url('../../fonts/space-mono-v15-regular-other.woff2') format('woff2');
+  unicode-range: U+180-3C0, U+1E0C-1EF9, U+2070-2094, U+2153-215E, U+FB01-FB02;
+}
+@font-face {
+  font-family: 'Space Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../fonts/space-mono-v15-regular-latin.woff2') format('woff2');
+  unicode-range: U+0-17F, U+2000-206F, U+20A0-20CF, U+2100-214F, U+2190-22FF, U+25A0-25FF, U+2700-27BF;
 }
 @font-face {
   font-family: 'Space Mono';
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url('../../fonts/space-mono-v15-latin-700.woff2') format('woff2');
+  src: url('../../fonts/space-mono-v15-bold-other.woff2') format('woff2');
+  unicode-range: U+180-3C0, U+1E0C-1EF9, U+2070-2094, U+2153-215E, U+FB01-FB02;
+}
+@font-face {
+  font-family: 'Space Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../fonts/space-mono-v15-bold-latin.woff2') format('woff2');
+  unicode-range: U+0-17F, U+2000-206F, U+20A0-20CF, U+2100-214F, U+2190-22FF, U+25A0-25FF, U+2700-27BF;
 }
 :root {
   --cf-font-display: 'Bedstead', monospace;

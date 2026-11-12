@@ -122,9 +122,9 @@ Letters inside a mosaic fall back to Bedstead, so text can share a mosaic's row 
 ### Font loading
 
 Fallback fonts have no mosaic glyphs, so while Bedstead downloads they would show empty boxes. Mosaics use their
-own face over the same file with \`font-display: block\`: cells stay blank until the font arrives, while text
+own face over Bedstead's mosaic subset with \`font-display: block\`: cells stay blank until the font arrives, while text
 keeps \`swap\`. Browsers give up blocking after about three seconds, so on pages with mosaics preload the font:
-\`<link rel="preload" href="…/fonts/bedstead-3.261-regular.woff2" as="font" type="font/woff2" crossorigin>\`.
+\`<link rel="preload" href="…/fonts/bedstead-3.261-regular-mosaic.woff2" as="font" type="font/woff2" crossorigin>\`.
 
 ### Your own CSS
 

@@ -299,10 +299,10 @@ The heart is 8 × 6 blocks, so 4 cells across and 2 rows down: the newline insid
 - **Two colours per cell:** `data-variant` is the ink and `data-band` the background, on the mosaic or on a `<span>` inside it for each colour run. A banded run names its ink beside its band, which follows the band rules (see [Bands](#bands)). Letters inside a mosaic fall back to Bedstead, so text can share a mosaic's band.
 - **Accessibility:** most mosaics decorate, so put `aria-hidden="true"` on them, or a screen reader announces every glyph by its Unicode name. A mosaic that carries meaning gets `role="img"` and an `aria-label`. In a chart keep the figures as text and hide only the bars. A rule on a line of its own goes in a `<div>`, not a `<p>`, so no empty paragraph is left behind.
 - **Forced colours:** a mosaic is a picture, so it keeps its colours, on its own `--cf-bg` background.
-- **Font loading:** mosaics use a `font-display: block` face (the same Bedstead file, no second download), so cells stay blank rather than showing tofu while it loads. Text keeps `swap`. On pages with mosaics, preload the font (from wherever you serve the package's `fonts/`) so the cells appear with the text:
+- **Font loading:** mosaics use a `font-display: block` face over Bedstead's mosaic subset (about 4 kB, shared with the text faces, so no second download), so cells stay blank rather than showing tofu while it loads. Text keeps `swap`. On pages with mosaics, preload the font (from wherever you serve the package's `fonts/`) so the cells appear with the text:
 
   ```html
-  <link rel="preload" href="/fonts/bedstead-3.261-regular.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/bedstead-3.261-regular-mosaic.woff2" as="font" type="font/woff2" crossorigin />
   ```
 
 - **Inside the Screen frame** mosaics sit on the cell grid and tile edge to edge.

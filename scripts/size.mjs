@@ -1,22 +1,25 @@
 // Compressed size budgets per public entry point (issue #47, ADR-0015). Brotli,
 // like the bytes a browser downloads. A JS entry counts the files it imports
-// (relative static imports), so the barrel carries every element.
+// (relative static imports), so the barrel carries every element. The fonts get
+// one budget for what a Latin page downloads: every face's -latin subset.
 //
 //   node scripts/size.mjs <pkgDir> [basePkgDir]   # Markdown report, with deltas
 //
 // `assert-package` checks the budgets against the installed tarball.
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { brotliCompressSync } from 'node:zlib';
 
+const FONTS = './fonts/*-latin.woff2';
 // Bytes, brotli. Sized to the open roadmap (ADR-0015), so they catch accidents,
 // not planned components. Raising one is a deliberate, one-line change.
 export const BUDGETS = {
   './css': 6000,
-  './tokens': 1200,
+  './tokens': 1500,
   './elements': 1500,
   './elements/cf-loader': 1000,
+  [FONTS]: 100000,
 };
 
 const brotli = (file) => brotliCompressSync(readFileSync(file)).length;
@@ -33,14 +36,19 @@ function reachable(file, seen = new Set()) {
   return seen;
 }
 
-// { './css': bytes, … } for every file entry `pkgDir`'s exports define. `.` is
-// `./css` again; wildcards (`./fonts/*`) are third-party assets, out of scope.
+// { './css': bytes, … } for every file entry `pkgDir`'s exports define, plus the
+// Latin fonts. `.` is `./css` again; the `./fonts/*` wildcard is measured as FONTS.
 export function measure(pkgDir) {
   const { exports } = JSON.parse(readFileSync(join(pkgDir, 'package.json'), 'utf8'));
   const sizes = {};
   for (const [key, target] of Object.entries(exports))
     if (key !== '.' && typeof target === 'string' && !target.includes('*'))
       sizes[key] = [...reachable(join(pkgDir, target))].reduce((sum, f) => sum + brotli(f), 0);
+  // woff2 is brotli already, and servers send it as is.
+  const fonts = join(pkgDir, 'fonts');
+  sizes[FONTS] = readdirSync(fonts)
+    .filter((f) => f.endsWith('-latin.woff2'))
+    .reduce((sum, f) => sum + statSync(join(fonts, f)).size, 0);
   return sizes;
 }
 
