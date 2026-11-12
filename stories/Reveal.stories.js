@@ -22,7 +22,7 @@ const reveal = ([title, content], { n, open, variant, name }) => {
   if (open) el.open = true;
   if (variant) el.dataset.variant = variant;
   if (name) el.name = name;
-  el.innerHTML = `<summary>${n ? `<span class="cf-reveal__n">${n}</span>` : ''}${title}</summary>${content}`;
+  el.innerHTML = `<summary>${n ? `<span class="cf-reveal__index">${n}</span>` : ''}${title}</summary>${content}`;
   return el;
 };
 
@@ -87,7 +87,7 @@ export const List = {
   },
   play: async ({ canvasElement }) => {
     const [first, second] = reveals(canvasElement);
-    await expect(colour(first, '.cf-reveal__n')).toBe(YELLOW); // --cf-accent, no variant
+    await expect(colour(first, '.cf-reveal__index')).toBe(YELLOW); // --cf-accent, no variant
     await userEvent.click(first.querySelector('summary'));
     await userEvent.click(second.querySelector('summary'));
     await expect([first.open, second.open]).toEqual([true, true]);
@@ -107,7 +107,7 @@ export const Accordion = {
   play: async ({ canvasElement }) => {
     const [first, second] = reveals(canvasElement);
     // data-variant colours the number only: the marker keeps the accent.
-    await expect(colour(first, '.cf-reveal__n')).toBe('rgb(0, 255, 0)');
+    await expect(colour(first, '.cf-reveal__index')).toBe('rgb(0, 255, 0)');
     await expect(getComputedStyle(first.querySelector('summary'), '::after').color).toBe(YELLOW);
     await expect(first.open).toBe(true);
     await userEvent.click(second.querySelector('summary'));

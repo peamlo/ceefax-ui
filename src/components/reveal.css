@@ -18,7 +18,7 @@
 }
 /* With a number, the summary text and the revealed content start past it, so both line up.
    3ch fits a two-digit number; a longer one runs into the text. */
-:where(.cf-reveal:has(> summary > .cf-reveal__n)) {
+:where(.cf-reveal:has(> summary > .cf-reveal__index)) {
   --_indent: calc(var(--cf-space-2) * 2 + 3ch);
 }
 /* The number and the marker sit in the summary's padding (a gutter each side of the 1ch marker),
@@ -45,13 +45,13 @@
 :where(.cf-reveal[open] > summary)::after {
   content: '\25B2' / '';
 }
-:where(.cf-reveal__n) {
+:where(.cf-reveal__index) {
   position: absolute;
   inset-inline-start: var(--cf-space-2);
   color: var(--cf-accent);
 }
 /* data-variant colours the number only, through the variant seam (base.css). */
-:where(.cf-reveal[data-variant] > summary > .cf-reveal__n) {
+:where(.cf-reveal[data-variant] > summary > .cf-reveal__index) {
   color: var(--_variant, var(--cf-accent));
 }
 /* Inversion across the whole row, number and marker included. The transparent outline is the
@@ -61,7 +61,7 @@
   background: var(--cf-fg);
   color: var(--cf-bg);
 }
-:where(.cf-reveal > summary:is(:hover, :focus-visible) > .cf-reveal__n),
+:where(.cf-reveal > summary:is(:hover, :focus-visible) > .cf-reveal__index),
 :where(.cf-reveal > summary:is(:hover, :focus-visible))::after {
   color: inherit;
 }
