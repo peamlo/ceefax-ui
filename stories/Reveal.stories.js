@@ -117,8 +117,8 @@ export const Accordion = {
 };
 
 // The authentic mode: inside the Screen frame the reveal takes Bedstead and the frame's cell
-// size, so the ▼ / ▲ marker is Bedstead's own teletext glyph. The test runner checks which font
-// draws it.
+// size. The ▼ / ▲ marker is Bedstead's own teletext glyph here and outside the frame alike; the
+// test runner checks which font draws it in both.
 export const InScreenFrame = {
   name: 'In the Screen frame',
   args: { group: 'list', number: true, open: true },
