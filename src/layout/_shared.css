@@ -32,19 +32,3 @@
 [data-gap='8'] {
   --cf-gap: var(--cf-space-8);
 }
-
-/* Cross-axis alignment — scoped to cf-cluster, the one primitive that reads it.
-   A bare [data-align] would leak the inherited value into any cf-cluster nested
-   under a table cell or a headless library's positioned content (#168). */
-.cf-cluster[data-align='start'] {
-  --cf-align: flex-start;
-}
-.cf-cluster[data-align='center'] {
-  --cf-align: center;
-}
-.cf-cluster[data-align='end'] {
-  --cf-align: flex-end;
-}
-.cf-cluster[data-align='baseline'] {
-  --cf-align: baseline;
-}

@@ -1,8 +1,27 @@
 /* Cluster — an inline group that wraps. Tag lists, fastext keys, button rows.
    DX: data-gap="0..8", data-align="start|center|end|baseline" · escape hatch: --cf-gap. */
 .cf-cluster {
+  /* Set here, not inherited: an outer cluster's alignment must not leak in. */
+  --cf-align: center;
+
   display: flex;
   flex-wrap: wrap;
   gap: var(--cf-gap, var(--cf-space-2));
-  align-items: var(--cf-align, center);
+  align-items: var(--cf-align);
+}
+
+/* Cross-axis alignment — scoped to the cluster, its only reader. A bare [data-align]
+   would leak into a cluster nested in a table figure cell or a headless library's
+   positioned content, which put data-align there for their own reasons (#168). */
+.cf-cluster[data-align='start'] {
+  --cf-align: flex-start;
+}
+.cf-cluster[data-align='center'] {
+  --cf-align: center;
+}
+.cf-cluster[data-align='end'] {
+  --cf-align: flex-end;
+}
+.cf-cluster[data-align='baseline'] {
+  --cf-align: baseline;
 }
