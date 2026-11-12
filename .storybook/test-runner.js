@@ -535,6 +535,24 @@ async function assertRevealKeys(page) {
   await page.evaluate(() => document.activeElement.blur());
 }
 
+// Contract (#20): inside the Screen frame the reveal's marker is Bedstead's own ▼ glyph, not a
+// fallback face's. Only Chrome's renderer knows which font drew a glyph, so this reads it over CDP.
+async function assertRevealFrameMarker(page) {
+  await page.evaluate(() => document.fonts.ready);
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('DOM.enable');
+  await cdp.send('CSS.enable');
+  const { nodeId } = await cdp.send('DOM.querySelector', {
+    nodeId: (await cdp.send('DOM.getDocument')).root.nodeId,
+    selector: SUMMARY,
+  });
+  const { node } = await cdp.send('DOM.describeNode', { nodeId, depth: 0 });
+  const after = node.pseudoElements.find((p) => p.pseudoType === 'after');
+  const { fonts } = await cdp.send('CSS.getPlatformFontsForNode', { nodeId: after.nodeId });
+  await cdp.detach();
+  expect(fonts.map((f) => f.familyName)).toEqual(['Bedstead']);
+}
+
 const ignoreAxePseudo = () => {
   const { options } = window.axe._audit.checks['color-contrast'];
   window.axe.configure({ checks: [{ id: 'color-contrast', options: { ...options, ignorePseudo: true } }] });
@@ -581,6 +599,7 @@ export default {
     if (title === 'Components/Form/Radio' && name === 'Group') await assertRadioKeys(page);
     if (title === 'Components/Dialog' && name === 'Closed') await assertDialogInvoker(page);
     if (title === 'Components/Reveal' && name === 'Single') await assertRevealKeys(page);
+    if (title === 'Components/Reveal' && name === 'In the Screen frame') await assertRevealFrameMarker(page);
 
     await injectAxe(page);
     // The scanline overlay is an absolutely positioned ::after with a background-image, which axe

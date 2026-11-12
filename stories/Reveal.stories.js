@@ -27,15 +27,19 @@ const reveal = ([title, content], { n, open, variant, name }) => {
 };
 
 // group: one reveal, a list (several open at once) or an accordion (one shared `name`, one open).
-// `open` pre-opens the first item.
-const render = ({ group, open, number, variant }) => {
-  if (group === 'single') return reveal(ITEMS[0], { n: number && 1, open, variant });
+// Each story fixes it, so it's no control. `open` pre-opens the first item.
+const group = ({ group, open, number, variant }) => {
   // A heading per group carries the navigation: a <summary> isn't a heading.
   const section = document.createElement('section');
-  section.className = 'cf-page';
   section.innerHTML = '<h3>Questions for the bank</h3>';
   const name = group === 'accordion' ? 'bank-questions' : '';
   section.append(...ITEMS.map((item, i) => reveal(item, { n: number && i + 1, open: open && i === 0, variant, name })));
+  return section;
+};
+const render = (args) => {
+  if (args.group === 'single') return reveal(ITEMS[0], { n: args.number && 1, ...args });
+  const section = group(args);
+  section.className = 'cf-page';
   return section;
 };
 
@@ -49,7 +53,7 @@ export default {
   tags: ['autodocs'],
   render,
   argTypes: {
-    group: { control: 'inline-radio', options: ['single', 'list', 'accordion'] },
+    group: { table: { disable: true } },
     open: { control: 'boolean' },
     number: { control: 'boolean' },
     // No blue: blue text fails contrast on black.
@@ -109,5 +113,25 @@ export const Accordion = {
     await userEvent.click(second.querySelector('summary'));
     await expect([first.open, second.open]).toEqual([false, true]);
     await expect(shown(first)).toBe(false);
+  },
+};
+
+// The authentic mode: inside the Screen frame the reveal takes Bedstead and the frame's cell
+// size, so the ▼ / ▲ marker is Bedstead's own teletext glyph. The test runner checks which font
+// draws it.
+export const InScreenFrame = {
+  name: 'In the Screen frame',
+  args: { group: 'list', number: true, open: true },
+  parameters: { layout: 'fullscreen' },
+  render: (args) => {
+    const page = document.createElement('section');
+    page.className = 'cf-page';
+    page.dataset.frame = '';
+    const body = document.createElement('main');
+    body.className = 'cf-page__body';
+    body.tabIndex = 0;
+    body.append(group(args));
+    page.append(body);
+    return page;
   },
 };
