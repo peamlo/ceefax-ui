@@ -71,6 +71,12 @@ const COMPONENTS = {
     base: { borderTopColor: WHITE },
     paint: (colour) => ({ borderTopColor: colour }),
   },
+  popover: {
+    tag: 'div',
+    className: 'cf-popover',
+    base: { borderTopColor: WHITE },
+    paint: (colour) => ({ borderTopColor: colour }),
+  },
   key: {
     tag: 'a',
     className: 'cf-fastext__key',

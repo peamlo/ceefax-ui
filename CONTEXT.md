@@ -72,6 +72,10 @@ _Avoid_: toast, banner, callout, live region
 The modal panel (`cf-dialog`) on a native `<dialog>`, opened and closed with invoker commands and Esc: a thick-bordered teletext panel over a dimmed **backdrop**, 30, 60 or 80 Cells wide (`data-size="sm"`, default, `data-size="lg"`). Instant, never animated.
 _Avoid_: modal (as a noun), popup, lightbox, overlay
 
+**Popover**:
+A small floating panel (`cf-popover`) on the native `popover` attribute, opened with an invoker command and dismissed by a click outside or Esc. Anchored below its trigger where the browser supports anchor positioning, centred otherwise. Painted like a card. A **dropdown** is a popover holding a list of links, not a separate component.
+_Avoid_: dropdown menu, flyout, tooltip, popup
+
 **Stat**:
 A headline figure (`cf-stat`): a double-height **value** (`cf-stat__value`) in the display typeface, accent by default or any `data-variant` colour, optionally on a `data-band`, above a **label** (`cf-stat__label`) that says what it means. Not a heading. At most three equally weighted per screen; more figures belong in a table.
 _Avoid_: KPI, metric, counter, big number

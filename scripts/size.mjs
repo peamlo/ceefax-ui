@@ -13,7 +13,7 @@ import { brotliCompressSync } from 'node:zlib';
 // Bytes, brotli. Sized to the open roadmap (ADR-0015), so they catch accidents,
 // not planned components. Raising one is a deliberate, one-line change.
 export const BUDGETS = {
-  './css': 6000,
+  './css': 7000,
   './tokens': 1200,
   './elements': 1500,
   './elements/cf-loader': 1000,

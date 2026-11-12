@@ -406,6 +406,24 @@ async function assertSelectOpen(page) {
   expect(Math.abs(list - field)).toBeLessThan(1);
 }
 
+// Contract (#169): a real click on the trigger opens the popover below it (anchored, so the
+// runner's Chromium must support anchor positioning), and a real Esc closes it. Reopens it,
+// so axe audits its content in both themes.
+async function assertPopoverOpens(page) {
+  expect(await page.evaluate(() => CSS.supports('position-area', 'block-end'))).toBe(true);
+  const open = () => document.querySelector('.cf-popover').matches(':popover-open');
+  await page.click('.cf-btn');
+  expect(await page.evaluate(open)).toBe(true);
+  const [top, triggerBottom] = await page.evaluate(() => [
+    document.querySelector('.cf-popover').getBoundingClientRect().top,
+    document.querySelector('.cf-btn').getBoundingClientRect().bottom,
+  ]);
+  expect(top).toBeGreaterThanOrEqual(triggerBottom);
+  await page.keyboard.press('Escape');
+  expect(await page.evaluate(open)).toBe(false);
+  await page.click('.cf-btn');
+}
+
 // Contract (#139): the number spinner and the search clear button are the browser's own parts,
 // drawn as a ▲▼ or ✕ in the field's own colour, in the last cell of the content box. Their
 // computed style can't be read (getComputedStyle ignores ::-webkit-* parts), so read the pixels,
@@ -601,6 +619,7 @@ export default {
     if (title === 'Components/Reveal' && name === 'Single') await assertRevealKeys(page);
     if (title === 'Components/Reveal' && ['Single', 'In the Screen frame'].includes(name))
       await assertRevealMarker(page);
+    if (title === 'Components/Popover') await assertPopoverOpens(page);
 
     await injectAxe(page);
     // The scanline overlay is an absolutely positioned ::after with a background-image, which axe

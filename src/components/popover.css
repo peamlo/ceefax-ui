@@ -1,0 +1,52 @@
+/* Popover — a small floating panel on the native popover attribute, opened by an invoker
+   (command="toggle-popover" commandfor). The browser opens and closes it: the top layer, a
+   click outside or Esc, one open at a time. Painted like a card, never inverted, never animated.
+   A dropdown is a popover holding a <ul> of cf-links or ghost cf-btns, not a part of its own.
+   No display here: the browser's own [popover] rule hides it while closed. Every rule is
+   wrapped in :where(), so consumer CSS wins without !important (ADR-0018). */
+:where(.cf-popover) {
+  /* Its content's width, wrapping at one 40-cell row (plus padding and border), never wider
+     than the viewport less a gutter. max-content, not fit-content: an anchored popover would
+     shrink into the room left beside its trigger instead of flipping to where there's room. */
+  inline-size: max-content;
+  max-inline-size: min(40ch + 2 * (var(--cf-space-3) + var(--cf-border-thin)), 100vw - 2 * var(--cf-space-3));
+  border: var(--cf-border-thin) solid var(--cf-border);
+  border-radius: var(--cf-radius);
+  background: var(--cf-bg);
+  color: var(--cf-fg);
+  padding: var(--cf-space-3);
+  font-family: var(--cf-font-mono);
+  line-height: var(--cf-leading-relaxed);
+}
+/* Colour comes from the variant seam (base.css); the popover paints the border only. */
+:where(.cf-popover[data-variant]) {
+  border-color: var(--_variant, var(--cf-border));
+}
+:where(.cf-popover > :first-child) {
+  margin-block-start: 0;
+}
+:where(.cf-popover > :last-child) {
+  margin-block-end: 0;
+}
+/* The dropdown's list: one item a line, flush with the padding, as in cf-fastext. */
+:where(.cf-popover > ul) {
+  padding: 0;
+  list-style: none;
+}
+/* Anchored to the invoker that opened it (its implicit anchor, no anchor-name), only on the
+   native popover the browser drives, never on a headless library's own element: below the
+   trigger at its start edge, flipped above, to the other side or both where there's no room,
+   one thin border below or above it as the open cf-select list is (no inline margin, or it
+   would sit off the start edge).
+   --cf-popover-area takes any position-area value to move it (ADR-0003). Without anchor
+   positioning the browser's own centred popover stays. */
+@supports (position-area: block-end) {
+  :where(.cf-popover[popover]) {
+    margin: var(--cf-border-thin) 0;
+    position-area: var(--cf-popover-area, block-end span-inline-end);
+    position-try-fallbacks:
+      flip-block,
+      flip-inline,
+      flip-block flip-inline;
+  }
+}
