@@ -1,4 +1,5 @@
 import { expect, within } from 'storybook/test';
+import { uid } from './form/_form.js';
 
 // cf-popover (#169): a floating panel on the native popover attribute, opened by an invoker
 // command on its trigger. The browser opens, dismisses and anchors it; opening it for real
@@ -14,9 +15,8 @@ const CONTENT = {
 };
 const TRIGGER = { text: 'About pages', dropdown: 'Pages' };
 
-let count = 0; // autodocs renders every story on one page: ids must not repeat
 const popover = ({ content, variant, area }) => {
-  const id = `cf-popover-${++count}`;
+  const id = uid('cf-popover');
   const el = document.createElement('div');
   el.innerHTML =
     `<button class="cf-btn" type="button" command="toggle-popover" commandfor="${id}">` +
