@@ -614,6 +614,30 @@
             </div>
           </script>
         </article>
+
+        <article
+          class="ex"
+          data-page="800"
+          data-title="Headline figures — cf-stat"
+          data-note="cf-stat is a figure read before the text around it: the value at double height in the display face, then a label that says what it means, so colour is never the only cue. Accent by default, data-variant for another ink, data-band for a band behind it. Up to three in a layout primitive; more figures belong in a table."
+        >
+          <script type="text/plain">
+            <div class="cf-grid" data-cols="3">
+              <p class="cf-stat" data-band="blue" data-variant="yellow">
+                <span class="cf-stat__value">8,164.1</span>
+                <span class="cf-stat__label">FTSE 100 at the close</span>
+              </p>
+              <p class="cf-stat">
+                <span class="cf-stat__value">+48.3</span>
+                <span class="cf-stat__label">points up on the day</span>
+              </p>
+              <p class="cf-stat" data-variant="red">
+                <span class="cf-stat__value">−0.4%</span>
+                <span class="cf-stat__label">the pound, down on the dollar</span>
+              </p>
+            </div>
+          </script>
+        </article>
       </main>
 
       <section class="cheat">
@@ -665,7 +689,7 @@
           <code>data-variant</code
           ><span class="cheat-on"
             ><span>cf-card</span> · <span>cf-btn</span> · <span>cf-notice</span> · <span>cf-fastext__key</span> ·
-            <span>cf-header-row parts</span> · <span>cf-table parts</span></span
+            <span>cf-header-row parts</span> · <span>cf-table parts</span> · <span>cf-stat</span></span
           ><span class="cheat-val">red · green · yellow · blue · cyan · magenta</span
           ><span class="cheat-desc"
             >the part&#39;s colour, or the ink beside a data-band; cf-btn also takes ghost, cf-link takes nav</span
@@ -674,7 +698,8 @@
         <div class="cheat-row">
           <code>data-band</code
           ><span class="cheat-on"
-            ><span>cf-header-row parts</span> · <span>cf-fastext__key</span> · <span>cf-table parts</span></span
+            ><span>cf-header-row parts</span> · <span>cf-fastext__key</span> · <span>cf-table parts</span> ·
+            <span>cf-stat</span></span
           ><span class="cheat-val">red · green · yellow · blue · cyan · magenta</span
           ><span class="cheat-desc">a coloured background behind the text</span>
         </div>
