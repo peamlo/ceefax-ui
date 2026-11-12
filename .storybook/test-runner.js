@@ -409,18 +409,18 @@ async function assertDrawnMark(page, name) {
   const cell = await page.evaluate(markCell);
   const value = () => page.inputValue('input');
   const rendered = await value();
-  // #171: the part is the gap and the cell, at least 24px square (WCAG 2.2 target size), so
+  // #171: the part is the gap and the cell, at least 24px each way (WCAG 2.2 target size), so
   // click just inside its far corners: top left steps up, bottom right steps down.
-  const size = Math.max(24, 2 * cell.width);
+  const [w, h] = [Math.max(24, 2 * cell.width), Math.max(24, cell.height)];
   const [left, mid] = [cell.x - cell.width, cell.y + cell.height / 2];
   const clickAt = (x, dy) => page.mouse.click(left + x, mid + dy);
   if (name === 'Number') {
-    await clickAt(2, 2 - size / 2);
+    await clickAt(2, 2 - h / 2);
     expect(await value()).toBe(String(+rendered + 1));
-    await clickAt(size - 2, size / 2 - 2);
+    await clickAt(w - 2, h / 2 - 2);
     expect(await value()).toBe(rendered);
   } else {
-    await clickAt(2, 2 - size / 2);
+    await clickAt(2, 2 - h / 2);
     expect(await value()).toBe('');
     await page.fill('input', rendered);
   }

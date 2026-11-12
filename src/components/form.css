@@ -82,7 +82,7 @@
 /* The number spinner and the search clear button stay the browser's own parts (the top or
    bottom half steps the number, the ✕ clears the field), redrawn like the select's ▼: a thin
    ▲▼ or ✕ one cell wide after a one-cell gap, a mask over the field's own colour. The part
-   itself is the gap and the cell, at least 24px square (WCAG 2.2 target size): what the two
+   itself is the gap and the cell, at least 24px each way (WCAG 2.2 target size): what the two
    cells lack spills into the end padding, and the mark stays in the last cell.
    Chrome and Safari only; Firefox has no hook for either, so its own stay. */
 :where(.cf-input)::-webkit-inner-spin-button,

@@ -22,7 +22,8 @@
 }
 .cf-btn[data-size='sm'] {
   font-size: var(--cf-text-small);
-  /* at least 24px tall (WCAG 2.2 target size): the padding grows, the type stays small */
+  /* at least 24px tall (WCAG 2.2 target size): the padding grows, the type stays small.
+     Assumes the base rule's 1em line (line-height: 1) and --cf-border-thin border. */
   padding: max(0.2em, calc((24px - 1em) / 2 - var(--cf-border-thin))) 1.5ch;
 }
 .cf-btn[data-size='lg'] {
