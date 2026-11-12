@@ -41,6 +41,7 @@
   inset-block-start: var(--cf-space-1);
   inset-inline-end: var(--cf-space-2);
   color: var(--cf-accent);
+  font-family: var(--cf-font-display);
 }
 :where(.cf-reveal[open] > summary)::after {
   content: '\25B2' / '';

@@ -535,9 +535,9 @@ async function assertRevealKeys(page) {
   await page.evaluate(() => document.activeElement.blur());
 }
 
-// Contract (#20): inside the Screen frame the reveal's marker is Bedstead's own ▼ glyph, not a
-// fallback face's. Only Chrome's renderer knows which font drew a glyph, so this reads it over CDP.
-async function assertRevealFrameMarker(page) {
+// Contract (#20): the reveal's marker is Bedstead's own ▼ glyph, inside the Screen frame and out,
+// not a fallback face's. Only Chrome's renderer knows which font drew a glyph, so this reads it over CDP.
+async function assertRevealMarker(page) {
   await page.evaluate(() => document.fonts.ready);
   const cdp = await page.context().newCDPSession(page);
   await cdp.send('DOM.enable');
@@ -599,7 +599,8 @@ export default {
     if (title === 'Components/Form/Radio' && name === 'Group') await assertRadioKeys(page);
     if (title === 'Components/Dialog' && name === 'Closed') await assertDialogInvoker(page);
     if (title === 'Components/Reveal' && name === 'Single') await assertRevealKeys(page);
-    if (title === 'Components/Reveal' && name === 'In the Screen frame') await assertRevealFrameMarker(page);
+    if (title === 'Components/Reveal' && ['Single', 'In the Screen frame'].includes(name))
+      await assertRevealMarker(page);
 
     await injectAxe(page);
     // The scanline overlay is an absolutely positioned ::after with a background-image, which axe
