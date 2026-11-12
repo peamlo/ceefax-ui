@@ -38,8 +38,7 @@ ARIA in HTML decide what markup is allowed, and WCAG 2.2 AA decides what must be
 - No new runtime; ADR-0001 holds.
 - Older browsers without invoker commands need a polyfill, which the consumer adds.
 - A headless library's portal must sit inside `.cf-page` (or the theme must be on `<html>`), or portalled
-  content loses the Screen frame and theme scopes. The README documents this for each widget that
-  portals (the Dialog section, #167).
+  content loses the Screen frame and theme scopes. The README documents this.
 - A global `data-*` rule can collide with the attributes these libraries set on positioned content;
   [#168](https://github.com/peamlo/ceefax-ui/issues/168) scopes `data-align`.
 - A widget the platform lacks (tabs, menu, combobox) gets the same treatment: APG markup styled through its
