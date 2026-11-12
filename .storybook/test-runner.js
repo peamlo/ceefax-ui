@@ -409,15 +409,18 @@ async function assertDrawnMark(page, name) {
   const cell = await page.evaluate(markCell);
   const value = () => page.inputValue('input');
   const rendered = await value();
-  // A click at a fraction of the cell's height, in the middle of its width.
-  const clickAt = (fy) => page.mouse.click(cell.x + cell.width / 2, cell.y + cell.height * fy);
+  // #171: the part is the gap and the cell, at least 24px each way (WCAG 2.2 target size), so
+  // click just inside its far corners: top left steps up, bottom right steps down.
+  const [w, h] = [Math.max(24, 2 * cell.width), Math.max(24, cell.height)];
+  const [left, mid] = [cell.x - cell.width, cell.y + cell.height / 2];
+  const clickAt = (x, dy) => page.mouse.click(left + x, mid + dy);
   if (name === 'Number') {
-    await clickAt(0.3);
+    await clickAt(2, 2 - h / 2);
     expect(await value()).toBe(String(+rendered + 1));
-    await clickAt(0.7);
+    await clickAt(w - 2, h / 2 - 2);
     expect(await value()).toBe(rendered);
   } else {
-    await clickAt(0.5);
+    await clickAt(2, 2 - h / 2);
     expect(await value()).toBe('');
     await page.fill('input', rendered);
   }
@@ -475,12 +478,15 @@ const ignoreAxePseudo = () => {
   window.axe.configure({ checks: [{ id: 'color-contrast', options: { ...options, ignorePseudo: true } }] });
 };
 
-// `aaa` also enables axe's AAA contrast rule — the accessible theme's promise (#12).
+// target-size (WCAG 2.2 AA, 24px pointer targets, #171) is off by default in axe; `aaa` also
+// enables axe's AAA contrast rule — the accessible theme's promise (#12).
 const axe = async (page, { aaa = false } = {}) => {
   await checkA11y(page, '#storybook-root', {
     detailedReport: true,
     detailedReportOptions: { html: true },
-    ...(aaa && { axeOptions: { rules: { 'color-contrast-enhanced': { enabled: true } } } }),
+    axeOptions: {
+      rules: { 'target-size': { enabled: true }, ...(aaa && { 'color-contrast-enhanced': { enabled: true } }) },
+    },
   });
 };
 
