@@ -15,7 +15,10 @@ get "iframe.html?id=${id}" > /dev/null
 grep -q 'src/index.css' <<< "$(get demo/)"
 for page in demo/ demo/screen; do grep -q 'public/favicon.svg' <<< "$(get "$page")"; done
 get src/index.css > /dev/null
-get fonts/bedstead-3.261-regular-latin.woff2 > /dev/null
+# The first font the stylesheet names, so renaming a font file can't break this check.
+# An assignment, so set -e stops here if the stylesheet names none.
+font=$(get src/tokens/typography.css | grep -om1 "fonts/[^')]*\.woff2")
+get "$font" > /dev/null
 get public/favicon.svg > /dev/null
 # A host that serves index.html for missing paths hides every broken link above.
 [[ $(curl -sS -o /dev/null -w '%{http_code}' "${URL}does-not-exist") == 404 ]]
