@@ -501,25 +501,37 @@ async function assertRadioKeys(page) {
   expect(await page.evaluate(focused)).toEqual(['BBC1', true]);
 }
 
-// Contract (#20): a real Tab focuses the reveal's summary and inverts the whole row, number and
-// marker included; a real Enter opens it natively and flips the marker ▼ → ▲. The Single story
-// starts closed with no number. Leaves it open and nothing focused.
+// Contract (#20): a real Tab focuses the reveal's summary and inverts the row, marker included;
+// a real Enter opens it natively, which the accessibility tree announces as expanded, and flips
+// the marker ▼ → ▲. The marker stays out of the accessible name (empty alt text). The Single
+// story starts closed. Leaves it open and nothing focused.
+const SUMMARY = '.cf-reveal > summary';
+const marker = (sel) => {
+  const after = getComputedStyle(document.querySelector(sel), '::after');
+  return { marker: after.color, glyph: after.content };
+};
+const revealLook = async (page) => ({
+  ...(await page.evaluate(colours, SUMMARY)),
+  ...(await page.evaluate(marker, SUMMARY)),
+});
+// Chrome's own accessibility tree: Playwright's aria snapshot doesn't model <summary>.
+async function disclosure(page) {
+  const cdp = await page.context().newCDPSession(page);
+  const { nodes } = await cdp.send('Accessibility.getFullAXTree');
+  await cdp.detach();
+  const node = nodes.find((n) => n.role?.value === 'DisclosureTriangle');
+  return { name: node.name.value, expanded: node.properties.find((p) => p.name === 'expanded').value.value };
+}
+
 async function assertRevealKeys(page) {
-  const SUMMARY = '.cf-reveal > summary';
-  const look = (sel) => {
-    const el = document.querySelector(sel);
-    const cs = getComputedStyle(el);
-    const marker = getComputedStyle(el, '::after');
-    return { backgroundColor: cs.backgroundColor, color: cs.color, marker: marker.color, glyph: marker.content };
-  };
-  const open = () => document.querySelector('.cf-reveal').open;
-  expect((await page.evaluate(look, SUMMARY)).glyph).toContain('\u25BC');
+  expect((await page.evaluate(marker, SUMMARY)).glyph).toContain('\u25BC');
+  expect(await disclosure(page)).toEqual({ name: 'What does TAE mean?', expanded: false });
   await page.keyboard.press('Tab');
   expect(await page.evaluate((sel) => document.activeElement.matches(sel), SUMMARY)).toBe(true);
-  expect(await page.evaluate(look, SUMMARY)).toMatchObject({ ...INVERTED, marker: BLACK });
+  expect(await revealLook(page)).toMatchObject({ ...INVERTED, marker: BLACK });
   await page.keyboard.press('Enter');
-  expect(await page.evaluate(open)).toBe(true);
-  expect((await page.evaluate(look, SUMMARY)).glyph).toContain('\u25B2');
+  expect((await disclosure(page)).expanded).toBe(true);
+  expect((await page.evaluate(marker, SUMMARY)).glyph).toContain('\u25B2');
   await page.evaluate(() => document.activeElement.blur());
 }
 

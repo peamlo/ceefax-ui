@@ -16,11 +16,13 @@
 :where(.cf-reveal + .cf-reveal) {
   border-block-start: 0;
 }
-/* With a number, the summary text and the revealed content start past it, so both line up. */
+/* With a number, the summary text and the revealed content start past it, so both line up.
+   3ch fits a two-digit number; a longer one runs into the text. */
 :where(.cf-reveal:has(> summary > .cf-reveal__n)) {
   --_indent: calc(var(--cf-space-2) * 2 + 3ch);
 }
-/* The number and the marker sit in the summary's padding, so a long title wraps under itself. */
+/* The number and the marker sit in the summary's padding (a gutter each side of the 1ch marker),
+   so a long title wraps under itself. */
 :where(.cf-reveal > summary) {
   position: relative;
   display: block;

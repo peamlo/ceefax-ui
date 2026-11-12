@@ -41,6 +41,8 @@ const render = ({ group, open, number, variant }) => {
 
 const reveals = (canvasElement) => [...canvasElement.querySelectorAll('.cf-reveal')];
 const shown = (el) => el.querySelector('p').checkVisibility();
+const colour = (el, sel) => getComputedStyle(el.querySelector(sel)).color;
+const YELLOW = 'rgb(255, 255, 0)';
 
 export default {
   title: 'Components/Reveal',
@@ -50,6 +52,7 @@ export default {
     group: { control: 'inline-radio', options: ['single', 'list', 'accordion'] },
     open: { control: 'boolean' },
     number: { control: 'boolean' },
+    // No blue: blue text fails contrast on black.
     variant: { control: 'select', options: ['', 'red', 'green', 'yellow', 'magenta', 'cyan'] },
   },
   args: { group: 'single', open: false, number: false, variant: '' },
@@ -80,6 +83,7 @@ export const List = {
   },
   play: async ({ canvasElement }) => {
     const [first, second] = reveals(canvasElement);
+    await expect(colour(first, '.cf-reveal__n')).toBe(YELLOW); // --cf-accent, no variant
     await userEvent.click(first.querySelector('summary'));
     await userEvent.click(second.querySelector('summary'));
     await expect([first.open, second.open]).toEqual([true, true]);
@@ -87,7 +91,7 @@ export const List = {
 };
 
 export const Accordion = {
-  args: { group: 'accordion', number: true, open: true },
+  args: { group: 'accordion', number: true, open: true, variant: 'green' },
   parameters: {
     docs: {
       description: {
@@ -98,6 +102,9 @@ export const Accordion = {
   },
   play: async ({ canvasElement }) => {
     const [first, second] = reveals(canvasElement);
+    // data-variant colours the number only: the marker keeps the accent.
+    await expect(colour(first, '.cf-reveal__n')).toBe('rgb(0, 255, 0)');
+    await expect(getComputedStyle(first.querySelector('summary'), '::after').color).toBe(YELLOW);
     await expect(first.open).toBe(true);
     await userEvent.click(second.querySelector('summary'));
     await expect([first.open, second.open]).toEqual([false, true]);
