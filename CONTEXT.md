@@ -69,7 +69,7 @@ The component for something the reader mustn't miss (`cf-notice`): a thick-borde
 _Avoid_: toast, banner, callout, live region
 
 **Dialog**:
-The modal panel (`cf-dialog`) on a native `<dialog>`, opened and closed with invoker commands and Esc: a thick-bordered teletext panel over a dimmed **backdrop**, 30, 40 or 60 Cells wide (`data-size="sm"`, default, `data-size="lg"`). Instant, never animated.
+The modal panel (`cf-dialog`) on a native `<dialog>`, opened and closed with invoker commands and Esc: a thick-bordered teletext panel over a dimmed **backdrop**, 30, 60 or 80 Cells wide (`data-size="sm"`, default, `data-size="lg"`). Instant, never animated.
 _Avoid_: modal (as a noun), popup, lightbox, overlay
 
 **Stat**:
