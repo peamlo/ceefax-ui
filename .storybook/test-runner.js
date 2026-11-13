@@ -54,6 +54,7 @@ async function assertButtonContract(page, name) {
 // ink is black.
 const FIRST_KEY = '.cf-fastext__key';
 const BLACK = 'rgb(0, 0, 0)';
+const ACCENT = 'rgb(255, 255, 0)';
 
 async function assertFastextHover(page) {
   const rest = await page.evaluate(colours, FIRST_KEY);
@@ -100,21 +101,36 @@ async function assertScreenFrame(page) {
   await page.setViewportSize({ width: 1280, height: 720 });
 }
 
+// Contract (#150): a focused Scroll region shows the Focus ring, solid in the accent colour,
+// never the browser's own ring.
+async function expectFocusRing(page, sel) {
+  expect((await page.evaluate(controlLook, sel)).outline).toBe(`solid 2px ${ACCENT}`);
+}
+
 // Contract (#150): a real Tab reaches the Screen frame body (the header row holds nothing
 // focusable), which shows the Focus ring, and the whole ring lies inside the frame's visible
 // box, which clips its overflow. Leaves nothing focused.
 async function assertFrameFocusRing(page) {
   await page.keyboard.press('Tab');
   expect(await page.evaluate(() => document.activeElement.matches('.cf-page__body'))).toBe(true);
-  expect((await page.evaluate(controlLook, '.cf-page__body')).outline).toBe(`solid 2px ${ACCENT}`);
+  await expectFocusRing(page, '.cf-page__body');
   const { ring, frame } = await page.evaluate(() => {
     const body = document.activeElement;
     const cs = getComputedStyle(body);
-    const out = parseFloat(cs.outlineOffset) + parseFloat(cs.outlineWidth);
+    const ringReach = parseFloat(cs.outlineOffset) + parseFloat(cs.outlineWidth);
     const r = body.getBoundingClientRect();
+    // The frame clips at its padding box: inside its border, measured by clientLeft/clientTop.
+    const page = body.closest('.cf-page');
+    const p = page.getBoundingClientRect();
+    const [left, top] = [p.left + page.clientLeft, p.top + page.clientTop];
     return {
-      ring: { top: r.top - out, right: r.right + out, bottom: r.bottom + out, left: r.left - out },
-      frame: body.closest('.cf-page').getBoundingClientRect().toJSON(),
+      ring: {
+        top: r.top - ringReach,
+        right: r.right + ringReach,
+        bottom: r.bottom + ringReach,
+        left: r.left - ringReach,
+      },
+      frame: { top, left, right: left + page.clientWidth, bottom: top + page.clientHeight },
     };
   });
   expect(ring.top).toBeGreaterThanOrEqual(frame.top);
@@ -211,7 +227,7 @@ async function assertHeaderRowNarrow(page) {
 
 // Contract (#100): at phone width a wide table scrolls inside its region, never the page,
 // and a real Tab reaches the region so keyboard users can scroll it. Contract (#150): the
-// focused region shows the Focus ring, a solid accent outline, never the browser's own ring.
+// focused region shows the Focus ring.
 // Restores the wide viewport.
 async function assertTableNarrow(page) {
   await page.setViewportSize({ width: 320, height: 640 });
@@ -226,7 +242,7 @@ async function assertTableNarrow(page) {
   expect(regionScrolls).toBe(true);
   await page.keyboard.press('Tab');
   expect(await page.evaluate(() => document.activeElement.matches('.cf-table__scroll'))).toBe(true);
-  expect((await page.evaluate(controlLook, '.cf-table__scroll')).outline).toBe(`solid 2px ${ACCENT}`);
+  await expectFocusRing(page, '.cf-table__scroll');
   await page.evaluate(() => document.activeElement.blur());
   await page.setViewportSize({ width: 1280, height: 720 });
 }
@@ -375,7 +391,6 @@ const controlLook = (sel) => {
     width: document.querySelector(sel).getBoundingClientRect().width,
   };
 };
-const ACCENT = 'rgb(255, 255, 0)';
 async function assertFieldInput(page) {
   const rest = await page.evaluate(controlLook, '#email');
   await page.keyboard.press('Tab');
@@ -626,9 +641,10 @@ export default {
     const { title, name } = await getStoryContext(page, context);
     await assertValidHtml(page, title, name);
     const isCrt = title === 'Layout/Page' && name === 'Screen frame, CRT look (data-frame="crt")';
-    const isFrame = (title === 'Layout/Page' && name === 'Screen frame (data-frame)') || isCrt;
+    const isPlainFrame = title === 'Layout/Page' && name === 'Screen frame (data-frame)';
+    const isFrame = isPlainFrame || isCrt;
     if (isFrame) await assertScreenFrame(page);
-    if (title === 'Layout/Page' && name === 'Screen frame (data-frame)') await assertFrameFocusRing(page);
+    if (isPlainFrame) await assertFrameFocusRing(page);
     if (isCrt) await assertCrtOffSwitches(page);
     if (!title.startsWith('Components/') && !isFrame) return;
 
