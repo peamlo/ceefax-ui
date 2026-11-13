@@ -36,9 +36,10 @@ that lands on `main`, and it is validated in CI
   reports leaves the PR blocked.
 - So required jobs are skipped by `if:`, never by `paths:`: GitHub counts a job
   skipped by `if:` as passed, but a workflow skipped by `paths:` never reports.
-  On a docs-only PR (issue #157) a `changes` job lists the changed files and
-  `test-storybook` and `package` skip themselves by `if:`; pushes to `main` and
-  any PR touching a file outside the safe list run them.
+  On a docs-only PR (issue #157) the `changes` workflow lists the changed files
+  and the slow jobs (`test-storybook`, `package`, `dead-code`) skip themselves
+  by `if:`; pushes to `main` and any PR touching a file outside the safe list
+  run them.
 - Dependabot PRs go through the same gate: `.github/dependabot.yml` sets
   `build(deps)` / `ci(deps)` commit prefixes, so their titles pass `lint-title`.
 - Reversible: re-enabling other merge methods is a repo-settings change.

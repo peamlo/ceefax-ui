@@ -2,7 +2,9 @@
 # functions (contract interaction assertions) + the axe a11y pass on Components/*
 # + html-validate over every story's rendered HTML (.htmlvalidate.js, #127).
 # Per ADR-0002 this is a HARD gate — the `main protection` ruleset requires
-# `test-storybook`, so a red run blocks merge. See ADR-0006.
+# `test-storybook`, so a red run blocks merge. See ADR-0006. A docs-only PR
+# (changes.yml, issue #157) skips it by `if:`, never by `paths:`, so the
+# required check still reports, as passed.
 name: storybook-tests
 
 on:
@@ -21,31 +23,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Docs-only PRs skip `test-storybook` (issue #157). A copy of the `changes`
-  # job in ci.yml, since `needs:` can't cross workflows: keep the two safe lists
-  # in sync. Required jobs are skipped by `if:`, never by `paths:`: a job
-  # skipped by `if:` reports as passed, but a workflow skipped by `paths:` never
-  # reports and leaves the PR BLOCKED (ADR-0002).
+  # Docs-only PRs skip `test-storybook` (changes.yml, issue #157).
   changes:
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    uses: ./.github/workflows/changes.yml
     permissions:
       pull-requests: read
-    outputs:
-      docs_only: ${{ steps.files.outputs.docs_only }}
-    steps:
-      - id: files
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR: ${{ github.event.pull_request.number }}
-        run: |
-          files=$(gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR/files" \
-            --jq '.[] | .filename, (.previous_filename // empty)')
-          if grep -qvE '\.md$|^docs/|^\.agents/|^skills-lock\.json$' <<< "$files"; then
-            echo docs_only=false >> "$GITHUB_OUTPUT"
-          else
-            echo docs_only=true >> "$GITHUB_OUTPUT"
-          fi
 
   # `!cancelled()`, not success: a failed `changes`, or one skipped on a push
   # to main, runs the tests.

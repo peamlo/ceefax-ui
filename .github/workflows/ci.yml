@@ -8,7 +8,10 @@
 # `package` also enforces the brotli size budgets (issue #47, ADR-0015); the
 # advisory `size-comment` job posts the size report, with deltas, on the PR.
 # The `lint` job (issue #48) runs Stylelint, ESLint and Prettier. The advisory
-# `dead-code` job (issue #52) runs knip and the token usage report.
+# `dead-code` job (issue #52) runs knip and the token usage report. On a
+# docs-only PR (changes.yml, issue #157) `package`, `dead-code` and
+# `size-comment` are skipped by `if:`, never by `paths:`, so the required
+# checks still report.
 name: ci
 
 on:
@@ -27,37 +30,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Docs-only PRs (issue #157) skip the slow jobs: `package`, `dead-code` and
-  # `test-storybook` (storybook-tests.yml, which repeats this job: keep the two
-  # safe lists in sync). Lists the PR's changed files through the API, both
-  # names of a rename, with no checkout and no third-party action. docs_only is
-  # true only when every file is on the safe list; anything else runs the full
-  # gate. Required jobs are skipped by `if:`, never by `paths:`: a job skipped
-  # by `if:` reports as passed, but a workflow skipped by `paths:` never reports
-  # and leaves the PR BLOCKED (ADR-0002). Dependents test `!cancelled()`, not
-  # success, so a failed `changes`, or one skipped on a push to main, runs them.
+  # Docs-only PRs skip `package` and `dead-code` (changes.yml, issue #157).
   changes:
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    uses: ./.github/workflows/changes.yml
     permissions:
       pull-requests: read
-    outputs:
-      docs_only: ${{ steps.files.outputs.docs_only }}
-    steps:
-      # ponytail: the files API stops at 3000 files; a bigger PR is judged on
-      # its first 3000. Compare with pull_request.changed_files if that matters.
-      - id: files
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR: ${{ github.event.pull_request.number }}
-        run: |
-          files=$(gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR/files" \
-            --jq '.[] | .filename, (.previous_filename // empty)')
-          if grep -qvE '\.md$|^docs/|^\.agents/|^skills-lock\.json$' <<< "$files"; then
-            echo docs_only=false >> "$GITHUB_OUTPUT"
-          else
-            echo docs_only=true >> "$GITHUB_OUTPUT"
-          fi
 
   package:
     needs: changes
