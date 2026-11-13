@@ -54,6 +54,7 @@ async function assertButtonContract(page, name) {
 // ink is black.
 const FIRST_KEY = '.cf-fastext__key';
 const BLACK = 'rgb(0, 0, 0)';
+const ACCENT = 'rgb(255, 255, 0)';
 
 async function assertFastextHover(page) {
   const rest = await page.evaluate(colours, FIRST_KEY);
@@ -100,6 +101,45 @@ async function assertScreenFrame(page) {
   await page.setViewportSize({ width: 1280, height: 720 });
 }
 
+// Contract (#150): a focused Scroll region shows the Focus ring, solid in the accent colour,
+// never the browser's own ring.
+async function expectFocusRing(page, sel) {
+  expect((await page.evaluate(controlLook, sel)).outline).toBe(`solid 2px ${ACCENT}`);
+}
+
+// Contract (#150): a real Tab reaches the Screen frame body (the header row holds nothing
+// focusable), which shows the Focus ring, and the whole ring lies inside the frame's visible
+// box, which clips its overflow. Leaves nothing focused.
+async function assertFrameFocusRing(page) {
+  await page.keyboard.press('Tab');
+  expect(await page.evaluate(() => document.activeElement.matches('.cf-page__body'))).toBe(true);
+  await expectFocusRing(page, '.cf-page__body');
+  const { ring, frame } = await page.evaluate(() => {
+    const body = document.activeElement;
+    const cs = getComputedStyle(body);
+    const ringReach = parseFloat(cs.outlineOffset) + parseFloat(cs.outlineWidth);
+    const r = body.getBoundingClientRect();
+    // The frame clips at its padding box: inside its border, measured by clientLeft/clientTop.
+    const page = body.closest('.cf-page');
+    const p = page.getBoundingClientRect();
+    const [left, top] = [p.left + page.clientLeft, p.top + page.clientTop];
+    return {
+      ring: {
+        top: r.top - ringReach,
+        right: r.right + ringReach,
+        bottom: r.bottom + ringReach,
+        left: r.left - ringReach,
+      },
+      frame: { top, left, right: left + page.clientWidth, bottom: top + page.clientHeight },
+    };
+  });
+  expect(ring.top).toBeGreaterThanOrEqual(frame.top);
+  expect(ring.left).toBeGreaterThanOrEqual(frame.left);
+  expect(ring.right).toBeLessThanOrEqual(frame.right);
+  expect(ring.bottom).toBeLessThanOrEqual(frame.bottom);
+  await page.evaluate(() => document.activeElement.blur());
+}
+
 // Run `read` under emulated forced colours, then always switch them off again, so a failing
 // read or assertion can't leak them into the next story (its axe pass would fail). Assert on
 // what it returns, after it returns.
@@ -112,14 +152,19 @@ async function underForcedColours(page, read) {
   }
 }
 
+// Contract (#150): a real Tab reaches a link or fastext key and inverts it: its text colour
+// fills the background, in black ink (the story's link and first key rest on the page).
 // Contract (#149): under forced colours the Inversion is gone (the system replaces every colour),
-// so a real Tab onto a link or fastext key must still show a ring: an outline, transparent as
-// rendered and painted in a system colour when forced. Leaves forced colours off and nothing
-// focused, so axe audits the resting look.
-async function assertForcedFocusRing(page, sel) {
+// so the focused control must still show a ring: an outline, transparent as rendered and
+// painted in a system colour when forced. Leaves forced colours off and nothing focused, so
+// axe audits the resting look.
+async function assertFocusInversion(page, sel) {
   const outline = async () => (await page.evaluate(controlLook, sel)).outline;
+  const restColours = await page.evaluate(colours, sel);
   const rest = await underForcedColours(page, outline);
   await page.keyboard.press('Tab');
+  expect(await page.evaluate((s) => document.activeElement.matches(s), sel)).toBe(true);
+  expect(await page.evaluate(colours, sel)).toEqual({ backgroundColor: restColours.color, color: BLACK });
   expect(await outline()).toBe('solid 2px rgba(0, 0, 0, 0)');
   const focused = await underForcedColours(page, outline);
   await page.evaluate(() => document.activeElement.blur());
@@ -181,7 +226,9 @@ async function assertHeaderRowNarrow(page) {
 }
 
 // Contract (#100): at phone width a wide table scrolls inside its region, never the page,
-// and a real Tab reaches the region so keyboard users can scroll it. Restores the wide viewport.
+// and a real Tab reaches the region so keyboard users can scroll it. Contract (#150): the
+// focused region shows the Focus ring.
+// Restores the wide viewport.
 async function assertTableNarrow(page) {
   await page.setViewportSize({ width: 320, height: 640 });
   const { pageFits, regionScrolls } = await page.evaluate(() => {
@@ -195,6 +242,8 @@ async function assertTableNarrow(page) {
   expect(regionScrolls).toBe(true);
   await page.keyboard.press('Tab');
   expect(await page.evaluate(() => document.activeElement.matches('.cf-table__scroll'))).toBe(true);
+  await expectFocusRing(page, '.cf-table__scroll');
+  await page.evaluate(() => document.activeElement.blur());
   await page.setViewportSize({ width: 1280, height: 720 });
 }
 
@@ -342,7 +391,6 @@ const controlLook = (sel) => {
     width: document.querySelector(sel).getBoundingClientRect().width,
   };
 };
-const ACCENT = 'rgb(255, 255, 0)';
 async function assertFieldInput(page) {
   const rest = await page.evaluate(controlLook, '#email');
   await page.keyboard.press('Tab');
@@ -593,14 +641,16 @@ export default {
     const { title, name } = await getStoryContext(page, context);
     await assertValidHtml(page, title, name);
     const isCrt = title === 'Layout/Page' && name === 'Screen frame, CRT look (data-frame="crt")';
-    const isFrame = (title === 'Layout/Page' && name === 'Screen frame (data-frame)') || isCrt;
+    const isPlainFrame = title === 'Layout/Page' && name === 'Screen frame (data-frame)';
+    const isFrame = isPlainFrame || isCrt;
     if (isFrame) await assertScreenFrame(page);
+    if (isPlainFrame) await assertFrameFocusRing(page);
     if (isCrt) await assertCrtOffSwitches(page);
     if (!title.startsWith('Components/') && !isFrame) return;
 
     if (title === 'Components/Button') await assertButtonContract(page, name);
-    if (title === 'Components/Link' && name === 'Inline') await assertForcedFocusRing(page, '.cf-link');
-    if (title === 'Components/Fastext bar' && name === 'Text') await assertForcedFocusRing(page, FIRST_KEY);
+    if (title === 'Components/Link' && name === 'Inline') await assertFocusInversion(page, '.cf-link');
+    if (title === 'Components/Fastext bar' && name === 'Text') await assertFocusInversion(page, FIRST_KEY);
     if (title === 'Components/Fastext bar') await assertFastextHover(page);
     if (title === 'Components/Notice') await assertNoticeBlink(page);
     if (title === 'Components/Header row' && name === 'In the Screen frame') await assertHeaderRowNarrow(page);

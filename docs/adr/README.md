@@ -30,3 +30,4 @@ Each ADR records **one** decision that was hard to reverse, surprising without c
 - [0020 — Form controls keep the native element and restyle it with `appearance: none`](./0020-native-form-controls-appearance-none.md)
 - [0021 — Text mosaics replace the pixel canvas](./0021-text-mosaics-replace-pixel-canvas.md)
 - [0022 — Interactive widgets are native elements opened by invokers](./0022-interactive-widgets-are-native-elements.md)
+- [0024 — Focus indicators: Inversion for controls you activate, a focus ring for controls you stay in](./0024-focus-inversion-to-activate-ring-to-stay-in.md)
