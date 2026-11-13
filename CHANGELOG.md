@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.7.0](https://github.com/peamlo/ceefax-ui/compare/v0.6.0...v0.7.0) (2026-11-13)
+
+
+### Features
+
+* **components:** add cf-dialog modal ([#179](https://github.com/peamlo/ceefax-ui/issues/179)) ([2f13332](https://github.com/peamlo/ceefax-ui/commit/2f13332e608a64ff7c7987ac71750f32639eb485))
+* **components:** add cf-popover anchored panel ([#177](https://github.com/peamlo/ceefax-ui/issues/177)) ([70fdd5d](https://github.com/peamlo/ceefax-ui/commit/70fdd5d7779230d0f649d229a613057e54db35be))
+* **components:** add cf-reveal disclosure ([#180](https://github.com/peamlo/ceefax-ui/issues/180)) ([f4f881e](https://github.com/peamlo/ceefax-ui/commit/f4f881ed5ded271b52de816be041346c8f03c579))
+
+
+### Bug Fixes
+
+* **components:** meet the WCAG 2.2 target size on small buttons and input controls ([#178](https://github.com/peamlo/ceefax-ui/issues/178)) ([fdb9363](https://github.com/peamlo/ceefax-ui/commit/fdb9363c67b47ad901f5472ead629b3c038b6458))
+* **layout:** scope data-align to cf-cluster ([#176](https://github.com/peamlo/ceefax-ui/issues/176)) ([5a1a5ac](https://github.com/peamlo/ceefax-ui/commit/5a1a5acc06e8f666c26a578c704f1df999226b1c))
+
 ## [0.6.0](https://github.com/peamlo/ceefax-ui/compare/v0.5.1...v0.6.0) (2026-11-12)
 
 
