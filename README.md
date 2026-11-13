@@ -64,7 +64,7 @@ real form, a holiday enquiry.
 
 ### States
 
-- **Focus** (`:focus-visible`) → instant colour **inversion**. Transient; "the keyboard is here."
+- **Focus** (`:focus-visible`) → instant colour **inversion** on controls you activate (buttons, links, fastext keys); a thin accent **focus ring** on controls you stay in (text fields, checkboxes, radios, selects, scroll regions). Transient; "the keyboard is here." ([ADR-0024](./docs/adr/0024-focus-inversion-to-activate-ring-to-stay-in.md))
 - **Selected** (`[aria-current="page"]`) → persistent **▸ caret**. "You are on this page."
 - **Hover** → same inversion as focus (intentional).
 - **Active** → instant `scale(.96)`, no colour ramp.

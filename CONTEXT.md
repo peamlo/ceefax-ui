@@ -57,8 +57,16 @@ The opt-in `[data-theme="accessible"]` that remaps only the `--cf-*` semantic al
 _Avoid_: high-contrast mode, a11y mode
 
 **Inversion**:
-The instant colour swap applied on `:focus-visible` and hover — "the keyboard is here." Transient, unlike the persistent selected caret.
+The instant colour swap applied on `:focus-visible` and hover to controls you activate (buttons, links, fastext keys): "the keyboard is here." Transient, unlike the persistent selected caret. Controls you stay in show a Focus ring instead.
 _Avoid_: highlight, active style
+
+**Focus ring**:
+The outline drawn in the accent colour around a focused control you stay in: a text field, checkbox, radio, select or scroll region. The counterpart of Inversion, which marks controls you activate.
+_Avoid_: outline, focus style, halo
+
+**Scroll region**:
+A box that scrolls its own content instead of the page, such as a wide table or the Screen frame body. It is a labelled region that keyboard users can Tab to and scroll, and it shows the Focus ring.
+_Avoid_: scroller, overflow container, scroll box
 
 **Selected caret**:
 The persistent `▸` marker shown on `[aria-current="page"]` — "you are on this page." Distinct from inversion.

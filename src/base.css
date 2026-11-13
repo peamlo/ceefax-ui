@@ -91,3 +91,10 @@
   font-size: var(--cf-text-body);
   line-height: var(--cf-leading-normal);
 }
+/* The Focus ring on a Scroll region (ADR-0024): the form controls' thin accent ring, drawn
+   just inside the box so a clipping frame never cuts it. A new scroll region joins by adding
+   its selector here. The consumer writes role, name and tabindex; the library never does. */
+:where(:is(.cf-table__scroll, .cf-page__body):focus-visible) {
+  outline: var(--cf-border-thin) solid var(--cf-accent);
+  outline-offset: calc(-1 * var(--cf-border-thin));
+}
