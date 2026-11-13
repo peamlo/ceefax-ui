@@ -8,7 +8,10 @@
 # `package` also enforces the brotli size budgets (issue #47, ADR-0015); the
 # advisory `size-comment` job posts the size report, with deltas, on the PR.
 # The `lint` job (issue #48) runs Stylelint, ESLint and Prettier. The advisory
-# `dead-code` job (issue #52) runs knip and the token usage report.
+# `dead-code` job (issue #52) runs knip and the token usage report. On a
+# docs-only PR (changes.yml, issue #157) `package`, `dead-code` and
+# `size-comment` are skipped by `if:`, never by `paths:`, so the required
+# checks still report.
 name: ci
 
 on:
@@ -27,7 +30,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Docs-only PRs skip `package` and `dead-code` (changes.yml, issue #157).
+  changes:
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/changes.yml
+    permissions:
+      pull-requests: read
+
   package:
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -64,11 +76,13 @@ jobs:
 
   # Posts (or updates) the size report comment. The only job with write access
   # to PRs, and it never checks out or runs PR code. Advisory: not in the
-  # ruleset. Skipped on fork PRs, whose token can't comment.
+  # ruleset. Skipped on fork PRs, whose token can't comment, and when `package`
+  # was skipped (a docs-only PR), which leaves no size report to post.
   size-comment:
     needs: package
     if: >-
       !cancelled() && github.event_name == 'pull_request'
+      && needs.package.result != 'skipped'
       && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     permissions:
@@ -114,6 +128,8 @@ jobs:
   # Advisory: not in the `main protection` ruleset, so a false positive never
   # blocks a merge.
   dead-code:
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

@@ -2,7 +2,9 @@
 # functions (contract interaction assertions) + the axe a11y pass on Components/*
 # + html-validate over every story's rendered HTML (.htmlvalidate.js, #127).
 # Per ADR-0002 this is a HARD gate — the `main protection` ruleset requires
-# `test-storybook`, so a red run blocks merge. See ADR-0006.
+# `test-storybook`, so a red run blocks merge. See ADR-0006. A docs-only PR
+# (changes.yml, issue #157) skips it by `if:`, never by `paths:`, so the
+# required check still reports, as passed.
 name: storybook-tests
 
 on:
@@ -21,7 +23,18 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Docs-only PRs skip `test-storybook` (changes.yml, issue #157).
+  changes:
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/changes.yml
+    permissions:
+      pull-requests: read
+
+  # `!cancelled()`, not success: a failed `changes`, or one skipped on a push
+  # to main, runs the tests.
   test-storybook:
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
