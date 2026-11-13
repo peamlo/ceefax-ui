@@ -30,3 +30,4 @@ Each ADR records **one** decision that was hard to reverse, surprising without c
 - [0020 — Form controls keep the native element and restyle it with `appearance: none`](./0020-native-form-controls-appearance-none.md)
 - [0021 — Text mosaics replace the pixel canvas](./0021-text-mosaics-replace-pixel-canvas.md)
 - [0022 — Interactive widgets are native elements opened by invokers](./0022-interactive-widgets-are-native-elements.md)
+- [0023 — Fonts ship as unicode-range subsets, with a budget for a Latin page](./0023-unicode-range-font-subsets-and-a-font-budget.md)
