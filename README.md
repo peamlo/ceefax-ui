@@ -95,8 +95,8 @@ The library targets WCAG 2.2 AA (AAA contrast under the [Accessible theme](#acce
 | `cf-mosaic`                                                                               | `<span>`                                                                   | `variant` (ink) · `band` (background) on the mosaic or a span inside it · `mosaic="separated"`                                                                                                             | `aria-hidden` (decorative) or `role="img"` + `aria-label`                                                        |
 | `cf-page` + `data-frame`                                                                  | `<body>` or `<section>` with `header`/`main`/`footer`                      | `frame` (4:3 screen; `--cf-frame-ratio` to change) · `cells` 40/60/80 (`--cf-frame-cells` for any count) · `crt` adds scanlines + glow (opt-in, below AA on red/magenta) · `scrollbar` fastext/mosaic/thin | —                                                                                                                |
 
-- **Fastext is navigation:** wrap the `<ul>` in `<nav aria-label="…">` so screen-reader users can jump to it as a navigation landmark. The label names what the keys navigate (`aria-label="Sections"`), not the component.
-- **`cf-page` on `<body>`** makes its `<header>` and `<footer>` the page's banner and contentinfo landmarks. On a `<section>` (a page inside a page, a demo) they aren't landmarks, which is fine there.
+- **Fastext is navigation:** wrap the `<ul>` in a `<nav>`, a navigation landmark that screen-reader users can jump to. Its `aria-label` tells it apart from the page's other navigation, so it names what the keys navigate (`aria-label="Sections"`).
+- **`cf-page` on `<body>`** (as for [scrollbars](#scrollbars)) makes its `<header>` and `<footer>`, as children of `<body>`, the page's banner and contentinfo landmarks. On a `<section>` (a page inside a page, a demo) they aren't landmarks, which is fine there.
 
 ### Notice (`cf-notice`)
 
