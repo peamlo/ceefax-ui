@@ -27,7 +27,41 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Docs-only PRs (issue #157) skip the slow jobs: `package`, `dead-code` and
+  # `test-storybook` (storybook-tests.yml, which repeats this job: keep the two
+  # safe lists in sync). Lists the PR's changed files through the API, both
+  # names of a rename, with no checkout and no third-party action. docs_only is
+  # true only when every file is on the safe list; anything else runs the full
+  # gate. Required jobs are skipped by `if:`, never by `paths:`: a job skipped
+  # by `if:` reports as passed, but a workflow skipped by `paths:` never reports
+  # and leaves the PR BLOCKED (ADR-0002). Dependents test `!cancelled()`, not
+  # success, so a failed `changes`, or one skipped on a push to main, runs them.
+  changes:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      docs_only: ${{ steps.files.outputs.docs_only }}
+    steps:
+      # ponytail: the files API stops at 3000 files; a bigger PR is judged on
+      # its first 3000. Compare with pull_request.changed_files if that matters.
+      - id: files
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          files=$(gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR/files" \
+            --jq '.[] | .filename, (.previous_filename // empty)')
+          if grep -qvE '\.md$|^docs/|^\.agents/|^skills-lock\.json$' <<< "$files"; then
+            echo docs_only=false >> "$GITHUB_OUTPUT"
+          else
+            echo docs_only=true >> "$GITHUB_OUTPUT"
+          fi
+
   package:
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -64,11 +98,13 @@ jobs:
 
   # Posts (or updates) the size report comment. The only job with write access
   # to PRs, and it never checks out or runs PR code. Advisory: not in the
-  # ruleset. Skipped on fork PRs, whose token can't comment.
+  # ruleset. Skipped on fork PRs, whose token can't comment, and when `package`
+  # was skipped (a docs-only PR), which leaves no size report to post.
   size-comment:
     needs: package
     if: >-
       !cancelled() && github.event_name == 'pull_request'
+      && needs.package.result != 'skipped'
       && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     permissions:
@@ -114,6 +150,8 @@ jobs:
   # Advisory: not in the `main protection` ruleset, so a false positive never
   # blocks a merge.
   dead-code:
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
