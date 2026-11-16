@@ -1,5 +1,41 @@
 import { expect } from 'storybook/test';
 import { el } from './_demo.js';
+import { realInput, underForcedColours } from '../_real-input.js';
+
+// PROTOTYPE (#194), contract #145: below the narrow breakpoint the 4:3 frame is dropped and the page
+// is full-bleed, with one non-zero inline padding shared by header, body and footer. A real viewport
+// resize (Vitest only). Restores Vitest's default 1200×900.
+async function expectScreenFrame(input, page) {
+  await input.page.viewport(400, 800);
+  const cs = getComputedStyle(page);
+  await expect(cs.aspectRatio).toBe('auto');
+  await expect(parseFloat(cs.width)).toBeGreaterThanOrEqual(380); // viewport minus scrollbar, i.e. full-bleed
+  await expect(cs.fontFamily).toMatch(/^"?Space Mono/); // no grid, no Bedstead body text
+  const pads = ['.cf-header-row', '.cf-page__body', '.cf-page__footer'].map((sel) => {
+    const slot = getComputedStyle(page.querySelector(`:scope > ${sel}`));
+    return [slot.paddingLeft, slot.paddingRight];
+  });
+  await expect(parseFloat(pads[0][0])).toBeGreaterThan(0);
+  await expect(pads[1]).toEqual(pads[0]);
+  await expect(pads[2]).toEqual(pads[0]);
+  // A width-bound frame (taller viewport than 4:3): the 40-character row still fills the body.
+  await input.page.viewport(900, 1000);
+  const row = page.querySelector('.cf-page__body p > span').parentElement;
+  const [rowW, spanW] = [row, row.firstChild].map((n) => n.getBoundingClientRect().width);
+  await expect(spanW).toBeLessThanOrEqual(rowW + 0.01); // never wraps at 39
+  await expect(rowW - spanW).toBeLessThan(40); // short by under 1px per cell (whole-pixel cells)
+  await input.page.viewport(1200, 900);
+}
+
+// Contract (#74): the Accessible theme wins over the frame's authentic colours (bg-2 has no theme
+// remap: the default deep blue). Leaves the theme off.
+async function expectAccessibleFrame(page) {
+  document.documentElement.dataset.theme = 'accessible';
+  const [dim, bg2] = [...page.querySelectorAll('.cf-page__body span[style]')].map((n) => getComputedStyle(n));
+  await expect(dim.color).toBe('rgb(179, 179, 179)'); // the theme's #b3b3b3
+  await expect(bg2.backgroundColor).toBe('rgb(16, 11, 138)'); // #100b8a, the default
+  delete document.documentElement.dataset.theme;
+}
 
 export default {
   title: 'Layout/Page',
@@ -246,6 +282,11 @@ export const Framed = {
     await expect(body.scrollTop).toBeGreaterThan(0);
     await expect(header.getBoundingClientRect().top).toBe(h0);
     await expect(footer.getBoundingClientRect().top).toBe(f0);
+    body.scrollTop = 0;
+    const input = await realInput();
+    if (!input) return;
+    await expectScreenFrame(input, page);
+    await expectAccessibleFrame(page);
   },
 };
 
@@ -322,5 +363,21 @@ export const CrtFramed = {
     await expect(getComputedStyle(page, '::after').content).toBe('none');
     await expect(glow('p')).toBe('none');
     page.dataset.frame = 'crt';
+    const input = await realInput();
+    if (!input) return;
+    await expectScreenFrame(input, page);
+    await expectAccessibleFrame(page);
+    // PROTOTYPE (#194), contract #76: no scanlines or glow under forced colours (emulated media,
+    // Vitest only) or the Accessible theme, where both stay in place but paint transparent.
+    const crt = () => ({
+      overlay: getComputedStyle(page, '::after').content,
+      glow: glow('p'),
+      tokens: ['--cf-crt-scanline', '--cf-crt-glow'].map((t) => getComputedStyle(page).getPropertyValue(t)),
+    });
+    await expect(crt().overlay).toBe('""');
+    await expect(await underForcedColours(input, crt)).toMatchObject({ overlay: 'none', glow: 'none' });
+    document.documentElement.dataset.theme = 'accessible';
+    await expect(crt().tokens).toEqual(['transparent', 'transparent']);
+    delete document.documentElement.dataset.theme;
   },
 };

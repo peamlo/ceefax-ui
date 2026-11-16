@@ -1,4 +1,5 @@
 import { expect } from 'storybook/test';
+import { colours, realInput } from './_real-input.js';
 
 export default {
   title: 'Components/Button',
@@ -22,11 +23,29 @@ export default {
   args: { label: 'READ MORE', variant: '', size: 'md', disabled: false },
 };
 
-// The hover/focus-inversion and disabled-suppression contract claims are verified
-// in .storybook/test-runner.js: CSS :hover / :focus-visible only respond to *real*
-// pointer/keyboard input, which the in-page synthetic userEvent cannot produce — so
-// those assertions run through Playwright's real input in the runner's postVisit.
-export const Default = {};
+// default button: fg=white / bg=black, so inversion => white bg + black text.
+const INVERTED = { backgroundColor: 'rgb(255, 255, 255)', color: 'rgb(0, 0, 0)' };
+const RESTING = { backgroundColor: 'rgb(0, 0, 0)', color: 'rgb(255, 255, 255)' };
+
+// PROTOTYPE (#194): the hover/focus-inversion and disabled-suppression claims, with real input
+// (Vitest browser mode only; the Storybook UI skips them, see _real-input.js).
+export const Default = {
+  play: async ({ canvasElement }) => {
+    const input = await realInput();
+    if (!input) return;
+    const btn = canvasElement.querySelector('.cf-btn');
+    // Contract: keyboard focus (:focus-visible) inverts the colours. A real Tab press.
+    await input.userEvent.tab();
+    await expect(document.activeElement).toBe(btn);
+    await expect(colours(btn)).toEqual(INVERTED);
+    // Contract: hover inverts too. Blur first, or focus alone keeps it inverted and this passes
+    // without the hover rule (the test-runner hook has that gap).
+    btn.blur();
+    await expect(colours(btn)).toEqual(RESTING);
+    await input.userEvent.hover(btn);
+    await expect(colours(btn)).toEqual(INVERTED);
+  },
+};
 export const FastextRed = { args: { variant: 'red', label: '\u25B8 RED \u00B7 INDEX' } };
 export const FastextGreen = { args: { variant: 'green', label: '\u25B8 GREEN \u00B7 POSTS' } };
 export const Ghost = { args: { variant: 'ghost', label: 'Cancel' } };
@@ -39,4 +58,14 @@ export const Small = {
   },
 };
 export const Large = { args: { size: 'lg', label: 'START' } };
-export const Disabled = { args: { disabled: true, label: 'OFF AIR' } };
+export const Disabled = {
+  args: { disabled: true, label: 'OFF AIR' },
+  // Contract: a disabled button does NOT invert on hover.
+  play: async ({ canvasElement }) => {
+    const input = await realInput();
+    if (!input) return;
+    const btn = canvasElement.querySelector('.cf-btn');
+    await input.userEvent.hover(btn, { force: true }); // force: Playwright won't hover a disabled control otherwise
+    await expect(colours(btn)).toEqual(RESTING);
+  },
+};

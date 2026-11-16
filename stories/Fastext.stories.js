@@ -1,4 +1,5 @@
 import { expect, within } from 'storybook/test';
+import { colours, realInput, underForcedColours } from './_real-input.js';
 
 // The authentic on-screen palette: the 4th key is cyan, because blue text on black fails contrast.
 const KEYS = [
@@ -8,7 +9,7 @@ const KEYS = [
   { colour: 'cyan', label: 'A–Z' },
 ];
 
-export default {
+const meta = {
   title: 'Components/Fastext bar',
   tags: ['autodocs'],
   args: { keys: 4, look: 'text' },
@@ -49,11 +50,57 @@ export default {
     const widths = keys.map((k) => k.getBoundingClientRect().width);
     for (const w of widths) await expect(Math.abs(w - bar / keys.length)).toBeLessThanOrEqual(1);
     await expect(Math.abs(widths.reduce((a, b) => a + b) - bar)).toBeLessThanOrEqual(1);
+    // PROTOTYPE (#194): hovering a key inverts it, in both themes (real input, Vitest only). A text
+    // key fills with its colour in black ink; a banded key drops to black with its text in the band
+    // colour. One key is enough: the Variant colours matrix pins the per-colour part.
+    const input = await realInput();
+    if (!input) return;
+    for (const theme of ['authentic', 'accessible']) {
+      if (theme === 'accessible') document.documentElement.dataset.theme = 'accessible';
+      const rest = colours(keys[0]);
+      await input.userEvent.hover(keys[0]);
+      const banded = rest.backgroundColor !== 'rgba(0, 0, 0, 0)';
+      await expect(colours(keys[0])).toEqual(
+        banded
+          ? { backgroundColor: BLACK, color: rest.backgroundColor }
+          : { backgroundColor: rest.color, color: BLACK },
+      );
+      await input.userEvent.unhover(keys[0]);
+    }
+    delete document.documentElement.dataset.theme;
   },
+};
+export default meta;
+
+const BLACK = 'rgb(0, 0, 0)';
+const outline = (el) => {
+  const cs = getComputedStyle(el);
+  return `${cs.outlineStyle} ${cs.outlineWidth} ${cs.outlineColor}`;
 };
 
 // The usual teletext footer: coloured labels on the page background.
-export const Text = {};
+export const Text = {
+  // PROTOTYPE (#194), contracts #150 and #149: a real Tab inverts the first key (its text colour
+  // fills the background, black ink), and under forced colours, where the inversion is gone, the
+  // focused key still shows a ring painted in a system colour.
+  play: async (ctx) => {
+    await meta.play(ctx); // a story's play replaces the meta's
+    const input = await realInput();
+    if (!input) return;
+    const key = ctx.canvasElement.querySelector('.cf-fastext__key');
+    const restColours = colours(key);
+    const rest = await underForcedColours(input, () => outline(key));
+    await input.userEvent.tab();
+    await expect(document.activeElement).toBe(key);
+    await expect(colours(key)).toEqual({ backgroundColor: restColours.color, color: BLACK });
+    await expect(outline(key)).toBe('solid 2px rgba(0, 0, 0, 0)');
+    const focused = await underForcedColours(input, () => outline(key));
+    key.blur();
+    await expect(rest).toMatch(/^none/);
+    await expect(focused).toMatch(/^solid 2px /);
+    await expect(focused).not.toMatch(/rgba\(0, 0, 0, 0\)$/);
+  },
+};
 
 // TVE's Dietario: three keys on red / green / yellow bands, edge to edge.
 export const Banded = { args: { keys: 3, look: 'band' } };

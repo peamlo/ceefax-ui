@@ -1,0 +1,48 @@
+# PROTOTYPE (#194): the stories under the Vitest addon, timed next to a copy of today's
+# test-storybook job on the same runner. Runs on this spike branch only; never merges.
+name: prototype-194-vitest
+
+on:
+  push:
+    branches: ['prototype/194-*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-storybook:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build-storybook
+      - name: Serve Storybook and run the test-runner
+        run: |
+          npx --no -- http-server storybook-static -p 6006 --silent &
+          npx --no -- wait-on http://127.0.0.1:6006
+          npm run test-storybook
+
+  # No build, no serve: Vitest builds the stories itself and drives Chromium through Playwright.
+  vitest-storybook:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx vitest run
+        env:
+          STORYBOOK_DISABLE_TELEMETRY: '1'
