@@ -2,8 +2,9 @@ import { expect } from 'storybook/test';
 import { COLOURS, bandSample } from './_bands.js';
 
 // A contract story with no component of its own: it pins the computed colour a consumer
-// sees for every (component × variant) pair, so the variant→colour mapping can move
-// (issue #7) without any outcome drifting. Asserts the rendered result only — never the
+// sees, so the variant→colour mapping can move (issue #7) without any outcome drifting.
+// The mapping lives in one seam (ADR-0007), so it is checked once; each component checks
+// only what is its own (#198). Asserts the rendered result only — never the
 // custom property that carries it. Kept out of Components/* so the axe pass in
 // .storybook/test-runner.js doesn't run over a raw colour matrix.
 //
@@ -117,11 +118,17 @@ const look = (kind, variant, palette) => {
   return typeof c.base === 'function' ? c.base(palette) : c.base;
 };
 
-// Every component × (no variant, a typo, each palette colour, its own extras).
-const pairs = (palette) =>
-  Object.entries(COMPONENTS).flatMap(([kind, c]) =>
-    ['', UNMAPPED, ...Object.keys(palette), ...Object.keys(c.extra ?? {})].map((v) => [kind, v]),
-  );
+// The full mapping runs on one component, in every theme. Each component checks no
+// variant and its extras in every theme (some defaults follow it), and in the authentic
+// one also a typo (its own fallback) and ONE colour (that it reads the variant at all).
+const MAPPED = 'btn';
+const ONE = 'blue';
+const pairs = (palette, theme) =>
+  Object.entries(COMPONENTS).flatMap(([kind, c]) => {
+    const own = theme === 'authentic' ? ['', UNMAPPED, ONE] : [''];
+    const mapping = kind === MAPPED ? Object.keys(palette) : [];
+    return [...new Set([...own, ...mapping, ...Object.keys(c.extra ?? {})])].map((v) => [kind, v]);
+  });
 
 // --_variant inherits, so a variant ancestor must not colour a descendant that did not
 // ask for one. Rendered inside a red card.
@@ -161,28 +168,32 @@ const assertCases = async (cases, palette, canvasElement, offset) => {
 
 // [theme, palette, pairs, optional variant host] in render order; data-case indices run across all.
 const GROUPS = [
-  ['authentic', PALETTES.authentic, pairs(PALETTES.authentic)],
+  ['authentic', PALETTES.authentic, pairs(PALETTES.authentic, 'authentic')],
   ['authentic', PALETTES.authentic, NESTED, { className: 'cf-card', variant: 'red' }],
   ...Object.entries(PALETTES)
     .filter(([theme]) => theme !== 'authentic')
-    .map(([theme, palette]) => [theme, palette, pairs(palette)]),
+    .map(([theme, palette]) => [theme, palette, pairs(palette, theme)]),
 ];
 
-// Bands (#98, ADR-0017) on the story-only sample: background and ink for every band ×
-// (default ink, each colour, a typo), plus an unknown band. A named ink is used as written,
-// except under the accessible theme, which sends every band's ink to black.
+// Bands (#98, ADR-0017) share the seam too. On the story-only sample: every band with its
+// default ink, then every ink and a typo on ONE band, and an unknown band. A named ink is
+// used as written, except under the accessible theme, which sends every band's ink to black.
 const BAND_INK = { authentic: (p, ink) => p[ink][0], accessible: () => BLACK };
-const bandCases = (theme, p) => [
-  ...COLOURS.flatMap((band) =>
-    ['', ...COLOURS, UNMAPPED].map((ink) => [
-      band,
-      ink,
-      { backgroundColor: p[band][0], color: p[ink] ? BAND_INK[theme](p, ink) : p[band][1] },
-    ]),
-  ),
-  [UNMAPPED, '', { backgroundColor: TRANSPARENT, color: WHITE }],
-  [UNMAPPED, 'yellow', { backgroundColor: TRANSPARENT, color: p.yellow[0] }],
+const bandCase = (theme, p, band, ink) => [
+  band,
+  ink,
+  { backgroundColor: p[band][0], color: p[ink] ? BAND_INK[theme](p, ink) : p[band][1] },
 ];
+const UNKNOWN_BAND = [UNMAPPED, '', { backgroundColor: TRANSPARENT, color: WHITE }];
+const bandCases = (theme, p) =>
+  theme === 'authentic'
+    ? [
+        ...COLOURS.map((band) => bandCase(theme, p, band, '')),
+        ...[...COLOURS, UNMAPPED].map((ink) => bandCase(theme, p, ONE, ink)),
+        UNKNOWN_BAND,
+        [UNMAPPED, 'yellow', { backgroundColor: TRANSPARENT, color: p.yellow[0] }],
+      ]
+    : [...COLOURS.map((band) => bandCase(theme, p, band, '')), bandCase(theme, p, ONE, 'yellow')];
 // The band properties inherit, so inside a banded, inked host: a plain sample stays
 // unbanded, a banded one with no ink takes the default ink, and a typo band stays unbanded.
 const BAND_HOST = ['blue', 'yellow'];
@@ -191,15 +202,20 @@ const NESTED_BANDS = [
   ['green', '', { backgroundColor: PALETTES.authentic.green[0], color: BLACK }],
   [UNMAPPED, '', { backgroundColor: TRANSPARENT }],
 ];
-// The components opted in: a header-row page part (#72) and a fastext key (#120), whose
-// default ink is --cf-fg like the sample's, so they must land on exactly the same cases.
+// The components opted in: a header-row page part (#72) and a fastext key (#120). They use
+// the sample's rule, so a few cases show each is wired to it: a band with its default ink,
+// a named ink, an unknown band, and the accessible theme's black ink.
 const BAND_PARTS = ['cf-header-row__page', 'cf-fastext__key'];
+const partCases = (theme, p) =>
+  theme === 'authentic'
+    ? [bandCase(theme, p, ONE, ''), bandCase(theme, p, ONE, 'yellow'), UNKNOWN_BAND]
+    : [bandCase(theme, p, ONE, 'yellow')];
 // [theme, cases, optional host, optional part class] in render order; data-band-case indices run across all.
 const BAND_GROUPS = [
   ...Object.entries(PALETTES).map(([theme, p]) => [theme, bandCases(theme, p)]),
   ['authentic', NESTED_BANDS, BAND_HOST],
   ...BAND_PARTS.flatMap((part) =>
-    Object.entries(PALETTES).map(([theme, p]) => [theme, bandCases(theme, p), null, part]),
+    Object.entries(PALETTES).map(([theme, p]) => [theme, partCases(theme, p), null, part]),
   ),
 ];
 
@@ -211,10 +227,11 @@ export default { title: 'Foundations/Variant colours' };
 // the test-runner for 60s with a "navigation" error on CI (ADR-0006), which is why the
 // Layout documentation stories are out of the gate. The nested cases ride along here.
 export const Matrix = {
-  name: 'Every component × variant',
+  name: 'Mapping and fallbacks',
   render: () => {
     const wrap = document.createElement('div');
-    wrap.style.cssText = 'display:flex;flex-direction:column;gap:2ch';
+    // Bare parts take their font from a parent the matrix doesn't render; without this they're serif.
+    wrap.style.cssText = 'display:flex;flex-direction:column;gap:2ch;font-family:var(--cf-font-mono)';
     let i = 0;
     for (const [theme, , cases, host] of GROUPS) {
       const group = document.createElement(host ? 'article' : 'div');

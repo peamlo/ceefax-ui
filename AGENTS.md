@@ -8,7 +8,7 @@ Read this, then `CONTEXT.md` (the glossary) and any relevant `docs/adr/` before 
 
 **One semantic class on the correct native element. State comes from native/ARIA attributes. `data-*` is only for presentational variants.** See `README.md` → "The contract" and `docs/adr/` for the reasoning.
 
-- **Never** write state-modifier classes (`cf-btn--disabled`, `cf-btn--active`). Use the real `disabled` attribute, `:focus-visible`, `[aria-current]`, `[aria-pressed]`.
+- **Never** write state-modifier classes (`cf-btn--disabled`, `cf-btn--active`). Use the real `disabled` attribute, `:focus-visible` or `[aria-current]`.
 - `data-variant` is only a presentational colour — one of the six named authentic colours (`red`/`green`/`yellow`/`blue`/`cyan`/`magenta`), plus look-only `ghost` (button), `nav` (link) and `character` (checkbox and radio). The name→colour mapping lives once in the variant seam (`src/base.css`, ADR-0007), via `--cf-variant-*`; a component opts in by matching `[data-variant]` on itself and reading `--_variant` through a fallback. `data-size` is presentational too. So is `data-band` (the six colours only): a background band on a part whose `data-variant` is a text colour, where `data-variant` becomes the band's ink (ADR-0017). Blocks never take it.
 - No utility classes, no compound-class soup.
 - Interactive widgets follow an [APG pattern](https://www.w3.org/WAI/ARIA/apg/patterns/), and their state comes from that pattern's native or ARIA attributes (ADR-0022).
@@ -41,7 +41,7 @@ Storybook (`@storybook/html-vite` + the a11y addon; interactions/`play()` are co
 - `docs/adr/` — Architecture Decision Records (why, not how). Flag output that contradicts an ADR.
 - Storybook — live component behaviour and variants.
 - `docs/agents/` — how agents consume the issue tracker, triage labels, and domain docs (see below).
-- `docs/reference/` — external reference material (summaries + archive links, not mirrors), e.g. [zxnet teletext](docs/reference/zxnet-teletext.md) for authentic teletext behaviour and specs, [Antena 3 Teletexto](docs/reference/antena3-teletexto.md) for a live Spanish service.
+- `docs/reference/` — external reference material (summaries + archive links, not mirrors), e.g. [zxnet teletext](docs/reference/zxnet-teletext.md) for authentic teletext behaviour and specs, [NMS Ceefax](docs/reference/nmsceefax.md) for a live Ceefax re-creation, [Antena 3 Teletexto](docs/reference/antena3-teletexto.md) for a live Spanish service.
 - `docs/reviews/` — dated, point-in-time reviews (e.g. CI checks). Snapshots, not living docs: the GitHub issues they spawn are canonical.
 
 ## Commit messages — Conventional Commits
@@ -127,6 +127,15 @@ Work is tracked as **GitHub issues** on `peamlo/ceefax-ui` via the `gh` CLI. See
 ### Triage labels
 
 The five canonical triage roles (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`), label string = role name. See `docs/agents/triage-labels.md`.
+
+### Spikes
+
+An issue titled `spike(...)` asks a question; it doesn't ask for a feature. Work it with `/prototype`, never `/implement`: no TDD, no `/code-review`, no PR, and nothing merges to `main`.
+
+- **Branch:** `prototype/<n>-<slug>` off `main`, commits as `chore(prototype): …` (commitlint has no `spike` type). Push it; it's the primary source.
+- **Deliverable:** one comment on the issue with the verdict (adopt or not), the numbers the acceptance criteria ask for, a link to the branch, and for a "no", the trigger to revisit. Move the card to **In review**.
+- **After:** the maintainer closes the issue. A "yes" becomes a follow-up ticket (`/to-tickets`) that points at the branch and goes through `/implement`.
+- A spike that only reads and writes up (no code to try) is `/research`, and its notes do land in `docs/reference/`.
 
 ### Domain docs
 
