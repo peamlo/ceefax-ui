@@ -8,10 +8,9 @@ import htmlValidateConfig from './.htmlvalidate.js';
 
 // Commands run in Node with the Playwright page. Storybook's plugin switches off Vitest's CDP
 // access (api.allowWrite/allowExec), so media emulation goes through Playwright here instead.
-const emulateMedia: BrowserCommand<[{ forcedColors?: 'active' | 'none'; reducedMotion?: 'reduce' | 'no-preference' }]> = (
-  ctx,
-  media,
-) => ctx.page.emulateMedia(media);
+const emulateMedia: BrowserCommand<
+  [{ forcedColors?: 'active' | 'none'; reducedMotion?: 'reduce' | 'no-preference' }]
+> = (ctx, media) => ctx.page.emulateMedia(media);
 const htmlValidate = new HtmlValidate(htmlValidateConfig);
 const validateHtml: BrowserCommand<[string]> = async (_ctx, markup) => {
   const { valid, results } = await htmlValidate.validateString(markup);
