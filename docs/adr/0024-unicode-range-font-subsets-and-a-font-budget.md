@@ -1,4 +1,4 @@
-# ADR-0023: Fonts ship as unicode-range subsets, with a budget for a Latin page
+# ADR-0024: Fonts ship as unicode-range subsets, with a budget for a Latin page
 
 ## Context
 
