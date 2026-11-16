@@ -64,7 +64,7 @@ real form, a holiday enquiry.
 
 ### States
 
-- **Focus** (`:focus-visible`) → instant colour **inversion** on controls you activate (buttons, links, fastext keys); a thin accent **focus ring** on controls you stay in (text fields, checkboxes, radios, selects, scroll regions). Transient; "the keyboard is here." ([ADR-0024](./docs/adr/0024-focus-inversion-to-activate-ring-to-stay-in.md))
+- **Focus** (`:focus-visible`) → instant colour **inversion** on controls you activate (buttons, links, fastext keys); a thin accent **focus ring** on controls you stay in (text fields, checkboxes, radios, selects, scroll regions). Transient; "the keyboard is here." ([ADR-0023](./docs/adr/0023-focus-inversion-to-activate-ring-to-stay-in.md))
 - **Selected** (`[aria-current="page"]`) → persistent **▸ caret**. "You are on this page."
 - **Hover** → same inversion as focus (intentional).
 - **Active** → instant `scale(.96)`, no colour ramp.
@@ -289,7 +289,7 @@ A native table set like a broadcast league table: one line per row, figures to t
 ```
 
 - **The caption comes first** in markup, as HTML requires. It's drawn in the display face and accent colour, at the top; `data-side="bottom"` on the caption moves it under the table.
-- **The scroll region is yours to write:** `tabindex="0"` and `aria-labelledby` pointing at the caption, so a keyboard user can Tab to it and scroll (Safari won't focus a scroll box on its own). The library adds neither; it draws the focus ring when the region has focus ([ADR-0024](docs/adr/0024-focus-inversion-to-activate-ring-to-stay-in.md)).
+- **The scroll region is yours to write:** `tabindex="0"` and `aria-labelledby` pointing at the caption, so a keyboard user can Tab to it and scroll (Safari won't focus a scroll box on its own). The library adds neither; it draws the focus ring when the region has focus ([ADR-0023](docs/adr/0023-focus-inversion-to-activate-ring-to-stay-in.md)).
 - **`data-align="end"`** on a `th` or `td` end-aligns a figure, keeps it on one line and uses tabular digits. Pad compound figures (`22: 5`, `45-17`) yourself.
 - **`data-leader`** on a name cell runs dot leaders from the name to its figures, as on WDR's league tables. That column takes the table's spare width, so the figures sit at its end, and it never wraps. The dot leader is decoration: screen readers hear only the name. One leader column per table.
 - **The header** is bold foreground text with no rule; **`<tfoot>`** is bold, set apart by the group rule.

@@ -1,4 +1,4 @@
-# ADR-0024: Focus indicators: Inversion for controls you activate, a focus ring for controls you stay in
+# ADR-0023: Focus indicators: Inversion for controls you activate, a focus ring for controls you stay in
 
 ## Context
 
