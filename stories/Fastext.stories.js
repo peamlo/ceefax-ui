@@ -1,4 +1,5 @@
 import { expect, within } from 'storybook/test';
+/** @typedef {import('../.storybook/checks').Check} Check */
 
 // The authentic on-screen palette: the 4th key is cyan, because blue text on black fails contrast.
 const KEYS = [
@@ -9,8 +10,9 @@ const KEYS = [
 ];
 
 export default {
-  title: 'Components/Fastext bar',
+  title: 'Components/Fastext',
   tags: ['autodocs'],
+  parameters: { checks: /** @satisfies {Check[]} */ (['fastext-key-inverts-on-hover']) },
   args: { keys: 4, look: 'text' },
   argTypes: {
     keys: { control: { type: 'inline-radio' }, options: [1, 2, 3, 4] },
@@ -53,7 +55,11 @@ export default {
 };
 
 // The usual teletext footer: coloured labels on the page background.
-export const Text = {};
+export const Text = {
+  parameters: {
+    checks: /** @satisfies {Check[]} */ (['fastext-key-inverts-on-focus', 'fastext-key-inverts-on-hover']),
+  },
+};
 
 // TVE's Dietario: three keys on red / green / yellow bands, edge to edge.
 export const Banded = { args: { keys: 3, look: 'band' } };

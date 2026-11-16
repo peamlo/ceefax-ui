@@ -2,6 +2,17 @@ import { getStoryContext } from '@storybook/test-runner';
 import { injectAxe, checkA11y } from 'axe-playwright';
 import { HtmlValidate } from 'html-validate';
 import htmlValidateConfig from '../.htmlvalidate.js';
+import {
+  runsFor,
+  colours,
+  INVERTED,
+  BLACK,
+  ACCENT,
+  controlLook,
+  underForcedColours,
+  expectFocusRing,
+  assertFocusInversion,
+} from './checks.ts';
 
 // The stories are the test surface (issue #8). Two mechanisms, one surface:
 //  - story play() functions carry the assertions that in-page code can observe
@@ -11,202 +22,10 @@ import htmlValidateConfig from '../.htmlvalidate.js';
 //    in-page userEvent cannot produce — plus the axe a11y pass and, on every story it visits,
 //    html-validate over the rendered HTML (#127).
 //
-// axe is gated to Components/* and the Layout/Page screen-frame story — the Foundations swatch/demo pages deliberately show
+// axe is gated to Components/* and any story that names checks (parameters.checks, spike #193) — the Foundations swatch/demo pages deliberately show
 // the raw palette (known contrast tradeoffs), so running axe over them would fail the
 // build on non-contract stories. Each gated story is audited twice: as authored, then
 // with data-theme="accessible" on <html> at AAA contrast (color-contrast-enhanced, #12).
-
-const BTN = '.cf-btn';
-// Read an element's live colours from inside the page (runs in the browser context).
-const colours = (sel) => {
-  const cs = getComputedStyle(document.querySelector(sel));
-  return { backgroundColor: cs.backgroundColor, color: cs.color };
-};
-// default button: fg=white / bg=black, so inversion => white bg + black text.
-const INVERTED = { backgroundColor: 'rgb(255, 255, 255)', color: 'rgb(0, 0, 0)' };
-const RESTING = { backgroundColor: 'rgb(0, 0, 0)', color: 'rgb(255, 255, 255)' };
-
-async function assertButtonContract(page, name) {
-  if (name === 'Default') {
-    // Contract: keyboard focus (:focus-visible) inverts the colours. A real Tab
-    // press (the button is the only focusable) makes :focus-visible match.
-    await page.keyboard.press('Tab');
-    expect(await page.evaluate(colours, BTN)).toEqual(INVERTED);
-    // Contract: hover inverts too (same CSS rule as focus-visible).
-    await page.hover(BTN);
-    expect(await page.evaluate(colours, BTN)).toEqual(INVERTED);
-  }
-  if (name === 'Disabled') {
-    // Contract: a disabled button does NOT invert on hover.
-    await page.hover(BTN);
-    expect(await page.evaluate(colours, BTN)).toEqual(RESTING);
-  }
-}
-
-// Contract: hovering a fastext key inverts it. A text key fills with its colour in its ink;
-// a banded key drops to the page background with its text in the band colour. Asserted
-// against the key's own resting colours, so it holds for either look and any theme. One key
-// per story is enough, and deliberately so: the per-colour part (which colour each name
-// resolves to) is pinned for every colour by the Foundations/Variant colours matrix, so what
-// is left for real input to prove is that the hover rule fires. Hovering all four cost 9
-// Playwright round-trips in postVisit and made this suite fail intermittently on CI with
-// "Resulting promise was garbage collected". No story's first key is blue, so a text key's
-// ink is black.
-const FIRST_KEY = '.cf-fastext__key';
-const BLACK = 'rgb(0, 0, 0)';
-const ACCENT = 'rgb(255, 255, 0)';
-
-async function assertFastextHover(page) {
-  const rest = await page.evaluate(colours, FIRST_KEY);
-  await page.hover(FIRST_KEY);
-  const banded = rest.backgroundColor !== 'rgba(0, 0, 0, 0)';
-  expect(await page.evaluate(colours, FIRST_KEY)).toEqual(
-    banded ? { backgroundColor: BLACK, color: rest.backgroundColor } : { backgroundColor: rest.color, color: BLACK },
-  );
-  // Leave nothing hovered: the axe pass below audits the resting state, and a key held in
-  // hover is a transient inversion whose contrast is not the contract.
-  await page.mouse.move(0, 0);
-}
-
-// Contract: below the narrow breakpoint the 4:3 frame is dropped and the page is full-bleed,
-// with one non-zero inline padding shared by header, body and footer (#145).
-// Needs a real viewport resize, which in-page play() cannot do. Restores the wide viewport.
-async function assertScreenFrame(page) {
-  await page.setViewportSize({ width: 400, height: 800 });
-  const { width, aspectRatio, fontFamily } = await page.evaluate(() => {
-    const cs = getComputedStyle(document.querySelector('.cf-page[data-frame]'));
-    return { width: parseFloat(cs.width), aspectRatio: cs.aspectRatio, fontFamily: cs.fontFamily };
-  });
-  expect(aspectRatio).toBe('auto');
-  expect(width).toBeGreaterThanOrEqual(380); // viewport minus scrollbar, i.e. full-bleed
-  expect(fontFamily).toMatch(/^"?Space Mono/); // no grid, no Bedstead body text
-  // #145: body and footer get the header row's inline padding, so all three start on one column.
-  const pads = await page.evaluate(() =>
-    ['.cf-header-row', '.cf-page__body', '.cf-page__footer'].map((s) => {
-      const cs = getComputedStyle(document.querySelector(`.cf-page[data-frame] > ${s}`));
-      return [cs.paddingLeft, cs.paddingRight];
-    }),
-  );
-  expect(parseFloat(pads[0][0])).toBeGreaterThan(0);
-  expect(pads[1]).toEqual(pads[0]);
-  expect(pads[2]).toEqual(pads[0]);
-  // A width-bound frame (taller viewport than 4:3): the 40-character row still fills the body.
-  await page.setViewportSize({ width: 900, height: 1000 });
-  const [rowW, spanW] = await page.evaluate(() => {
-    const row = document.querySelector('.cf-page__body p > span').parentElement;
-    return [row.getBoundingClientRect().width, row.firstChild.getBoundingClientRect().width];
-  });
-  expect(spanW).toBeLessThanOrEqual(rowW + 0.01); // never wraps at 39
-  expect(rowW - spanW).toBeLessThan(40); // short by under 1px per cell (whole-pixel cells)
-  await page.setViewportSize({ width: 1280, height: 720 });
-}
-
-// Contract (#150): a focused Scroll region shows the Focus ring, solid in the accent colour,
-// never the browser's own ring.
-async function expectFocusRing(page, sel) {
-  expect((await page.evaluate(controlLook, sel)).outline).toBe(`solid 2px ${ACCENT}`);
-}
-
-// Contract (#150): a real Tab reaches the Screen frame body (the header row holds nothing
-// focusable), which shows the Focus ring, and the whole ring lies inside the frame's visible
-// box, which clips its overflow. Leaves nothing focused.
-async function assertFrameFocusRing(page) {
-  await page.keyboard.press('Tab');
-  expect(await page.evaluate(() => document.activeElement.matches('.cf-page__body'))).toBe(true);
-  await expectFocusRing(page, '.cf-page__body');
-  const { ring, frame } = await page.evaluate(() => {
-    const body = document.activeElement;
-    const cs = getComputedStyle(body);
-    const ringReach = parseFloat(cs.outlineOffset) + parseFloat(cs.outlineWidth);
-    const r = body.getBoundingClientRect();
-    // The frame clips at its padding box: inside its border, measured by clientLeft/clientTop.
-    const page = body.closest('.cf-page');
-    const p = page.getBoundingClientRect();
-    const [left, top] = [p.left + page.clientLeft, p.top + page.clientTop];
-    return {
-      ring: {
-        top: r.top - ringReach,
-        right: r.right + ringReach,
-        bottom: r.bottom + ringReach,
-        left: r.left - ringReach,
-      },
-      frame: { top, left, right: left + page.clientWidth, bottom: top + page.clientHeight },
-    };
-  });
-  expect(ring.top).toBeGreaterThanOrEqual(frame.top);
-  expect(ring.left).toBeGreaterThanOrEqual(frame.left);
-  expect(ring.right).toBeLessThanOrEqual(frame.right);
-  expect(ring.bottom).toBeLessThanOrEqual(frame.bottom);
-  await page.evaluate(() => document.activeElement.blur());
-}
-
-// Run `read` under emulated forced colours, then always switch them off again, so a failing
-// read or assertion can't leak them into the next story (its axe pass would fail). Assert on
-// what it returns, after it returns.
-async function underForcedColours(page, read) {
-  await page.emulateMedia({ forcedColors: 'active' });
-  try {
-    return await read();
-  } finally {
-    await page.emulateMedia({ forcedColors: 'none' });
-  }
-}
-
-// Contract (#150): a real Tab reaches a link or fastext key and inverts it: its text colour
-// fills the background, in black ink (the story's link and first key rest on the page).
-// Contract (#149): under forced colours the Inversion is gone (the system replaces every colour),
-// so the focused control must still show a ring: an outline, transparent as rendered and
-// painted in a system colour when forced. Leaves forced colours off and nothing focused, so
-// axe audits the resting look.
-async function assertFocusInversion(page, sel) {
-  const outline = async () => (await page.evaluate(controlLook, sel)).outline;
-  const restColours = await page.evaluate(colours, sel);
-  const rest = await underForcedColours(page, outline);
-  await page.keyboard.press('Tab');
-  expect(await page.evaluate((s) => document.activeElement.matches(s), sel)).toBe(true);
-  expect(await page.evaluate(colours, sel)).toEqual({ backgroundColor: restColours.color, color: BLACK });
-  expect(await outline()).toBe('solid 2px rgba(0, 0, 0, 0)');
-  const focused = await underForcedColours(page, outline);
-  await page.evaluate(() => document.activeElement.blur());
-  expect(rest).toMatch(/^none/);
-  expect(focused).toMatch(/^solid 2px /);
-  expect(focused).not.toMatch(/rgba\(0, 0, 0, 0\)$/);
-}
-
-// Contract (#76): the CRT look renders neither scanlines nor glow under forced colours or the
-// Accessible theme. Needs emulated media, which play() cannot set. Leaves both switches off.
-async function assertCrtOffSwitches(page) {
-  const crt = () => {
-    const frame = document.querySelector('.cf-page[data-frame="crt"]');
-    const cs = getComputedStyle(frame);
-    return {
-      overlay: getComputedStyle(frame, '::after').content,
-      glow: getComputedStyle(frame.querySelector('p')).textShadow,
-      tokens: ['--cf-crt-scanline', '--cf-crt-glow'].map((t) => cs.getPropertyValue(t)),
-    };
-  };
-  const on = await page.evaluate(crt);
-  expect(on.overlay).toBe('""');
-  expect(on.glow).not.toBe('none');
-  expect(await underForcedColours(page, () => page.evaluate(crt))).toMatchObject({ overlay: 'none', glow: 'none' });
-  // The theme remaps aliases only (ADR-0010): both effects stay in place but paint transparent.
-  await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'accessible'));
-  expect((await page.evaluate(crt)).tokens).toEqual(['transparent', 'transparent']);
-  await page.evaluate(() => document.documentElement.removeAttribute('data-theme'));
-}
-
-// Contract (#74): the Accessible theme wins over the frame's authentic colours, so the two
-// off-palette aliases keep the theme's values (bg-2 has no theme remap: the default deep blue).
-// Call with the theme already set on <html>, as the Storybook theme toolbar sets it.
-async function assertAccessibleFrame(page) {
-  const [dim, bg2] = await page.evaluate(() =>
-    [...document.querySelectorAll('.cf-page__body span[style]')]
-      .map((n) => getComputedStyle(n))
-      .map((cs) => [cs.color, cs.backgroundColor]),
-  );
-  expect(dim[0]).toBe('rgb(179, 179, 179)'); // the theme's #b3b3b3
-  expect(bg2[1]).toBe('rgb(16, 11, 138)'); // #100b8a, the default
-}
 
 // Contract (#72): at phone width the header row wraps inside the page shell, keeping the
 // page number visible and nothing spilling sideways. Restores the wide viewport.
@@ -378,19 +197,6 @@ async function assertValidHtml(page, title, name) {
 // look; every state stays visible under forced colours. Needs real keyboard input and
 // emulated media, which play() cannot produce. The Field story (Components/Form/Field): a
 // required email field, then a postcode with a server error. Leaves forced colours off.
-// A snapshot of a control's computed look (and width), compared before and after real input.
-const controlLook = (sel) => {
-  const cs = getComputedStyle(document.querySelector(sel));
-  return {
-    backgroundColor: cs.backgroundColor,
-    color: cs.color,
-    borderColor: cs.borderTopColor,
-    borderWidth: cs.borderTopWidth,
-    outline: `${cs.outlineStyle} ${cs.outlineWidth} ${cs.outlineColor}`,
-    opacity: cs.opacity,
-    width: document.querySelector(sel).getBoundingClientRect().width,
-  };
-};
 async function assertFieldInput(page) {
   const rest = await page.evaluate(controlLook, '#email');
   await page.keyboard.press('Tab');
@@ -619,11 +425,6 @@ async function assertRevealFrameMarker(page) {
   expect(fonts.map((f) => f.familyName)).toEqual(['Bedstead']);
 }
 
-const ignoreAxePseudo = () => {
-  const { options } = window.axe._audit.checks['color-contrast'];
-  window.axe.configure({ checks: [{ id: 'color-contrast', options: { ...options, ignorePseudo: true } }] });
-};
-
 // target-size (WCAG 2.2 AA, 24px pointer targets, #171) is off by default in axe; `aaa` also
 // enables axe's AAA contrast rule — the accessible theme's promise (#12).
 const axe = async (page, { aaa = false } = {}) => {
@@ -638,20 +439,17 @@ const axe = async (page, { aaa = false } = {}) => {
 
 export default {
   async postVisit(page, context) {
-    const { title, name } = await getStoryContext(page, context);
+    const { title, name, parameters } = await getStoryContext(page, context);
     await assertValidHtml(page, title, name);
-    const isCrt = title === 'Layout/Page' && name === 'Screen frame, CRT look (data-frame="crt")';
-    const isPlainFrame = title === 'Layout/Page' && name === 'Screen frame (data-frame)';
-    const isFrame = isPlainFrame || isCrt;
-    if (isFrame) await assertScreenFrame(page);
-    if (isPlainFrame) await assertFrameFocusRing(page);
-    if (isCrt) await assertCrtOffSwitches(page);
-    if (!title.startsWith('Components/') && !isFrame) return;
+    // Spike #193: the story names its checks; checks.ts runs them by phase. Unknown names throw.
+    const named = parameters.checks ?? [];
+    const run = async (phase) => {
+      for (const check of runsFor(named, phase, `${title} / ${name}`)) await check(page);
+    };
+    await run('input');
+    if (!title.startsWith('Components/') && !named.length) return;
 
-    if (title === 'Components/Button') await assertButtonContract(page, name);
     if (title === 'Components/Link' && name === 'Inline') await assertFocusInversion(page, '.cf-link');
-    if (title === 'Components/Fastext bar' && name === 'Text') await assertFocusInversion(page, FIRST_KEY);
-    if (title === 'Components/Fastext bar') await assertFastextHover(page);
     if (title === 'Components/Notice') await assertNoticeBlink(page);
     if (title === 'Components/Header row' && name === 'In the Screen frame') await assertHeaderRowNarrow(page);
     if (title === 'Components/Table' && name === 'Wide, with long text') await assertTableNarrow(page);
@@ -671,17 +469,11 @@ export default {
     if (title === 'Components/Popover') await assertPopoverOpens(page);
 
     await injectAxe(page);
-    // The scanline overlay is an absolutely positioned ::after with a background-image, which axe
-    // treats as unknown background and skips contrast for (incomplete, not a violation). Ignore it,
-    // so contrast is really measured with the glow on; the scanlines are a texture, not a background.
-    // configure() replaces a check's options, so merge the defaults or the rule throws and is skipped.
-    if (isCrt) await page.evaluate(ignoreAxePseudo);
+    await run('axe');
     await axe(page);
     // Every contract story must also pass axe — at AAA contrast — under the accessible theme.
     await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'accessible'));
-    // #12: under the accessible theme the inversion follows the theme's colours, ink still black.
-    if (title === 'Components/Fastext bar') await assertFastextHover(page);
-    if (isFrame) await assertAccessibleFrame(page);
+    await run('accessible');
     await axe(page, { aaa: true });
   },
 };

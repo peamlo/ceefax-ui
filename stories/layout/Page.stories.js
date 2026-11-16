@@ -1,5 +1,6 @@
 import { expect } from 'storybook/test';
 import { el } from './_demo.js';
+/** @typedef {import('../../.storybook/checks').Check} Check */
 
 export default {
   title: 'Layout/Page',
@@ -172,6 +173,11 @@ const expectGrid = async (page, cells) => {
 export const Framed = {
   name: 'Screen frame (data-frame)',
   parameters: {
+    checks: /** @satisfies {Check[]} */ ([
+      'frame-reflows-narrow',
+      'frame-shows-focus-ring',
+      'frame-keeps-accessible-colours',
+    ]),
     layout: 'fullscreen',
     docs: {
       description: {
@@ -225,11 +231,11 @@ export const Framed = {
     await expect(bg2.backgroundColor).toBe('rgb(0, 0, 255)');
     // The other grid sizes: data-cells="60" and "80", and the --cf-frame-cells escape hatch. Restored after.
     const span = row.querySelector('span');
-    for (const [cells, set] of [
+    for (const [cells, set] of /** @type {[number, () => unknown][]} */ ([
       [60, () => (page.dataset.cells = '60')],
       [80, () => (page.dataset.cells = '80')],
       [50, () => page.style.setProperty('--cf-frame-cells', '50')],
-    ]) {
+    ])) {
       set();
       span.textContent = ruler(cells);
       await expectGrid(page, cells);
@@ -283,6 +289,12 @@ export const FramedTable = {
 export const CrtFramed = {
   name: 'Screen frame, CRT look (data-frame="crt")',
   parameters: {
+    checks: /** @satisfies {Check[]} */ ([
+      'frame-reflows-narrow',
+      'crt-off-switches',
+      'axe-ignores-scanlines',
+      'frame-keeps-accessible-colours',
+    ]),
     layout: 'fullscreen',
     docs: {
       description: {

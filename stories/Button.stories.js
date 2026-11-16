@@ -1,4 +1,5 @@
 import { expect } from 'storybook/test';
+/** @typedef {import('../.storybook/checks').Check} Check */
 
 export default {
   title: 'Components/Button',
@@ -22,11 +23,10 @@ export default {
   args: { label: 'READ MORE', variant: '', size: 'md', disabled: false },
 };
 
-// The hover/focus-inversion and disabled-suppression contract claims are verified
-// in .storybook/test-runner.js: CSS :hover / :focus-visible only respond to *real*
-// pointer/keyboard input, which the in-page synthetic userEvent cannot produce — so
-// those assertions run through Playwright's real input in the runner's postVisit.
-export const Default = {};
+// parameters.checks name the real-input checks in .storybook/checks.ts: CSS :hover /
+// :focus-visible only respond to *real* pointer/keyboard input, which the in-page synthetic
+// userEvent cannot produce — so they run through Playwright's real input in postVisit.
+export const Default = { parameters: { checks: /** @satisfies {Check[]} */ (['button-inverts-on-focus-and-hover']) } };
 export const FastextRed = { args: { variant: 'red', label: '\u25B8 RED \u00B7 INDEX' } };
 export const FastextGreen = { args: { variant: 'green', label: '\u25B8 GREEN \u00B7 POSTS' } };
 export const Ghost = { args: { variant: 'ghost', label: 'Cancel' } };
@@ -39,4 +39,7 @@ export const Small = {
   },
 };
 export const Large = { args: { size: 'lg', label: 'START' } };
-export const Disabled = { args: { disabled: true, label: 'OFF AIR' } };
+export const Disabled = {
+  args: { disabled: true, label: 'OFF AIR' },
+  parameters: { checks: /** @satisfies {Check[]} */ (['button-disabled-ignores-hover']) },
+};
