@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why the cells tile</title>
+<link rel="stylesheet" href="../../../../src/index.css">
+<link rel="stylesheet" href="../assets/course.css">
+<script src="../assets/kit.js" defer></script>
+</head>
+<body>
+<div class="cf-page" data-scrollbar="thin">
+<header class="cf-page__header cf-header-row">
+  <span class="cf-header-row__page">P404</span><span class="cf-header-row__service">MOSAICS</span><span class="cf-header-row__rolling">404</span>
+  <time class="cf-header-row__time" datetime="2026-11-03"><span class="cf-header-row__date">Nov03</span> LESSON 4</time>
+</header>
+<main class="cf-page__body"><div class="cf-center">
+<p class="kicker">Mosaics · Lesson 4</p>
+<h1>Why the cells tile</h1>
+<p class="lede">
+  The CF logo is 27 separate characters, yet it reads as one picture. That takes two things: a font whose mosaic
+  glyphs fill their cell, and five lines of CSS that put every cell edge to edge.
+</p>
+
+<h2>Warm-up, from memory</h2>
+<p>Full code points this time, and watch which row each one is in.</p>
+<div class="quiz" data-answer="1" data-explain="Contiguous, range 22–41: 34 − 2 = 32 = 0x20, so U+1FB20. It is in the F of the CF logo.">
+  <p>Contiguous, sum 34. Which code point?</p>
+  <div class="options"><button>U+1FB21</button><button>U+1FB20</button><button>U+1CE72</button><button>U+1FB22</button></div>
+</div>
+<div class="quiz" data-answer="0" data-explain="Separated is always sum − 1: 39. Then 81 + 39 = 120 = 7 × 16 + 8 = 0x78.">
+  <p>Separated, sum 40. Which code point?</p>
+  <div class="options"><button>U+1CE78</button><button>U+1CE27</button><button>U+1FB26</button><button>U+1CE77</button></div>
+</div>
+<div class="quiz" data-answer="3" data-explain="31 + 81 = 112 = 7 × 16 + 0 = 0x70. In hex digits, 1 + F = 16: write 0, carry 1, and 5 + 1 + 1 = 7.">
+  <p>Separated, sum 32. Which code point? (Mind the carry.)</p>
+  <div class="options"><button>U+1CE60</button><button>U+1FB1E</button><button>U+1CE1F</button><button>U+1CE70</button></div>
+</div>
+
+<h2>1. The glyph fills its cell</h2>
+<p>
+  Every Bedstead character sits in the same box: <strong>0.6em wide and 1em tall</strong>. At a font size of 100px
+  that is 60 × 100 pixels, whatever the character (it's a monospaced font). A letter is drawn inside its box with space
+  around it. A mosaic glyph is drawn <em>to the edges</em> of the box, so its blocks reach the box next door:
+</p>
+<div class="screen"><span class="glyphs boxed"><span>A</span><span>B</span><span>█</span><span>🬎</span><span>🬝</span></span></div>
+<p>
+  Pulled apart a little, with each character's box dashed: <code>A</code> and <code>B</code> leave a margin; <code>█</code> fills
+  its box completely, and <code>🬎</code> and <code>🬝</code> reach every edge where they have a lit block. So any two
+  mosaic cells side by side, or one above the other, meet with no seam. That's the font's half of the job.
+</p>
+
+<h2>2. Five lines of CSS put the boxes edge to edge</h2>
+<p>
+  The font only works if nothing pushes the boxes apart. That is all
+  <a href="../../../../src/components/mosaic.css"><code>mosaic.css</code></a> does:
+</p>
+<pre><code>:where(.cf-mosaic) {
+  display: inline-block;
+  font-family: 'Bedstead Mosaic', 'Bedstead Cell', 'Bedstead', monospace;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: pre;
+}</code></pre>
+<table>
+  <tr><th>declaration</th><th>its job</th><th>without it</th></tr>
+  <tr><td><code>font-family</code></td><td>Bedstead's glyphs, which fill the cell</td><td>another font's shapes, or empty boxes</td></tr>
+  <tr><td><code>white-space: pre</code></td><td>newlines start rows; every space is an empty cell</td><td>the rows run into one line, and runs of spaces shrink to one</td></tr>
+  <tr><td><code>line-height: 1</code></td><td>each row is exactly 1em: one cell tall</td><td>a gap between rows (<code>.cf-page</code> sets 1.5)</td></tr>
+  <tr><td><code>letter-spacing: 0</code></td><td>no gap between cells</td><td>a gap after every cell (buttons, links and fastext keys set 0.08em)</td></tr>
+  <tr><td><code>display: inline-block</code></td><td>the picture is one box that text flows around</td><td>text before it pushes only the top row right, so the picture shears</td></tr>
+</table>
+<p class="aside">
+  Line height and letter spacing are <em>inherited</em>: a mosaic takes them from whatever it sits in. That's why the
+  component resets them rather than trusting the page. On MDN:
+  <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/white-space">white-space</a>,
+  <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/line-height">line-height</a>,
+  <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/letter-spacing">letter-spacing</a>,
+  <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/display">display</a>.
+</p>
+
+<h2>Break it yourself</h2>
+<p>Untick one declaration at a time and watch what happens to the logo and the text around it:</p>
+<div data-css-lab>
+🬝🬎🬎🬬 🬝🬎🬎🬬
+▌▐██ ▌🬠🬰█
+🬺🬹🬹🬻 🬺🬻██
+</div>
+<p class="aside">
+  The <code>font-family</code> switch may change almost nothing: if your system has a fallback font with mosaic
+  glyphs, the browser uses it. Many systems don't, and show empty boxes instead, and a fallback's cells needn't
+  be 0.6em wide. The library can't count on luck, so it names Bedstead, and the Mosaic stories check that every cell
+  is exactly one Bedstead advance wide (<code>assertCells</code> in
+  <a href="../../../../stories/Mosaic.stories.js"><code>Mosaic.stories.js</code></a>).
+</p>
+
+<hr>
+
+<h2>Check yourself: spot the missing line</h2>
+<p>Each logo below is missing one declaration from <code>mosaic.css</code>. Which one?</p>
+
+<div class="quiz" data-answer="1" data-explain="Without white-space: pre the newlines become spaces, so all three rows run on one line.">
+  <div class="screen"><p class="bug"><span class="glyphs no-pre">🬝🬎🬎🬬 🬝🬎🬎🬬
+▌▐██ ▌🬠🬰█
+🬺🬹🬹🬻 🬺🬻██</span></p></div>
+  <div class="options"><button>line-height</button><button>white-space</button><button>display</button><button>letter-spacing</button></div>
+</div>
+
+<div class="quiz" data-answer="3" data-explain="Every cell is followed by a sliver of space: inherited tracking, which letter-spacing: 0 cancels.">
+  <div class="screen"><p class="bug"><span class="glyphs no-ls">🬝🬎🬎🬬 🬝🬎🬎🬬
+▌▐██ ▌🬠🬰█
+🬺🬹🬹🬻 🬺🬻██</span></p></div>
+  <div class="options"><button>line-height</button><button>white-space</button><button>display</button><button>letter-spacing</button></div>
+</div>
+
+<div class="quiz" data-answer="0" data-explain="The rows are taller than the cells, so a stripe of background shows between them. line-height: 1 makes a row exactly one cell tall.">
+  <div class="screen"><p class="bug"><span class="glyphs no-lh">🬝🬎🬎🬬 🬝🬎🬎🬬
+▌▐██ ▌🬠🬰█
+🬺🬹🬹🬻 🬺🬻██</span></p></div>
+  <div class="options"><button>line-height</button><button>white-space</button><button>display</button><button>letter-spacing</button></div>
+</div>
+
+<div class="quiz" data-answer="2" data-explain="As a plain inline span, the picture's newlines break the paragraph's lines: &quot;Weather&quot; pushes the top row right, the other rows start at the margin, and &quot;page 401&quot; follows the bottom row.">
+  <div class="screen"><p class="bug">Weather <span class="glyphs no-ib">🬝🬎🬎🬬 🬝🬎🬎🬬
+▌▐██ ▌🬠🬰█
+🬺🬹🬹🬻 🬺🬻██</span> page 401</p></div>
+  <div class="options"><button>line-height</button><button>white-space</button><button>display</button><button>letter-spacing</button></div>
+</div>
+
+<div class="quiz" data-answer="0" data-explain="With white-space: normal, a run of spaces collapses to one, so a picture with two empty cells in a row loses one of them and shifts.">
+  <p>Why does a mosaic with empty cells (spaces) in the middle need <code>white-space: pre</code>?</p>
+  <div class="options">
+    <button>Runs of spaces would collapse to one</button>
+    <button>Spaces would be drawn in another font</button>
+    <button>Spaces would be read out by screen readers</button>
+    <button>Each space would take up two cells</button>
+  </div>
+</div>
+
+<hr>
+
+<h2>Read next</h2>
+<p>
+  The primary source is MDN's <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/white-space">white-space</a>
+  page: its table of values shows exactly which ones keep newlines and which collapse spaces. Then reread the comment
+  at the top of <a href="../../../../src/components/mosaic.css"><code>mosaic.css</code></a>: you can now follow every line
+  of it except the colour rules, which are a later lesson. The <a href="../reference/sextants.html">reference sheet</a>
+  has a summary.
+</p>
+<p class="aside">
+  Anything unclear? Ask me, your agent, in the chat. Next up is reading the whole Banner story end to end, with
+  everything from lessons 1–4 together.
+</p>
+
+</div></main>
+<footer class="cf-page__footer"><nav aria-label="Lessons"><ul class="cf-fastext">
+    <li><a class="cf-fastext__key" data-variant="red" href="0003-from-sum-to-code-point.html">LESSON 3</a></li>
+    <li><a class="cf-fastext__key" data-variant="green" href="../reference/sextants.html">REFERENCE</a></li>
+    <li><a class="cf-fastext__key" data-variant="yellow" href="0005-reading-the-banner.html">LESSON 5</a></li>
+  </ul></nav></footer>
+</div>
+</body>
+</html>

@@ -1,7 +1,10 @@
 # Runs the Storybook test-runner against a built Storybook: the story play()
-# functions (contract interaction assertions) + the axe a11y pass on Components/*.
-# Per ADR-0002 this is a SOFT gate — it reports red but may not block merge until
-# the repo is public / on a plan with required checks. See ADR-0006.
+# functions (contract interaction assertions) + the axe a11y pass on Components/*
+# + html-validate over every story's rendered HTML (.htmlvalidate.js, #127).
+# Per ADR-0002 this is a HARD gate — the `main protection` ruleset requires
+# `test-storybook`, so a red run blocks merge. See ADR-0006. A docs-only PR
+# (changes.yml, issue #157) skips it by `if:`, never by `paths:`, so the
+# required check still reports, as passed.
 name: storybook-tests
 
 on:
@@ -10,12 +13,34 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
+# A newer push to the PR cancels its in-flight runs (issue #158). Pushes to
+# main get a group of their own (the run id), so no main run is ever dropped.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
+  # Docs-only PRs skip `test-storybook` (changes.yml, issue #157).
+  changes:
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/changes.yml
+    permissions:
+      pull-requests: read
+
+  # `!cancelled()`, not success: a failed `changes`, or one skipped on a push
+  # to main, runs the tests.
   test-storybook:
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24'
           cache: npm
@@ -23,15 +48,9 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run build-storybook
       - name: Serve Storybook and run the test-runner
-        # Scoped to the contract stories (issue #8's tested modules) by file path.
-        # The Foundations/Layout documentation stories are out of scope and currently
-        # destabilise the test-runner (60s "navigation" hangs) — see ADR-0006.
+        # Every story, documentation ones included: they run cleanly now (ADR-0006). axe stays
+        # gated to the contract stories inside the hook, not by path.
         run: |
-          npx --yes http-server storybook-static -p 6006 --silent &
-          npx --yes wait-on http://127.0.0.1:6006
-          npm run test-storybook -- \
-            stories/Button stories/Link stories/Card \
-            stories/Fastext stories/Canvas stories/PaletteDrift \
-            stories/VariantColours stories/TokenLayering \
-            stories/AccessibleTheme stories/Classless \
-            stories/layout/Page
+          npx --no -- http-server storybook-static -p 6006 --silent &
+          npx --no -- wait-on http://127.0.0.1:6006
+          npm run test-storybook

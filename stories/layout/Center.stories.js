@@ -8,7 +8,7 @@ export default {
 const prose = () => {
   const a = el('article', 'cf-stack');
   a.append(
-    box('A constrained reading measure — one teletext page wide (--cf-content-max).'),
+    box('A constrained reading measure — a comfortable prose width of about 65ch (--cf-content-max).'),
     box('margin-inline:auto centres it; padding keeps text off the edges.'),
   );
   return a;

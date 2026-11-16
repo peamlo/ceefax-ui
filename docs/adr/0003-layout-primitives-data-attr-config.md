@@ -3,7 +3,7 @@
 ## Context
 
 `ceefax-ui` needs a layout system for its consumers (Astro blogs, docs sites, a
-portfolio). The library already ships layout *tokens* but no layout *components*,
+portfolio). The library already ships layout _tokens_ but no layout _components_,
 so every consumer hand-rolls flex/grid. A layout system is where design systems
 usually break their own rules — reaching for a utility-class soup (`.gap-3`,
 `.cols-2`, `.flex-wrap`) that [the contract](../../README.md#the-contract-do-not-drift-from-this)
@@ -36,14 +36,18 @@ to `max(--cf-grid-floor, (100% - (N-1)·gap)/N)`. The proportional share caps th
 at N when the grid is wide; the absolute floor (default `20ch`) makes `auto-fill` drop
 columns once each would get too narrow — a purely proportional min would keep N columns
 at every width and merely cram them. Because the percentage resolves against the grid's
-own inline size, the grid reflows on the space *it* has — correct even nested inside a
+own inline size, the grid reflows on the space _it_ has — correct even nested inside a
 `cf-sidebar` column — with **no `@container`, no `container-type`, and no media query**,
 and therefore no browser-support caveats.
 
 ## Consequences
 
-- One `data-*` → token resolver (`src/layout/_shared.css`) serves every primitive,
-  so the config vocabulary is uniform and DRY.
+- One `data-*` → token resolver (`src/layout/_shared.css`) serves the attributes
+  several primitives share (`data-gap`), so the config vocabulary is uniform and DRY.
+  An attribute only one primitive reads lives in that primitive's stylesheet, scoped
+  to its class: `data-align` is `cf-cluster`'s, because other elements carry
+  `data-align` for their own reasons (`cf-table` cells, headless-library popovers)
+  and an unscoped rule would leak its inherited value into a nested cluster.
 - The chosen grid formula realises the "collapse on the grid's own width" behaviour
   without container queries. If a future need genuinely requires `@container`
   (e.g. changing more than track count at a breakpoint), it is a localised swap and

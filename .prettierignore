@@ -1,0 +1,10 @@
+# Generated, vendored or snapshot files: not ours to format.
+CHANGELOG.md
+package-lock.json
+.agents/
+.claude/
+dist/
+storybook-static/
+docs/reviews/
+# Course lesson pages: their mosaic text is whitespace-sensitive, and reflowing it breaks the pictures.
+docs/courses/**/*.html

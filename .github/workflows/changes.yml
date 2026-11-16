@@ -1,0 +1,42 @@
+# Tells whether a PR is docs-only (issue #157), so ci.yml and storybook-tests.yml
+# can skip their slow jobs (`package`, `dead-code`, `test-storybook`). A reusable
+# workflow because `needs:` can't cross workflows. Lists the PR's changed files
+# through the API, both names of a rename, with no checkout and no third-party
+# action. docs_only is true only when every file is on the safe list; anything
+# else, or a PR past the API's 3000-file cap, runs the full gate.
+# Required jobs are skipped by `if:`, never by `paths:`: a job skipped by `if:`
+# reports as passed, but a workflow skipped by `paths:` never reports and leaves
+# the PR BLOCKED (ADR-0002). Callers test `!cancelled()`, not success, so a
+# failed `changes`, or one skipped on a push to main, runs the full gate.
+name: changes
+
+on:
+  workflow_call:
+    outputs:
+      docs_only:
+        value: ${{ jobs.changes.outputs.docs_only }}
+
+permissions: {}
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      docs_only: ${{ steps.files.outputs.docs_only }}
+    steps:
+      - id: files
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          CHANGED: ${{ github.event.pull_request.changed_files }}
+        run: |
+          files=$(gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR/files" \
+            --jq '.[] | .filename, (.previous_filename // empty)')
+          if [ "$CHANGED" -gt 3000 ] \
+            || grep -qvE '\.md$|^docs/|^\.agents/|^skills-lock\.json$' <<< "$files"; then
+            echo docs_only=false >> "$GITHUB_OUTPUT"
+          else
+            echo docs_only=true >> "$GITHUB_OUTPUT"
+          fi

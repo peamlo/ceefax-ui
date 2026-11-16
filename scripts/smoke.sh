@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Smoke test a published Storybook site: the Pages deploy (pages.yml) and each
+# Storybook preview (preview.yml) run this same check against their base URL.
+# Usage: scripts/smoke.sh https://example.com/path/
+set -eo pipefail
+
+URL="${1:?usage: smoke.sh <base-url>}"
+URL="${URL%/}/"
+
+get() { curl -fsS --retry 5 --retry-delay 10 --retry-all-errors "${URL}$1"; }
+get "" > /dev/null
+# iframe.html is static (200 for any id), so the real check is a story in index.json.
+id=$(get index.json | jq -re '[.entries[] | select(.type == "story")][0].id')
+get "iframe.html?id=${id}" > /dev/null
+grep -q 'src/index.css' <<< "$(get demo/)"
+for page in demo/ demo/screen; do grep -q 'public/favicon.svg' <<< "$(get "$page")"; done
+get src/index.css > /dev/null
+# The first font the stylesheet names, so renaming a font file can't break this check.
+# An assignment, so set -e stops here if the stylesheet names none.
+font=$(get src/tokens/typography.css | grep -om1 "fonts/[^')]*\.woff2")
+get "$font" > /dev/null
+get public/favicon.svg > /dev/null
+# A host that serves index.html for missing paths hides every broken link above.
+[[ $(curl -sS -o /dev/null -w '%{http_code}' "${URL}does-not-exist") == 404 ]]

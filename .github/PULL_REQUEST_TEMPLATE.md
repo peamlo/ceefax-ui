@@ -11,6 +11,7 @@ can understand without reading the diff first.
 ## Changes
 
 <!-- Bullet the notable changes. -->
+
 -
 
 ## Contract impact
@@ -19,26 +20,31 @@ can understand without reading the diff first.
 Does this touch the public contract? (See README "The contract" + CONTEXT.md.)
 Tick all that apply, or write "None — internal only".
 -->
+
 - [ ] New or changed semantic class (`cf-*`)
 - [ ] New or changed `data-*` presentational variant
 - [ ] Token change (`--cf-base-*` authentic colours / `--cf-*` semantic aliases)
-- [ ] State model change (`:focus-visible`, `[aria-current]`, `[aria-pressed]`, `disabled`)
+- [ ] State model change (`:focus-visible`, `[aria-current]`, `disabled`)
 - [ ] None — internal only
 
 ## Docs updated
 
 <!-- The repo is self-documenting; keep it that way. Tick what you touched. -->
+
 - [ ] ADR added/updated (`docs/adr/`)
 - [ ] Glossary updated (`CONTEXT.md`)
 - [ ] `AGENTS.md` / `README.md` updated
 - [ ] Storybook story added/updated
-- [ ] No docs needed (explain why): 
+- [ ] No docs needed (explain why):
 
 ## Testing
 
 <!-- How you verified this. -->
+
 - [ ] `npm run build` passes (`dist/index.css` + `dist/tokens.css`)
+- [ ] `npm run assert-package` passes (packaging, exports, fonts, size budgets)
 - [ ] `npm run storybook` — Storybook a11y checks pass for affected components
+- [ ] `npm run test-storybook` passes — play(), axe and html-validate over every gated story
 - [ ] Keyboard/focus behaviour verified (focus inversion, `▸` caret on `[aria-current]`)
 - [ ] Reduced-motion respected where relevant (`<cf-loader>` blink, `:active` scale)
 

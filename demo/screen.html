@@ -1,44 +1,129 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ceefax-ui — screen frame demo</title>
-<link rel="stylesheet" href="../src/index.css">
-<style>body{margin:0;background:#000}</style>
-</head>
-<body>
-<!-- Resize the window: the page stays 4:3, type scales with it, and below 40em it goes full-bleed. -->
-<section class="cf-page" data-frame>
-  <header class="cf-page__header cf-cluster" style="justify-content:space-between;padding:0 var(--cf-space-3)">
-    <span>100</span><strong>CEEFAX</strong><time>16:02</time>
-  </header>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ceefax-ui — screen frame demo</title>
+    <link rel="icon" href="../public/favicon.svg" />
+    <link rel="stylesheet" href="../src/index.css" />
+    <style>
+      body {
+        margin: 0;
+        background: #000;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Resize the window: the page stays 4:3, 40 cells to a row (data-cells: 40 · 60 · 80), and below 40em it goes full-bleed.
+         Add ?crt to the URL for data-frame="crt", the CRT look (opt-in: below AA on red and magenta, ADR-0014). -->
+    <section class="cf-page" data-frame data-cells="40" data-scrollbar="fastext">
+      <header class="cf-page__header cf-header-row">
+        <span class="cf-header-row__page">P100</span>
+        <span class="cf-header-row__service">CEEFAX</span>
+        <span class="cf-header-row__rolling">100</span>
+        <time class="cf-header-row__time" datetime="2026-10-28T16:02:00"
+          ><span class="cf-header-row__date">Oct28</span> 16:02:00</time
+        >
+      </header>
 
-  <main class="cf-page__body cf-stack" tabindex="0" style="padding:var(--cf-space-3)">
-    <h1>NEWS</h1>
-    <p>Only this body scrolls; the header and fastext keys stay pinned.</p>
-    <p>Headline 1 — type scales with the frame, so lines keep the same width at any size.</p>
-    <p>Headline 2 — type scales with the frame, so lines keep the same width at any size.</p>
-    <p>Headline 3 — type scales with the frame, so lines keep the same width at any size.</p>
-    <p>Headline 4 — type scales with the frame, so lines keep the same width at any size.</p>
-    <p>Headline 5 — type scales with the frame, so lines keep the same width at any size.</p>
-    <p>Headline 6 — type scales with the frame, so lines keep the same width at any size.</p>
-    <p>Headline 7 — type scales with the frame, so lines keep the same width at any size.</p>
-    <p>Headline 8 — type scales with the frame, so lines keep the same width at any size.</p>
-    <p>Headline 9 — type scales with the frame, so lines keep the same width at any size.</p>
-    <p>Headline 10 — type scales with the frame, so lines keep the same width at any size.</p>
-  </main>
+      <main class="cf-page__body cf-stack" tabindex="0" style="padding-block: var(--cf-space-3)">
+        <!-- A mosaic masthead (cf-mosaic): logo blocks and lettering, each a named image. The title and its band grow
+             to the end of the row; at 27 cells it fits the 40-cell frame and a phone alike. Mosaic rows are newlines,
+             so this block keeps its line starts. -->
+        <!-- prettier-ignore -->
+        <div class="cf-cluster" data-gap="1" data-align="end">
+<span class="cf-mosaic" role="img" aria-label="CF">🬝🬎🬎🬬 🬝🬎🬎🬬
+▌▐██ ▌🬠🬰█
+🬺🬹🬹🬻 🬺🬻██</span>
+<h1 style="display: flex; flex: 1; font-size: inherit; margin: 0"><span class="cf-mosaic" role="img" aria-label="News" data-band="blue" data-variant="yellow" style="flex: 1"> 🬭 🬭 🬭🬭🬭 🬏 🬞 🬭🬭🬭 
+ █🬪█ █🬋🬃 🬲🬹🬷 🬎🬋🬹 
+ 🬂 🬂 🬂🬂🬂 🬂 🬂 🬂🬂🬂 </span></h1>
+        </div>
+        <p>Only this body scrolls; the header and fastext keys stay pinned.</p>
+        <!-- Demo-only: each link sets one attribute on the cf-page, kept in the URL with ?crt. -->
+        <nav aria-label="Screen options">
+          <p class="cf-cluster" data-gap="2">
+            <span>SCROLLBAR</span>
+            <a class="cf-link" href="?scrollbar=fastext" data-set="scrollbar" data-value="fastext">FASTEXT</a>
+            <a class="cf-link" href="?scrollbar=mosaic" data-set="scrollbar" data-value="mosaic">MOSAIC</a>
+            <a class="cf-link" href="?scrollbar=thin" data-set="scrollbar" data-value="thin">THIN</a>
+          </p>
+          <p class="cf-cluster" data-gap="2">
+            <span>CELLS</span>
+            <a class="cf-link" href="?cells=40" data-set="cells" data-value="40">40</a>
+            <a class="cf-link" href="?cells=60" data-set="cells" data-value="60">60</a>
+            <a class="cf-link" href="?cells=80" data-set="cells" data-value="80">80</a>
+          </p>
+        </nav>
+        <p>Headline 1 — the same cells to a row, at any size.</p>
+        <p>Headline 2 — the same cells to a row, at any size.</p>
+        <!-- A table scrolls sideways in its own region, never the page. -->
+        <section class="cf-table__scroll" tabindex="0" aria-labelledby="tonight" data-scrollbar="thin">
+          <table class="cf-table" data-stripe-rows="text">
+            <caption id="tonight">
+              BBC ONE TONIGHT
+            </caption>
+            <tbody>
+              <tr>
+                <td>18:00</td>
+                <th scope="row">BBC News</th>
+              </tr>
+              <tr>
+                <td>18:30</td>
+                <th scope="row">Regional News</th>
+              </tr>
+              <tr>
+                <td>19:00</td>
+                <th scope="row">The One Show</th>
+              </tr>
+              <tr>
+                <td>19:30</td>
+                <th scope="row">EastEnders</th>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+        <p>Headline 3 — the same cells to a row, at any size.</p>
+        <p>Headline 4 — the same cells to a row, at any size.</p>
+        <p>Headline 5 — the same cells to a row, at any size.</p>
+        <p>Headline 6 — the same cells to a row, at any size.</p>
+        <p>Headline 7 — the same cells to a row, at any size.</p>
+        <p>Headline 8 — the same cells to a row, at any size.</p>
+        <p>Headline 9 — the same cells to a row, at any size.</p>
+        <p>Headline 10 — the same cells to a row, at any size.</p>
+      </main>
 
-  <footer class="cf-page__footer">
-    <nav aria-label="Fastext">
-      <ul class="cf-fastext">
-        <li><a class="cf-fastext__key" data-variant="red" href="#">NEWS</a></li>
-        <li><a class="cf-fastext__key" data-variant="green" href="#">SPORT</a></li>
-        <li><a class="cf-fastext__key" data-variant="yellow" href="#">TV</a></li>
-        <li><a class="cf-fastext__key" data-variant="blue" href="#">A–Z</a></li>
-      </ul>
-    </nav>
-  </footer>
-</section>
-</body>
+      <footer class="cf-page__footer">
+        <nav aria-label="Fastext">
+          <ul class="cf-fastext">
+            <li><a class="cf-fastext__key" data-variant="red" href="#">NEWS</a></li>
+            <li><a class="cf-fastext__key" data-variant="green" href="#">SPORT</a></li>
+            <li><a class="cf-fastext__key" data-variant="yellow" href="#">TV</a></li>
+            <li><a class="cf-fastext__key" data-variant="cyan" href="#">A–Z</a></li>
+          </ul>
+        </nav>
+      </footer>
+    </section>
+
+    <script type="module">
+      const page = document.querySelector('.cf-page');
+      const params = new URLSearchParams(location.search);
+
+      // Demo-only: ?crt in the URL switches on the CRT look.
+      if (params.has('crt')) page.dataset.frame = 'crt';
+
+      // Demo-only: ?scrollbar= and ?cells= pick those attributes; each link keeps the other options.
+      const links = document.querySelectorAll('[data-set]');
+      for (const a of links) {
+        const { set, value } = a.dataset;
+        if (params.get(set) === value) page.dataset[set] = value;
+        const next = new URLSearchParams(params);
+        next.set(set, value);
+        a.href = `?${next}`;
+      }
+      for (const a of links) {
+        if (page.dataset[a.dataset.set] === a.dataset.value) a.setAttribute('aria-current', 'page');
+      }
+    </script>
+  </body>
 </html>

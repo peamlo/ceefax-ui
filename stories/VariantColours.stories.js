@@ -1,19 +1,42 @@
-import { expect } from '@storybook/test';
+import { expect } from 'storybook/test';
+import { COLOURS, bandSample } from './_bands.js';
 
 // A contract story with no component of its own: it pins the computed colour a consumer
-// sees for every (component × variant) pair, so the variant→colour mapping can move
-// (issue #7) without any outcome drifting. Asserts the rendered result only — never the
+// sees, so the variant→colour mapping can move (issue #7) without any outcome drifting.
+// The mapping lives in one seam (ADR-0007), so it is checked once; each component checks
+// only what is its own (#198). Asserts the rendered result only — never the
 // custom property that carries it. Kept out of Components/* so the axe pass in
 // .storybook/test-runner.js doesn't run over a raw colour matrix.
+//
+// The pairs are generated, not listed: each theme says which colour every variant name
+// resolves to, each component says which properties it paints with that colour. A new
+// variant-aware component is one entry in COMPONENTS; a new theme is one in PALETTES.
 const BLACK = 'rgb(0, 0, 0)';
 const WHITE = 'rgb(255, 255, 255)';
-const RED = 'rgb(255, 0, 0)';
-const GREEN = 'rgb(0, 255, 0)';
 const YELLOW = 'rgb(255, 255, 0)';
-const BLUE = 'rgb(0, 0, 255)';
-const CYAN = 'rgb(0, 255, 255)';
-const MAGENTA = 'rgb(255, 0, 255)';
 const TRANSPARENT = 'rgba(0, 0, 0, 0)';
+
+// variant name → [the colour it resolves to, the ink drawn on top of it]
+const PALETTES = {
+  authentic: {
+    red: ['rgb(255, 0, 0)', BLACK],
+    green: ['rgb(0, 255, 0)', BLACK],
+    yellow: [YELLOW, BLACK],
+    blue: ['rgb(0, 0, 255)', WHITE],
+    cyan: ['rgb(0, 255, 255)', BLACK],
+    magenta: ['rgb(255, 0, 255)', BLACK],
+  },
+  // [data-theme="accessible"] (#12): every block colour is light, so the ink is
+  // uniformly black — blue included.
+  accessible: {
+    red: ['rgb(255, 158, 77)', BLACK],
+    green: ['rgb(51, 224, 192)', BLACK],
+    yellow: [YELLOW, BLACK],
+    blue: ['rgb(102, 179, 255)', BLACK],
+    cyan: ['rgb(153, 230, 255)', BLACK],
+    magenta: ['rgb(224, 160, 208)', BLACK],
+  },
+};
 
 // A name the seam deliberately does not map — a consumer typo. It must fall through to
 // the component's own default, not to the empty value of an unresolved custom property.
@@ -22,99 +45,181 @@ const UNMAPPED = 'RED';
 // SHORTHAND would reset every longhand, leaving a border-less button.
 const BORDER = { borderTopColor: WHITE, borderTopWidth: '2px', borderTopStyle: 'solid' };
 
-// [component, data-variant, the computed values a consumer sees]
-const CASES = [
-  ['btn', '', { backgroundColor: BLACK, color: WHITE, ...BORDER }],
-  ['btn', UNMAPPED, { backgroundColor: BLACK, color: WHITE, ...BORDER }],
-  ['btn', 'red', { backgroundColor: RED, color: BLACK, borderTopColor: RED }],
-  ['btn', 'green', { backgroundColor: GREEN, color: BLACK, borderTopColor: GREEN }],
-  ['btn', 'yellow', { backgroundColor: YELLOW, color: BLACK, borderTopColor: YELLOW }],
-  ['btn', 'blue', { backgroundColor: BLUE, color: WHITE, borderTopColor: BLUE }],
-  ['btn', 'cyan', { backgroundColor: CYAN, color: BLACK, borderTopColor: CYAN }],
-  ['btn', 'magenta', { backgroundColor: MAGENTA, color: BLACK, borderTopColor: MAGENTA }],
-  ['btn', 'ghost', { backgroundColor: TRANSPARENT, color: CYAN, borderTopColor: TRANSPARENT }],
-  ['card', '', { borderTopColor: WHITE }],
-  ['card', UNMAPPED, { borderTopColor: WHITE }],
-  ['card', 'red', { borderTopColor: RED }],
-  ['card', 'green', { borderTopColor: GREEN }],
-  ['card', 'yellow', { borderTopColor: YELLOW }],
-  ['card', 'blue', { borderTopColor: BLUE }],
-  ['card', 'cyan', { borderTopColor: CYAN }],
-  ['card', 'magenta', { borderTopColor: MAGENTA }],
-  ['key', '', { backgroundColor: TRANSPARENT, color: BLACK }],
-  ['key', UNMAPPED, { backgroundColor: TRANSPARENT, color: BLACK }],
-  ['key', 'red', { backgroundColor: RED, color: BLACK }],
-  ['key', 'green', { backgroundColor: GREEN, color: BLACK }],
-  ['key', 'yellow', { backgroundColor: YELLOW, color: BLACK }],
-  ['key', 'blue', { backgroundColor: BLUE, color: WHITE }],
-  ['key', 'cyan', { backgroundColor: CYAN, color: BLACK }],
-  ['key', 'magenta', { backgroundColor: MAGENTA, color: BLACK }],
-];
+// How each component looks with no variant (base), with a palette variant (paint), and
+// with any variant of its own that is not a palette colour (extra). `base` may take the
+// palette when the default itself follows the theme.
+// `bar` is the class of the container the component only works inside.
+const COMPONENTS = {
+  btn: {
+    tag: 'button',
+    className: 'cf-btn',
+    base: { backgroundColor: BLACK, color: WHITE, ...BORDER },
+    paint: (colour, ink) => ({ backgroundColor: colour, color: ink, borderTopColor: colour }),
+    extra: {
+      ghost: (p) => ({ backgroundColor: TRANSPARENT, color: p.cyan[0], borderTopColor: TRANSPARENT }),
+    },
+  },
+  card: {
+    tag: 'article',
+    className: 'cf-card',
+    base: { borderTopColor: WHITE },
+    paint: (colour) => ({ borderTopColor: colour }),
+  },
+  // Paints the border only, like the card (closed: computed styles still resolve).
+  dialog: {
+    tag: 'dialog',
+    className: 'cf-dialog',
+    base: { borderTopColor: WHITE },
+    paint: (colour) => ({ borderTopColor: colour }),
+  },
+  popover: {
+    tag: 'div',
+    className: 'cf-popover',
+    base: { borderTopColor: WHITE },
+    paint: (colour) => ({ borderTopColor: colour }),
+  },
+  key: {
+    tag: 'a',
+    className: 'cf-fastext__key',
+    // A key takes its font from the bar, as in real markup; bare, it falls back to serif.
+    bar: 'cf-fastext',
+    // A text part: data-variant is the label colour, on the page (#120).
+    base: { backgroundColor: TRANSPARENT, color: WHITE },
+    paint: (colour) => ({ backgroundColor: TRANSPARENT, color: colour }),
+  },
+  // A header-row part's data-variant is its text colour; the page part's default is --cf-fg.
+  headerPart: {
+    tag: 'span',
+    className: 'cf-header-row__page',
+    base: { color: WHITE },
+    paint: (colour) => ({ color: colour }),
+  },
+  // With no variant (or a typo) a notice is danger, which tracks red in every theme.
+  notice: {
+    tag: 'div',
+    className: 'cf-notice',
+    base: (p) => ({ borderTopColor: p.red[0], borderTopWidth: '4px' }),
+    paint: (colour) => ({ borderTopColor: colour }),
+  },
+  // The stat's figure inherits the colour; the default is the accent, yellow in every theme.
+  stat: {
+    tag: 'p',
+    className: 'cf-stat',
+    base: { color: YELLOW },
+    paint: (colour) => ({ color: colour }),
+  },
+};
+
+// The computed values a consumer sees for one pair under one palette.
+const look = (kind, variant, palette) => {
+  const c = COMPONENTS[kind];
+  if (c.extra?.[variant]) return c.extra[variant](palette);
+  if (palette[variant]) return c.paint(...palette[variant]);
+  return typeof c.base === 'function' ? c.base(palette) : c.base;
+};
+
+// The full mapping runs on one component, in every theme. Each component checks no
+// variant and its extras in every theme (some defaults follow it), and in the authentic
+// one also a typo (its own fallback) and ONE colour (that it reads the variant at all).
+const MAPPED = 'btn';
+const ONE = 'blue';
+const pairs = (palette, theme) =>
+  Object.entries(COMPONENTS).flatMap(([kind, c]) => {
+    const own = theme === 'authentic' ? ['', UNMAPPED, ONE] : [''];
+    const mapping = kind === MAPPED ? Object.keys(palette) : [];
+    return [...new Set([...own, ...mapping, ...Object.keys(c.extra ?? {})])].map((v) => [kind, v]);
+  });
 
 // --_variant inherits, so a variant ancestor must not colour a descendant that did not
-// ask for one. [child component, its own variant, expected] — rendered inside a red card.
+// ask for one. Rendered inside a red card.
 const NESTED = [
-  ['btn', '', { backgroundColor: BLACK, color: WHITE, ...BORDER }],
-  ['btn', 'ghost', { backgroundColor: TRANSPARENT, color: CYAN, borderTopColor: TRANSPARENT }],
-  ['card', '', { borderTopColor: WHITE }],
+  ['btn', ''],
+  ['btn', 'ghost'],
+  ['card', ''],
+  ['stat', ''],
 ];
-
-// The same pairs under [data-theme="accessible"] (#12): every block colour is light, so
-// the ink is uniformly black — blue included.
-const AMBER = 'rgb(255, 158, 77)';
-const TEAL = 'rgb(51, 224, 192)';
-const SKY = 'rgb(102, 179, 255)';
-const ORCHID = 'rgb(224, 160, 208)';
-const ICE = 'rgb(153, 230, 255)';
-const ACCESSIBLE = [
-  ['btn', '', { backgroundColor: BLACK, color: WHITE, ...BORDER }],
-  ['btn', UNMAPPED, { backgroundColor: BLACK, color: WHITE, ...BORDER }],
-  ['btn', 'red', { backgroundColor: AMBER, color: BLACK, borderTopColor: AMBER }],
-  ['btn', 'green', { backgroundColor: TEAL, color: BLACK, borderTopColor: TEAL }],
-  ['btn', 'yellow', { backgroundColor: YELLOW, color: BLACK, borderTopColor: YELLOW }],
-  ['btn', 'blue', { backgroundColor: SKY, color: BLACK, borderTopColor: SKY }],
-  ['btn', 'cyan', { backgroundColor: ICE, color: BLACK, borderTopColor: ICE }],
-  ['btn', 'magenta', { backgroundColor: ORCHID, color: BLACK, borderTopColor: ORCHID }],
-  ['btn', 'ghost', { backgroundColor: TRANSPARENT, color: ICE, borderTopColor: TRANSPARENT }],
-  ['card', '', { borderTopColor: WHITE }],
-  ['card', 'red', { borderTopColor: AMBER }],
-  ['card', 'green', { borderTopColor: TEAL }],
-  ['card', 'yellow', { borderTopColor: YELLOW }],
-  ['card', 'blue', { borderTopColor: SKY }],
-  ['card', 'cyan', { borderTopColor: ICE }],
-  ['card', 'magenta', { borderTopColor: ORCHID }],
-  ['key', '', { backgroundColor: TRANSPARENT, color: BLACK }],
-  ['key', 'red', { backgroundColor: AMBER, color: BLACK }],
-  ['key', 'green', { backgroundColor: TEAL, color: BLACK }],
-  ['key', 'yellow', { backgroundColor: YELLOW, color: BLACK }],
-  ['key', 'blue', { backgroundColor: SKY, color: BLACK }],
-  ['key', 'cyan', { backgroundColor: ICE, color: BLACK }],
-  ['key', 'magenta', { backgroundColor: ORCHID, color: BLACK }],
-];
-
-const TAG = { btn: 'button', card: 'article', key: 'a' };
-const CLASS = { btn: 'cf-btn', card: 'cf-card', key: 'cf-fastext__key' };
 
 const build = ([kind, variant], i) => {
-  const n = document.createElement(TAG[kind]);
-  n.className = CLASS[kind];
-  if (kind === 'key') n.href = '#';
+  const c = COMPONENTS[kind];
+  const n = document.createElement(c.tag);
+  n.className = c.className;
+  if (c.tag === 'a') n.href = '#';
+  if (c.tag === 'button') n.type = 'button';
   if (variant) n.dataset.variant = variant;
   n.dataset.case = String(i);
   n.textContent = (variant || 'default').toUpperCase();
-  return n;
+  if (!c.bar) return n;
+  const bar = document.createElement('div');
+  bar.className = c.bar;
+  bar.appendChild(n);
+  return bar;
 };
 
-const assertCases = async (cases, canvasElement, offset = 0) => {
-  for (const [i, [kind, variant, want]] of cases.entries()) {
+const assertCases = async (cases, palette, canvasElement, offset) => {
+  for (const [i, [kind, variant]] of cases.entries()) {
     const cs = getComputedStyle(canvasElement.querySelector(`[data-case="${offset + i}"]`));
     const label = `${kind}[data-variant="${variant}"]`;
-    for (const [prop, value] of Object.entries(want)) {
+    for (const [prop, value] of Object.entries(look(kind, variant, palette))) {
       // Labelled so a failure names the pair that drifted, not just two colours.
       await expect(`${label} ${prop} ${cs[prop]}`).toBe(`${label} ${prop} ${value}`);
     }
   }
 };
+
+// [theme, palette, pairs, optional variant host] in render order; data-case indices run across all.
+const GROUPS = [
+  ['authentic', PALETTES.authentic, pairs(PALETTES.authentic, 'authentic')],
+  ['authentic', PALETTES.authentic, NESTED, { className: 'cf-card', variant: 'red' }],
+  ...Object.entries(PALETTES)
+    .filter(([theme]) => theme !== 'authentic')
+    .map(([theme, palette]) => [theme, palette, pairs(palette, theme)]),
+];
+
+// Bands (#98, ADR-0017) share the seam too. On the story-only sample: every band with its
+// default ink, then every ink and a typo on ONE band, and an unknown band. A named ink is
+// used as written, except under the accessible theme, which sends every band's ink to black.
+const BAND_INK = { authentic: (p, ink) => p[ink][0], accessible: () => BLACK };
+const bandCase = (theme, p, band, ink) => [
+  band,
+  ink,
+  { backgroundColor: p[band][0], color: p[ink] ? BAND_INK[theme](p, ink) : p[band][1] },
+];
+const UNKNOWN_BAND = [UNMAPPED, '', { backgroundColor: TRANSPARENT, color: WHITE }];
+const bandCases = (theme, p) =>
+  theme === 'authentic'
+    ? [
+        ...COLOURS.map((band) => bandCase(theme, p, band, '')),
+        ...[...COLOURS, UNMAPPED].map((ink) => bandCase(theme, p, ONE, ink)),
+        UNKNOWN_BAND,
+        [UNMAPPED, 'yellow', { backgroundColor: TRANSPARENT, color: p.yellow[0] }],
+      ]
+    : [...COLOURS.map((band) => bandCase(theme, p, band, '')), bandCase(theme, p, ONE, 'yellow')];
+// The band properties inherit, so inside a banded, inked host: a plain sample stays
+// unbanded, a banded one with no ink takes the default ink, and a typo band stays unbanded.
+const BAND_HOST = ['blue', 'yellow'];
+const NESTED_BANDS = [
+  ['', '', { backgroundColor: TRANSPARENT }],
+  ['green', '', { backgroundColor: PALETTES.authentic.green[0], color: BLACK }],
+  [UNMAPPED, '', { backgroundColor: TRANSPARENT }],
+];
+// The components opted in: a header-row page part (#72) and a fastext key (#120). They use
+// the sample's rule, so a few cases show each is wired to it: a band with its default ink,
+// a named ink, an unknown band, and the accessible theme's black ink.
+const BAND_PARTS = ['cf-header-row__page', 'cf-fastext__key'];
+const partCases = (theme, p) =>
+  theme === 'authentic'
+    ? [bandCase(theme, p, ONE, ''), bandCase(theme, p, ONE, 'yellow'), UNKNOWN_BAND]
+    : [bandCase(theme, p, ONE, 'yellow')];
+// [theme, cases, optional host, optional part class] in render order; data-band-case indices run across all.
+const BAND_GROUPS = [
+  ...Object.entries(PALETTES).map(([theme, p]) => [theme, bandCases(theme, p)]),
+  ['authentic', NESTED_BANDS, BAND_HOST],
+  ...BAND_PARTS.flatMap((part) =>
+    Object.entries(PALETTES).map(([theme, p]) => [theme, partCases(theme, p), null, part]),
+  ),
+];
+
+const row = 'display:flex;flex-wrap:wrap;align-items:flex-start;gap:1ch;width:100%';
 
 export default { title: 'Foundations/Variant colours' };
 
@@ -122,31 +227,53 @@ export default { title: 'Foundations/Variant colours' };
 // the test-runner for 60s with a "navigation" error on CI (ADR-0006), which is why the
 // Layout documentation stories are out of the gate. The nested cases ride along here.
 export const Matrix = {
-  name: 'Every component × variant',
+  name: 'Mapping and fallbacks',
   render: () => {
     const wrap = document.createElement('div');
-    wrap.style.cssText = 'display:flex;flex-wrap:wrap;align-items:flex-start;gap:1ch';
-    CASES.forEach((c, i) => wrap.appendChild(build(c, i)));
-
-    const host = document.createElement('article');
-    host.className = 'cf-card';
-    host.dataset.variant = 'red';
-    host.style.cssText = 'display:flex;flex-wrap:wrap;align-items:flex-start;gap:1ch';
-    NESTED.forEach((c, i) => host.appendChild(build(c, CASES.length + i)));
-    wrap.appendChild(host);
-
-    // Scoped to a subtree on purpose: the theme must work below <html>, not only on it.
-    const themed = document.createElement('div');
-    themed.dataset.theme = 'accessible';
-    themed.style.cssText = 'display:flex;flex-wrap:wrap;align-items:flex-start;gap:1ch;width:100%';
-    const offset = CASES.length + NESTED.length;
-    ACCESSIBLE.forEach((c, i) => themed.appendChild(build(c, offset + i)));
-    wrap.appendChild(themed);
+    // Bare parts take their font from a parent the matrix doesn't render; without this they're serif.
+    wrap.style.cssText = 'display:flex;flex-direction:column;gap:2ch;font-family:var(--cf-font-mono)';
+    let i = 0;
+    for (const [theme, , cases, host] of GROUPS) {
+      const group = document.createElement(host ? 'article' : 'div');
+      group.style.cssText = row;
+      if (host) {
+        group.className = host.className;
+        group.dataset.variant = host.variant;
+      }
+      // Scoped to a subtree on purpose: the theme must work below <html>, not only on it.
+      if (theme !== 'authentic') group.dataset.theme = theme;
+      for (const c of cases) group.appendChild(build(c, i++));
+      wrap.appendChild(group);
+    }
+    let b = 0;
+    for (const [theme, cases, host, part] of BAND_GROUPS) {
+      const group = host ? bandSample(...host, '') : document.createElement('div');
+      group.style.cssText = row;
+      if (theme !== 'authentic') group.dataset.theme = theme;
+      for (const [band, ink] of cases) {
+        const s = bandSample(band, ink, `${band || 'none'}/${ink || 'default'}`, part);
+        s.dataset.bandCase = String(b++);
+        group.appendChild(s);
+      }
+      wrap.appendChild(group);
+    }
     return wrap;
   },
   play: async ({ canvasElement }) => {
-    await assertCases(CASES, canvasElement);
-    await assertCases(NESTED, canvasElement, CASES.length);
-    await assertCases(ACCESSIBLE, canvasElement, CASES.length + NESTED.length);
+    let offset = 0;
+    for (const [, palette, cases] of GROUPS) {
+      await assertCases(cases, palette, canvasElement, offset);
+      offset += cases.length;
+    }
+    let b = 0;
+    for (const [, cases, , part] of BAND_GROUPS) {
+      for (const [band, ink, want] of cases) {
+        const cs = getComputedStyle(canvasElement.querySelector(`[data-band-case="${b++}"]`));
+        const label = `${part ?? 'sample'}[data-band="${band}"][data-variant="${ink}"]`;
+        for (const [prop, value] of Object.entries(want)) {
+          await expect(`${label} ${prop} ${cs[prop]}`).toBe(`${label} ${prop} ${value}`);
+        }
+      }
+    }
   },
 };

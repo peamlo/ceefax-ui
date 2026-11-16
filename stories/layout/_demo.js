@@ -24,6 +24,7 @@ export const box = (label, tag = 'div') => {
 export const caption = (text) => {
   const p = el('p');
   p.textContent = text;
-  p.style.cssText = 'font-family:var(--cf-font-mono);color:var(--cf-accent);margin:var(--cf-space-4) 0 var(--cf-space-2)';
+  p.style.cssText =
+    'font-family:var(--cf-font-mono);color:var(--cf-accent);margin:var(--cf-space-4) 0 var(--cf-space-2)';
   return p;
 };

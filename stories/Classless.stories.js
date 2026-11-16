@@ -10,17 +10,51 @@ import { expect } from '@storybook/test';
 //  2. No leak — the same bare elements outside .cf-root stay browser-default.
 
 const BTN_PROPS = [
-  'fontFamily', 'fontSize', 'fontWeight', 'letterSpacing', 'textTransform', 'lineHeight',
-  'paddingTop', 'paddingLeft', 'borderTopWidth', 'borderTopStyle', 'borderTopColor',
-  'borderTopLeftRadius', 'backgroundColor', 'color', 'cursor', 'display', 'opacity',
+  'fontFamily',
+  'fontSize',
+  'fontWeight',
+  'letterSpacing',
+  'textTransform',
+  'lineHeight',
+  'paddingTop',
+  'paddingLeft',
+  'borderTopWidth',
+  'borderTopStyle',
+  'borderTopColor',
+  'borderTopLeftRadius',
+  'backgroundColor',
+  'color',
+  'cursor',
+  'display',
+  'opacity',
+  'boxSizing',
 ];
 const LINK_PROPS = [
-  'fontFamily', 'fontWeight', 'letterSpacing', 'textTransform', 'color', 'backgroundColor',
-  'textDecorationLine', 'textUnderlineOffset', 'display', 'alignItems', 'columnGap',
+  'fontFamily',
+  'fontWeight',
+  'letterSpacing',
+  'textTransform',
+  'color',
+  'backgroundColor',
+  'textDecorationLine',
+  'textUnderlineOffset',
+  'display',
+  'alignItems',
+  'columnGap',
+  'boxSizing',
 ];
 const LIST_PROPS = [
-  'display', 'flexWrap', 'columnGap', 'rowGap', 'alignItems', 'listStyleType',
-  'marginTop', 'marginLeft', 'paddingTop', 'paddingLeft',
+  'display',
+  'flexWrap',
+  'columnGap',
+  'rowGap',
+  'alignItems',
+  'listStyleType',
+  'marginTop',
+  'marginLeft',
+  'paddingTop',
+  'paddingLeft',
+  'boxSizing',
 ];
 const pick = (el, props, pseudo) => {
   const cs = getComputedStyle(el, pseudo);
@@ -30,6 +64,7 @@ const pick = (el, props, pseudo) => {
 const h = (tag, attrs = {}, ...children) => {
   const el = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) if (v !== false) el.setAttribute(k, v === true ? '' : v);
+  if (tag === 'button' && !el.hasAttribute('type')) el.type = 'button';
   el.append(...children);
   return el;
 };
@@ -37,12 +72,35 @@ const root = (...children) => h('div', { class: 'cf-root' }, ...children);
 
 // Nav bar markup, bare or in its class form ([class form] = a cluster list with the
 // chrome reset, and nav-variant links). Same items either way.
-const ITEMS = [['HOME', true], ['NEWS', false], ['SPORT', false]];
+const ITEMS = [
+  ['HOME', true],
+  ['NEWS', false],
+  ['SPORT', false],
+];
 const navBar = (classForm, label = classForm ? 'Class form' : 'Classless') =>
-  h('nav', { 'aria-label': label },
-    h('ul', classForm ? { class: 'cf-cluster', style: 'list-style:none;margin:0;padding:0' } : {},
-      ...ITEMS.map(([label, current]) => h('li', {},
-        h('a', { href: '#', 'aria-current': current && 'page', ...(classForm && { class: 'cf-link', 'data-variant': 'nav' }) }, label)))));
+  h(
+    'nav',
+    { 'aria-label': label },
+    h(
+      'ul',
+      classForm ? { class: 'cf-cluster', style: 'list-style:none;margin:0;padding:0' } : {},
+      ...ITEMS.map(([label, current]) =>
+        h(
+          'li',
+          {},
+          h(
+            'a',
+            {
+              href: '#',
+              'aria-current': current && 'page',
+              ...(classForm && { class: 'cf-link', 'data-variant': 'nav' }),
+            },
+            label,
+          ),
+        ),
+      ),
+    ),
+  );
 
 export default {
   title: 'Components/Classless (experimental)',
@@ -63,10 +121,16 @@ export const Button = {
 };
 export const DisabledButton = {
   name: 'Button (disabled)',
-  render: () => root(h('button', { disabled: true }, 'OFF AIR'), ' ', h('button', { class: 'cf-btn', disabled: true }, 'OFF AIR')),
+  render: () =>
+    root(h('button', { disabled: true }, 'OFF AIR'), ' ', h('button', { class: 'cf-btn', disabled: true }, 'OFF AIR')),
 };
 export const Link = {
-  render: () => root(h('a', { href: '#' }, 'why I stopped using frameworks'), ' ', h('a', { class: 'cf-link', href: '#' }, 'why I stopped using frameworks')),
+  render: () =>
+    root(
+      h('a', { href: '#' }, 'why I stopped using frameworks'),
+      ' ',
+      h('a', { class: 'cf-link', href: '#' }, 'why I stopped using frameworks'),
+    ),
 };
 
 export const Nav = {
@@ -84,8 +148,13 @@ export const Nav = {
 };
 
 // Every static button/link case side by side: [bare, class form].
-const BTN_CASES = [{}, { 'data-size': 'sm' }, { 'data-size': 'lg' }, { disabled: true },
-  ...['red', 'green', 'yellow', 'blue', 'cyan', 'magenta', 'ghost', 'RED'].map((v) => ({ 'data-variant': v }))];
+const BTN_CASES = [
+  {},
+  { 'data-size': 'sm' },
+  { 'data-size': 'lg' },
+  { disabled: true },
+  ...['red', 'green', 'yellow', 'blue', 'cyan', 'magenta', 'ghost', 'RED'].map((v) => ({ 'data-variant': v })),
+];
 const LINK_CASES = [{}, { 'aria-current': 'page' }, { 'data-variant': 'nav' }];
 
 export const Equivalence = {
@@ -93,7 +162,9 @@ export const Equivalence = {
   render: () =>
     root(
       ...BTN_CASES.map((a) => h('p', {}, h('button', a, 'KEY'), ' ', h('button', { ...a, class: 'cf-btn' }, 'KEY'))),
-      ...LINK_CASES.map((a) => h('p', {}, h('a', { ...a, href: '#' }, 'LINK'), ' ', h('a', { ...a, href: '#', class: 'cf-link' }, 'LINK'))),
+      ...LINK_CASES.map((a) =>
+        h('p', {}, h('a', { ...a, href: '#' }, 'LINK'), ' ', h('a', { ...a, href: '#', class: 'cf-link' }, 'LINK')),
+      ),
     ),
   play: async ({ canvasElement }) => {
     for (const p of canvasElement.querySelectorAll('p')) {
@@ -115,13 +186,23 @@ export const NoLeak = {
     const markup = (label) => [h('button', {}, 'READ MORE'), h('a', { href: '#' }, 'LINK'), navBar(false, label)];
     const host = h('div');
     host.attachShadow({ mode: 'open' }).append(...markup('Reference'));
-    // Light ground so the browser-default colours stay legible for the axe pass.
-    return h('div', { style: 'background:#fff;color:#000;padding:1em' }, h('div', { class: 'light' }, ...markup('Outside root')), host);
+    // Light ground and line spacing so the browser-default look passes axe (contrast, target size).
+    return h(
+      'div',
+      { style: 'background:#fff;color:#000;padding:1em;line-height:2' },
+      h('div', { class: 'light' }, ...markup('Outside root')),
+      host,
+    );
   },
   play: async ({ canvasElement }) => {
     const light = canvasElement.querySelector('.light');
     const shadow = canvasElement.querySelector('.light + div').shadowRoot;
-    for (const [sel, props] of [['button', BTN_PROPS], ['a', LINK_PROPS], ['ul', LIST_PROPS], ['nav a', LINK_PROPS]]) {
+    for (const [sel, props] of [
+      ['button', BTN_PROPS],
+      ['a', LINK_PROPS],
+      ['ul', LIST_PROPS],
+      ['nav a', LINK_PROPS],
+    ]) {
       await expect(pick(light.querySelector(sel), props)).toEqual(pick(shadow.querySelector(sel), props));
     }
   },
@@ -130,12 +211,19 @@ export const NoLeak = {
 // Bonus (not a gate): a consumer's own class beats the scoped styles without !important.
 export const ConsumerOverride = {
   name: 'Consumer class overrides',
-  render: () =>
-    h('div', {},
-      h('style', {}, '.my-btn{background:rgb(0, 0, 255);color:rgb(255, 255, 255)}'),
-      root(h('button', { class: 'my-btn' }, 'MINE'))),
+  // .my-btn (0,1,0) is less specific than the spike's button:not(…) (0,1,1), so this only
+  // passes because the spike sits in a cascade layer and unlayered CSS beats any layer.
+  render: () => {
+    const sheet = new CSSStyleSheet();
+    sheet.replaceSync('.my-btn{background:rgb(0, 0, 255);color:rgb(255, 255, 255)}');
+    if (!document.adoptedStyleSheets.some((s) => s.cssRules[0]?.selectorText === '.my-btn'))
+      document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
+    return root(h('button', { class: 'my-btn' }, 'MINE'));
+  },
   play: async ({ canvasElement }) => {
-    await expect(pick(canvasElement.querySelector('.my-btn'), ['backgroundColor', 'textTransform']))
-      .toEqual({ backgroundColor: 'rgb(0, 0, 255)', textTransform: 'uppercase' });
+    await expect(pick(canvasElement.querySelector('.my-btn'), ['backgroundColor', 'textTransform'])).toEqual({
+      backgroundColor: 'rgb(0, 0, 255)',
+      textTransform: 'uppercase',
+    });
   },
 };

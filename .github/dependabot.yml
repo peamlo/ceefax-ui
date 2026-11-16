@@ -1,0 +1,43 @@
+# Monthly, grouped updates (issue #46): at most one Storybook PR, one misc npm PR
+# and one actions PR a month. Prefixes make Dependabot's PR titles Conventional
+# Commits, so they pass the `lint-title` required check (ADR-0002). For actions it
+# bumps the pinned SHA and its trailing `# vX.Y.Z` comment together.
+# The cooldown skips releases younger than 7 days, the window in which a
+# compromised release is usually caught and yanked.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: build(deps)
+    groups:
+      storybook:
+        patterns:
+          - storybook
+          - '@storybook/*'
+      misc:
+        patterns:
+          - '*'
+      # Security fixes are not on the monthly schedule and ignore the groups
+      # above; this batches them into one PR instead of one per advisory.
+      security:
+        applies-to: security-updates
+        patterns:
+          - '*'
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: ci(deps)
+    groups:
+      actions:
+        patterns:
+          - '*'

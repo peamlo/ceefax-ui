@@ -2,7 +2,9 @@
    Match the cf-* namespace itself, not a hand-kept roster: every current and
    future ceefax-ui class gets border-box by virtue of the contract, so adding a
    component needs no edit here. [class*=" cf-"] covers any multi-class element. */
-:where([class^="cf-"],[class*=" cf-"]){box-sizing:border-box}
+:where([class^='cf-'], [class*=' cf-']) {
+  box-sizing: border-box;
+}
 /* The variant seam: the one place a [data-variant] name meets its colour, via the
    --cf-variant-* tier (authentic by default, remapped by a theme).
    --_variant is the resolved colour, --_variant-ink the readable foreground on it —
@@ -15,12 +17,84 @@
       fallback. Without one, an unresolved var() in a `border` shorthand would reset
       every border longhand and leave an invisible, border-less element;
    3. a component rule for a look-only variant must come AFTER its own generic
-      [data-variant] rule to win on order — both have the same specificity. */
-:where([data-variant="red"]){--_variant:var(--cf-variant-red);--_variant-ink:var(--cf-on-variant)}
-:where([data-variant="green"]){--_variant:var(--cf-variant-green);--_variant-ink:var(--cf-on-variant)}
-:where([data-variant="yellow"]){--_variant:var(--cf-variant-yellow);--_variant-ink:var(--cf-on-variant)}
-:where([data-variant="blue"]){--_variant:var(--cf-variant-blue);--_variant-ink:var(--cf-on-variant-dark)}
-:where([data-variant="cyan"]){--_variant:var(--cf-variant-cyan);--_variant-ink:var(--cf-on-variant)}
-:where([data-variant="magenta"]){--_variant:var(--cf-variant-magenta);--_variant-ink:var(--cf-on-variant)}
+      [data-variant] rule to win on order — both have the same specificity.
+   Bands (ADR-0017): [data-band] names a part's background, --_band, and --_band-ink is
+   the ink on it — the colour [data-variant] names on the same element (--_ink-pick, via
+   the --cf-ink-* tier a theme can collapse), else the readable default. Band and ink are
+   independent rows, so a colour costs one line per tier, never 6 × 6. A banded element
+   first clears what it inherited, so a band never leaks into a nested band with a typo
+   or a banded part with no ink of its own; the rows below win on order. */
+:where([data-band]) {
+  --_band: initial;
+  --_band-ink: initial;
+  --_ink-pick: initial;
+}
+:where([data-variant='red']) {
+  --_variant: var(--cf-variant-red);
+  --_variant-ink: var(--cf-on-variant);
+  --_ink-pick: var(--cf-ink-red);
+}
+:where([data-variant='green']) {
+  --_variant: var(--cf-variant-green);
+  --_variant-ink: var(--cf-on-variant);
+  --_ink-pick: var(--cf-ink-green);
+}
+:where([data-variant='yellow']) {
+  --_variant: var(--cf-variant-yellow);
+  --_variant-ink: var(--cf-on-variant);
+  --_ink-pick: var(--cf-ink-yellow);
+}
+:where([data-variant='blue']) {
+  --_variant: var(--cf-variant-blue);
+  --_variant-ink: var(--cf-on-variant-dark);
+  --_ink-pick: var(--cf-ink-blue);
+}
+:where([data-variant='cyan']) {
+  --_variant: var(--cf-variant-cyan);
+  --_variant-ink: var(--cf-on-variant);
+  --_ink-pick: var(--cf-ink-cyan);
+}
+:where([data-variant='magenta']) {
+  --_variant: var(--cf-variant-magenta);
+  --_variant-ink: var(--cf-on-variant);
+  --_ink-pick: var(--cf-ink-magenta);
+}
+:where([data-band='red']) {
+  --_band: var(--cf-variant-red);
+  --_band-ink: var(--_ink-pick, var(--cf-on-variant));
+}
+:where([data-band='green']) {
+  --_band: var(--cf-variant-green);
+  --_band-ink: var(--_ink-pick, var(--cf-on-variant));
+}
+:where([data-band='yellow']) {
+  --_band: var(--cf-variant-yellow);
+  --_band-ink: var(--_ink-pick, var(--cf-on-variant));
+}
+:where([data-band='blue']) {
+  --_band: var(--cf-variant-blue);
+  --_band-ink: var(--_ink-pick, var(--cf-on-variant-dark));
+}
+:where([data-band='cyan']) {
+  --_band: var(--cf-variant-cyan);
+  --_band-ink: var(--_ink-pick, var(--cf-on-variant));
+}
+:where([data-band='magenta']) {
+  --_band: var(--cf-variant-magenta);
+  --_band-ink: var(--_ink-pick, var(--cf-on-variant));
+}
 /* Optional page shell: flat-black teletext canvas. */
-.cf-page{background:var(--cf-bg);color:var(--cf-fg);font-family:var(--cf-font-body);font-size:var(--cf-text-body);line-height:var(--cf-leading-normal)}
+.cf-page {
+  background: var(--cf-bg);
+  color: var(--cf-fg);
+  font-family: var(--cf-font-mono);
+  font-size: var(--cf-text-body);
+  line-height: var(--cf-leading-normal);
+}
+/* The Focus ring on a Scroll region (ADR-0023): the form controls' thin accent ring, drawn
+   just inside the box so a clipping frame never cuts it. A new scroll region joins by adding
+   its selector here. The consumer writes role, name and tabindex; the library never does. */
+:where(:is(.cf-table__scroll, .cf-page__body):focus-visible) {
+  outline: var(--cf-border-thin) solid var(--cf-accent);
+  outline-offset: calc(-1 * var(--cf-border-thin));
+}

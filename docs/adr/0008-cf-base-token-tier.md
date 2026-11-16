@@ -20,8 +20,8 @@ consumer to protect.
 
 The `Foundations/Token layering` story reads every component and layout stylesheet's
 source and fails if any names `--cf-base-*` (or if it finds no files). It runs in the
-storybook-tests CI job beside the palette-drift guard (ADR-0006). The only places allowed
-to name the base tier are the token layer, the pixel canvas renderer (ADR-0004), and —
+storybook-tests CI job beside the palette-drift guard (ADR-0006; removed with the canvas by [ADR-0021](0021-text-mosaics-replace-pixel-canvas.md)). The only places allowed
+to name the base tier are the token layer and —
 until #12 points it at a remappable `--cf-variant-*` tier — the variant seam's `--_variant`
 (ADR-0007). The ink on a variant block is already an alias: `--cf-on-variant` (on light
 blocks) and `--cf-on-variant-dark` (on authentic blue), so a theme sets it
@@ -42,7 +42,7 @@ free for #12's block-colour tier, so each prefix holds one kind of token.
 - "Base" also names the base stylesheet (`src/base.css`). Accepted: the token is always
   `--cf-base-<colour>`, and the glossary calls out the difference.
 - **An explicit exception to ADR-0006**, which aims assertions at rendered DOM and
-  computed styles, never internals. The guard reads stylesheet *source*, because the rule
+  computed styles, never internals. The guard reads stylesheet _source_, because the rule
   is about what the source names — rendered output can't show which tier a colour came
   through. Rendered colours stay pinned by `Foundations/Variant colours`.
 - The fastext key's ink fallbacks now read `--cf-on-variant` instead of naming black.

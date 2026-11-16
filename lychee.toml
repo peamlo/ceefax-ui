@@ -1,0 +1,5 @@
+# Docs link check (issue #53): repo-internal links and anchors only. Offline,
+# so the job never fails because of a third-party site.
+offline = true
+include_fragments = "anchor-only"
+exclude_path = ["(^|/)node_modules/", "^dist/", "^storybook-static/", "^CHANGELOG\\.md$"]

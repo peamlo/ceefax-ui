@@ -1,0 +1,59 @@
+# Publishes @peamlo/ceefax-ui to npm when a `v*` tag is pushed, by release-please
+# or by hand (issue #49, ADR-0013). Trusted publishing: npm swaps this run's OIDC
+# token for a one-off publish credential and signs provenance, so no npm token
+# exists anywhere. The tarball passes the same build + assert-package gate as the
+# `package` job in ci.yml. `workflow_dispatch` dry-runs the whole pipeline.
+name: release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: Run every step but publish with --dry-run
+        type: boolean
+        default: true
+
+permissions: {}
+
+# Serialise releases; never cancel one mid-publish.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # trusted publishing + provenance
+    env:
+      DRY_RUN: ${{ inputs.dry-run }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # No npm cache: a publishing workflow must not restore a cache other runs wrote.
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24' # bundles npm >= 11.5.1, which trusted publishing needs
+          package-manager-cache: false
+      - name: Tag matches package version
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [ "$GITHUB_REF_TYPE" = tag ]; then
+            [ "$GITHUB_REF_NAME" = "v$version" ] ||
+              { echo "::error::tag $GITHUB_REF_NAME does not match package.json version $version"; exit 1; }
+          elif [ "$DRY_RUN" != true ]; then
+            echo "::error::only a v* tag publishes; run this from a tag or keep dry-run ticked"; exit 1
+          fi
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - run: npm run assert-package
+        env:
+          FORCE_COLOR: '1' # the Actions log renders ANSI colour but isn't a TTY
+      - run: |
+          if [ "$DRY_RUN" = true ]; then set -- --dry-run; fi
+          npm publish --provenance --access public "$@"

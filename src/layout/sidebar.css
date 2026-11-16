@@ -5,7 +5,20 @@
    Sub-parts: cf-sidebar__side (the rail) + cf-sidebar__main (the content).
    DX: data-side="right" flips the rail to the trailing edge.
    Escape hatches: --cf-sidebar-side (rail width) · --cf-sidebar-content-min (wrap point). */
-.cf-sidebar{display:flex;flex-wrap:wrap;gap:var(--cf-gap,var(--cf-space-4))}
-.cf-sidebar__side{flex-basis:var(--cf-sidebar-side,20ch);flex-grow:1}
-.cf-sidebar__main{flex-basis:0;flex-grow:999;min-width:var(--cf-sidebar-content-min,50%)}
-.cf-sidebar[data-side="right"]{flex-direction:row-reverse}
+.cf-sidebar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cf-gap, var(--cf-space-4));
+}
+.cf-sidebar__side {
+  flex-basis: var(--cf-sidebar-side, 20ch);
+  flex-grow: 1;
+}
+.cf-sidebar__main {
+  flex-basis: 0;
+  flex-grow: 999;
+  min-width: var(--cf-sidebar-content-min, 50%);
+}
+.cf-sidebar[data-side='right'] {
+  flex-direction: row-reverse;
+}
