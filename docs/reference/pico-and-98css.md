@@ -43,5 +43,5 @@ The classless spike (#26) tries the "take" column and fixes both "don't take" le
 native cascade tools rather than conventions: `@scope (.cf-root)` styles a bare `button`,
 `a[href]` or `nav` list only inside an opt-in root, and `@layer` keeps the whole spike below
 any unlayered CSS, so the consumer's own styles win without `!important`. It is
-experimental; see `src/components/classless.css` and the `Components/Classless
-(experimental)` stories.
+experimental; see `src/components/classless.css` and the Classless stories of the Button and
+Link components.

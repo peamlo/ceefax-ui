@@ -9,7 +9,7 @@
    - nesting: each element's states and variants sit under it, so the component guard
      (:not(cf-*) — leave ceefax-ui components to their own rules) is written once per element.
    The declarations mirror button.css / link.css / cluster.css in the same order; the
-   Components/Classless stories fail if the two forms drift. */
+   Classless stories in Button and Link fail if the two forms drift. */
 @layer ceefax-classless {
   @scope (.cf-root) {
     button:not([class^='cf-'], [class*=' cf-']) {

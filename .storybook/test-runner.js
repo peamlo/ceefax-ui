@@ -16,7 +16,6 @@ import htmlValidateConfig from '../.htmlvalidate.js';
 // build on non-contract stories. Each gated story is audited twice: as authored, then
 // with data-theme="accessible" on <html> at AAA contrast (color-contrast-enhanced, #12).
 
-const BTN = '.cf-btn';
 // Read an element's live colours from inside the page (runs in the browser context).
 const colours = (sel) => {
   const cs = getComputedStyle(document.querySelector(sel));
@@ -26,8 +25,10 @@ const colours = (sel) => {
 const INVERTED = { backgroundColor: 'rgb(255, 255, 255)', color: 'rgb(0, 0, 0)' };
 const RESTING = { backgroundColor: 'rgb(0, 0, 0)', color: 'rgb(255, 255, 255)' };
 
+// The classless stories (#26, experimental) get the same checks on a bare <button> in .cf-root.
 async function assertButtonContract(page, name) {
-  if (name === 'Default') {
+  const BTN = name.startsWith('Classless') ? '.cf-root button' : '.cf-btn';
+  if (name === 'Default' || name === 'Classless') {
     // Contract: keyboard focus (:focus-visible) inverts the colours. A real Tab
     // press (the button is the only focusable) makes :focus-visible match.
     await page.keyboard.press('Tab');
@@ -36,7 +37,7 @@ async function assertButtonContract(page, name) {
     await page.hover(BTN);
     expect(await page.evaluate(colours, BTN)).toEqual(INVERTED);
   }
-  if (name === 'Disabled') {
+  if (name === 'Disabled' || name === 'Classless (disabled)') {
     // Contract: a disabled button does NOT invert on hover.
     await page.hover(BTN);
     expect(await page.evaluate(colours, BTN)).toEqual(RESTING);
@@ -171,45 +172,6 @@ async function assertFocusInversion(page, sel) {
   expect(rest).toMatch(/^none/);
   expect(focused).toMatch(/^solid 2px /);
   expect(focused).not.toMatch(/rgba\(0, 0, 0, 0\)$/);
-}
-
-// Contract (#26, experimental): a bare element inside .cf-root reacts to real focus and
-// hover exactly as its class form. The Classless stories render [bare, class form] in one
-// .cf-root, so Tab focuses the bare one, Tab again the class one; then hover each.
-const PAIR = ['.cf-root > :nth-child(1)', '.cf-root > :nth-child(2)'];
-const look = (sel) => {
-  const cs = getComputedStyle(document.querySelector(sel));
-  return {
-    backgroundColor: cs.backgroundColor,
-    color: cs.color,
-    borderTopColor: cs.borderTopColor,
-    textDecorationLine: cs.textDecorationLine,
-  };
-};
-
-async function assertClasslessPair(page, name) {
-  const resting = await page.evaluate(look, PAIR[0]);
-  if (name !== 'Button (disabled)') {
-    const focused = [];
-    for (const sel of PAIR) {
-      await page.keyboard.press('Tab');
-      focused.push(await page.evaluate(look, sel));
-    }
-    expect(focused[0]).toEqual(focused[1]);
-    expect(focused[0]).not.toEqual(resting); // focus did invert
-  }
-  // drop focus, or the class-form element would be hovered AND still focused
-  await page.evaluate(() => document.activeElement.blur());
-  const hovered = [];
-  for (const sel of PAIR) {
-    await page.hover(sel);
-    hovered.push(await page.evaluate(look, sel));
-  }
-  expect(hovered[0]).toEqual(hovered[1]);
-  // disabled suppresses the inversion; otherwise hover must change the look
-  if (name === 'Button (disabled)') expect(hovered[0]).toEqual(resting);
-  else expect(hovered[0]).not.toEqual(resting);
-  await page.mouse.move(0, 0);
 }
 
 // Contract (#76): the CRT look renders neither scanlines nor glow under forced colours or the
@@ -571,7 +533,7 @@ const shapeOf = (sel) => {
 };
 async function assertCheckboxInput(page, name) {
   const box = '.cf-checkbox';
-  if (name === 'Disabled') {
+  if (name === 'Disabled' || name === 'Classless (disabled)') {
     const dimmed = await page.evaluate(controlLook, box);
     await page.hover(box);
     expect(await page.evaluate(controlLook, box)).toEqual(dimmed);
@@ -689,6 +651,7 @@ export default {
 
     if (title === 'Components/Button') await assertButtonContract(page, name);
     if (title === 'Components/Link' && name === 'Inline') await assertFocusInversion(page, '.cf-link');
+    if (title === 'Components/Link' && name === 'Classless') await assertFocusInversion(page, '.cf-root a');
     if (title === 'Components/Fastext bar' && name === 'Text') await assertFocusInversion(page, FIRST_KEY);
     if (title === 'Components/Fastext bar') await assertFastextHover(page);
     if (title === 'Components/Notice') await assertNoticeBlink(page);
@@ -708,8 +671,6 @@ export default {
     if (title === 'Components/Reveal' && name === 'Single') await assertRevealKeys(page);
     if (title === 'Components/Reveal' && name === 'In the Screen frame') await assertRevealFrameMarker(page);
     if (title === 'Components/Popover') await assertPopoverOpens(page);
-    if (title === 'Components/Classless (experimental)' && ['Button', 'Button (disabled)', 'Link'].includes(name))
-      await assertClasslessPair(page, name);
 
     await injectAxe(page);
     // The scanline overlay is an absolutely positioned ::after with a background-image, which axe
