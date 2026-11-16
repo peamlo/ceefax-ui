@@ -52,5 +52,6 @@ colours and leaves the `--cf-*` semantic aliases untouched, so the accessible th
   is a real change to the documented contract, recorded in `README.md` and `AGENTS.md`.
   Markup using the previously documented values renders exactly as before.
 - Pinned by the `Foundations/Variant colours` stories, which assert the computed colour
-  of every (component × variant) pair, the unmapped-name fallback, and the nesting case
-  (ADR-0006).
+  of every name once (the mapping is this one seam), each component's own fallback (no
+  variant, the unmapped name) and extras, and the nesting case (ADR-0006; trimmed from
+  every component × variant pair in #198).
