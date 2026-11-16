@@ -128,6 +128,15 @@ Work is tracked as **GitHub issues** on `peamlo/ceefax-ui` via the `gh` CLI. See
 
 The five canonical triage roles (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`), label string = role name. See `docs/agents/triage-labels.md`.
 
+### Spikes
+
+An issue titled `spike(...)` asks a question; it doesn't ask for a feature. Work it with `/prototype`, never `/implement`: no TDD, no `/code-review`, no PR, and nothing merges to `main`.
+
+- **Branch:** `prototype/<n>-<slug>` off `main`, commits as `chore(prototype): …` (commitlint has no `spike` type). Push it; it's the primary source.
+- **Deliverable:** one comment on the issue with the verdict (adopt or not), the numbers the acceptance criteria ask for, a link to the branch, and for a "no", the trigger to revisit. Move the card to **In review**.
+- **After:** the maintainer closes the issue. A "yes" becomes a follow-up ticket (`/to-tickets`) that points at the branch and goes through `/implement`.
+- A spike that only reads and writes up (no code to try) is `/research`, and its notes do land in `docs/reference/`.
+
 ### Domain docs
 
 Single-context: one `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
