@@ -1,4 +1,5 @@
 import { expect, within } from 'storybook/test';
+import { BOX_PROPS, CLASSLESS_ARG, withClassless, expectSameAsClassForm } from '../_classless.js';
 import {
   ACCENT,
   assertCharacter,
@@ -50,8 +51,9 @@ const render = ({ legend, options, variant, checked, disabled, error }) => {
 export default {
   title: 'Components/Form/Radio',
   tags: ['autodocs'],
-  render,
+  render: withClassless(render, 'cf-radio'),
   argTypes: {
+    classless: CLASSLESS_ARG,
     legend: { control: 'text' },
     options: { control: 'object', description: 'The option texts (each is also its value)' },
     variant: VARIANT,
@@ -63,7 +65,15 @@ export default {
         'A server error for the group: a `cf-field__error` linked from the fieldset, and `aria-invalid="true"` on its radios',
     },
   },
-  args: { legend: 'Channel', options: OPTIONS, variant: '', checked: 'BBC1', disabled: '', error: '' },
+  args: {
+    classless: false,
+    legend: 'Channel',
+    options: OPTIONS,
+    variant: '',
+    checked: 'BBC1',
+    disabled: '',
+    error: '',
+  },
   parameters: {
     docs: {
       description: {
@@ -146,4 +156,12 @@ export const Character = {
     await assertDisabled(off);
     off.disabled = false;
   },
+};
+
+// EXPERIMENTAL (#26): the same markup with no cf-radio class, inside a .cf-root container.
+// The class and the bare element share every rule; play() compares it with a cf-radio twin.
+export const Classless = {
+  args: { classless: true },
+  play: async ({ canvasElement }) =>
+    expectSameAsClassForm(canvasElement.querySelector("input[type='radio']"), 'cf-radio', BOX_PROPS),
 };

@@ -1,4 +1,5 @@
 import { expect, within } from 'storybook/test';
+import { BOX_PROPS, CLASSLESS_ARG, withClassless, expectSameAsClassForm } from './_classless.js';
 
 // cf-dialog (#167): a teletext panel on the native <dialog>, opened and closed with invoker
 // commands, no script (ADR-0022). The browser moves focus in, closes on Esc or a click on the
@@ -85,12 +86,17 @@ const openIt = async ({ canvasElement }) => {
 export default {
   title: 'Components/Dialog',
   tags: ['autodocs'],
-  render: dialog(CONFIRMATION),
+  render: withClassless(dialog(CONFIRMATION), 'cf-dialog'),
   argTypes: {
+    classless: CLASSLESS_ARG,
     size: { control: 'radio', options: ['sm', '', 'lg'], labels: { '': 'default (60 Cells)' } },
     variant: { control: 'select', options: ['', 'red', 'green', 'yellow', 'blue', 'cyan', 'magenta'] },
   },
-  args: { size: 'sm', variant: 'red' },
+  args: {
+    classless: false,
+    size: 'sm',
+    variant: 'red',
+  },
 };
 
 // The exact contract markup: the invoker and the closed dialog.
@@ -115,4 +121,12 @@ export const LongContent = {
     const el = await openIt(ctx);
     await expect(el.scrollHeight).toBeGreaterThan(el.clientHeight);
   },
+};
+
+// EXPERIMENTAL (#26): the same markup with no cf-dialog class, inside a .cf-root container.
+// The class and the bare element share every rule; play() compares it with a cf-dialog twin.
+export const Classless = {
+  args: { classless: true },
+  play: async ({ canvasElement }) =>
+    expectSameAsClassForm(canvasElement.querySelector('dialog'), 'cf-dialog', BOX_PROPS),
 };

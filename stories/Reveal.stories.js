@@ -1,4 +1,5 @@
 import { expect, userEvent } from 'storybook/test';
+import { BOX_PROPS, CLASSLESS_ARG, withClassless, expectSameAsClassForm } from './_classless.js';
 
 // cf-reveal (#20): a disclosure on the native <details>/<summary>, named after the teletext
 // remote's REVEAL button. The browser owns the state ([open]), the keyboard and the
@@ -51,15 +52,22 @@ const YELLOW = 'rgb(255, 255, 0)';
 export default {
   title: 'Components/Reveal',
   tags: ['autodocs'],
-  render,
+  render: withClassless(render, 'cf-reveal'),
   argTypes: {
+    classless: CLASSLESS_ARG,
     group: { table: { disable: true } },
     open: { control: 'boolean' },
     number: { control: 'boolean' },
     // No blue: blue text fails contrast on black.
     variant: { control: 'select', options: ['', 'red', 'green', 'yellow', 'magenta', 'cyan'] },
   },
-  args: { group: 'single', open: false, number: false, variant: '' },
+  args: {
+    classless: false,
+    group: 'single',
+    open: false,
+    number: false,
+    variant: '',
+  },
 };
 
 // Contract: closed hides the content and `open` on the element shows it. Sets the attribute rather
@@ -134,4 +142,12 @@ export const InScreenFrame = {
     page.append(body);
     return page;
   },
+};
+
+// EXPERIMENTAL (#26): the same markup with no cf-reveal class, inside a .cf-root container.
+// The class and the bare element share every rule; play() compares it with a cf-reveal twin.
+export const Classless = {
+  args: { classless: true },
+  play: async ({ canvasElement }) =>
+    expectSameAsClassForm(canvasElement.querySelector('details'), 'cf-reveal', BOX_PROPS),
 };

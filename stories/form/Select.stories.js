@@ -1,4 +1,5 @@
 import { expect, within } from 'storybook/test';
+import { BOX_PROPS, CLASSLESS_ARG, withClassless, expectSameAsClassForm } from '../_classless.js';
 import {
   ACCENT,
   assertDisabled,
@@ -40,8 +41,9 @@ const render = ({ label, labelVisible, options, size, required, disabled, hint, 
 export default {
   title: 'Components/Form/Select',
   tags: ['autodocs'],
-  render,
+  render: withClassless(render, 'cf-select'),
   argTypes: {
+    classless: CLASSLESS_ARG,
     label: { control: 'text' },
     labelVisible: {
       control: 'boolean',
@@ -63,6 +65,8 @@ export default {
     button: { control: 'text', description: 'A submit `cf-btn` beside the control' },
   },
   args: {
+    classless: false,
+
     label: 'Region',
     labelVisible: true,
     options: ['London', 'Scotland', 'Wales', 'Northern Ireland'],
@@ -150,4 +154,12 @@ export const OpenList = {
     await expect(checkmark.content).toBe('"►"');
     await expect(checkmark.color).toBe(ACCENT);
   },
+};
+
+// EXPERIMENTAL (#26): the same markup with no cf-select class, inside a .cf-root container.
+// The class and the bare element share every rule; play() compares it with a cf-select twin.
+export const Classless = {
+  args: { classless: true },
+  play: async ({ canvasElement }) =>
+    expectSameAsClassForm(canvasElement.querySelector('select'), 'cf-select', BOX_PROPS),
 };

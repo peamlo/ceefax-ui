@@ -4,7 +4,13 @@
    A dropdown is a popover holding a <ul> of cf-links or ghost cf-btns, not a part of its own.
    No display here: the browser's own [popover] rule hides it while closed. Every rule is
    wrapped in :where(), so consumer CSS wins without !important (ADR-0018). */
-:where(.cf-popover) {
+/* EXPERIMENTAL (#26, classless spike; removed if rejected): inside an opt-in .cf-root,
+   a bare [popover] element takes this look with no class. Each class is
+   paired with its element in the same selector, inside the same :where(), so both forms share
+   every rule at zero specificity.
+   ponytail: the pair is repeated per rule. Name it once with @custom-selector (CSS Extensions)
+   when browsers ship it. */
+:where(.cf-popover, .cf-root [popover]) {
   /* Its content's width, wrapping at one 40-cell row (plus padding and border), never wider
      than the viewport less a gutter. max-content, not fit-content: an anchored popover would
      shrink into the room left beside its trigger instead of flipping to where there's room. */
@@ -19,17 +25,17 @@
   line-height: var(--cf-leading-relaxed);
 }
 /* Colour comes from the variant seam (base.css); the popover paints the border only. */
-:where(.cf-popover[data-variant]) {
+:where(:is(.cf-popover, .cf-root [popover])[data-variant]) {
   border-color: var(--_variant, var(--cf-border));
 }
-:where(.cf-popover > :first-child) {
+:where(:is(.cf-popover, .cf-root [popover]) > :first-child) {
   margin-block-start: 0;
 }
-:where(.cf-popover > :last-child) {
+:where(:is(.cf-popover, .cf-root [popover]) > :last-child) {
   margin-block-end: 0;
 }
 /* The dropdown's list: one item a line, flush with the padding, as in cf-fastext. */
-:where(.cf-popover > ul) {
+:where(:is(.cf-popover, .cf-root [popover]) > ul) {
   padding: 0;
   list-style: none;
 }
@@ -41,7 +47,7 @@
    --cf-popover-area takes any position-area value to move it (ADR-0003). Without anchor
    positioning the browser's own centred popover stays. */
 @supports (position-area: block-end) {
-  :where(.cf-popover[popover]) {
+  :where(:is(.cf-popover, .cf-root [popover])[popover]) {
     margin: var(--cf-border-thin) 0;
     position-area: var(--cf-popover-area, block-end span-inline-end);
     position-try-fallbacks:

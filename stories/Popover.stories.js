@@ -1,4 +1,5 @@
 import { expect, within } from 'storybook/test';
+import { BOX_PROPS, CLASSLESS_ARG, withClassless, expectSameAsClassForm } from './_classless.js';
 import { uid } from './form/_form.js';
 
 // cf-popover (#169): a floating panel on the native popover attribute, opened by an invoker
@@ -41,8 +42,9 @@ const assertClosed = async ({ canvasElement }) => {
 export default {
   title: 'Components/Popover',
   tags: ['autodocs'],
-  render: popover,
+  render: withClassless(popover, 'cf-popover'),
   argTypes: {
+    classless: CLASSLESS_ARG,
     content: { table: { disable: true } }, // the Text and Dropdown stories
     variant: {
       control: 'select',
@@ -60,9 +62,22 @@ export default {
       description: '`--cf-popover-area`: any `position-area` value',
     },
   },
-  args: { content: 'text', variant: '', area: '' },
+  args: {
+    classless: false,
+    content: 'text',
+    variant: '',
+    area: '',
+  },
 };
 
 export const Text = { play: assertClosed };
 
 export const Dropdown = { args: { content: 'dropdown' }, play: assertClosed };
+
+// EXPERIMENTAL (#26): the same markup with no cf-popover class, inside a .cf-root container.
+// The class and the bare element share every rule; play() compares it with a cf-popover twin.
+export const Classless = {
+  args: { classless: true },
+  play: async ({ canvasElement }) =>
+    expectSameAsClassForm(canvasElement.querySelector('[popover]'), 'cf-popover', BOX_PROPS),
+};

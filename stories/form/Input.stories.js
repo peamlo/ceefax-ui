@@ -1,4 +1,5 @@
 import { expect, within } from 'storybook/test';
+import { BOX_PROPS, CLASSLESS_ARG, withClassless, expectSameAsClassForm } from '../_classless.js';
 import {
   assertDisabled,
   assertError,
@@ -46,8 +47,9 @@ const render = ({ label, labelVisible, type, placeholder, value, size, required,
 export default {
   title: 'Components/Form/Input',
   tags: ['autodocs'],
-  render,
+  render: withClassless(render, 'cf-input'),
   argTypes: {
+    classless: CLASSLESS_ARG,
     label: { control: 'text' },
     labelVisible: {
       control: 'boolean',
@@ -67,6 +69,8 @@ export default {
     button: { control: 'text', description: 'A submit `cf-btn` beside the control' },
   },
   args: {
+    classless: false,
+
     label: 'Name',
     labelVisible: true,
     type: 'text',
@@ -193,4 +197,11 @@ export const Sized = {
 export const Disabled = {
   args: { label: 'Booking reference', value: 'TT-PENDING', disabled: true },
   play: async ({ canvasElement }) => assertDisabled(input(canvasElement)),
+};
+
+// EXPERIMENTAL (#26): the same markup with no cf-input class, inside a .cf-root container.
+// The class and the bare element share every rule; play() compares it with a cf-input twin.
+export const Classless = {
+  args: { classless: true },
+  play: async ({ canvasElement }) => expectSameAsClassForm(canvasElement.querySelector('input'), 'cf-input', BOX_PROPS),
 };

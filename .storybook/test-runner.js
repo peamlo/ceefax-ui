@@ -460,11 +460,11 @@ async function assertSelectOpen(page) {
 // so axe audits its content in both themes.
 async function assertPopoverOpens(page) {
   expect(await page.evaluate(() => CSS.supports('position-area', 'block-end'))).toBe(true);
-  const open = () => document.querySelector('.cf-popover').matches(':popover-open');
+  const open = () => document.querySelector('.cf-popover, .cf-root [popover]').matches(':popover-open');
   await page.click('.cf-btn');
   expect(await page.evaluate(open)).toBe(true);
   const [top, triggerBottom] = await page.evaluate(() => [
-    document.querySelector('.cf-popover').getBoundingClientRect().top,
+    document.querySelector('.cf-popover, .cf-root [popover]').getBoundingClientRect().top,
     document.querySelector('.cf-btn').getBoundingClientRect().bottom,
   ]);
   expect(top).toBeGreaterThanOrEqual(triggerBottom);

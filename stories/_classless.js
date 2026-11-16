@@ -64,8 +64,16 @@ export const root = (...children) => {
 export async function expectSameAsClassForm(bare, className, props, cases = [{}], twinAttrs = {}) {
   const twin = bare.cloneNode(true);
   twin.className = className;
+  // No shared id, and no shared radio group: a checked twin would uncheck the original.
+  twin.removeAttribute('id');
+  twin.removeAttribute('name');
   for (const [k, v] of Object.entries(twinAttrs)) twin.setAttribute(k, v);
-  bare.after(twin);
+  // In a display: contents box, so layout is shared but sibling rules (cf-reveal + cf-reveal)
+  // don't treat the twin as the original's neighbour.
+  const holder = document.createElement('div');
+  holder.style.display = 'contents';
+  holder.append(twin);
+  bare.after(holder);
   try {
     for (const attrs of cases) {
       for (const el of [bare, twin]) for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
@@ -74,7 +82,7 @@ export async function expectSameAsClassForm(bare, className, props, cases = [{}]
       for (const el of [bare, twin]) for (const k of Object.keys(attrs)) el.removeAttribute(k);
     }
   } finally {
-    twin.remove();
+    holder.remove();
   }
 }
 
@@ -98,3 +106,45 @@ export async function expectNoLeak(canvasElement, checks) {
     await expect(pick(light.querySelector(sel), props), sel).toEqual(pick(host.shadowRoot.querySelector(sel), props));
   }
 }
+
+// The look of a box-shaped component, for the components whose class and bare element share
+// every rule (form controls, table, dialog, reveal, popover): a pairing mistake shows here.
+export const BOX_PROPS = [
+  'display',
+  'boxSizing',
+  'appearance',
+  'fontFamily',
+  'fontSize',
+  'fontWeight',
+  'lineHeight',
+  'color',
+  'backgroundColor',
+  'borderTopWidth',
+  'borderTopStyle',
+  'borderTopColor',
+  'borderTopLeftRadius',
+  'paddingTop',
+  'paddingLeft',
+  'marginTop',
+  'maxInlineSize',
+];
+
+export const CLASSLESS_ARG = {
+  control: 'boolean',
+  description: 'EXPERIMENTAL (#26): the same markup without the component class, inside a `.cf-root` container',
+};
+
+// The classless form of rendered markup: the component class removed, inside a .cf-root.
+export const classlessOf = (el, className) => {
+  for (const c of [el, ...el.querySelectorAll(`.${className}`)]) {
+    c.classList.remove(className);
+    if (!c.classList.length) c.removeAttribute('class');
+  }
+  return root(el);
+};
+
+// A component render that honours the `classless` control.
+export const withClassless = (render, className) => (args, ctx) => {
+  const el = render(args, ctx);
+  return args.classless ? classlessOf(el, className) : el;
+};
