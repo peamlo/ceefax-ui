@@ -85,7 +85,7 @@ An Astro page renders on the server or at build time, so a mosaic reaches the br
 **Performance.**
 
 - **JavaScript:** none. `cf-mosaic` is CSS on characters (ADR-0001, ADR-0021).
-- **CSS:** `cf-mosaic` is part of `./css`, 5.1 kB brotli for the whole library today (`node scripts/size.mjs .`).
+- **CSS:** `cf-mosaic` is part of `./css`, 5.1 kB brotli for the whole library today (`node scripts/size.ts .`).
 - **Font:** mosaics use Bedstead, `bedstead-3.261-regular.woff2`, 52 kB. It's the same file the display face
   (`--cf-font-display`) uses, so a page with headings in Bedstead downloads it once. The mosaic face blocks
   while it loads (the browser gives up after about 3 s), so cells stay blank rather than showing tofu, and
@@ -173,7 +173,7 @@ share one implementation?
 | Copies        | Stories + kit + editor = 3, two of them both directions | 1, plus kit's until the lessons are served                                                                                                                                                                                          | 1 + glue, still no U+1CE51    |
 | Package bytes | 0                                                       | ≈ 460 B brotli minified, ≈ 560 B as shipped source (sketch with `cell`, `bitsOf`, `toMosaic`, `fromMosaic`). `./css` stays 0 bytes of JS.                                                                                           | 1.75–13.5 kB brotli           |
 | ADR-0001      | Fine                                                    | A pure, side-effect-free function module is a new kind of opt-in JS export. ADR-0001 left "logic-bearing" JS to a future ADR, and this is that ADR. Not in the `./elements` barrel: that barrel registers elements (`sideEffects`). | A JS runtime dependency       |
-| ADR-0015      | n/a                                                     | New entry point, new budget line in `scripts/size.mjs` (1000 B leaves room)                                                                                                                                                         | Budget for a dependency       |
+| ADR-0015      | n/a                                                     | New entry point, new budget line in `scripts/size.ts` (1000 B leaves room)                                                                                                                                                          | Budget for a dependency       |
 | ADR-0021      | Fine                                                    | Fine: the conversion module is a primitive, not an authoring tool, and the editor stays outside the package.                                                                                                                        | Same, plus licence            |
 | Licence       | MIT                                                     | MIT                                                                                                                                                                                                                                 | GPL / AGPL / CC BY: ruled out |
 
@@ -181,7 +181,7 @@ share one implementation?
 
 - **Where:** `src/mosaic/cells.js` (or similar). It's pure ESM with no DOM and no side effects, and holds
   `cell`, `bitsOf`, `toMosaic` and `fromMosaic`, both modes. It's published as `"./mosaic"` in `exports`,
-  with a budget in `scripts/size.mjs`. It's not listed in `sideEffects`, so bundlers tree-shake it. `files`
+  with a budget in `scripts/size.ts`. It's not listed in `sideEffects`, so bundlers tree-shake it. `files`
   already ships `src`, so the editor and stories can import it by relative path before the export exists.
 - **Stories:** `_mosaic.js` keeps only story content (`ART`, `FONT`, `rule`, `lettering`, `logo`) and
   imports `cell`/`toMosaic`. A small `play()` round-trip (all 63 sums, both modes, `bitsOf(cell(b, s))`)
@@ -249,5 +249,5 @@ share one implementation?
   ttxcat: <https://codeberg.org/vilcans/ttxcat>.
 - In this repo: [ADR-0001](../adr/0001-css-first-no-js-runtime.md), [ADR-0004](../adr/0004-cf-canvas-pixel-art.md),
   [ADR-0006](../adr/0006-stories-are-the-test-surface.md), [ADR-0015](../adr/0015-minified-dist-and-brotli-size-budgets.md),
-  [ADR-0021](../adr/0021-text-mosaics-replace-pixel-canvas.md), [`scripts/size.mjs`](../../scripts/size.mjs)
+  [ADR-0021](../adr/0021-text-mosaics-replace-pixel-canvas.md), [`scripts/size.ts`](../../scripts/size.ts)
   (`./elements` today: 769 B of a 1500 B budget).

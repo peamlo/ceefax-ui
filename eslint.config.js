@@ -5,8 +5,10 @@ import noUnsanitized from 'eslint-plugin-no-unsanitized';
 
 // ESLint for the custom elements, stories and Storybook config (issue #48). Formatting is
 // Prettier's job, so only correctness rules here.
+// The TypeScript scripts are skipped: tsc checks them (ADR-0024), and typescript-eslint
+// doesn't run on TypeScript 7.
 export default [
-  { ignores: ['dist/', 'storybook-static/', '.agents/', '.claude/'] },
+  { ignores: ['dist/', 'storybook-static/', '.agents/', '.claude/', 'scripts/**/*.ts'] },
   js.configs.recommended,
   {
     files: ['src/**/*.js', 'stories/**/*.js', '.storybook/preview.js', 'docs/courses/**/*.js'],
@@ -30,13 +32,12 @@ export default [
     ...noUnsanitized.configs.recommended,
   },
   {
-    files: ['*.js', '*.mjs', 'scripts/**', '.storybook/main.js', '.storybook/test-runner.js'],
+    files: ['*.js', '.storybook/main.js', '.storybook/test-runner.js'],
     languageOptions: { globals: globals.node },
   },
   {
-    // Playwright page.evaluate() callbacks run in the browser; the test-runner hook runs
-    // under Jest.
-    files: ['scripts/assert-package.mjs', '.storybook/test-runner.js'],
+    // The test-runner hook runs under Jest, and its page.evaluate() callbacks in the browser.
+    files: ['.storybook/test-runner.js'],
     languageOptions: { globals: { ...globals.browser, ...globals.jest } },
   },
 ];
