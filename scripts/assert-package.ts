@@ -7,6 +7,7 @@
 // Exits non-zero on the first failed check.
 import { execFileSync } from 'node:child_process';
 import { createServer } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import { createRequire } from 'node:module';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -15,51 +16,56 @@ import { fileURLToPath } from 'node:url';
 // styleText drops the colour when stdout isn't a TTY or NO_COLOR is set.
 import { styleText } from 'node:util';
 import { chromium } from 'playwright';
-import { measure, overBudget } from './size.mjs';
+import { measure, overBudget } from './size.ts';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const FONT_EXT = new Set(['.woff2', '.woff', '.ttf', '.otf']);
 
-const npm = (args, cwd) => execFileSync('npm', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] });
+const npm = (args: string[], cwd: string) =>
+  execFileSync('npm', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] });
 
-const kB = (bytes) => `${(bytes / 1024).toFixed(1)} kB`;
+const kB = (bytes: number) => `${(bytes / 1024).toFixed(1)} kB`;
 let passed = 0;
 
-function fail(name, detail) {
+function fail(name: string, detail: string): never {
   console.error(`${styleText(['red', 'bold'], '✖')} ${name}`);
   console.error(styleText('dim', `  ${detail.replaceAll('\n', '\n  ')}`));
   process.exit(1);
 }
 
-function check(name, fn) {
+function check(name: string, fn: () => string | void) {
   let note;
   try {
     note = fn();
   } catch (err) {
-    fail(name, err?.message ?? String(err));
+    fail(name, err instanceof Error ? err.message : String(err));
   }
   passed++;
   console.log(`${styleText('green', '✔')} ${name}${note ? styleText('dim', ` · ${note}`) : ''}`);
 }
 
-function walk(dir) {
+function walk(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
     e.isDirectory() ? walk(join(dir, e.name)) : [join(dir, e.name)],
   );
 }
 
-const toPosix = (path) => path.split(sep).join('/');
+const toPosix = (path: string) => path.split(sep).join('/');
 // `./elements/cf-loader` -> `cf-loader`
-const tagOf = (subpath) => subpath.split('/').pop();
+const tagOf = (subpath: string) => subpath.split('/').pop()!;
 
 // Flatten an `exports` value (string or nested conditions) to its target strings.
-const targets = (value) => (typeof value === 'string' ? [value] : Object.values(value ?? {}).flatMap(targets));
+type Exports = string | { [condition: string]: Exports };
+const targets = (value: Exports | undefined): string[] =>
+  typeof value === 'string' ? [value] : Object.values(value ?? {}).flatMap(targets);
 
 // 1. Pack. --ignore-scripts: the build already ran, and lifecycle output would
 //    corrupt the --json on stdout.
 // realpath: macOS's tmpdir is a symlink, and require.resolve returns real paths.
 const work = realpathSync(mkdtempSync(join(tmpdir(), 'ceefax-pack-')));
-const [packed] = JSON.parse(npm(['pack', '--json', '--ignore-scripts', '--pack-destination', work], root));
+const [packed]: { filename: string; size: number; files: { path: string; size: number }[] }[] = JSON.parse(
+  npm(['pack', '--json', '--ignore-scripts', '--pack-destination', work], root),
+);
 const tarball = join(work, packed.filename);
 console.log(
   `\n📦 ${styleText('bold', packed.filename)} ${styleText('dim', `· ${packed.files.length} files · ${kB(packed.size)} packed`)}\n`,
@@ -73,7 +79,13 @@ mkdirSync(consumer);
 npm(['init', '-y'], consumer);
 npm(['install', '--ignore-scripts', '--no-audit', '--no-fund', tarball], consumer);
 const pkgDir = join(consumer, 'node_modules', '@peamlo', 'ceefax-ui');
-const pkg = JSON.parse(readFileSync(join(pkgDir, 'package.json'), 'utf8'));
+const pkg: {
+  name: string;
+  version: string;
+  exports: Record<string, Exports>;
+  sideEffects?: unknown;
+  repository?: { url?: string };
+} = JSON.parse(readFileSync(join(pkgDir, 'package.json'), 'utf8'));
 const files = walk(pkgDir).map((f) => toPosix(relative(pkgDir, f)));
 
 // 3. Every `exports` target is in the tarball.
@@ -161,7 +173,7 @@ check('size budgets (brotli)', () => {
   const sizes = measure(pkgDir);
   const over = overBudget(sizes);
   if (over.length)
-    throw new Error(`${over.join('\n')}\nraise the budget in scripts/size.mjs if the growth is deliberate`);
+    throw new Error(`${over.join('\n')}\nraise the budget in scripts/size.ts if the growth is deliberate`);
   return Object.entries(sizes)
     .map(([k, b]) => `${k} ${b} B`)
     .join(', ');
@@ -173,7 +185,8 @@ check('publint', () => {
     npm(['exec', '--no', '--', 'publint', 'run', tarball, '--level', 'error'], root);
   } catch (err) {
     // publint reports on stdout, which npm() captures.
-    throw new Error(err.stdout?.trim() || err.message, { cause: err });
+    const { stdout, message } = err as { stdout?: string; message: string };
+    throw new Error(stdout?.trim() || message, { cause: err });
   }
 });
 
@@ -183,7 +196,7 @@ const resolveFromConsumer = createRequire(join(consumer, 'package.json'));
 const elementKeys = Object.keys(pkg.exports).filter((k) => k.startsWith('./elements'));
 const granularTags = elementKeys.filter((k) => k !== './elements').map(tagOf);
 const server = createServer((req, res) => {
-  const path = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+  const path = decodeURIComponent(new URL(req.url ?? '/', 'http://x').pathname);
   if (path === '/') {
     res.writeHead(200, { 'content-type': 'text/html' }).end('<!doctype html><title>smoke</title>');
     return;
@@ -198,7 +211,7 @@ const server = createServer((req, res) => {
   res.end(readFileSync(file));
 }).listen(0, '127.0.0.1');
 await new Promise((r) => server.once('listening', r));
-const origin = `http://127.0.0.1:${server.address().port}`;
+const origin = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
 const browser = await chromium.launch().catch((err) => {
   server.close();
   fail('launch Chromium', `${String(err?.message ?? err).split('\n')[0]}\nrun \`npx playwright install chromium\``);
@@ -207,7 +220,7 @@ const browser = await chromium.launch().catch((err) => {
 try {
   for (const key of elementKeys) {
     const specifier = `${pkg.name}${key.slice(1)}`;
-    let url;
+    let url = '';
     check(`resolve ${specifier}`, () => {
       const file = resolveFromConsumer.resolve(specifier);
       url = `${origin}/${toPosix(relative(consumer, file))}`;
@@ -215,12 +228,12 @@ try {
     });
     // A fresh page per subpath, so a granular import can't lean on the barrel.
     const page = await browser.newPage();
-    const errors = [];
+    const errors: string[] = [];
     page.on('pageerror', (e) => errors.push(e.message));
     await page.goto(`${origin}/`);
     const tags = key === './elements' ? granularTags : [tagOf(key)];
     const result = await page.evaluate(
-      async ([src, tags]) => {
+      async ([src, tags]: [string, string[]]) => {
         try {
           await import(src);
         } catch (e) {
@@ -228,11 +241,11 @@ try {
         }
         return { missing: tags.filter((t) => !customElements.get(t)) };
       },
-      [url, tags],
+      [url, tags] as [string, string[]],
     );
     await page.close();
     check(`import ${specifier} registers ${tags.join(', ')}`, () => {
-      if (result.error) throw new Error(result.error);
+      if (result.error !== undefined) throw new Error(result.error);
       if (errors.length) throw new Error(errors.join('\n'));
       if (result.missing.length) throw new Error(`not registered: ${result.missing.join(', ')}`);
     });

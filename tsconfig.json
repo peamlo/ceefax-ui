@@ -1,0 +1,16 @@
+// Type-checks the Node scripts (spike #191). Node 24 runs them as-is by stripping the
+// types, so tsc only checks: no emit, and only syntax Node can erase.
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "nodenext",
+    "noEmit": true,
+    "strict": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "allowImportingTsExtensions": true,
+    "types": ["node"],
+    "skipLibCheck": true
+  },
+  "include": ["scripts/*.ts"]
+}

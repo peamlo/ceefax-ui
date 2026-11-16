@@ -249,5 +249,5 @@ share one implementation?
   ttxcat: <https://codeberg.org/vilcans/ttxcat>.
 - In this repo: [ADR-0001](../adr/0001-css-first-no-js-runtime.md), [ADR-0004](../adr/0004-cf-canvas-pixel-art.md),
   [ADR-0006](../adr/0006-stories-are-the-test-surface.md), [ADR-0015](../adr/0015-minified-dist-and-brotli-size-budgets.md),
-  [ADR-0021](../adr/0021-text-mosaics-replace-pixel-canvas.md), [`scripts/size.mjs`](../../scripts/size.mjs)
+  [ADR-0021](../adr/0021-text-mosaics-replace-pixel-canvas.md), [`scripts/size.ts`](../../scripts/size.ts)
   (`./elements` today: 769 B of a 1500 B budget).

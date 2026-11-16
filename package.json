@@ -32,10 +32,10 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test-storybook": "test-storybook --testTimeout=60000",
-    "assert-package": "node scripts/assert-package.mjs",
+    "assert-package": "node scripts/assert-package.ts",
     "prepublishOnly": "npm run build",
     "prepare": "husky",
-    "lint": "stylelint \"src/**/*.css\" && eslint . && prettier --check .",
+    "lint": "stylelint \"src/**/*.css\" && eslint . && tsc -p . && prettier --check .",
     "format": "prettier --write . && stylelint \"src/**/*.css\" --fix && eslint . --fix"
   },
   "publishConfig": {
@@ -49,6 +49,7 @@
     "@storybook/addon-docs": "^10.6.4",
     "@storybook/html-vite": "^10.6.4",
     "@storybook/test-runner": "^0.26.0",
+    "@types/node": "^24.19.2",
     "autoprefixer": "^10.4.0",
     "axe-playwright": "^2.0.0",
     "esbuild": "^0.28.2",
@@ -72,6 +73,8 @@
     "storybook": "^10.6.4",
     "stylelint": "^17.16.0",
     "stylelint-config-standard": "^40.0.0",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.2",
     "vite": "^8.3.5",
     "wait-on": "^9.5.1"
   },
@@ -83,7 +86,7 @@
       "prettier --write",
       "stylelint --fix"
     ],
-    "*.{js,mjs}": [
+    "*.{js,mjs,ts}": [
       "prettier --write",
       "eslint --fix"
     ],
