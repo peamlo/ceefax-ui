@@ -33,7 +33,7 @@ The text colour on a band: the seam's readable ink by default, or the colour nam
 _Avoid_: band text colour, foreground override
 
 **State**:
-A run-time condition of an element (disabled, focused, current). Always expressed with native or ARIA attributes (`disabled`, `:focus-visible`, `[aria-current]`, `[aria-pressed]`) — never with a class.
+A run-time condition of an element (disabled, focused, current). Always expressed with native or ARIA attributes (`disabled`, `:focus-visible`, `[aria-current]`) — never with a class.
 _Avoid_: state class, `cf-btn--active`, `is-active`
 
 **Display face**:

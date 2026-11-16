@@ -24,7 +24,7 @@ Tick all that apply, or write "None — internal only".
 - [ ] New or changed semantic class (`cf-*`)
 - [ ] New or changed `data-*` presentational variant
 - [ ] Token change (`--cf-base-*` authentic colours / `--cf-*` semantic aliases)
-- [ ] State model change (`:focus-visible`, `[aria-current]`, `[aria-pressed]`, `disabled`)
+- [ ] State model change (`:focus-visible`, `[aria-current]`, `disabled`)
 - [ ] None — internal only
 
 ## Docs updated
