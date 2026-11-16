@@ -1,5 +1,5 @@
 import { expect, within } from 'storybook/test';
-import { colours, realInput, underForcedColours } from './_real-input.js';
+import { colours, parkPointer, realInput, underForcedColours } from './_real-input.js';
 
 // The authentic on-screen palette: the 4th key is cyan, because blue text on black fails contrast.
 const KEYS = [
@@ -55,6 +55,7 @@ const meta = {
     // colour. One key is enough: the Variant colours matrix pins the per-colour part.
     const input = await realInput();
     if (!input) return;
+    await parkPointer(input);
     for (const theme of ['authentic', 'accessible']) {
       if (theme === 'accessible') document.documentElement.dataset.theme = 'accessible';
       const rest = colours(keys[0]);
@@ -65,7 +66,7 @@ const meta = {
           ? { backgroundColor: BLACK, color: rest.backgroundColor }
           : { backgroundColor: rest.color, color: BLACK },
       );
-      await input.userEvent.unhover(keys[0]);
+      await parkPointer(input);
     }
     delete document.documentElement.dataset.theme;
   },
@@ -88,6 +89,7 @@ export const Text = {
     const input = await realInput();
     if (!input) return;
     const key = ctx.canvasElement.querySelector('.cf-fastext__key');
+    await parkPointer(input);
     const restColours = colours(key);
     const rest = await underForcedColours(input, () => outline(key));
     await input.userEvent.tab();

@@ -1,5 +1,5 @@
 import { expect } from 'storybook/test';
-import { colours, realInput } from './_real-input.js';
+import { colours, parkPointer, realInput } from './_real-input.js';
 
 export default {
   title: 'Components/Button',
@@ -34,6 +34,7 @@ export const Default = {
     const input = await realInput();
     if (!input) return;
     const btn = canvasElement.querySelector('.cf-btn');
+    await parkPointer(input);
     // Contract: keyboard focus (:focus-visible) inverts the colours. A real Tab press.
     await input.userEvent.tab();
     await expect(document.activeElement).toBe(btn);

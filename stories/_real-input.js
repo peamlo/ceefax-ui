@@ -3,6 +3,15 @@
 // and guarded: in the Storybook UI this resolves to null and the story skips its real-input checks.
 export const realInput = () => (globalThis.__vitest_browser__ ? import('vitest/browser') : Promise.resolve(null));
 
+// The pointer stays where the last story left it, and userEvent.unhover parks it mid-<body>,
+// which on a short story page is on top of the next story's control. Park it in the top-left corner, inside the story's padding.
+export async function parkPointer({ userEvent }) {
+  const spot = document.body.appendChild(document.createElement('div'));
+  spot.style.cssText = 'position: fixed; left: 0; top: 0; width: 1px; height: 1px';
+  await userEvent.hover(spot);
+  spot.remove();
+}
+
 // Under forced colours for the length of `read`, then always off again (the emulateMedia command,
 // vitest.config.ts).
 export async function underForcedColours({ commands }, read) {

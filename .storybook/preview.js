@@ -31,14 +31,17 @@ export default {
   // Then html-validate and the accessible-theme AAA pass, Vitest only (vitest-checks.ts imports
   // vitest/browser, which throws anywhere else).
   beforeEach: ({ id, parameters }) => {
+    // Storybook's own iframe gives <body> `sb-show-main` (the backgrounds decorator paints it) and
+    // `sb-main-<layout>` (the padding). Vitest's page has neither: every story sat flush on white,
+    // and axe flagged false contrast failures (cyan on white for the ghost button).
+    if (globalThis.__vitest_browser__) {
+      document.body.className = `sb-show-main sb-main-${parameters.layout ?? 'padded'}`;
+    }
     const gated = id.startsWith('components-') || ['layout-page--framed', 'layout-page--crt-framed'].includes(id);
     parameters.a11y = { ...parameters.a11y, test: gated ? 'error' : 'todo' };
   },
   afterEach: async (context) => {
     if (!globalThis.__vitest_browser__) return;
-    // Storybook's backgrounds decorator paints `.sb-show-main`, the class its own iframe gives <body>.
-    // Vitest's page has none, so every story sat on white and axe flagged false contrast failures.
-    document.body.classList.add('sb-show-main');
     await (await import('./vitest-checks.ts')).default(context);
   },
   decorators: [
