@@ -11,7 +11,7 @@ fonts. For the CSS, 98.css is 3.8 kB brotli and Pico 9 to 10 kB.
 
 ## Decision
 
-`scripts/subset-fonts.py` splits every face into `-latin` (Latin-1, Latin Extended-A, and the
+`scripts/subset-fonts.mjs` splits every face into `-latin` (Latin-1, Latin Extended-A, and the
 punctuation, currency, arrows, maths, shapes and ticks UIs use), `-mosaic` (Bedstead only, the
 `Bedstead Mosaic` range) and `-other` (everything else). Each `@font-face` names one subset with
 its `unicode-range`, so a browser downloads only the subsets a page's characters fall in. No glyph
@@ -44,7 +44,9 @@ that does the same.
 - The font file names change: `bedstead-3.261-regular.woff2` and the others are gone. A consumer
   who preloads or links a font by name must use the subset names. The mosaic preload is now about
   4 kB instead of 52 kB.
-- Regenerating a font means running the script on each source (`fonts/README.md`). The ranges live
+- Regenerating a font means running the script on each source (`fonts/README.md`). It uses
+  HarfBuzz's subsetter (`subset-font`, `harfbuzzjs`) as dev dependencies, so the toolchain stays
+  Node; the fonts were compressed with Python's fontTools before. The ranges live
   in the script and in `src/tokens/typography.css`, and must match.
 - `-other` is downloaded only for a character in its own range: Greek, Cyrillic, Hebrew, box
   drawing and the like.
