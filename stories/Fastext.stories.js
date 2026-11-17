@@ -1,4 +1,5 @@
 import { expect, within } from 'storybook/test';
+import { BLACK, colours, expectFocusInversion, realInput, unhover, withAccessibleTheme } from './_real-input.js';
 
 // The authentic on-screen palette: the 4th key is cyan, because blue text on black fails contrast.
 const KEYS = [
@@ -7,6 +8,22 @@ const KEYS = [
   { colour: 'yellow', label: 'TV' },
   { colour: 'cyan', label: 'A–Z' },
 ];
+
+// Contract: hovering a fastext key inverts it. A text key fills with its colour in its ink;
+// a banded key drops to the page background with its text in the band colour. Asserted
+// against the key's own resting colours, so it holds for either look and any theme. One key
+// per story is enough: which colour each name resolves to is pinned for every colour by the
+// Foundations/Variant colours matrix, so what is left for real input to prove is that the hover
+// rule fires. No story's first key is blue, so a text key's ink is black. Leaves nothing hovered.
+const expectHoverInversion = async (input, key) => {
+  const rest = colours(key);
+  await input.userEvent.hover(key);
+  const banded = rest.backgroundColor !== 'rgba(0, 0, 0, 0)';
+  await expect(colours(key)).toEqual(
+    banded ? { backgroundColor: BLACK, color: rest.backgroundColor } : { backgroundColor: rest.color, color: BLACK },
+  );
+  await unhover(input, key);
+};
 
 export default {
   title: 'Components/Fastext bar',
@@ -49,6 +66,13 @@ export default {
     const widths = keys.map((k) => k.getBoundingClientRect().width);
     for (const w of widths) await expect(Math.abs(w - bar / keys.length)).toBeLessThanOrEqual(1);
     await expect(Math.abs(widths.reduce((a, b) => a + b) - bar)).toBeLessThanOrEqual(1);
+
+    const input = await realInput();
+    if (!input) return;
+    if (args.keys === 4 && args.look === 'text') await expectFocusInversion(input, keys[0]); // the Text story
+    await expectHoverInversion(input, keys[0]);
+    // #12: under the accessible theme the inversion follows the theme's colours, ink still black.
+    await withAccessibleTheme(() => expectHoverInversion(input, keys[0]));
   },
 };
 

@@ -1,4 +1,5 @@
 import { expect, within } from 'storybook/test';
+import { expectFocusInversion, realInput } from './_real-input.js';
 
 export default {
   title: 'Components/Link',
@@ -33,7 +34,13 @@ export default {
   args: { label: 'ABOUT', variant: 'inline', page: '', current: false, href: '#' },
 };
 
-export const Inline = { args: { label: 'why I stopped using frameworks' } };
+export const Inline = {
+  args: { label: 'why I stopped using frameworks' },
+  play: async ({ canvasElement }) => {
+    const input = await realInput();
+    if (input) await expectFocusInversion(input, canvasElement.querySelector('.cf-link'));
+  },
+};
 export const Nav = { args: { variant: 'nav', label: 'NEXT PAGE', page: '102' } };
 export const CurrentPage = {
   args: { variant: 'nav', label: 'ABOUT', current: true },

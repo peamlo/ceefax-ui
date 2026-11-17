@@ -6,7 +6,7 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "entry": ["scripts/*.ts"],
   "storybook": {
-    "entry": [".storybook/{preview,test-runner}.js", "stories/**/*.stories.js"],
+    "entry": [".storybook/preview.js", "stories/**/*.stories.js"],
   },
   // The teaching courses load their scripts from HTML lessons, which knip doesn't read either.
   "ignore": ["docs/courses/**"],

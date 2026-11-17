@@ -1,9 +1,10 @@
 import { expect, within } from 'storybook/test';
+import { realInput } from './_real-input.js';
 
 // cf-dialog (#167): a teletext panel on the native <dialog>, opened and closed with invoker
 // commands, no script (ADR-0022). The browser moves focus in, closes on Esc or a click on the
-// backdrop (closedby="any") and hands focus back to the invoker; that needs real input, so it is
-// asserted in .storybook/test-runner.js. Each story sits in .cf-page, as on a real page, so a
+// backdrop (closedby="any") and hands focus back to the invoker; that needs real input, so the
+// Closed story asserts it where Vitest provides it. Each story sits in .cf-page, as on a real page, so a
 // dialog that scrolls takes the page's Scrollbar variant. The controls showcase each use case;
 // they are not a test sweep.
 const CONFIRMATION = {
@@ -95,7 +96,35 @@ export default {
 
 // The exact contract markup: the invoker and the closed dialog.
 export const Closed = {
-  play: ({ canvasElement }) => assertClosed(canvasElement),
+  play: async ({ canvasElement }) => {
+    await assertClosed(canvasElement);
+    // Contract (#167): a real click on the invoker opens the dialog modally, moves focus inside it
+    // and stops the page scrolling; a real Esc closes it and hands focus back to the invoker, and
+    // so does a real click on the backdrop (closedby="any"). All native, so this proves the
+    // markup, not library code. Leaves the dialog closed and nothing focused.
+    const input = await realInput();
+    if (!input) return;
+    const dialog = canvasElement.querySelector('.cf-dialog');
+    const invoker = canvasElement.querySelector('[command="show-modal"]');
+    const state = () => ({
+      modal: dialog.matches(':modal'),
+      inside: dialog.contains(document.activeElement),
+      locked: getComputedStyle(document.documentElement).overflowY === 'hidden',
+    });
+    const OPEN = { modal: true, inside: true, locked: true };
+    const CLOSED = { modal: false, inside: false, locked: false };
+    await input.userEvent.click(invoker);
+    await expect(state()).toEqual(OPEN);
+    await input.userEvent.keyboard('{Escape}');
+    await expect(state()).toEqual(CLOSED);
+    await expect(document.activeElement).toBe(invoker);
+    await input.userEvent.click(invoker);
+    await expect(state()).toEqual(OPEN);
+    await input.commands.clickAt(1, 1); // the backdrop: the dialog is centred, nowhere near the corner
+    await expect(state()).toEqual(CLOSED);
+    await expect(document.activeElement).toBe(invoker);
+    invoker.blur();
+  },
 };
 
 export const Open = { play: openIt };

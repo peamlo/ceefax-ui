@@ -1,9 +1,10 @@
 import { expect, within } from 'storybook/test';
 import { uid } from './form/_form.js';
+import { realInput } from './_real-input.js';
 
 // cf-popover (#169): a floating panel on the native popover attribute, opened by an invoker
 // command on its trigger. The browser opens, dismisses and anchors it; opening it for real
-// needs a real click, so that is asserted in .storybook/test-runner.js.
+// needs a real click, which the stories assert where Vitest provides real input.
 const CONTENT = {
   text: '<p>Pages are three digits, 100 to 899. Type one on the remote and the page loads when it next goes round.</p>',
   dropdown:
@@ -36,6 +37,19 @@ const assertClosed = async ({ canvasElement }) => {
   await expect(trigger).toHaveAttribute('command', 'toggle-popover');
   await expect(trigger).toHaveAttribute('commandfor', panel.id);
   await expect(panel.matches(':popover-open')).toBe(false);
+
+  // Contract (#169): a real click on the trigger opens the popover below it (anchored, so the
+  // Chromium must support anchor positioning), and a real Esc closes it. Reopens it, so axe
+  // audits its content in both themes.
+  const input = await realInput();
+  if (!input) return;
+  await expect(CSS.supports('position-area', 'block-end')).toBe(true);
+  await input.userEvent.click(trigger);
+  await expect(panel.matches(':popover-open')).toBe(true);
+  await expect(panel.getBoundingClientRect().top).toBeGreaterThanOrEqual(trigger.getBoundingClientRect().bottom);
+  await input.userEvent.keyboard('{Escape}');
+  await expect(panel.matches(':popover-open')).toBe(false);
+  await input.userEvent.click(trigger);
 };
 
 export default {

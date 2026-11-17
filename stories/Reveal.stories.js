@@ -1,9 +1,10 @@
 import { expect, userEvent } from 'storybook/test';
+import { BLACK, colours, realInput } from './_real-input.js';
 
 // cf-reveal (#20): a disclosure on the native <details>/<summary>, named after the teletext
 // remote's REVEAL button. The browser owns the state ([open]), the keyboard and the
 // announcement; the stylesheet only paints it. Real Tab/Enter and the ▼ / ▲ flip are asserted
-// in .storybook/test-runner.js.
+// where Vitest provides real input.
 const ITEMS = [
   ['What does TAE mean?', '<p>The annual rate you earn once compounding is counted. Use it to compare accounts.</p>'],
   [
@@ -63,7 +64,7 @@ export default {
 };
 
 // Contract: closed hides the content and `open` on the element shows it. Sets the attribute rather
-// than clicking, so focus stays put for the real Tab in the test runner; List and Accordion click.
+// than clicking, so focus stays put for the real Tab below; List and Accordion click.
 export const Single = {
   play: async ({ canvasElement }) => {
     const [el] = reveals(canvasElement);
@@ -72,6 +73,26 @@ export const Single = {
     el.open = true;
     await expect(shown(el)).toBe(true);
     el.open = false;
+
+    // Contract (#20): a real Tab focuses the summary and inverts the row, marker included; a real
+    // Enter opens it natively, which Chrome's accessibility tree announces as expanded, and flips
+    // the marker ▼ → ▲. The marker stays out of the accessible name (empty alt text). Leaves it
+    // open and nothing focused.
+    const input = await realInput();
+    if (!input) return;
+    const summary = el.querySelector('summary');
+    const glyph = () => getComputedStyle(summary, '::after').content;
+    const disclosure = () => input.commands.axNode('DisclosureTriangle');
+    await expect(glyph()).toContain('\u25BC');
+    await expect(await disclosure()).toMatchObject({ name: 'What does TAE mean?', expanded: false });
+    await input.userEvent.tab();
+    await expect(document.activeElement).toBe(summary);
+    await expect(colours(summary)).toEqual({ backgroundColor: 'rgb(255, 255, 255)', color: BLACK });
+    await expect(getComputedStyle(summary, '::after').color).toBe(BLACK);
+    await input.userEvent.keyboard('{Enter}');
+    await expect((await disclosure()).expanded).toBe(true);
+    await expect(glyph()).toContain('\u25B2');
+    summary.blur();
   },
 };
 
@@ -117,8 +138,8 @@ export const Accordion = {
 };
 
 // The authentic mode: inside the Screen frame the reveal takes Bedstead and the frame's cell
-// size, so the ▼ / ▲ marker is Bedstead's own teletext glyph. The test runner checks which font
-// draws it.
+// size, so the ▼ / ▲ marker is Bedstead's own teletext glyph. Its test asks Chrome's renderer
+// which font draws it.
 export const InScreenFrame = {
   name: 'In the Screen frame',
   args: { group: 'list', number: true, open: true },
@@ -133,5 +154,13 @@ export const InScreenFrame = {
     body.append(group(args));
     page.append(body);
     return page;
+  },
+  // Contract (#20): inside the Screen frame the marker is Bedstead's own ▼ glyph, not a fallback
+  // face's. Only Chrome's renderer knows which font drew a glyph, so this asks it over CDP.
+  play: async () => {
+    const input = await realInput();
+    if (!input) return;
+    await document.fonts.ready;
+    await expect(await input.commands.pseudoFonts('.cf-reveal > summary')).toEqual(['Bedstead']);
   },
 };

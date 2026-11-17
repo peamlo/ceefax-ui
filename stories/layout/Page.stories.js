@@ -1,5 +1,6 @@
 import { expect } from 'storybook/test';
 import { el } from './_demo.js';
+import { atViewport, expectFocusRing, realInput, underForcedColours, withAccessibleTheme } from '../_real-input.js';
 
 export default {
   title: 'Layout/Page',
@@ -166,9 +167,63 @@ const expectGrid = async (page, cells) => {
   for (const left of lefts) await expect(left).toBeCloseTo(lefts[0], 0);
 };
 
+// Contract: below the narrow breakpoint the 4:3 frame is dropped and the page is full-bleed,
+// with no grid and no Bedstead body text, and one non-zero inline padding shared by header,
+// body and footer (#145). In a width-bound frame (a viewport taller than 4:3) the 40-character
+// row still fills the body. Needs a real viewport resize; restores it.
+const expectFrameAtViewports = async (input, page) => {
+  await atViewport(input, 400, 800, async () => {
+    const cs = getComputedStyle(page);
+    await expect(cs.aspectRatio).toBe('auto');
+    await expect(page.getBoundingClientRect().width).toBeGreaterThanOrEqual(380); // viewport minus scrollbar
+    await expect(cs.fontFamily).toMatch(/^"?Space Mono/);
+    const pads = ['.cf-header-row', '.cf-page__body', '.cf-page__footer'].map((s) => {
+      const slot = getComputedStyle(page.querySelector(`:scope > ${s}`));
+      return [slot.paddingLeft, slot.paddingRight];
+    });
+    await expect(parseFloat(pads[0][0])).toBeGreaterThan(0);
+    await expect(pads[1]).toEqual(pads[0]);
+    await expect(pads[2]).toEqual(pads[0]);
+  });
+  await atViewport(input, 900, 1000, async () => {
+    const row = page.querySelector('.cf-page__body p > span').parentElement;
+    const [rowW, spanW] = [row, row.firstChild].map((n) => n.getBoundingClientRect().width);
+    await expect(spanW).toBeLessThanOrEqual(rowW + 0.01); // never wraps at 39
+    await expect(rowW - spanW).toBeLessThan(40); // short by under 1px per cell (whole-pixel cells)
+  });
+};
+
+// Contract (#74): the Accessible theme wins over the frame's authentic colours, so the two
+// off-palette aliases keep the theme's values (bg-2 has no theme remap: the default deep blue).
+const expectAccessibleFrame = (page) =>
+  withAccessibleTheme(async () => {
+    const [dim, bg2] = [...page.querySelectorAll('.cf-page__body span[style]')].map((n) => getComputedStyle(n));
+    await expect(dim.color).toBe('rgb(179, 179, 179)'); // the theme's #b3b3b3
+    await expect(bg2.backgroundColor).toBe('rgb(16, 11, 138)'); // #100b8a, the default
+  });
+
+// Contract (#150): a real Tab reaches the Screen frame body (the header row holds nothing
+// focusable), which shows the Focus ring, and the whole ring lies inside the frame's visible
+// box, which clips its overflow. Leaves nothing focused.
+const expectFrameFocusRing = async (input, page) => {
+  const body = page.querySelector('.cf-page__body');
+  await input.userEvent.tab();
+  await expect(document.activeElement).toBe(body);
+  await expectFocusRing(body);
+  const cs = getComputedStyle(body);
+  const reach = parseFloat(cs.outlineOffset) + parseFloat(cs.outlineWidth);
+  const r = body.getBoundingClientRect();
+  // The frame clips at its padding box: inside its border, measured by clientLeft/clientTop.
+  const p = page.getBoundingClientRect();
+  const [left, top] = [p.left + page.clientLeft, p.top + page.clientTop];
+  await expect(r.top - reach).toBeGreaterThanOrEqual(top);
+  await expect(r.left - reach).toBeGreaterThanOrEqual(left);
+  await expect(r.right + reach).toBeLessThanOrEqual(left + page.clientWidth);
+  await expect(r.bottom + reach).toBeLessThanOrEqual(top + page.clientHeight);
+  body.blur();
+};
+
 // Use the Storybook viewport toolbar to see the frame go full-bleed below 40em.
-// The narrow-viewport and accessible-theme checks run in .storybook/test-runner.js postVisit,
-// which needs a real viewport resize and a theme switch that play() cannot do.
 export const Framed = {
   name: 'Screen frame (data-frame)',
   parameters: {
@@ -246,6 +301,12 @@ export const Framed = {
     await expect(body.scrollTop).toBeGreaterThan(0);
     await expect(header.getBoundingClientRect().top).toBe(h0);
     await expect(footer.getBoundingClientRect().top).toBe(f0);
+    await expectAccessibleFrame(page);
+
+    const input = await realInput();
+    if (!input) return;
+    await expectFrameAtViewports(input, page);
+    await expectFrameFocusRing(input, page);
   },
 };
 
@@ -278,12 +339,18 @@ export const FramedTable = {
   },
 };
 
-// The CRT look: the same Screen frame with `data-frame="crt"`. Its off-switches (forced colours,
-// Accessible theme) are asserted in .storybook/test-runner.js postVisit: play() can't emulate media.
+// The CRT look: the same Screen frame with `data-frame="crt"`. Its forced-colours off-switch
+// needs emulated media, so it runs where Vitest provides real input.
 export const CrtFramed = {
   name: 'Screen frame, CRT look (data-frame="crt")',
   parameters: {
     layout: 'fullscreen',
+    // The scanline overlay is an absolutely positioned ::after with a background-image, which axe
+    // treats as an unknown background and skips contrast for (incomplete, not a violation). Ignore
+    // pseudo-elements, so contrast is really measured with the glow on: the scanlines are a
+    // texture, not a background. A run option, not `config`: run options merge with the check's
+    // defaults, while axe.configure() replaces them.
+    a11y: { options: { checks: { 'color-contrast': { options: { ignorePseudo: true } } } } },
     docs: {
       description: {
         story:
@@ -322,5 +389,23 @@ export const CrtFramed = {
     await expect(getComputedStyle(page, '::after').content).toBe('none');
     await expect(glow('p')).toBe('none');
     page.dataset.frame = 'crt';
+    await expectAccessibleFrame(page);
+
+    // Contract (#76): no scanlines and no glow under the Accessible theme or forced colours. The
+    // theme remaps aliases only (ADR-0010): both effects stay in place but paint transparent.
+    await withAccessibleTheme(async () => {
+      const cs = getComputedStyle(page);
+      for (const token of ['--cf-crt-scanline', '--cf-crt-glow']) {
+        await expect(cs.getPropertyValue(token)).toBe('transparent');
+      }
+    });
+    const input = await realInput();
+    if (!input) return;
+    const forced = await underForcedColours(input, () => ({
+      overlay: getComputedStyle(page, '::after').content,
+      glow: glow('p'),
+    }));
+    await expect(forced).toEqual({ overlay: 'none', glow: 'none' });
+    await expectFrameAtViewports(input, page);
   },
 };

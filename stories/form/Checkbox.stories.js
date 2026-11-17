@@ -1,4 +1,5 @@
 import { expect, within } from 'storybook/test';
+import { ACCENT as RING, controlLook, realInput, underForcedColours, unhover } from '../_real-input.js';
 import {
   ACCENT,
   assertCharacter,
@@ -83,10 +84,37 @@ export default {
 
 const checkbox = (canvasElement) => within(canvasElement).getByRole('checkbox');
 
+// Contract (#131, #132): a real Tab to a checkbox, drawn or a character, shows the accent ring
+// and keeps its shape; under forced colours a checked box still differs from an unchecked one by
+// its shape (a border, which the system keeps, not a background it drops). Leaves it as
+// rendered, forced colours off.
+const borderShape = (el) => {
+  const cs = getComputedStyle(el);
+  return [cs.borderTopStyle, cs.borderTopWidth, cs.borderLeftWidth, cs.borderRadius].join(' ');
+};
+const assertFocusRing = async (control, { forcedShape = false } = {}) => {
+  const input = await realInput();
+  if (!input) return;
+  const rest = controlLook(control);
+  await input.userEvent.tab();
+  await expect(document.activeElement).toBe(control);
+  await expect(controlLook(control)).toEqual({ ...rest, outline: `solid 2px ${RING}` });
+  if (!forcedShape) return;
+  const [off, on] = await underForcedColours(input, async () => {
+    const before = borderShape(control);
+    await input.userEvent.click(control);
+    const after = borderShape(control);
+    await input.userEvent.click(control);
+    return [before, after];
+  });
+  await expect(on).not.toBe(off);
+};
+
 export const Unchecked = {
   play: async ({ canvasElement }) => {
     await assertMarkupContract(canvasElement);
     await assertDrawnRest(checkbox(canvasElement), '0px');
+    await assertFocusRing(checkbox(canvasElement), { forcedShape: true });
   },
 };
 
@@ -125,6 +153,13 @@ export const Disabled = {
     const control = checkbox(canvasElement);
     await assertDisabled(control);
     await expect(shape(control)).toEqual(twin(control, (c) => (c.disabled = false), shape));
+    // A disabled checkbox doesn't change under a real hover.
+    const input = await realInput();
+    if (!input) return;
+    const dimmed = controlLook(control);
+    await input.userEvent.hover(control);
+    await expect(controlLook(control)).toEqual(dimmed);
+    await unhover(input, control);
   },
 };
 
@@ -161,5 +196,6 @@ export const Character = {
     control.disabled = true;
     await assertDisabled(control);
     control.disabled = false;
+    await assertFocusRing(control);
   },
 };

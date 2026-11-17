@@ -21,7 +21,7 @@ npm install
 npm run storybook      # framework-agnostic Storybook (HTML mode) — every variant + live a11y checks
 npm run build          # PostCSS + esbuild minify → dist/index.css + dist/tokens.css
 npm run build-storybook
-npm run test-storybook # against the served build (CI `test-storybook` job): play(), axe, and html-validate on each story's rendered HTML (rules in .htmlvalidate.js)
+npm run test-storybook # every story as a Vitest browser test (CI `test-storybook` job): play() with real input, axe, and html-validate (rules in .htmlvalidate.js); needs `npx playwright install chromium`
 npm run lint           # Stylelint (the contract's mechanical rules) + ESLint + tsc (scripts/*.ts) + Prettier --check (CI `lint` job)
 npm run format         # fix what the three can fix; staged files are also fixed by the pre-commit hook
 npm run assert-package # after build: pack, clean-install and assert the tarball, size budgets included (CI `package` job)
@@ -32,7 +32,7 @@ node scripts/token-report.ts # every --cf-* token and its consumers; fails on on
 node --test 'scripts/*.test.ts' # the scripts' own tests
 ```
 
-Storybook (`@storybook/html-vite` + the a11y addon; interactions/`play()` are core) is the **living component documentation** — stories show the exact HTML contract and run WCAG checks. Add/update a story for any component or variant change.
+Storybook (`@storybook/html-vite` + the a11y and Vitest addons; interactions/`play()` are core) is the **living component documentation** — stories show the exact HTML contract and run WCAG checks. Add/update a story for any component or variant change. A story's behavioural checks, real pointer/keyboard/viewport input included, go in its `play()` (`stories/_real-input.js`, ADR-0006); the sidebar's **Run tests** runs them as CI does.
 
 ## Where things are documented
 
