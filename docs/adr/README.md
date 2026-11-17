@@ -33,3 +33,4 @@ Each ADR records **one** decision that was hard to reverse, surprising without c
 - [0023 — Focus indicators: Inversion for controls you activate, a focus ring for controls you stay in](./0023-focus-inversion-to-activate-ring-to-stay-in.md)
 - [0024 — Fonts ship as unicode-range subsets, with a budget for a Latin page](./0024-unicode-range-font-subsets-and-a-font-budget.md)
 - [0025 — Repo scripts are TypeScript or shell](./0025-repo-scripts-are-typescript-or-shell.md)
+- [0026 — The library sits in cascade layers, so unlayered consumer CSS always wins](./0026-the-library-sits-in-cascade-layers.md)

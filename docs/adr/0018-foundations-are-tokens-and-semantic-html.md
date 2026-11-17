@@ -15,7 +15,9 @@ utilities.
 Typography foundations are reached through the `--cf-*` tokens in the consumer's own CSS and
 through semantic HTML (`<strong>`, `<small>`, `<em>`, headings), which the library styles.
 Component defaults stay low-specificity (`:where()`) so consumer CSS wins without
-`!important`. `data-*` attributes are kept for the teletext domain (colour via `data-variant`,
+`!important`. _(Superseded by [ADR-0026](0026-the-library-sits-in-cascade-layers.md): the
+library sits in cascade layers instead, so consumer CSS still wins without `!important`, and
+`:where()` is kept only where order, not weight, decides.)_ `data-*` attributes are kept for the teletext domain (colour via `data-variant`,
 background via `data-band`, the Screen frame) and for component-specific presentation
 (`data-size` on a button, `data-side` on a sidebar or caption, `data-stripe-*` on a table).
 
@@ -30,6 +32,7 @@ background via `data-band`, the Screen frame) and for component-specific present
 - No new typography API. Docs show token-based overrides.
 - `cf-table` is the first component written fully in `:where()`. The older components keep
   their class selectors until they are next changed; moving them is not part of this decision.
+  _(Superseded by ADR-0026: no component needs `:where()` to stay overridable.)_
 - Colour and band stay attributes because they map to teletext's own control codes, not
   general typography.
 - A later need for shared text presets should be met with tokens or semantic elements first.

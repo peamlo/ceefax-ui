@@ -24,6 +24,19 @@ import "@peamlo/ceefax-ui/elements";  // optional — registers <cf-loader>
 
 Svelte and plain HTML are identical — there is no framework binding.
 
+### Your CSS wins (cascade layers)
+
+The whole library sits in cascade layers, in this order (a later one wins):
+
+```css
+@layer ceefax.tokens, ceefax.base, ceefax.layout, ceefax.components;
+```
+
+CSS you write outside a layer beats all of it, whatever the specificity, so you never need `!important` to override a `cf-*` rule ([ADR-0026](docs/adr/0026-the-library-sits-in-cascade-layers.md)).
+
+- **If you use layers yourself** (Tailwind v4 does), put `ceefax` in your order, or a layer the browser sees first loses to the library. For Tailwind v4: `@layer theme, base, ceefax, components, utilities;` before both imports.
+- **`!important` turns the order around:** an important rule in an earlier layer beats one in a later layer or outside any layer. Plain rules are enough to override the library.
+
 ## Demo
 
 A one-page showcase of what the library delivers — the layout primitives and
@@ -362,7 +375,7 @@ The real native controls, one class each, restyled: square boxes on the page bac
 - **Validation is the browser's own** (`required`, `type`, `minlength`…): after the user has interacted, an invalid control (`:user-invalid`) gets a thicker border in the danger colour (a checkbox or radio turns the danger colour). Empty required fields aren't red on load. For an error from your server, set `aria-invalid="true"`: it looks the same.
 - **The error message is yours to show:** put `cf-field__error` in the page (and set `aria-invalid`) only while the field is invalid. The library never shows or hides it, because a hidden description is still read out. It is in the danger colour with a leading `!`, so it isn't told by colour alone.
 - **No hidden labels:** a control with no visible label (a search box) is named with `aria-label`. A group whose heading is already on screen points at it with `aria-labelledby` instead of repeating it in a `<legend>`: `<h2 id="reply-heading">How should we reply?</h2>` then `<fieldset class="cf-field" aria-labelledby="reply-heading">`.
-- **Override with your own CSS:** the library sits in cascade layers, so your selector wins without `!important`, states (`:focus-visible`, `:disabled`, invalid) included ([ADR-0018](docs/adr/0018-foundations-are-tokens-and-semantic-html.md)).
+- **Override with your own CSS:** the library sits in cascade layers, so your selector wins without `!important`, states (`:focus-visible`, `:disabled`, invalid) included ([Your CSS wins](#your-css-wins-cascade-layers)).
 
 ### Mosaic (`cf-mosaic`)
 
@@ -392,7 +405,7 @@ The heart is 8 × 6 blocks, so 4 cells across and 2 rows down: the newline insid
   ```
 
 - **Inside the Screen frame** mosaics sit on the cell grid and tile edge to edge.
-- **Your CSS wins** (the library sits in cascade layers), font included: a rule that sets a font on every `span` turns mosaics into empty boxes. Set it back with `.cf-mosaic { font-family: 'Bedstead Mosaic', 'Bedstead Cell', monospace }`.
+- **Your CSS wins** (the library sits in [cascade layers](#your-css-wins-cascade-layers)), font included: a rule that sets a font on every `span` turns mosaics into empty boxes. Set it back with `.cf-mosaic { font-family: 'Bedstead Mosaic', 'Bedstead Cell', monospace }`.
 
 ### Dialog (`cf-dialog`)
 
