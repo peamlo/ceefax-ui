@@ -8,7 +8,7 @@
 }
 /* Children keep their content height: in a fixed-height stack (the Screen frame body) a child
    with overflow, like a cf-table__scroll region, would otherwise shrink to 0. The stack scrolls
-   or overflows instead. Zero specificity, so consumer CSS wins (ADR-0018). */
-:where(.cf-stack > *) {
+   or overflows instead. In the layout layer, so a component or consumer CSS wins (ADR-0018). */
+.cf-stack > * {
   flex-shrink: 0;
 }

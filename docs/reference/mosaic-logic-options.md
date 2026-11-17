@@ -86,8 +86,8 @@ An Astro page renders on the server or at build time, so a mosaic reaches the br
 
 - **JavaScript:** none. `cf-mosaic` is CSS on characters (ADR-0001, ADR-0021).
 - **CSS:** `cf-mosaic` is part of `./css`, 5.1 kB brotli for the whole library today (`node scripts/size.mjs .`).
-- **Font:** mosaics use Bedstead, `bedstead-3.261-regular.woff2`, 52 kB. It's the same file the display face
-  (`--cf-font-display`) uses, so a page with headings in Bedstead downloads it once. The mosaic face blocks
+- **Font:** mosaics use Bedstead's mosaic subset, `bedstead-3.261-regular-mosaic.woff2`, about 4 kB. The display
+  face (`--cf-font-display`) shares it, so a page with headings in Bedstead downloads it once. The mosaic face blocks
   while it loads (the browser gives up after about 3 s), so cells stay blank rather than showing tofu, and
   text keeps `swap`. Preload it on pages with mosaics (README → Mosaic).
 - **Rendering:** a mosaic is one inline text box. ADR-0021's prototype measured 21 ms of style recalculation

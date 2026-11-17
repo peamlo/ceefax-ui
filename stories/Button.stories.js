@@ -79,8 +79,8 @@ export const ClasslessOutsideRoot = {
   play: async ({ canvasElement }) => expectNoLeak(canvasElement, [['button', BTN_PROPS]]),
 };
 // A consumer's own class beats the classless look without !important. .my-btn (0,1,0) is
-// less specific than the spike's button:not(…) (0,1,1): it only wins because the spike is a
-// cascade layer, and unlayered CSS beats any layer.
+// less specific than the library's .cf-root button:not(…) (0,2,1): it only wins because the
+// library sits in cascade layers, and unlayered CSS beats any layer.
 export const ClasslessOverride = {
   name: 'Classless, consumer class wins',
   render: () => {

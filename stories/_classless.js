@@ -1,6 +1,7 @@
 import { expect } from 'storybook/test';
 
-// EXPERIMENTAL (#26) — shared checks for the classless spike (src/components/classless.css).
+// EXPERIMENTAL (#26) — shared checks for the classless spike: each component's
+// stylesheet pairs its class with the bare element inside .cf-root.
 // A component's Classless stories render only the classless markup; these helpers hold the
 // two gates, asserted on rendered output only (ADR-0006):
 //  1. Equivalence — the bare element computes the same styles as its class form.

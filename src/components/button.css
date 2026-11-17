@@ -1,6 +1,12 @@
 /* Button — one class, colour variant via [data-variant], size via [data-size], state via native/ARIA.
    Focus = hover = instant colour inversion. No modifier classes for state. */
-.cf-btn {
+/* EXPERIMENTAL (#26, classless spike; removed if rejected): inside an opt-in .cf-root,
+   a bare <button> (one without a cf-* class: those keep their own rules) takes this look with no class. Each class is paired with
+   its element in the same rule, so both forms share every declaration.
+   ponytail: the pair is repeated per rule. Name it once with @custom-selector (CSS Extensions)
+   when browsers ship it. */
+.cf-btn,
+.cf-root button:not([class^='cf-'], [class*=' cf-']) {
   --_fg: var(--cf-fg);
   --_bg: var(--cf-bg);
   --_bd: var(--cf-fg);
@@ -20,56 +26,56 @@
   transition: transform 60ms linear;
   -webkit-tap-highlight-color: transparent;
 }
-.cf-btn[data-size='sm'] {
+:is(.cf-btn, .cf-root button:not([class^='cf-'], [class*=' cf-']))[data-size='sm'] {
   font-size: var(--cf-text-small);
   /* at least 24px tall (WCAG 2.2 target size): the padding grows, the type stays small.
      Assumes the base rule's 1em line (line-height: 1) and --cf-border-thin border. */
   padding: max(0.2em, calc((24px - 1em) / 2 - var(--cf-border-thin))) 1.5ch;
 }
-.cf-btn[data-size='lg'] {
+:is(.cf-btn, .cf-root button:not([class^='cf-'], [class*=' cf-']))[data-size='lg'] {
   font-size: var(--cf-text-heading);
   padding: 0.6em 3ch;
 }
 /* Coloured blocks — always paired with a redundant text label in markup.
    Colour comes from the variant seam (base.css); the button decides it paints
    fill + ink + border. Ghost has no seam colour, so its rule must stay below. */
-.cf-btn[data-variant] {
+:is(.cf-btn, .cf-root button:not([class^='cf-'], [class*=' cf-']))[data-variant] {
   --_bg: var(--_variant, var(--cf-bg));
   --_fg: var(--_variant-ink, var(--cf-fg));
   --_bd: var(--_variant, var(--cf-fg));
 }
-.cf-btn[data-variant='ghost'] {
+:is(.cf-btn, .cf-root button:not([class^='cf-'], [class*=' cf-']))[data-variant='ghost'] {
   --_bg: transparent;
   --_fg: var(--cf-link);
   --_bd: transparent;
 }
 /* inversion on hover + keyboard focus; the transparent outline is the ring forced colours paint */
-.cf-btn:hover,
-.cf-btn:focus-visible {
+:is(.cf-btn, .cf-root button:not([class^='cf-'], [class*=' cf-'])):hover,
+:is(.cf-btn, .cf-root button:not([class^='cf-'], [class*=' cf-'])):focus-visible {
   background: var(--_fg);
   color: var(--_bg);
   border-color: var(--_fg);
   outline: var(--cf-border-thin) solid transparent;
 }
-.cf-btn[data-variant='ghost']:hover,
-.cf-btn[data-variant='ghost']:focus-visible {
+:is(.cf-btn, .cf-root button:not([class^='cf-'], [class*=' cf-']))[data-variant='ghost']:hover,
+:is(.cf-btn, .cf-root button:not([class^='cf-'], [class*=' cf-']))[data-variant='ghost']:focus-visible {
   background: transparent;
   color: var(--cf-link-hover);
   border-color: transparent;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-.cf-btn:active {
+:is(.cf-btn, .cf-root button:not([class^='cf-'], [class*=' cf-'])):active {
   transform: scale(0.96);
 }
-.cf-btn:disabled,
-.cf-btn[aria-disabled='true'] {
+:is(.cf-btn, .cf-root button:not([class^='cf-'], [class*=' cf-'])):disabled,
+:is(.cf-btn, .cf-root button:not([class^='cf-'], [class*=' cf-']))[aria-disabled='true'] {
   opacity: 0.4;
   cursor: default;
   transform: none;
 }
-.cf-btn:disabled:hover,
-.cf-btn[aria-disabled='true']:hover {
+:is(.cf-btn, .cf-root button:not([class^='cf-'], [class*=' cf-'])):disabled:hover,
+:is(.cf-btn, .cf-root button:not([class^='cf-'], [class*=' cf-']))[aria-disabled='true']:hover {
   background: var(--_bg);
   color: var(--_fg);
   border-color: var(--_bd);

@@ -40,8 +40,8 @@ This file is only the reading list behind them.
 ## Where this went
 
 The classless spike (#26) tries the "take" column and fixes both "don't take" leaks with
-native cascade tools rather than conventions: `@scope (.cf-root)` styles a bare `button`,
-`a[href]` or `nav` list only inside an opt-in root, and `@layer` keeps the whole spike below
-any unlayered CSS, so the consumer's own styles win without `!important`. It is
-experimental; see `src/components/classless.css` and the Classless stories of the Button and
-Link components.
+plain CSS rather than conventions. Each component's rule pairs its class with the bare element
+inside an opt-in root (`.cf-btn, .cf-root button`), so a bare `button`, `a[href]`, form
+control, `table`, `dialog`, `details`, `[popover]` or `nav` list is styled only inside it. The
+library's cascade layers keep all of it below any unlayered CSS, so the consumer's own styles
+win without `!important`. It is experimental; see the Classless stories of each component.

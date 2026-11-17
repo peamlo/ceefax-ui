@@ -31,3 +31,5 @@ Each ADR records **one** decision that was hard to reverse, surprising without c
 - [0021 — Text mosaics replace the pixel canvas](./0021-text-mosaics-replace-pixel-canvas.md)
 - [0022 — Interactive widgets are native elements opened by invokers](./0022-interactive-widgets-are-native-elements.md)
 - [0023 — Focus indicators: Inversion for controls you activate, a focus ring for controls you stay in](./0023-focus-inversion-to-activate-ring-to-stay-in.md)
+- [0024 — Fonts ship as unicode-range subsets, with a budget for a Latin page](./0024-unicode-range-font-subsets-and-a-font-budget.md)
+- [0025 — The library sits in cascade layers, not in `:where()`](./0025-the-library-sits-in-cascade-layers.md)

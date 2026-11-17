@@ -33,3 +33,9 @@ background via `data-band`, the Screen frame) and for component-specific present
 - Colour and band stay attributes because they map to teletext's own control codes, not
   general typography.
 - A later need for shared text presets should be met with tokens or semantic elements first.
+
+## Amendment: cascade layers ([ADR-0025](0025-the-library-sits-in-cascade-layers.md))
+
+Component defaults no longer use `:where()` to stay overridable: the whole library sits in
+cascade layers, so any unlayered consumer CSS wins without `!important`. The rest of this
+decision stands.

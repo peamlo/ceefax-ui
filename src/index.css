@@ -1,28 +1,37 @@
-/* ceefax-ui — single entry. @import lines only, never inline rules. */
-@import './tokens/colors.css';
-@import './tokens/typography.css';
-@import './tokens/spacing.css';
-@import './tokens/layout.css';
-@import './base.css';
-@import './components/button.css';
-@import './components/link.css';
-@import './components/classless.css';
-@import './components/card.css';
-@import './components/fastext.css';
-@import './components/notice.css';
-@import './components/reveal.css';
-@import './components/popover.css';
-@import './components/stat.css';
-@import './components/header-row.css';
-@import './components/table.css';
-@import './components/form.css';
-@import './components/mosaic.css';
-@import './components/dialog.css';
-@import './layout/_shared.css';
-@import './layout/stack.css';
-@import './layout/cluster.css';
-@import './layout/grid.css';
-@import './layout/center.css';
-@import './layout/sidebar.css';
-@import './layout/page.css';
-@import './layout/scrollbar.css';
+/* ceefax-ui — single entry. @import lines only, never inline rules.
+   The whole library sits in cascade layers, so any CSS you write outside a layer beats it,
+   whatever its specificity, and no rule here needs :where() or !important to stay
+   overridable. The order is declared once, here; a later layer wins over an earlier one:
+   - tokens: the --cf-* custom properties and themes;
+   - base: resets and the variant / band seams every component reads;
+   - layout: the primitives and the page shell, including their defaults for whatever sits
+     inside them (a stack child's flex-shrink, the Screen frame's type size, the scrollbars),
+     which a component's own rules must beat;
+   - components: the cf-* components. */
+@layer ceefax.tokens, ceefax.base, ceefax.layout, ceefax.components;
+@import './tokens/colors.css' layer(ceefax.tokens);
+@import './tokens/typography.css' layer(ceefax.tokens);
+@import './tokens/spacing.css' layer(ceefax.tokens);
+@import './tokens/layout.css' layer(ceefax.tokens);
+@import './base.css' layer(ceefax.base);
+@import './components/button.css' layer(ceefax.components);
+@import './components/link.css' layer(ceefax.components);
+@import './components/card.css' layer(ceefax.components);
+@import './components/fastext.css' layer(ceefax.components);
+@import './components/notice.css' layer(ceefax.components);
+@import './components/reveal.css' layer(ceefax.components);
+@import './components/popover.css' layer(ceefax.components);
+@import './components/stat.css' layer(ceefax.components);
+@import './components/header-row.css' layer(ceefax.components);
+@import './components/table.css' layer(ceefax.components);
+@import './components/form.css' layer(ceefax.components);
+@import './components/mosaic.css' layer(ceefax.components);
+@import './components/dialog.css' layer(ceefax.components);
+@import './layout/_shared.css' layer(ceefax.layout);
+@import './layout/stack.css' layer(ceefax.layout);
+@import './layout/cluster.css' layer(ceefax.layout);
+@import './layout/grid.css' layer(ceefax.layout);
+@import './layout/center.css' layer(ceefax.layout);
+@import './layout/sidebar.css' layer(ceefax.layout);
+@import './layout/page.css' layer(ceefax.layout);
+@import './layout/scrollbar.css' layer(ceefax.layout);

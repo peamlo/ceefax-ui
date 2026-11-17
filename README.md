@@ -299,7 +299,7 @@ A native table set like a broadcast league table: one line per row, figures to t
 - **The current row** is state, so ARIA: `aria-current="true"` on a `<tr>` (your team, the chosen option) paints an accent band and is announced as current. `data-band` on the row changes the band's colour; there's no text-only current row, so colour is never the only cue, and a cell that names its own colour still takes the row's band. Precedence, most specific first: `aria-current` > a row's band/variant > its `<tbody>`'s > the row stripe > the column stripe.
 - **`--cf-table-rule`** changes the group rule's colour (`--cf-accent-2` by default); `transparent` hides it.
 - **Wrapping follows the Screen frame** ([ADR-0014](docs/adr/0014-screen-frame-is-the-authentic-mode.md)): outside `.cf-page[data-frame]` text cells and the caption wrap like any web table; inside it every cell and the caption stay on one line. Figure cells never wrap.
-- **Typography is yours, through the tokens** ([ADR-0018](docs/adr/0018-foundations-are-tokens-and-semantic-html.md)): there are no typography attributes. The table's defaults are `:where()`, so your own CSS wins without `!important` (`.my-page caption { font-size: var(--cf-text-subheading) }`). `<strong>` and `<small>` in cells and the caption follow `--cf-weight-bold` and `--cf-text-small`; `<em>` keeps its italic (teletext had none, and colour alone can't carry emphasis).
+- **Typography is yours, through the tokens** ([ADR-0018](docs/adr/0018-foundations-are-tokens-and-semantic-html.md)): there are no typography attributes. The library sits in cascade layers, so your own CSS wins without `!important` (`.my-page caption { font-size: var(--cf-text-subheading) }`). `<strong>` and `<small>` in cells and the caption follow `--cf-weight-bold` and `--cf-text-small`; `<em>` keeps its italic (teletext had none, and colour alone can't carry emphasis).
 
 ### Forms (`cf-field`, `cf-input`, `cf-textarea`, `cf-select`, `cf-checkbox`, `cf-radio`)
 
@@ -362,7 +362,7 @@ The real native controls, one class each, restyled: square boxes on the page bac
 - **Validation is the browser's own** (`required`, `type`, `minlength`…): after the user has interacted, an invalid control (`:user-invalid`) gets a thicker border in the danger colour (a checkbox or radio turns the danger colour). Empty required fields aren't red on load. For an error from your server, set `aria-invalid="true"`: it looks the same.
 - **The error message is yours to show:** put `cf-field__error` in the page (and set `aria-invalid`) only while the field is invalid. The library never shows or hides it, because a hidden description is still read out. It is in the danger colour with a leading `!`, so it isn't told by colour alone.
 - **No hidden labels:** a control with no visible label (a search box) is named with `aria-label`. A group whose heading is already on screen points at it with `aria-labelledby` instead of repeating it in a `<legend>`: `<h2 id="reply-heading">How should we reply?</h2>` then `<fieldset class="cf-field" aria-labelledby="reply-heading">`.
-- **Override with your own CSS:** every form rule is `:where()`, states (`:focus-visible`, `:disabled`, invalid) included, so your selector wins without `!important` ([ADR-0018](docs/adr/0018-foundations-are-tokens-and-semantic-html.md)).
+- **Override with your own CSS:** the library sits in cascade layers, so your selector wins without `!important`, states (`:focus-visible`, `:disabled`, invalid) included ([ADR-0018](docs/adr/0018-foundations-are-tokens-and-semantic-html.md)).
 
 ### Mosaic (`cf-mosaic`)
 
@@ -385,14 +385,14 @@ The heart is 8 × 6 blocks, so 4 cells across and 2 rows down: the newline insid
 - **Two colours per cell:** `data-variant` is the ink and `data-band` the background, on the mosaic or on a `<span>` inside it for each colour run. A banded run names its ink beside its band, which follows the band rules (see [Bands](#bands)). Letters inside a mosaic fall back to Bedstead, so text can share a mosaic's band.
 - **Accessibility:** most mosaics decorate, so put `aria-hidden="true"` on them, or a screen reader announces every glyph by its Unicode name. A mosaic that carries meaning gets `role="img"` and an `aria-label`. In a chart keep the figures as text and hide only the bars. A rule on a line of its own goes in a `<div>`, not a `<p>`, so no empty paragraph is left behind.
 - **Forced colours:** a mosaic is a picture, so it keeps its colours, on its own `--cf-bg` background.
-- **Font loading:** mosaics use a `font-display: block` face (the same Bedstead file, no second download), so cells stay blank rather than showing tofu while it loads. Text keeps `swap`. On pages with mosaics, preload the font (from wherever you serve the package's `fonts/`) so the cells appear with the text:
+- **Font loading:** mosaics use a `font-display: block` face over Bedstead's mosaic subset (about 4 kB, shared with the text faces, so no second download), so cells stay blank rather than showing tofu while it loads. Text keeps `swap`. On pages with mosaics, preload the font (from wherever you serve the package's `fonts/`) so the cells appear with the text:
 
   ```html
-  <link rel="preload" href="/fonts/bedstead-3.261-regular.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/bedstead-3.261-regular-mosaic.woff2" as="font" type="font/woff2" crossorigin />
   ```
 
 - **Inside the Screen frame** mosaics sit on the cell grid and tile edge to edge.
-- **Your CSS wins** (every rule is `:where()`), font included: a rule that sets a font on every `span` turns mosaics into empty boxes. Set it back with `.cf-mosaic { font-family: 'Bedstead Mosaic', 'Bedstead Cell', monospace }`.
+- **Your CSS wins** (the library sits in cascade layers), font included: a rule that sets a font on every `span` turns mosaics into empty boxes. Set it back with `.cf-mosaic { font-family: 'Bedstead Mosaic', 'Bedstead Cell', monospace }`.
 
 ### Dialog (`cf-dialog`)
 
