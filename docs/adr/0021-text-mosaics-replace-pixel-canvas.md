@@ -43,4 +43,4 @@ formula, not stored in a format of the library's own.
 - A banded mosaic run reads the band ink like any other banded part
   ([ADR-0017](0017-bands-background-attribute-and-ink-tier.md)), so under the Accessible theme its ink is
   black on the band: shapes keep their contrast, and text on a mosaic band stays readable.
-- Pinned by `Components/Mosaic`, whose forced-colours check runs in the test-runner's `postVisit`.
+- Pinned by `Components/Mosaic`, whose forced-colours check runs in its `play()` under Vitest (ADR-0006).

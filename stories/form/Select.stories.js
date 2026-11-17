@@ -1,4 +1,5 @@
 import { expect, within } from 'storybook/test';
+import { realInput, underForcedColours } from '../_real-input.js';
 import {
   ACCENT,
   assertDisabled,
@@ -92,6 +93,12 @@ export const Default = {
       await expect(style(option).backgroundColor).toBe(BLACK);
       await expect(style(option).color).toBe(WHITE);
     }
+
+    // Forced colours would drop the drawn ▼ (a gradient background), so the select is the
+    // system's own, arrow and list, base-select or not.
+    const input = await realInput();
+    if (!input) return;
+    await expect(await underForcedColours(input, () => style(control).appearance)).toBe('auto');
   },
 };
 
@@ -122,7 +129,7 @@ export const WithButton = {
 
 // Where the browser supports base-select (#140), the open list takes the field's look: its
 // border, the page background and type, and a ► on the chosen option. Elsewhere it stays the
-// browser's own. Opening it needs a real click, so the test runner opens it and runs axe on it.
+// browser's own. Opening it needs a real click, so play() opens it under Vitest and axe audits it.
 // The select is as wide as a default cf-input whatever is chosen, and the list as wide as the
 // select: the last option is cut short in the select and wraps in the list.
 export const OpenList = {
@@ -134,6 +141,9 @@ export const OpenList = {
     control.selectedIndex = control.options.length - 1;
     await expect(box(control).width).toBe(width);
     control.selectedIndex = 0;
+    // The Chromium under Vitest supports base-select: fail rather than skip if it ever doesn't.
+    const input = await realInput();
+    if (input) await expect(CSS.supports('appearance', 'base-select')).toBe(true);
     if (!CSS.supports('appearance', 'base-select')) {
       await expect(style(control).appearance).toBe('none');
       return;
@@ -149,5 +159,16 @@ export const OpenList = {
     const checkmark = style(control.options[0], '::checkmark');
     await expect(checkmark.content).toBe('"►"');
     await expect(checkmark.color).toBe(ACCENT);
+
+    // Contract (#140): a real click opens the list, and the arrow keys move the inversion,
+    // natively. Leaves the list open on the second option, so axe audits it in both themes.
+    if (!input) return;
+    await input.userEvent.click(control);
+    await input.userEvent.keyboard('{ArrowDown}');
+    await expect([control.matches(':open'), document.activeElement.textContent]).toEqual([true, 'Scotland']);
+    await expect(style(document.activeElement).backgroundColor).toBe(ACCENT);
+    // The list is exactly as wide as the select, not its longest option.
+    const list = parseFloat(style(control, '::picker(select)').inlineSize);
+    await expect(Math.abs(list - control.offsetWidth)).toBeLessThan(1);
   },
 };

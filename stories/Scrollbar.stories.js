@@ -127,7 +127,7 @@ const labelled = (text, el) => {
 
 export default { title: 'Foundations/Scrollbar' };
 
-// One story (ADR-0006: a Foundations file with several stories hangs the test-runner).
+// One story (ADR-0006: a Foundations file with several stories hung the old test-runner).
 export const Variants = {
   name: 'Variants, inheritance and scope',
   render: () => {

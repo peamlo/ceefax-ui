@@ -10,6 +10,9 @@ export default {
   addons: [
     '@storybook/addon-docs',
     '@storybook/addon-a11y', // live WCAG checks — flags the known contrast failures
+    // Runs the stories as Vitest tests (vitest.config.js): CI's gate, and the sidebar's Run tests,
+    // which runs the real-input steps in play() that the plain story view skips.
+    '@storybook/addon-vitest',
   ],
   // The root postcss.config.js uses postcss-url { url: 'rebase' } for the library
   // build. Vite would otherwise inherit it and run postcss-url over Storybook's

@@ -1,4 +1,5 @@
 import { expect, within } from 'storybook/test';
+import { realInput } from '../_real-input.js';
 import {
   ACCENT,
   assertCharacter,
@@ -21,7 +22,7 @@ import {
 // cf-radio (#131, #132): a radio only means something in its group, so the story renders one:
 // a <fieldset class="cf-field"> named by its legend, each native radio in a wrapping <label>.
 // Drawn as a circle that fills with the accent colour, or as ( ) (*) with data-variant="character".
-// Arrow keys move the choice, natively (asserted in the test-runner).
+// Arrow keys move the choice, natively (asserted with real keys in the Group story).
 const OPTIONS = ['BBC1', 'BBC2', 'ITV'];
 
 const render = ({ legend, options, variant, checked, disabled, error }) => {
@@ -92,6 +93,19 @@ export const Group = {
     await assertDrawnChecked(off);
     await expect(shape(on)).toEqual(rest);
     on.click();
+
+    // Contract (#131): the arrow keys move the choice in a radio group, natively. BBC1 on, then
+    // BBC2, ITV. Leaves the group as rendered.
+    const input = await realInput();
+    if (!input) return;
+    const focused = () => [document.activeElement.value, document.activeElement.checked];
+    await input.userEvent.tab();
+    await expect(focused()).toEqual(['BBC1', true]);
+    await input.userEvent.keyboard('{ArrowDown}');
+    await expect(focused()).toEqual(['BBC2', true]);
+    await expect(on.checked).toBe(false);
+    await input.userEvent.keyboard('{ArrowUp}');
+    await expect(focused()).toEqual(['BBC1', true]);
   },
 };
 

@@ -1,5 +1,5 @@
-// html-validate rules for the stories' rendered HTML (#127), run per story by the test-runner
-// hook (.storybook/test-runner.js). Starts from the recommended preset; every rule turned off
+// html-validate rules for the stories' rendered HTML (#127), run per story after play() by the
+// Vitest story gate (.storybook/vitest-checks.js, through a browser command in vitest.config.js). Starts from the recommended preset; every rule turned off
 // carries its reason. The input is a story's rendered root (what "Show code" displays), a
 // fragment serialized by the browser, not a hand-written document.
 export default {

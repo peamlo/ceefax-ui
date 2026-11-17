@@ -3,7 +3,8 @@ import { expect } from 'storybook/test';
 // Shared by the Components/Form/* stories (#126): the contract markup built from a story's args,
 // and the assertions more than one control's stories make. play() asserts what a consumer sees
 // (roles, computed styles, the markup contract), never a private --_* property. Real Tab focus,
-// hover and real :user-invalid need real input, so they are asserted in .storybook/test-runner.js.
+// hover and real :user-invalid need real input, so each story asserts them through realInput()
+// (../_real-input.js).
 
 export const html = (markup) => {
   const root = document.createElement('div');
@@ -92,7 +93,7 @@ export const twin = (control, change, read) => {
   }
 };
 
-// The invalid look (aria-invalid="true" here, :user-invalid in the test-runner): a thicker
+// The invalid look (aria-invalid="true" here, :user-invalid with real typing in Field): a thicker
 // border in the danger colour, and the box doesn't move compared with the same control valid.
 export const assertInvalidLook = async (control) => {
   await expect(control).toBeInvalid();
