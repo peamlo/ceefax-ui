@@ -32,7 +32,7 @@ The whole library sits in cascade layers, in this order (a later one wins):
 @layer ceefax.tokens, ceefax.base, ceefax.layout, ceefax.components;
 ```
 
-CSS you write outside a layer beats all of it, whatever the specificity, so you never need `!important` to override a `cf-*` rule ([ADR-0025](docs/adr/0025-the-library-sits-in-cascade-layers.md)).
+CSS you write outside a layer beats all of it, whatever the specificity, so you never need `!important` to override a `cf-*` rule ([ADR-0026](docs/adr/0026-the-library-sits-in-cascade-layers.md)).
 
 - **If you use layers yourself** (Tailwind v4 does), put `ceefax` in your order, or a layer the browser sees first loses to the library. For Tailwind v4: `@layer theme, base, ceefax, components, utilities;` before both imports.
 - **`!important` turns the order around:** an important rule in an earlier layer beats one in a later layer or outside any layer. Plain rules are enough to override the library.

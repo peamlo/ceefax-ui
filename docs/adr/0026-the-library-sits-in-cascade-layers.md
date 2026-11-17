@@ -1,4 +1,4 @@
-# ADR-0025: The library sits in cascade layers, so unlayered consumer CSS always wins
+# ADR-0026: The library sits in cascade layers, so unlayered consumer CSS always wins
 
 ## Context
 
