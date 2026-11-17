@@ -65,10 +65,11 @@
 .cf-reveal > summary:is(:hover, :focus-visible)::after {
   color: inherit;
 }
-/* Any content after the summary: no wrapper class, indented under the summary text. */
-.cf-reveal > :not(summary) {
+/* Any content after the summary: no wrapper class, indented under the summary text. Kept in
+   :where(), so a component's own margin still wins (a cf-input or cf-fastext sits flush). */
+:where(.cf-reveal > :not(summary)) {
   margin-inline: var(--_indent) var(--cf-space-2);
 }
-.cf-reveal > :last-child:not(summary) {
+:where(.cf-reveal > :last-child:not(summary)) {
   margin-block-end: var(--cf-space-2);
 }
