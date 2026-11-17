@@ -8,13 +8,13 @@ This file is only the reading list behind them.
 
 <https://jdan.github.io/98.css/> — a Windows 98 look built from plain HTML.
 
-**Take**
+### What we take from 98.css
 
 - Native elements styled with no class: a bare `<button>` is already a button.
 - State through native attributes (`disabled`, `checked`, `aria-selected`), never a class.
 - No JavaScript.
 
-**Don't take**
+### What we don't take from 98.css
 
 - State classes toggled by script (`highlighted`, `inactive`). Our contract puts state on
   native/ARIA attributes only.
@@ -25,14 +25,14 @@ This file is only the reading list behind them.
 
 <https://picocss.com/> — a classless-by-default CSS framework.
 
-**Take**
+### What we take from Pico CSS
 
 - Classless by default: semantic HTML is styled with no class.
 - Structure from semantics: `nav > ul > li > a` is a navigation bar because of where it
   sits, not because of a class.
 - Few classes, kept for variants.
 
-**Don't take**
+### What we don't take from Pico CSS
 
 - Unscoped global element styling in the default build. Same problem as 98.css: adopting
   the library restyles content it doesn't own.
