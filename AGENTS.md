@@ -39,6 +39,7 @@ Storybook (`@storybook/html-vite` + the a11y addon; interactions/`play()` are co
 - `README.md` — public consumer docs + the contract.
 - `CONTEXT.md` — the glossary / ubiquitous language. Use its terms; don't drift to synonyms it marks `_Avoid_`.
 - `docs/adr/` — Architecture Decision Records (why, not how). Flag output that contradicts an ADR.
+- `docs/reference/pico-and-98css.md` — prior art for the classless spike (#26): what we take from Pico CSS and 98.css, and what we deliberately don't.
 - Storybook — live component behaviour and variants.
 - `docs/agents/` — how agents consume the issue tracker, triage labels, and domain docs (see below).
 - `docs/reference/` — external reference material (summaries + archive links, not mirrors), e.g. [zxnet teletext](docs/reference/zxnet-teletext.md) for authentic teletext behaviour and specs, [NMS Ceefax](docs/reference/nmsceefax.md) for a live Ceefax re-creation, [Antena 3 Teletexto](docs/reference/antena3-teletexto.md) for a live Spanish service.

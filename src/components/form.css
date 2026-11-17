@@ -6,6 +6,11 @@
    or hides it. Like all of the library, it sits in the
    library's cascade layer (src/index.css), so consumer CSS wins without !important, states
    included (ADR-0018). */
+/* EXPERIMENTAL (#26, classless spike; removed if rejected): inside an opt-in .cf-root,
+   a bare text-like <input>, <textarea>, single <select>, checkbox or radio takes this look with no class. Each class is paired with
+   its element in the same rule, so both forms share every declaration.
+   ponytail: the pair is repeated per rule. Name it once with @custom-selector (CSS Extensions)
+   when browsers ship it. */
 .cf-field {
   display: flex;
   flex-direction: column;
@@ -25,7 +30,7 @@ fieldset.cf-field {
   border: 0;
 }
 /* A checkbox or radio sits beside its text, in a wrapping label. */
-.cf-field > label:has(.cf-checkbox, .cf-radio) {
+.cf-field > label:has(.cf-checkbox, .cf-root input[type='checkbox'], .cf-radio, .cf-root input[type='radio']) {
   display: flex;
   align-items: center;
   gap: 1ch;
@@ -54,8 +59,21 @@ fieldset.cf-field {
    lands on whole cells. No hover change, and no inversion on focus: a text control keeps
    :focus-visible while you type, so the text keeps its colours. */
 .cf-input,
+.cf-root
+  input:is(
+    :not([type]),
+    [type='text'],
+    [type='email'],
+    [type='password'],
+    [type='search'],
+    [type='url'],
+    [type='tel'],
+    [type='number']
+  ),
 .cf-textarea,
-.cf-select {
+.cf-root textarea,
+.cf-select,
+.cf-root select:not([multiple]) {
   --_bw: var(--cf-border-thin);
   --_bd: var(--cf-fg);
   appearance: none;
@@ -74,12 +92,41 @@ fieldset.cf-field {
 /* Browsers keep a single-line control's text at least the font's normal line height, so its
    height is set outright (a cf-btn's 1em line plus 0.4em padding each side) and the text is
    centred in it. */
-input.cf-input,
-.cf-select {
+input:is(
+  .cf-input,
+  .cf-root
+    input:is(
+      :not([type]),
+      [type='text'],
+      [type='email'],
+      [type='password'],
+      [type='search'],
+      [type='url'],
+      [type='tel'],
+      [type='number']
+    )
+),
+.cf-select,
+.cf-root select:not([multiple]) {
   block-size: calc(1.8em + 2 * var(--cf-border-thin));
   padding-block: 0;
 }
-textarea:is(.cf-input, .cf-textarea) {
+textarea:is(
+  .cf-input,
+  .cf-root
+    input:is(
+      :not([type]),
+      [type='text'],
+      [type='email'],
+      [type='password'],
+      [type='search'],
+      [type='url'],
+      [type='tel'],
+      [type='number']
+    ),
+  .cf-textarea,
+  .cf-root textarea
+) {
   line-height: var(--cf-leading-normal);
   resize: vertical; /* keeps the cols width */
 }
@@ -89,8 +136,34 @@ textarea:is(.cf-input, .cf-textarea) {
    itself is the gap and the cell, at least 24px each way (WCAG 2.2 target size): what the two
    cells lack spills into the end padding, and the mark stays in the last cell.
    Chrome and Safari only; Firefox has no hook for either, so its own stay. */
-.cf-input::-webkit-inner-spin-button,
-.cf-input::-webkit-search-cancel-button {
+:is(
+  .cf-input,
+  .cf-root
+    input:is(
+      :not([type]),
+      [type='text'],
+      [type='email'],
+      [type='password'],
+      [type='search'],
+      [type='url'],
+      [type='tel'],
+      [type='number']
+    )
+)::-webkit-inner-spin-button,
+:is(
+  .cf-input,
+  .cf-root
+    input:is(
+      :not([type]),
+      [type='text'],
+      [type='email'],
+      [type='password'],
+      [type='search'],
+      [type='url'],
+      [type='tel'],
+      [type='number']
+    )
+)::-webkit-search-cancel-button {
   appearance: none;
   inline-size: max(2ch, 24px);
   block-size: max(1.2em, 24px); /* height: 100% collapses to nothing */
@@ -102,24 +175,104 @@ textarea:is(.cf-input, .cf-textarea) {
   opacity: 1; /* Chrome shows its own only on hover */
   cursor: pointer;
 }
-.cf-input::-webkit-search-cancel-button {
+:is(
+  .cf-input,
+  .cf-root
+    input:is(
+      :not([type]),
+      [type='text'],
+      [type='email'],
+      [type='password'],
+      [type='search'],
+      [type='url'],
+      [type='tel'],
+      [type='number']
+    )
+)::-webkit-search-cancel-button {
   mask-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'><path d='m1 1 6 6m0-6-6 6' stroke='black' stroke-width='1.5'/></svg>");
 }
 /* Forced colours would paint the mark in the system background, and with forced-color-adjust:
    none alone it keeps the unforced field colour, light on the system's light field. So the
    mark takes the system's text colour outright, grey text when disabled. */
 @media (forced-colors: active) {
-  .cf-input::-webkit-inner-spin-button,
-  .cf-input::-webkit-search-cancel-button {
+  :is(
+    .cf-input,
+    .cf-root
+      input:is(
+        :not([type]),
+        [type='text'],
+        [type='email'],
+        [type='password'],
+        [type='search'],
+        [type='url'],
+        [type='tel'],
+        [type='number']
+      )
+  )::-webkit-inner-spin-button,
+  :is(
+    .cf-input,
+    .cf-root
+      input:is(
+        :not([type]),
+        [type='text'],
+        [type='email'],
+        [type='password'],
+        [type='search'],
+        [type='url'],
+        [type='tel'],
+        [type='number']
+      )
+  )::-webkit-search-cancel-button {
     forced-color-adjust: none;
     background: CanvasText;
   }
-  .cf-input:disabled::-webkit-inner-spin-button,
-  .cf-input:disabled::-webkit-search-cancel-button {
+  :is(
+      .cf-input,
+      .cf-root
+        input:is(
+          :not([type]),
+          [type='text'],
+          [type='email'],
+          [type='password'],
+          [type='search'],
+          [type='url'],
+          [type='tel'],
+          [type='number']
+        )
+    ):disabled::-webkit-inner-spin-button,
+  :is(
+      .cf-input,
+      .cf-root
+        input:is(
+          :not([type]),
+          [type='text'],
+          [type='email'],
+          [type='password'],
+          [type='search'],
+          [type='url'],
+          [type='tel'],
+          [type='number']
+        )
+    ):disabled::-webkit-search-cancel-button {
     background: GrayText;
   }
 }
-:is(.cf-input, .cf-textarea)::placeholder {
+:is(
+  .cf-input,
+  .cf-root
+    input:is(
+      :not([type]),
+      [type='text'],
+      [type='email'],
+      [type='password'],
+      [type='search'],
+      [type='url'],
+      [type='tel'],
+      [type='number']
+    ),
+  .cf-textarea,
+  .cf-root textarea
+)::placeholder {
   color: var(--cf-fg-dim);
   opacity: 1;
 }
@@ -127,7 +280,8 @@ textarea:is(.cf-input, .cf-textarea) {
    default cf-input (20 characters and its two padding cells), whatever the options: under
    base-select the browser would size it to the chosen one, so it would change width with the
    choice. */
-.cf-select {
+.cf-select,
+.cf-root select:not([multiple]) {
   inline-size: 22ch;
   padding-inline-end: calc(3ch - var(--_bw));
   background-image:
@@ -141,7 +295,7 @@ textarea:is(.cf-input, .cf-textarea) {
   background-repeat: no-repeat;
   cursor: pointer;
 }
-.cf-select option {
+:is(.cf-select, .cf-root select:not([multiple])) option {
   background-color: var(--cf-bg);
   color: var(--cf-fg);
 }
@@ -151,22 +305,24 @@ textarea:is(.cf-input, .cf-textarea) {
    the browser's either way. */
 @supports (appearance: base-select) {
   .cf-select,
-  .cf-select::picker(select) {
+  .cf-root select:not([multiple]),
+  :is(.cf-select, .cf-root select:not([multiple]))::picker(select) {
     appearance: base-select;
   }
   /* base-select makes the select a flex box, with its text at the top unless centred, and lets
      a long choice wrap and run under the ▼: one line, cut at the content edge, as natively. */
-  .cf-select {
+  .cf-select,
+  .cf-root select:not([multiple]) {
     align-items: center;
     overflow: clip;
     overflow-clip-margin: content-box;
     white-space: nowrap;
   }
-  .cf-select::picker-icon {
+  :is(.cf-select, .cf-root select:not([multiple]))::picker-icon {
     display: none; /* the drawn ▼ stays */
   }
   /* Exactly the select's width, not its longest option's. */
-  .cf-select::picker(select) {
+  :is(.cf-select, .cf-root select:not([multiple]))::picker(select) {
     inline-size: anchor-size(self-inline);
     margin-block-start: var(--cf-border-thin);
     padding: 0;
@@ -178,27 +334,28 @@ textarea:is(.cf-input, .cf-textarea) {
     font: var(--cf-text-body) / var(--cf-leading-normal) var(--cf-font-mono);
   }
   /* A long option wraps in the list, which is only as wide as the select. */
-  .cf-select option {
+  :is(.cf-select, .cf-root select:not([multiple])) option {
     padding: 0.2em 1ch;
     white-space: normal;
   }
-  .cf-select option::checkmark {
+  :is(.cf-select, .cf-root select:not([multiple])) option::checkmark {
     content: '►';
     color: var(--cf-accent);
   }
-  .cf-select option:is(:hover, :focus-visible) {
+  :is(.cf-select, .cf-root select:not([multiple])) option:is(:hover, :focus-visible) {
     background: var(--cf-accent);
     color: var(--cf-on-variant);
     outline: 0;
   }
-  .cf-select option:is(:hover, :focus-visible)::checkmark {
+  :is(.cf-select, .cf-root select:not([multiple])) option:is(:hover, :focus-visible)::checkmark {
     color: inherit;
   }
 }
 /* Forced colours drop a gradient background, and the ▼ with it: the system draws its own, and
    the list is the system's too. After base-select, so it wins on order. */
 @media (forced-colors: active) {
-  .cf-select {
+  .cf-select,
+  .cf-root select:not([multiple]) {
     appearance: auto;
   }
 }
@@ -208,7 +365,9 @@ textarea:is(.cf-input, .cf-textarea) {
    a border, which forced colours keep (they drop backgrounds). Indeterminate: the double border
    on the top and bottom only, which meet as a bar. */
 .cf-checkbox,
-.cf-radio {
+.cf-root input[type='checkbox'],
+.cf-radio,
+.cf-root input[type='radio'] {
   appearance: none;
   flex: none;
   inline-size: 2ch;
@@ -220,47 +379,73 @@ textarea:is(.cf-input, .cf-textarea) {
   font: inherit;
   cursor: pointer;
 }
-.cf-radio {
+.cf-radio,
+.cf-root input[type='radio'] {
   border-radius: 50%;
 }
 /* Not .cf-radio:indeterminate: every radio in a group with nothing chosen matches it. */
-:is(.cf-checkbox, .cf-radio):checked,
-.cf-checkbox:indeterminate {
+:is(.cf-checkbox, .cf-root input[type='checkbox'], .cf-radio, .cf-root input[type='radio']):checked,
+:is(.cf-checkbox, .cf-root input[type='checkbox']):indeterminate {
   border: 1ch double;
   color: var(--cf-accent);
 }
-.cf-checkbox:indeterminate {
+:is(.cf-checkbox, .cf-root input[type='checkbox']):indeterminate {
   border-inline: var(--cf-border-thin) solid;
 }
 /* The character variant: no shape, the control is its glyph, generated content on the input
    itself (unspecified, w3c/csswg-drafts#12876; a story guards it). The glyph inherits the colour
    above: accent when on, danger when invalid. On the control only: a container's data-variant
    is a colour. */
-:is(.cf-checkbox, .cf-radio)[data-variant='character'] {
+:is(.cf-checkbox, .cf-root input[type='checkbox'], .cf-radio, .cf-root input[type='radio'])[data-variant='character'] {
   inline-size: auto;
   block-size: auto;
   border: 0;
   border-radius: 0;
 }
-.cf-checkbox[data-variant='character']::before {
+:is(.cf-checkbox, .cf-root input[type='checkbox'])[data-variant='character']::before {
   content: '[\a0]';
 }
-.cf-checkbox[data-variant='character']:checked::before {
+:is(.cf-checkbox, .cf-root input[type='checkbox'])[data-variant='character']:checked::before {
   content: '[X]';
 }
-.cf-checkbox[data-variant='character']:indeterminate::before {
+:is(.cf-checkbox, .cf-root input[type='checkbox'])[data-variant='character']:indeterminate::before {
   content: '[-]';
 }
-.cf-radio[data-variant='character']::before {
+/* stylelint-disable-next-line no-descending-specificity -- a radio, not the checkbox above: the rule can't see past :is() */
+:is(.cf-radio, .cf-root input[type='radio'])[data-variant='character']::before {
   content: '(\a0)';
 }
-.cf-radio[data-variant='character']:checked::before {
+:is(.cf-radio, .cf-root input[type='radio'])[data-variant='character']:checked::before {
   content: '(*)';
 }
-:is(.cf-checkbox, .cf-radio):is(:user-invalid, [aria-invalid='true']) {
+:is(.cf-checkbox, .cf-root input[type='checkbox'], .cf-radio, .cf-root input[type='radio']):is(
+  :user-invalid,
+  [aria-invalid='true']
+) {
   color: var(--cf-danger);
 }
-:is(.cf-input, .cf-textarea, .cf-select, .cf-checkbox, .cf-radio):focus-visible {
+:is(
+  .cf-input,
+  .cf-root
+    input:is(
+      :not([type]),
+      [type='text'],
+      [type='email'],
+      [type='password'],
+      [type='search'],
+      [type='url'],
+      [type='tel'],
+      [type='number']
+    ),
+  .cf-textarea,
+  .cf-root textarea,
+  .cf-select,
+  .cf-root select:not([multiple]),
+  .cf-checkbox,
+  .cf-root input[type='checkbox'],
+  .cf-radio,
+  .cf-root input[type='radio']
+):focus-visible {
   --_bd: var(--cf-accent);
   outline: var(--cf-border-thin) solid var(--cf-accent);
   outline-offset: var(--cf-border-thin);
@@ -268,11 +453,49 @@ textarea:is(.cf-input, .cf-textarea) {
 }
 /* Invalid once the user has interacted (:user-invalid), or as the server says (aria-invalid):
    a thicker border in the danger colour, so not by colour alone. */
-:is(.cf-input, .cf-textarea, .cf-select):is(:user-invalid, [aria-invalid='true']) {
+:is(
+  .cf-input,
+  .cf-root
+    input:is(
+      :not([type]),
+      [type='text'],
+      [type='email'],
+      [type='password'],
+      [type='search'],
+      [type='url'],
+      [type='tel'],
+      [type='number']
+    ),
+  .cf-textarea,
+  .cf-root textarea,
+  .cf-select,
+  .cf-root select:not([multiple])
+):is(:user-invalid, [aria-invalid='true']) {
   --_bw: var(--cf-border-thick);
   --_bd: var(--cf-danger);
 }
-:is(.cf-input, .cf-textarea, .cf-select, .cf-checkbox, .cf-radio):disabled {
+:is(
+  .cf-input,
+  .cf-root
+    input:is(
+      :not([type]),
+      [type='text'],
+      [type='email'],
+      [type='password'],
+      [type='search'],
+      [type='url'],
+      [type='tel'],
+      [type='number']
+    ),
+  .cf-textarea,
+  .cf-root textarea,
+  .cf-select,
+  .cf-root select:not([multiple]),
+  .cf-checkbox,
+  .cf-root input[type='checkbox'],
+  .cf-radio,
+  .cf-root input[type='radio']
+):disabled {
   opacity: 0.4;
   cursor: default;
 }
@@ -283,16 +506,63 @@ textarea:is(.cf-input, .cf-textarea) {
    ponytail: typed attr() is Chrome-only today; other browsers drop the declaration and keep the
    native width, a fraction of a cell over. */
 @media (min-width: 40em) {
-  .cf-page[data-frame] input.cf-input:not([type='number']) {
+  .cf-page[data-frame]
+    input:is(
+      .cf-input,
+      .cf-root
+        input:is(
+          :not([type]),
+          [type='text'],
+          [type='email'],
+          [type='password'],
+          [type='search'],
+          [type='url'],
+          [type='tel'],
+          [type='number']
+        )
+    ):not([type='number']) {
     inline-size: calc((attr(size type(<number>), 20) + 2) * 1ch);
   }
-  .cf-page[data-frame] textarea:is(.cf-input, .cf-textarea) {
+  .cf-page[data-frame]
+    textarea:is(
+      .cf-input,
+      .cf-root
+        input:is(
+          :not([type]),
+          [type='text'],
+          [type='email'],
+          [type='password'],
+          [type='search'],
+          [type='url'],
+          [type='tel'],
+          [type='number']
+        ),
+      .cf-textarea,
+      .cf-root textarea
+    ) {
     inline-size: calc((attr(cols type(<number>), 20) + 2) * 1ch);
   }
 }
 /* Autofill: the browser's own background can't be overridden, so an inset shadow paints the
    page background over it; the text in the info colour is the "filled for you" cue. */
-:is(.cf-input, .cf-textarea, .cf-select):autofill {
+:is(
+  .cf-input,
+  .cf-root
+    input:is(
+      :not([type]),
+      [type='text'],
+      [type='email'],
+      [type='password'],
+      [type='search'],
+      [type='url'],
+      [type='tel'],
+      [type='number']
+    ),
+  .cf-textarea,
+  .cf-root textarea,
+  .cf-select,
+  .cf-root select:not([multiple])
+):autofill {
   box-shadow: inset 0 0 0 100vmax var(--cf-bg);
   -webkit-text-fill-color: var(--cf-info);
 }

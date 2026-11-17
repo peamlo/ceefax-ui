@@ -16,7 +16,6 @@ import htmlValidateConfig from '../.htmlvalidate.js';
 // build on non-contract stories. Each gated story is audited twice: as authored, then
 // with data-theme="accessible" on <html> at AAA contrast (color-contrast-enhanced, #12).
 
-const BTN = '.cf-btn';
 // Read an element's live colours from inside the page (runs in the browser context).
 const colours = (sel) => {
   const cs = getComputedStyle(document.querySelector(sel));
@@ -26,8 +25,10 @@ const colours = (sel) => {
 const INVERTED = { backgroundColor: 'rgb(255, 255, 255)', color: 'rgb(0, 0, 0)' };
 const RESTING = { backgroundColor: 'rgb(0, 0, 0)', color: 'rgb(255, 255, 255)' };
 
+// The classless stories (#26, experimental) get the same checks on a bare <button> in .cf-root.
 async function assertButtonContract(page, name) {
-  if (name === 'Default') {
+  const BTN = name.startsWith('Classless') ? '.cf-root button' : '.cf-btn';
+  if (name === 'Default' || name === 'Classless') {
     // Contract: keyboard focus (:focus-visible) inverts the colours. A real Tab
     // press (the button is the only focusable) makes :focus-visible match.
     await page.keyboard.press('Tab');
@@ -36,7 +37,7 @@ async function assertButtonContract(page, name) {
     await page.hover(BTN);
     expect(await page.evaluate(colours, BTN)).toEqual(INVERTED);
   }
-  if (name === 'Disabled') {
+  if (name === 'Disabled' || name === 'Classless (disabled)') {
     // Contract: a disabled button does NOT invert on hover.
     await page.hover(BTN);
     expect(await page.evaluate(colours, BTN)).toEqual(RESTING);
@@ -459,11 +460,11 @@ async function assertSelectOpen(page) {
 // so axe audits its content in both themes.
 async function assertPopoverOpens(page) {
   expect(await page.evaluate(() => CSS.supports('position-area', 'block-end'))).toBe(true);
-  const open = () => document.querySelector('.cf-popover').matches(':popover-open');
+  const open = () => document.querySelector('.cf-popover, .cf-root [popover]').matches(':popover-open');
   await page.click('.cf-btn');
   expect(await page.evaluate(open)).toBe(true);
   const [top, triggerBottom] = await page.evaluate(() => [
-    document.querySelector('.cf-popover').getBoundingClientRect().top,
+    document.querySelector('.cf-popover, .cf-root [popover]').getBoundingClientRect().top,
     document.querySelector('.cf-btn').getBoundingClientRect().bottom,
   ]);
   expect(top).toBeGreaterThanOrEqual(triggerBottom);
@@ -532,7 +533,7 @@ const shapeOf = (sel) => {
 };
 async function assertCheckboxInput(page, name) {
   const box = '.cf-checkbox';
-  if (name === 'Disabled') {
+  if (name === 'Disabled' || name === 'Classless (disabled)') {
     const dimmed = await page.evaluate(controlLook, box);
     await page.hover(box);
     expect(await page.evaluate(controlLook, box)).toEqual(dimmed);
@@ -650,6 +651,7 @@ export default {
 
     if (title === 'Components/Button') await assertButtonContract(page, name);
     if (title === 'Components/Link' && name === 'Inline') await assertFocusInversion(page, '.cf-link');
+    if (title === 'Components/Link' && name === 'Classless') await assertFocusInversion(page, '.cf-root a');
     if (title === 'Components/Fastext bar' && name === 'Text') await assertFocusInversion(page, FIRST_KEY);
     if (title === 'Components/Fastext bar') await assertFastextHover(page);
     if (title === 'Components/Notice') await assertNoticeBlink(page);

@@ -3,7 +3,9 @@
    future ceefax-ui class gets border-box by virtue of the contract, so adding a
    component needs no edit here. [class*=" cf-"] covers any multi-class element. */
 [class^='cf-'],
-[class*=' cf-'] {
+[class*=' cf-'],
+/* EXPERIMENTAL (#26): the bare elements that take a component's look inside .cf-root */
+.cf-root :is(button, a[href], input, textarea, select, table, dialog, details, [popover], nav > ul) {
   box-sizing: border-box;
 }
 /* The variant seam: the one place a [data-variant] name meets its colour, via the

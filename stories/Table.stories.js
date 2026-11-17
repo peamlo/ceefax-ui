@@ -1,4 +1,5 @@
 import { expect, within } from 'storybook/test';
+import { BOX_PROPS, classlessOf, expectSameAsClassForm } from './_classless.js';
 import { bandSample } from './_bands.js';
 
 // cf-table (#22): a native <table> set like a broadcast league table, inside its own
@@ -566,4 +567,11 @@ export const Wide = {
     await expect(style(notes).whiteSpace).toBe('normal');
     await expect(notes.parentElement.getBoundingClientRect().height).toBeGreaterThan(rowHeight(notes) * 1.5);
   },
+};
+
+// EXPERIMENTAL (#26): the League table with no cf-table class, inside a .cf-root container.
+// The class and the bare element share every rule; play() compares it with a cf-table twin.
+export const Classless = {
+  render: () => classlessOf(league(' data-stripe-rows="text"', 'Liverpool'), 'cf-table'),
+  play: async ({ canvasElement }) => expectSameAsClassForm(canvasElement.querySelector('table'), 'cf-table', BOX_PROPS),
 };

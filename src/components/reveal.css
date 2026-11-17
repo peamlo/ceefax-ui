@@ -4,7 +4,13 @@
    (the accordion). No JS. The ▼ / ▲ marker is generated content with empty alt text, so the
    native expanded state is the only announced cue, and its shape, not its colour, carries the
    state. Like all of the library, it sits in the library's cascade layer (src/index.css), so consumer CSS wins without !important (ADR-0018). */
-.cf-reveal {
+/* EXPERIMENTAL (#26, classless spike; removed if rejected): inside an opt-in .cf-root,
+   a bare <details> takes this look with no class. Each class is paired with
+   its element in the same rule, so both forms share every declaration.
+   ponytail: the pair is repeated per rule. Name it once with @custom-selector (CSS Extensions)
+   when browsers ship it. */
+.cf-reveal,
+.cf-root details {
   --_indent: var(--cf-space-2);
   display: block;
   border-block: var(--cf-border-thin) solid var(--cf-border);
@@ -13,17 +19,17 @@
   line-height: var(--cf-leading-relaxed);
 }
 /* A run of reveals is a list: each one after the first drops its top rule, so neighbours share one. */
-.cf-reveal + .cf-reveal {
+:is(.cf-reveal, .cf-root details) + :is(.cf-reveal, .cf-root details) {
   border-block-start: 0;
 }
 /* With a number, the summary text and the revealed content start past it, so both line up.
    3ch fits a two-digit number; a longer one runs into the text. */
-.cf-reveal:has(> summary > .cf-reveal__index) {
+:is(.cf-reveal, .cf-root details):has(> summary > .cf-reveal__index) {
   --_indent: calc(var(--cf-space-2) * 2 + 3ch);
 }
 /* The number and the marker sit in the summary's padding (a gutter each side of the 1ch marker),
    so a long title wraps under itself. */
-.cf-reveal > summary {
+:is(.cf-reveal, .cf-root details) > summary {
   position: relative;
   display: block;
   padding-block: var(--cf-space-1);
@@ -32,17 +38,17 @@
   list-style: none;
   cursor: pointer;
 }
-.cf-reveal > summary::-webkit-details-marker {
+:is(.cf-reveal, .cf-root details) > summary::-webkit-details-marker {
   display: none;
 }
-.cf-reveal > summary::after {
+:is(.cf-reveal, .cf-root details) > summary::after {
   content: '\25BC' / '';
   position: absolute;
   inset-block-start: var(--cf-space-1);
   inset-inline-end: var(--cf-space-2);
   color: var(--cf-accent);
 }
-.cf-reveal[open] > summary::after {
+:is(.cf-reveal, .cf-root details)[open] > summary::after {
   content: '\25B2' / '';
 }
 .cf-reveal__index {
@@ -51,25 +57,25 @@
   color: var(--cf-accent);
 }
 /* data-variant colours the number only, through the variant seam (base.css). */
-.cf-reveal[data-variant] > summary > .cf-reveal__index {
+:is(.cf-reveal, .cf-root details)[data-variant] > summary > .cf-reveal__index {
   color: var(--_variant, var(--cf-accent));
 }
 /* Inversion across the whole row, number and marker included. The transparent outline is the
    ring forced colours paint, on hover as on focus. */
-.cf-reveal > summary:is(:hover, :focus-visible) {
+:is(.cf-reveal, .cf-root details) > summary:is(:hover, :focus-visible) {
   outline: var(--cf-border-thin) solid transparent;
   background: var(--cf-fg);
   color: var(--cf-bg);
 }
-.cf-reveal > summary:is(:hover, :focus-visible) > .cf-reveal__index,
-.cf-reveal > summary:is(:hover, :focus-visible)::after {
+:is(.cf-reveal, .cf-root details) > summary:is(:hover, :focus-visible) > .cf-reveal__index,
+:is(.cf-reveal, .cf-root details) > summary:is(:hover, :focus-visible)::after {
   color: inherit;
 }
 /* Any content after the summary: no wrapper class, indented under the summary text. Kept in
    :where(), so a component's own margin still wins (a cf-input or cf-fastext sits flush). */
-:where(.cf-reveal > :not(summary)) {
+:where(:is(.cf-reveal, .cf-root details) > :not(summary)) {
   margin-inline: var(--_indent) var(--cf-space-2);
 }
-:where(.cf-reveal > :last-child:not(summary)) {
+:where(:is(.cf-reveal, .cf-root details) > :last-child:not(summary)) {
   margin-block-end: var(--cf-space-2);
 }

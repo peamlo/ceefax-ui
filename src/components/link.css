@@ -1,26 +1,34 @@
 /* Link — one class. Current page via [aria-current="page"] (persistent caret).
    Focus = instant inversion, plus a transparent outline forced colours paint as the ring.
    Nav style via [data-variant="nav"]. */
-.cf-link {
+/* EXPERIMENTAL (#26, classless spike; removed if rejected): inside an opt-in .cf-root,
+   a bare <a href> (one without a cf-* class), and a link in nav > ul > li takes the nav variant takes this look with no class. Each class is paired with
+   its element in the same rule, so both forms share every declaration.
+   ponytail: the pair is repeated per rule. Name it once with @custom-selector (CSS Extensions)
+   when browsers ship it. */
+.cf-link,
+.cf-root a[href]:not([class^='cf-'], [class*=' cf-']) {
   font-family: var(--cf-font-mono);
   color: var(--cf-link);
   text-decoration: none;
   text-underline-offset: 3px;
 }
-.cf-link:hover {
+:is(.cf-link, .cf-root a[href]:not([class^='cf-'], [class*=' cf-'])):hover {
   color: var(--cf-link-hover);
   text-decoration: underline;
 }
-.cf-link:focus-visible {
+:is(.cf-link, .cf-root a[href]:not([class^='cf-'], [class*=' cf-'])):focus-visible {
   outline: var(--cf-border-thin) solid transparent;
   background: var(--cf-link);
   color: var(--cf-bg);
   text-decoration: none;
 }
-.cf-link:visited {
+:is(.cf-link, .cf-root a[href]:not([class^='cf-'], [class*=' cf-'])):visited {
   color: var(--cf-link-visited);
 }
-.cf-link[data-variant='nav'] {
+:is(.cf-link, .cf-root a[href]:not([class^='cf-'], [class*=' cf-']))[data-variant='nav'],
+/* structure from semantics: a link in a nav list takes the nav look, no data-variant */
+.cf-root nav > ul > li > a[href]:not([class^='cf-'], [class*=' cf-']) {
   display: inline-flex;
   align-items: baseline;
   gap: var(--cf-space-2);
@@ -29,24 +37,26 @@
   text-transform: uppercase;
   text-decoration: none;
 }
-.cf-link[data-variant='nav'] .cf-link__page {
+:is(.cf-link, .cf-root a[href]:not([class^='cf-'], [class*=' cf-']))[data-variant='nav'] .cf-link__page {
   color: var(--cf-accent);
 }
-.cf-link[data-variant='nav']:hover {
+:is(.cf-link, .cf-root a[href]:not([class^='cf-'], [class*=' cf-']))[data-variant='nav']:hover,
+/* structure from semantics: a link in a nav list takes the nav look, no data-variant */
+.cf-root nav > ul > li > a[href]:not([class^='cf-'], [class*=' cf-']):hover {
   text-decoration: none;
   color: var(--cf-link-hover);
 }
 /* selected / "you are here" — persistent, distinct from transient focus */
-.cf-link[aria-current='page'] {
+:is(.cf-link, .cf-root a[href]:not([class^='cf-'], [class*=' cf-']))[aria-current='page'] {
   color: var(--cf-link-hover);
 }
-.cf-link[aria-current='page']::before {
+:is(.cf-link, .cf-root a[href]:not([class^='cf-'], [class*=' cf-']))[aria-current='page']::before {
   content: '\25B8\00A0';
   color: var(--cf-accent);
 }
-.cf-link[aria-current='page']:focus-visible {
+:is(.cf-link, .cf-root a[href]:not([class^='cf-'], [class*=' cf-']))[aria-current='page']:focus-visible {
   color: var(--cf-bg);
 }
-.cf-link[aria-current='page']:focus-visible::before {
+:is(.cf-link, .cf-root a[href]:not([class^='cf-'], [class*=' cf-']))[aria-current='page']:focus-visible::before {
   color: var(--cf-bg);
 }

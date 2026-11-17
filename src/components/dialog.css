@@ -7,7 +7,13 @@
    Every size is capped to the viewport minus a gutter, and tall content scrolls inside, with
    the page's Scrollbar variant inside .cf-page. Instant, never animated. Like all of the
    library, it sits in the library's cascade layer (src/index.css), so consumer CSS wins without !important (ADR-0018). */
-.cf-dialog {
+/* EXPERIMENTAL (#26, classless spike; removed if rejected): inside an opt-in .cf-root,
+   a bare <dialog> takes this look with no class. Each class is paired with
+   its element in the same rule, so both forms share every declaration.
+   ponytail: the pair is repeated per rule. Name it once with @custom-selector (CSS Extensions)
+   when browsers ship it. */
+.cf-dialog,
+.cf-root dialog {
   --_measure: 60ch;
   --_edge: calc(2 * (var(--cf-space-3) * 2 + var(--cf-border-thick))); /* gutter + padding + border, both sides */
   box-sizing: content-box;
@@ -24,30 +30,30 @@
   line-height: var(--cf-leading-relaxed);
   outline: none; /* the box never shows focus; the controls inside keep their Inversion */
 }
-.cf-dialog[data-size='sm'] {
+:is(.cf-dialog, .cf-root dialog)[data-size='sm'] {
   --_measure: 30ch;
 }
-.cf-dialog[data-size='lg'] {
+:is(.cf-dialog, .cf-root dialog)[data-size='lg'] {
   --_measure: 80ch;
 }
 /* Colour comes from the variant seam (base.css); the dialog paints the border only. */
-.cf-dialog[data-variant] {
+:is(.cf-dialog, .cf-root dialog)[data-variant] {
   border-color: var(--_variant, var(--cf-border));
 }
-.cf-dialog > :first-child {
+:is(.cf-dialog, .cf-root dialog) > :first-child {
   margin-block-start: 0;
 }
-.cf-dialog > :last-child {
+:is(.cf-dialog, .cf-root dialog) > :last-child {
   margin-block-end: 0;
 }
 /* The page behind a modal dialog doesn't scroll. The gutter stays, so a page that scrolled
    doesn't shift sideways when its scrollbar goes (one too short to scroll gains a gutter, with
    classic scrollbars only). A headless library's dialog isn't :modal; it locks its own. */
-:root:has(.cf-dialog:modal) {
+:root:has(:is(.cf-dialog, .cf-root dialog):modal) {
   overflow: hidden;
   scrollbar-gutter: stable;
 }
 /* ::backdrop inherits from its dialog, so the alias resolves in the frame and the theme. */
-.cf-dialog::backdrop {
+:is(.cf-dialog, .cf-root dialog)::backdrop {
   background: var(--cf-backdrop);
 }

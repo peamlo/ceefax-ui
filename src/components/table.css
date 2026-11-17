@@ -6,10 +6,16 @@
    the page. Never display: block on the table: that strips its semantics in some readers.
    Like all of the library, it sits in the library's cascade layer (src/index.css), so consumer
    CSS with the --cf-* type tokens wins without !important (ADR-0018). */
+/* EXPERIMENTAL (#26, classless spike; removed if rejected): inside an opt-in .cf-root,
+   a bare <table> takes this look with no class. Each class is paired with
+   its element in the same rule, so both forms share every declaration.
+   ponytail: the pair is repeated per rule. Name it once with @custom-selector (CSS Extensions)
+   when browsers ship it. */
 .cf-table__scroll {
   overflow-x: auto;
 }
-.cf-table {
+.cf-table,
+.cf-root table {
   --_bg: initial;
   --_ink: initial;
   --_col-bg: initial;
@@ -19,34 +25,34 @@
   color: var(--cf-fg);
   font-family: var(--cf-font-mono);
 }
-.cf-table :is(caption, th, td) {
+:is(.cf-table, .cf-root table) :is(caption, th, td) {
   padding: 0 var(--cf-space-1);
   line-height: var(--cf-row);
   text-align: start;
 }
-.cf-table caption {
+:is(.cf-table, .cf-root table) caption {
   background: var(--_bg, transparent);
   color: var(--_ink, var(--cf-accent));
   font-family: var(--cf-font-display);
 }
-.cf-table caption[data-side='bottom'] {
+:is(.cf-table, .cf-root table) caption[data-side='bottom'] {
   caption-side: bottom;
 }
-.cf-table :is(thead th, tfoot th, tfoot td) {
+:is(.cf-table, .cf-root table) :is(thead th, tfoot th, tfoot td) {
   font-weight: var(--cf-weight-bold);
 }
-.cf-table :is(tbody + tbody, tbody + tfoot) > tr:first-child > :is(th, td) {
+:is(.cf-table, .cf-root table) :is(tbody + tbody, tbody + tfoot) > tr:first-child > :is(th, td) {
   border-top: var(--cf-border-thin) solid var(--cf-table-rule, var(--cf-accent-2));
 }
-.cf-table :is(th, td)[data-align='end'] {
+:is(.cf-table, .cf-root table) :is(th, td)[data-align='end'] {
   text-align: end;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
-.cf-table strong {
+:is(.cf-table, .cf-root table) strong {
   font-weight: var(--cf-weight-bold);
 }
-.cf-table small {
+:is(.cf-table, .cf-root table) small {
   font-size: var(--cf-text-small);
 }
 /* Dot leaders (WDR's `München.....`): the leader cell takes the table's spare width, so the
@@ -54,13 +60,13 @@
    never widens the column; the cell clips it. Decoration: empty alt text, so a screen reader hears
    only the name (older browsers drop the alt declaration and keep the first). One leader
    column per table. */
-.cf-table [data-leader] {
+:is(.cf-table, .cf-root table) [data-leader] {
   position: relative;
   width: 100%;
   overflow: hidden;
   white-space: nowrap;
 }
-.cf-table [data-leader]::after {
+:is(.cf-table, .cf-root table) [data-leader]::after {
   position: absolute;
   content: '................................................................................................................................................................................................................................................';
   content: '................................................................................................................................................................................................................................................' /
@@ -74,67 +80,73 @@
    Unset (the table resets them, so a nested table starts clean), a cell is transparent and
    inherits its colour. The row stripes, zones and current row keep :where(): their precedence
    is that order, not how heavy each selector is, so all sit at zero and the later one wins. */
-.cf-table :is(th, td) {
+:is(.cf-table, .cf-root table) :is(th, td) {
   background: var(--_bg, var(--_col-bg, transparent));
   color: var(--_ink, var(--_col-ink, currentcolor));
 }
 /* Column stripes: the row stripes' two looks, cell by cell, header and footer included.
    Not the native <col>, which can't set the ink. colspan shifts the count: unsupported until
    browsers ship :nth-col(). */
-.cf-table[data-stripe-cols='text'] > * > tr > :nth-child(odd) {
+:is(.cf-table, .cf-root table)[data-stripe-cols='text'] > * > tr > :nth-child(odd) {
   --_col-ink: var(--cf-info);
 }
-.cf-table[data-stripe-cols='text'] > * > tr > :nth-child(even) {
+:is(.cf-table, .cf-root table)[data-stripe-cols='text'] > * > tr > :nth-child(even) {
   --_col-ink: var(--cf-fg);
 }
-.cf-table[data-stripe-cols='band'] > * > tr > :nth-child(odd) {
+:is(.cf-table, .cf-root table)[data-stripe-cols='band'] > * > tr > :nth-child(odd) {
   --_col-bg: var(--cf-variant-blue);
   --_col-ink: var(--cf-on-variant-dark);
 }
 /* Row stripes: body rows only, restarting in every <tbody>. `band` is the pair the seam
    gives data-band="blue" (the Accessible theme collapses the ink to black). Not in a zone. */
-:where(.cf-table[data-stripe-rows='text'] > tbody:not([data-band], [data-variant]) > tr:nth-child(odd)) {
+:where(
+  :is(.cf-table, .cf-root table)[data-stripe-rows='text'] > tbody:not([data-band], [data-variant]) > tr:nth-child(odd)
+) {
   --_bg: transparent;
   --_ink: var(--cf-info);
 }
-:where(.cf-table[data-stripe-rows='text'] > tbody:not([data-band], [data-variant]) > tr:nth-child(even)) {
+:where(
+  :is(.cf-table, .cf-root table)[data-stripe-rows='text'] > tbody:not([data-band], [data-variant]) > tr:nth-child(even)
+) {
   --_bg: transparent;
   --_ink: var(--cf-fg);
 }
-:where(.cf-table[data-stripe-rows='band'] > tbody:not([data-band], [data-variant]) > tr:nth-child(odd)) {
+:where(
+  :is(.cf-table, .cf-root table)[data-stripe-rows='band'] > tbody:not([data-band], [data-variant]) > tr:nth-child(odd)
+) {
   --_bg: var(--cf-variant-blue);
   --_ink: var(--cf-on-variant-dark);
 }
 /* Zones and bands (ADR-0017) on any part: data-variant is its text colour, data-band its band
    with data-variant as the ink. A part's own setting replaces what it inherits, background
    included; an unknown band renders no band. */
-:where(.cf-table :is(caption, thead, tbody, tr, th, td)[data-variant]) {
+:where(:is(.cf-table, .cf-root table) :is(caption, thead, tbody, tr, th, td)[data-variant]) {
   --_bg: transparent;
   --_ink: var(--_variant, currentcolor);
 }
-:where(.cf-table :is(caption, thead, tbody, tr, th, td)[data-band]) {
+:where(:is(.cf-table, .cf-root table) :is(caption, thead, tbody, tr, th, td)[data-band]) {
   --_bg: var(--_band, transparent);
   --_ink: var(--_band-ink, var(--_variant, currentcolor));
 }
 /* The current row (state, so ARIA): always a band, never colour on text alone. Accent by
    default; data-band on the row picks another. Its cells take the row's pair even when
    they name their own, so no cell breaks the band. */
-:where(.cf-table tr[aria-current='true']) {
+:where(:is(.cf-table, .cf-root table) tr[aria-current='true']) {
   --_bg: var(--cf-accent);
   --_ink: var(--cf-on-variant);
 }
-:where(.cf-table tr[aria-current='true'][data-band]) {
+:where(:is(.cf-table, .cf-root table) tr[aria-current='true'][data-band]) {
   --_bg: var(--_band, var(--cf-accent));
   --_ink: var(--_band-ink, var(--cf-on-variant));
 }
-:where(.cf-table tr[aria-current='true'] > :is(th, td)) {
+:where(:is(.cf-table, .cf-root table) tr[aria-current='true'] > :is(th, td)) {
   --_bg: inherit;
   --_ink: inherit;
 }
 /* The Screen frame is the authentic mode (ADR-0014): every cell and the caption on one
    line. Only where the frame applies; the breakpoint is page.css's literal. */
 @media (min-width: 40em) {
-  .cf-page[data-frame] .cf-table :is(caption, th, td) {
+  .cf-page[data-frame] :is(.cf-table, .cf-root table) :is(caption, th, td) {
     white-space: nowrap;
   }
 }

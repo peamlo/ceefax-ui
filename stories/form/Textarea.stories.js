@@ -1,4 +1,5 @@
 import { expect } from 'storybook/test';
+import { BOX_PROPS, CLASSLESS_ARG, withClassless, expectSameAsClassForm } from '../_classless.js';
 import {
   assertDisabled,
   assertError,
@@ -37,8 +38,9 @@ const render = ({ className, label, placeholder, value, cols, rows, required, di
 export default {
   title: 'Components/Form/Textarea',
   tags: ['autodocs'],
-  render,
+  render: withClassless(render, 'cf-textarea'),
   argTypes: {
+    classless: CLASSLESS_ARG,
     className: {
       name: 'class',
       control: 'inline-radio',
@@ -59,6 +61,8 @@ export default {
     },
   },
   args: {
+    classless: false,
+
     className: 'cf-textarea',
     label: 'Letter',
     placeholder: '',
@@ -140,4 +144,12 @@ export const ServerError = {
 export const Disabled = {
   args: { cols: 20, rows: 2, value: 'Letters are closed.', disabled: true },
   play: async ({ canvasElement }) => assertDisabled(textarea(canvasElement)),
+};
+
+// EXPERIMENTAL (#26): the same markup with no cf-textarea class, inside a .cf-root container.
+// The class and the bare element share every rule; play() compares it with a cf-textarea twin.
+export const Classless = {
+  args: { classless: true },
+  play: async ({ canvasElement }) =>
+    expectSameAsClassForm(canvasElement.querySelector('textarea'), 'cf-textarea', BOX_PROPS),
 };

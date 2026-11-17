@@ -1,4 +1,5 @@
 import { expect, within } from 'storybook/test';
+import { BOX_PROPS, CLASSLESS_ARG, withClassless, expectSameAsClassForm } from '../_classless.js';
 import {
   ACCENT,
   assertCharacter,
@@ -46,8 +47,9 @@ const render = ({ label, variant, checked, indeterminate, required, disabled, er
 export default {
   title: 'Components/Form/Checkbox',
   tags: ['autodocs'],
-  render,
+  render: withClassless(render, 'cf-checkbox'),
   argTypes: {
+    classless: CLASSLESS_ARG,
     label: { control: 'text' },
     variant: VARIANT,
     checked: { control: 'boolean' },
@@ -60,6 +62,8 @@ export default {
     },
   },
   args: {
+    classless: false,
+
     label: 'Publish my letter',
     variant: '',
     checked: false,
@@ -162,4 +166,12 @@ export const Character = {
     await assertDisabled(control);
     control.disabled = false;
   },
+};
+
+// EXPERIMENTAL (#26): the same markup with no cf-checkbox class, inside a .cf-root container.
+// The class and the bare element share every rule; play() compares it with a cf-checkbox twin.
+export const Classless = {
+  args: { classless: true },
+  play: async ({ canvasElement }) =>
+    expectSameAsClassForm(canvasElement.querySelector("input[type='checkbox']"), 'cf-checkbox', BOX_PROPS),
 };
