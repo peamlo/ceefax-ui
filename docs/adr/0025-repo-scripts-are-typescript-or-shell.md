@@ -1,4 +1,4 @@
-# ADR-0024: Repo scripts are TypeScript or shell
+# ADR-0025: Repo scripts are TypeScript or shell
 
 ## Context
 

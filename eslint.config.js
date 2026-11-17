@@ -5,7 +5,7 @@ import noUnsanitized from 'eslint-plugin-no-unsanitized';
 
 // ESLint for the custom elements, stories and Storybook config (issue #48). Formatting is
 // Prettier's job, so only correctness rules here.
-// The TypeScript scripts are skipped: tsc checks them (ADR-0024), and typescript-eslint
+// The TypeScript scripts are skipped: tsc checks them (ADR-0025), and typescript-eslint
 // doesn't run on TypeScript 7.
 export default [
   { ignores: ['dist/', 'storybook-static/', '.agents/', '.claude/', 'scripts/**/*.ts'] },

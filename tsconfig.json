@@ -1,4 +1,4 @@
-// Type-checks the Node scripts (ADR-0024). Node runs them as-is by stripping the types, so
+// Type-checks the Node scripts (ADR-0025). Node runs them as-is by stripping the types, so
 // tsc only checks: no emit, and only syntax Node can erase.
 {
   "compilerOptions": {
@@ -10,6 +10,8 @@
     "allowImportingTsExtensions": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    // harfbuzzjs's types name Emscripten types it doesn't depend on; ours are still checked.
+    "skipLibCheck": true,
     "types": ["node"]
   },
   "include": ["scripts/*.ts"]
