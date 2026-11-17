@@ -15,7 +15,7 @@
 .cf-notice[data-variant] {
   --_tone: var(--_variant, var(--cf-danger));
 }
-:where(.cf-notice > :last-child) {
+.cf-notice > :last-child {
   margin-block-end: 0;
 }
 .cf-notice__flag {

@@ -1,4 +1,6 @@
-@import './colors.css';
-@import './typography.css';
-@import './spacing.css';
-@import './layout.css';
+/* The tokens entry on its own (dist/tokens.css), in the same layer as in the full entry. */
+@layer ceefax.tokens;
+@import './colors.css' layer(ceefax.tokens);
+@import './typography.css' layer(ceefax.tokens);
+@import './spacing.css' layer(ceefax.tokens);
+@import './layout.css' layer(ceefax.tokens);

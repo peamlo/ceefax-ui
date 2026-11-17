@@ -2,9 +2,9 @@
    (command="toggle-popover" commandfor). The browser opens and closes it: the top layer, a
    click outside or Esc, one open at a time. Painted like a card, never inverted, never animated.
    A dropdown is a popover holding a <ul> of cf-links or ghost cf-btns, not a part of its own.
-   No display here: the browser's own [popover] rule hides it while closed. Every rule is
-   wrapped in :where(), so consumer CSS wins without !important (ADR-0018). */
-:where(.cf-popover) {
+   No display here: the browser's own [popover] rule hides it while closed. Like all of the
+   library, it sits in the library's cascade layer (src/index.css), so consumer CSS wins without !important (ADR-0018). */
+.cf-popover {
   /* Its content's width, wrapping at one 40-cell row (plus padding and border), never wider
      than the viewport less a gutter. max-content, not fit-content: an anchored popover would
      shrink into the room left beside its trigger instead of flipping to where there's room. */
@@ -19,17 +19,17 @@
   line-height: var(--cf-leading-relaxed);
 }
 /* Colour comes from the variant seam (base.css); the popover paints the border only. */
-:where(.cf-popover[data-variant]) {
+.cf-popover[data-variant] {
   border-color: var(--_variant, var(--cf-border));
 }
-:where(.cf-popover > :first-child) {
+.cf-popover > :first-child {
   margin-block-start: 0;
 }
-:where(.cf-popover > :last-child) {
+.cf-popover > :last-child {
   margin-block-end: 0;
 }
 /* The dropdown's list: one item a line, flush with the padding, as in cf-fastext. */
-:where(.cf-popover > ul) {
+.cf-popover > ul {
   padding: 0;
   list-style: none;
 }
@@ -41,7 +41,7 @@
    --cf-popover-area takes any position-area value to move it (ADR-0003). Without anchor
    positioning the browser's own centred popover stays. */
 @supports (position-area: block-end) {
-  :where(.cf-popover[popover]) {
+  .cf-popover[popover] {
     margin: var(--cf-border-thin) 0;
     position-area: var(--cf-popover-area, block-end span-inline-end);
     position-try-fallbacks:

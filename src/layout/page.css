@@ -86,19 +86,12 @@
     overflow: hidden;
     container-type: inline-size;
   }
-  :where(.cf-page[data-frame] > *, .cf-page[data-frame] .cf-page__body > *) {
-    --_em: calc(var(--_cell) / 0.6); /* Bedstead's advance is 0.6em */
-    --cf-text-small: calc(var(--_em) * 0.75);
-    --cf-text-body: var(--_em);
-    --cf-text-subheading: calc(var(--_em) * 1.5);
-    --cf-text-heading: calc(var(--_em) * 2);
-    --cf-text-display-lg: calc(var(--_em) * 3);
-    --cf-text-display-xl: calc(var(--_em) * 4.5);
-  }
   .cf-page[data-frame] > * {
     --_cell: calc(100cqi / (var(--cf-frame-cells, 40) + 2));
     padding-inline: var(--_cell);
   }
+  /* stylelint-disable no-descending-specificity -- the frame's own children (> *) and the
+     body's (.cf-page__body > *) are different elements, so their rules never compete. */
   .cf-page[data-frame] .cf-page__body > * {
     --_cell: calc(100cqi / var(--cf-frame-cells, 40));
   }
@@ -110,6 +103,17 @@
       --_cell: round(down, 100cqi / var(--cf-frame-cells, 40), 1px);
     }
   }
+  /* The type scale in cell units, from --_cell above. */
+  .cf-page[data-frame] > *,
+  .cf-page[data-frame] .cf-page__body > * {
+    --_em: calc(var(--_cell) / 0.6); /* Bedstead's advance is 0.6em */
+    --cf-text-small: calc(var(--_em) * 0.75);
+    --cf-text-body: var(--_em);
+    --cf-text-subheading: calc(var(--_em) * 1.5);
+    --cf-text-heading: calc(var(--_em) * 2);
+    --cf-text-display-lg: calc(var(--_em) * 3);
+    --cf-text-display-xl: calc(var(--_em) * 4.5);
+  }
   .cf-page[data-frame]:has(.cf-page__body) {
     min-height: 0;
     grid-template-rows: auto minmax(0, 1fr) auto;
@@ -119,11 +123,13 @@
     scrollbar-gutter: stable; /* reserved up front, or cqi would ignore an auto scrollbar */
     container-type: inline-size;
   }
-  /* Zero specificity, so a component's own size still wins; bare headings keep their
+  /* In the layout layer, so a component's own size still wins; bare headings keep their
      browser em sizes. */
-  :where(.cf-page[data-frame] > *, .cf-page[data-frame] .cf-page__body > :not(h1, h2, h3, h4, h5, h6)) {
+  .cf-page[data-frame] > *,
+  .cf-page[data-frame] .cf-page__body > :not(h1, h2, h3, h4, h5, h6) {
     font-size: var(--cf-text-body);
   }
+  /* stylelint-enable no-descending-specificity */
 }
 
 /* CRT look — opt-in `data-frame="crt"`: faint static scanlines over the frame, twelve to a cell

@@ -9,8 +9,8 @@
    mosaic or on a span inside it for a colour run. A banded run names its ink beside its band, which
    reads the band ink a theme can collapse (ADR-0017), so shapes keep their contrast there too.
    Give it aria-hidden="true" when it decorates, or role="img" + aria-label when it means something.
-   Every rule is :where() (ADR-0018), so consumer CSS wins without !important. */
-:where(.cf-mosaic) {
+   Like all of the library, it sits in the library's cascade layer (src/index.css), so consumer CSS wins without !important (ADR-0018). */
+.cf-mosaic {
   display: inline-block;
   font-family: 'Bedstead Mosaic', 'Bedstead Cell', 'Bedstead', monospace;
   font-weight: var(--cf-weight-regular);
@@ -22,16 +22,18 @@
    loses its shape. Keep its colours, on its own teletext background (the page's may be forced white).
    Before the colour rules, which win on order where the mosaic names its own ink or band. */
 @media (forced-colors: active) {
-  :where(.cf-mosaic) {
+  .cf-mosaic {
     forced-color-adjust: none;
     background: var(--cf-bg);
     color: var(--cf-fg);
   }
 }
-:where(.cf-mosaic[data-variant], .cf-mosaic [data-variant]) {
+.cf-mosaic[data-variant],
+.cf-mosaic [data-variant] {
   color: var(--_variant, currentcolor);
 }
-:where(.cf-mosaic[data-band], .cf-mosaic [data-band]) {
+.cf-mosaic[data-band],
+.cf-mosaic [data-band] {
   background: var(--_band, transparent);
   color: var(--_band-ink, var(--_variant, currentcolor));
 }

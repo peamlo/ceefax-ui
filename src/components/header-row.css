@@ -25,6 +25,11 @@
   line-height: var(--cf-leading-tight);
   overflow-wrap: anywhere;
 }
+/* As a slot of the Screen frame, the row hands its padding back to the frame's inset, which
+   sits one layer down (layout/page.css). */
+.cf-page[data-frame] > .cf-header-row {
+  padding-inline: revert-layer;
+}
 @media (min-width: 40em) {
   .cf-page[data-frame] .cf-header-row {
     font-size: var(--cf-text-body);
