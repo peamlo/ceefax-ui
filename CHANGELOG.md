@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.7.0](https://github.com/peamlo/ceefax-ui/compare/v0.6.0...v0.7.0) (2026-11-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* **fonts:** the font files are renamed. bedstead-3.261-regular.woff2, bedstead-3.261-bold.woff2, space-mono-v15-latin-regular.woff2 and space-mono-v15-latin-700.woff2 are gone; preload or link the subset files instead (e.g. bedstead-3.261-regular-mosaic.woff2 for mosaics).
+
+### Features
+
+* **components:** add cf-dialog modal ([#179](https://github.com/peamlo/ceefax-ui/issues/179)) ([2f13332](https://github.com/peamlo/ceefax-ui/commit/2f13332e608a64ff7c7987ac71750f32639eb485))
+* **components:** add cf-popover anchored panel ([#177](https://github.com/peamlo/ceefax-ui/issues/177)) ([70fdd5d](https://github.com/peamlo/ceefax-ui/commit/70fdd5d7779230d0f649d229a613057e54db35be))
+* **components:** add cf-reveal disclosure ([#180](https://github.com/peamlo/ceefax-ui/issues/180)) ([f4f881e](https://github.com/peamlo/ceefax-ui/commit/f4f881ed5ded271b52de816be041346c8f03c579))
+* **components:** give scroll regions the focus ring and test keyboard focus ([#188](https://github.com/peamlo/ceefax-ui/issues/188)) ([8767f5e](https://github.com/peamlo/ceefax-ui/commit/8767f5ef3127dc035097def73eb32b8a66cbd252))
+
+
+### Bug Fixes
+
+* **components:** meet the WCAG 2.2 target size on small buttons and input controls ([#178](https://github.com/peamlo/ceefax-ui/issues/178)) ([fdb9363](https://github.com/peamlo/ceefax-ui/commit/fdb9363c67b47ad901f5472ead629b3c038b6458))
+* **fonts:** ship the Space Mono licence text instead of a placeholder ([#203](https://github.com/peamlo/ceefax-ui/issues/203)) ([a7c65c9](https://github.com/peamlo/ceefax-ui/commit/a7c65c9181141d1b0d1af4b29ef729aeef325956)), closes [#202](https://github.com/peamlo/ceefax-ui/issues/202)
+* **layout:** scope data-align to cf-cluster ([#176](https://github.com/peamlo/ceefax-ui/issues/176)) ([5a1a5ac](https://github.com/peamlo/ceefax-ui/commit/5a1a5acc06e8f666c26a578c704f1df999226b1c))
+
+
+### Performance Improvements
+
+* **fonts:** ship the fonts as unicode-range subsets with a budget ([#175](https://github.com/peamlo/ceefax-ui/issues/175)) ([2cc82a1](https://github.com/peamlo/ceefax-ui/commit/2cc82a189e94011811edb4ddafa687b292c70e92))
+
 ## [0.6.0](https://github.com/peamlo/ceefax-ui/compare/v0.5.1...v0.6.0) (2026-11-12)
 
 
