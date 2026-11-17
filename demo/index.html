@@ -638,6 +638,76 @@
             </div>
           </script>
         </article>
+
+        <article
+          class="ex"
+          data-page="820"
+          data-title="Reveal — cf-reveal"
+          data-note="Named after the REVEAL button: a native details whose summary is a full-width row with a ▼ that turns to ▲ when open. Reveals in a row share one rule, so a list needs no wrapper; the same name makes them an accordion, where opening one closes the rest. cf-reveal__index numbers a row in its data-variant colour. No JavaScript."
+        >
+          <script type="text/plain">
+            <details class="cf-reveal" name="faq" data-variant="cyan" open>
+              <summary><span class="cf-reveal__index">1</span>How do I find a page?</summary>
+              <p>Type its three digits, or press a fastext key for the section.</p>
+            </details>
+            <details class="cf-reveal" name="faq" data-variant="cyan">
+              <summary><span class="cf-reveal__index">2</span>What is REVEAL for?</summary>
+              <p>Hidden text: quiz answers, the punchline, the solution.</p>
+            </details>
+            <details class="cf-reveal" name="faq" data-variant="cyan">
+              <summary><span class="cf-reveal__index">3</span>Why is page 888 empty?</summary>
+              <p>It carries subtitles, drawn over the programme instead.</p>
+            </details>
+          </script>
+        </article>
+
+        <article
+          class="ex"
+          data-page="840"
+          data-title="Popover — cf-popover"
+          data-note='A native popover, opened by the button&#39;s invoker command: command="toggle-popover" and commandfor its id. It is drawn like a card, anchored under the button that opened it where the browser supports anchor positioning, and closes on Esc or a click outside. A dropdown is a popover holding a list of cf-links. Write the ▾ in the label yourself.'
+        >
+          <script type="text/plain">
+            <div class="cf-cluster" data-gap="2">
+              <button class="cf-btn" type="button" command="toggle-popover" commandfor="pages">
+                Pages <span aria-hidden="true">▾</span>
+              </button>
+              <div popover class="cf-popover" id="pages">
+                <ul>
+                  <li><a class="cf-link" href="#">News 101</a></li>
+                  <li><a class="cf-link" href="#">Sport 300</a></li>
+                  <li><a class="cf-link" href="#">Weather 400</a></li>
+                </ul>
+              </div>
+
+              <button class="cf-btn" type="button" data-variant="ghost" command="toggle-popover" commandfor="info">Info</button>
+              <div popover class="cf-popover" id="info" data-variant="yellow">
+                Pages update every few minutes; the clock in the header row is live.
+              </div>
+            </div>
+          </script>
+        </article>
+
+        <article
+          class="ex"
+          data-page="860"
+          data-title="Dialog — cf-dialog"
+          data-note='A native dialog, opened with command="show-modal" and closed by its form, Esc or, with closedby="any", a click on the backdrop. The browser moves focus in, makes the page inert and hands focus back to the button. data-size="sm" is 30 cells wide; data-variant colours the border, and the heading says what it is for.'
+        >
+          <script type="text/plain">
+            <button class="cf-btn" type="button" data-variant="red" command="show-modal" commandfor="delete-page">Delete page</button>
+
+            <dialog class="cf-dialog" id="delete-page" aria-labelledby="delete-page-title"
+                    closedby="any" data-size="sm" data-variant="red">
+              <h2 id="delete-page-title">Delete P100?</h2>
+              <p>The page and its 12 subpages go off air for good.</p>
+              <form method="dialog" class="cf-cluster">
+                <button class="cf-btn" type="submit" value="cancel" autofocus>Cancel</button>
+                <button class="cf-btn" type="submit" value="delete" data-variant="red">Delete</button>
+              </form>
+            </dialog>
+          </script>
+        </article>
       </main>
 
       <section class="cheat">
@@ -689,7 +759,8 @@
           <code>data-variant</code
           ><span class="cheat-on"
             ><span>cf-card</span> · <span>cf-btn</span> · <span>cf-notice</span> · <span>cf-fastext__key</span> ·
-            <span>cf-header-row parts</span> · <span>cf-table parts</span> · <span>cf-stat</span></span
+            <span>cf-header-row parts</span> · <span>cf-table parts</span> · <span>cf-stat</span> ·
+            <span>cf-reveal</span> · <span>cf-popover</span> · <span>cf-dialog</span></span
           ><span class="cheat-val">red · green · yellow · blue · cyan · magenta</span
           ><span class="cheat-desc"
             >the part&#39;s colour, or the ink beside a data-band; cf-btn also takes ghost, cf-link takes nav</span
@@ -709,8 +780,8 @@
         </div>
         <h3>Component options</h3>
         <div class="cheat-row">
-          <code>data-size</code><span class="cheat-on"><span>cf-btn</span></span
-          ><span class="cheat-val">sm · lg</span><span class="cheat-desc">button size</span>
+          <code>data-size</code><span class="cheat-on"><span>cf-btn</span> · <span>cf-dialog</span></span
+          ><span class="cheat-val">sm · lg</span><span class="cheat-desc">button size; dialog width in cells</span>
         </div>
         <div class="cheat-row">
           <code>data-mosaic</code><span class="cheat-on"><span>cf-mosaic</span></span
@@ -779,6 +850,10 @@
           <code>--cf-table-rule</code><span class="cheat-on"><span>cf-table</span></span
           ><span class="cheat-val">a colour · transparent</span
           ><span class="cheat-desc">the rule between row groups</span>
+        </div>
+        <div class="cheat-row">
+          <code>--cf-popover-area</code><span class="cheat-on"><span>cf-popover</span></span
+          ><span class="cheat-val">any position-area</span><span class="cheat-desc">where it opens off its button</span>
         </div>
       </section>
 
