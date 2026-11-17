@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { parse, runs } from './subset-fonts.mjs';
+import { parse, runs } from './subset-fonts.ts';
 
 test('-other runs merge small gaps, never over a ranged code point the font lacks', () => {
   const cmap = parse('U+41, U+400, U+405, U+2710, U+2720, U+3000');

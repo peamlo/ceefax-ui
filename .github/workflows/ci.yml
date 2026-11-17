@@ -65,7 +65,7 @@ jobs:
           git worktree add --detach "$RUNNER_TEMP/base" FETCH_HEAD
           ln -s "$PWD/node_modules" "$RUNNER_TEMP/base/node_modules"
           npm run build --prefix "$RUNNER_TEMP/base" > /dev/null
-          node scripts/size.mjs . "$RUNNER_TEMP/base" > size.md
+          node scripts/size.ts . "$RUNNER_TEMP/base" > size.md
           cat size.md >> "$GITHUB_STEP_SUMMARY"
       - if: ${{ !cancelled() && github.event_name == 'pull_request' }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -142,9 +142,9 @@ jobs:
       - run: npm ci
       - run: npx knip
       - if: ${{ !cancelled() }}
-        run: node --test 'scripts/*.test.mjs'
+        run: node --test 'scripts/*.test.ts'
       - if: ${{ !cancelled() }}
-        run: node scripts/token-report.mjs >> "$GITHUB_STEP_SUMMARY"
+        run: node scripts/token-report.ts >> "$GITHUB_STEP_SUMMARY"
 
   # Supply-chain gate (issue #46): zizmor lints the workflows (unpinned actions,
   # template injection, excess permissions) and dependency review flags any

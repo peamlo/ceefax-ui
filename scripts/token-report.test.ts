@@ -1,14 +1,14 @@
 // The token report's verdicts on a fixture tree (issue #52): a consumed token passes,
 // an unconsumed one shown in a Foundations story warns, one in neither fails.
-//   node --test 'scripts/*.test.mjs'
+//   node --test 'scripts/*.test.ts'
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { tokenReport } from './token-report.mjs';
+import { tokenReport } from './token-report.ts';
 
-const fixture = (files) => {
+const fixture = (files: Record<string, string>) => {
   const root = mkdtempSync(join(tmpdir(), 'token-report-'));
   for (const [path, text] of Object.entries(files)) {
     mkdirSync(dirname(join(root, path)), { recursive: true });

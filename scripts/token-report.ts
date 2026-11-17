@@ -4,7 +4,7 @@
 // or documented. A story "shows" a token when its source spells the name out ('cf-row' or
 // '--cf-row'): a name built at runtime ('cf-space-' + n) is invisible here.
 //
-//   node scripts/token-report.mjs   # Markdown report on stdout, exit 1 on any error
+//   node scripts/token-report.ts   # Markdown report on stdout, exit 1 on any error
 import { globSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,23 +15,34 @@ const CONSUMERS = ['src/**/*.css', 'src/elements/*.js', 'stories/**/*.js', 'demo
 // The Foundations pages document tokens: their own styling (var(--cf-info) on a label) is not a use.
 const FOUNDATIONS = 'stories/foundations/*.stories.js';
 
-const VERDICTS = {
+type Verdict = 'ok' | 'warn' | 'error';
+
+const VERDICTS: Record<Verdict, { icon: string; message?: string; log?: string }> = {
   ok: { icon: '✅' },
   warn: { icon: '⚠️', message: 'is only shown in a Foundations story', log: 'warning' },
   error: { icon: '❌', message: 'is neither consumed nor shown in a Foundations story', log: 'error' },
 };
 
-const spellsOut = (token, text) => new RegExp(`(?<![\\w-])${token.slice(2)}(?![\\w-])`).test(text);
-const readsVar = (token, text) => new RegExp(`var\\(\\s*${token}(?![\\w-])`).test(text);
+const spellsOut = (token: string, text: string) => new RegExp(`(?<![\\w-])${token.slice(2)}(?![\\w-])`).test(text);
+const readsVar = (token: string, text: string) => new RegExp(`var\\(\\s*${token}(?![\\w-])`).test(text);
 
-export function tokenReport(root) {
-  const load = (patterns, exclude = []) =>
+export interface TokenRow {
+  token: string;
+  consumers: string[];
+  documented: boolean;
+  verdict: Verdict;
+}
+
+export function tokenReport(root: string): TokenRow[] {
+  const load = (patterns: string | string[], exclude: string[] = []) =>
     globSync(patterns, { cwd: root, exclude })
       .sort()
       .map((file) => [file, readFileSync(resolve(root, file), 'utf8')]);
-  const tokens = new Set();
+  const tokens = new Set<string>();
   for (const [file, css] of load(TOKENS))
-    postcss.parse(css, { from: file }).walkDecls(/^--cf-/, (decl) => tokens.add(decl.prop));
+    postcss.parse(css, { from: file }).walkDecls(/^--cf-/, (decl) => {
+      tokens.add(decl.prop);
+    });
   const sources = load(CONSUMERS, [FOUNDATIONS]);
   const foundations = load(FOUNDATIONS);
   return [...tokens].map((token) => {
@@ -43,7 +54,7 @@ export function tokenReport(root) {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const report = tokenReport(resolve(dirname(fileURLToPath(import.meta.url)), '..'));
-  const count = (v) => report.filter((r) => r.verdict === v).length;
+  const count = (v: Verdict) => report.filter((r) => r.verdict === v).length;
   console.log(
     [
       '## Token usage',

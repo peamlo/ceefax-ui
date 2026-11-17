@@ -11,7 +11,7 @@ fonts. For the CSS, 98.css is 3.8 kB brotli and Pico 9 to 10 kB.
 
 ## Decision
 
-`scripts/subset-fonts.mjs` splits every face into `-latin` (Latin-1, Latin Extended-A, and the
+`scripts/subset-fonts.ts` splits every face into `-latin` (Latin-1, Latin Extended-A, and the
 punctuation, currency, arrows, maths, shapes and ticks UIs use), `-mosaic` (Bedstead only, the
 `Bedstead Mosaic` range) and `-other` (everything else). Each `@font-face` names one subset with
 its `unicode-range`, so a browser downloads only the subsets a page's characters fall in. No glyph

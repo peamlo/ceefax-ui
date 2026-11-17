@@ -34,7 +34,7 @@ Pick the mode from the argument:
 
 A showable feat with no markup surface (a token-only change, like a new type scale) goes in the PR's "Not demoed" list instead of a new section.
 
-**Audit mode.** The public API is everything `src/` exposes: every `.cf-*` class (parts included), every `data-*` attribute and each value its selectors match, every custom element name, and `data-theme="accessible"`. Tokens are out: `scripts/token-report.mjs` covers them. A piece is covered when it appears in the markup of some `demo/*.html`; the demo's own `<style>` doesn't count.
+**Audit mode.** The public API is everything `src/` exposes: every `.cf-*` class (parts included), every `data-*` attribute and each value its selectors match, every custom element name, and `data-theme="accessible"`. Tokens are out: `scripts/token-report.ts` covers them. A piece is covered when it appears in the markup of some `demo/*.html`; the demo's own `<style>` doesn't count.
 
 If the work list is empty, say so and stop. No branch, no PR.
 

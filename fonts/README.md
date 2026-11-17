@@ -29,16 +29,16 @@ Both faces are free for commercial use and self-hosting.
 ## Regenerating
 
 The `.woff2` subsets are cut from the OTFs in Bedstead's release zip and the Space Mono TTFs here,
-from this folder, by `scripts/subset-fonts.mjs` (HarfBuzz's subsetter, a dev dependency). Its
+from this folder, by `scripts/subset-fonts.ts` (HarfBuzz's subsetter, a dev dependency). Its
 ranges must match the `@font-face` rules, and it prints the `-other` range to copy into them:
 
 ```sh
 curl -fsSLO https://bjh21.me.uk/bedstead/bedstead-3.261.zip && unzip -q bedstead-3.261.zip
-node ../scripts/subset-fonts.mjs bedstead-3.261/bedstead.otf bedstead-3.261-regular
-node ../scripts/subset-fonts.mjs bedstead-3.261/bedstead-bold.otf bedstead-3.261-bold
+node ../scripts/subset-fonts.ts bedstead-3.261/bedstead.otf bedstead-3.261-regular
+node ../scripts/subset-fonts.ts bedstead-3.261/bedstead-bold.otf bedstead-3.261-bold
 rm -r bedstead-3.261 bedstead-3.261.zip
-node ../scripts/subset-fonts.mjs SpaceMono-Regular.ttf space-mono-v15-regular
-node ../scripts/subset-fonts.mjs SpaceMono-Bold.ttf space-mono-v15-bold
+node ../scripts/subset-fonts.ts SpaceMono-Regular.ttf space-mono-v15-regular
+node ../scripts/subset-fonts.ts SpaceMono-Bold.ttf space-mono-v15-bold
 ```
 
 To move to a newer Bedstead, change the version in the zip URL and file names above, rename the

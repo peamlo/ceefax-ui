@@ -8,9 +8,9 @@ import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
-const errors = [];
+const errors: string[] = [];
 
-function check(dir, pattern, ordered) {
+function check(dir: string, pattern: RegExp, ordered: boolean) {
   const files = readdirSync(resolve(root, dir))
     .filter((f) => pattern.test(f))
     .sort();
