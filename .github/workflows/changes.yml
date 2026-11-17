@@ -35,7 +35,7 @@ jobs:
           files=$(gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR/files" \
             --jq '.[] | .filename, (.previous_filename // empty)')
           if [ "$CHANGED" -gt 3000 ] \
-            || grep -qvE '\.md$|^docs/|^\.agents/|^skills-lock\.json$' <<< "$files"; then
+            || grep -qvE '\.md$|^docs/|^demo/|^\.agents/|^skills-lock\.json$' <<< "$files"; then
             echo docs_only=false >> "$GITHUB_OUTPUT"
           else
             echo docs_only=true >> "$GITHUB_OUTPUT"
