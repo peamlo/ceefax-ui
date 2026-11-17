@@ -119,9 +119,12 @@
     scrollbar-gutter: stable; /* reserved up front, or cqi would ignore an auto scrollbar */
     container-type: inline-size;
   }
-  /* Zero specificity, so a component's own size still wins; bare headings keep their
-     browser em sizes. */
-  :where(.cf-page[data-frame] > *, .cf-page[data-frame] .cf-page__body > :not(h1, h2, h3, h4, h5, h6)) {
+  /* Zero specificity, so consumer CSS wins; bare headings keep their browser em sizes. A
+     button keeps its data-size: it is :where() too (ADR-0018), so it would lose on order alone. */
+  :where(
+    .cf-page[data-frame] > :not(.cf-btn),
+    .cf-page[data-frame] .cf-page__body > :not(h1, h2, h3, h4, h5, h6, .cf-btn)
+  ) {
     font-size: var(--cf-text-body);
   }
 }

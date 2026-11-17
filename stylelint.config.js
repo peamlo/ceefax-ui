@@ -56,9 +56,9 @@ export default {
   },
   overrides: [
     {
-      // Form rules are :where() (ADR-0018), so any consumer selector wins without !important:
-      // states included. A pseudo-element can't go inside :where(), hence 0,0,1.
-      files: ['src/components/form.css'],
+      // Form, button and link rules are :where() (ADR-0018), so any consumer selector wins
+      // without !important: states included. A pseudo-element can't go inside :where(), hence 0,0,1.
+      files: ['src/components/form.css', 'src/components/button.css', 'src/components/link.css'],
       rules: { 'selector-max-specificity': '0,0,1' },
     },
     {
