@@ -3,6 +3,8 @@
 # Storybook preview (preview.yml) run this same check against their base URL.
 # Usage: scripts/smoke.sh https://example.com/path/
 set -eo pipefail
+# The grep, jq and [[ ]] checks fail without a word; name the one that did.
+trap 'echo "smoke: line $LINENO failed: $BASH_COMMAND" >&2' ERR
 
 URL="${1:?usage: smoke.sh <base-url>}"
 URL="${URL%/}/"
@@ -22,4 +24,6 @@ font=$(grep -om1 "fonts/[^')]*\.woff2" <<< "$(get src/tokens/typography.css)")
 get "$font" > /dev/null
 get public/favicon.svg > /dev/null
 # A host that serves index.html for missing paths hides every broken link above.
-[[ $(curl -sS -o /dev/null -w '%{http_code}' "${URL}does-not-exist") == 404 ]]
+# --retry rides out a 5xx (it never retries a 404); not [[ ]] alone, which bash 3.2's set -e ignores.
+code=$(curl -sS --retry 5 --retry-delay 10 -o /dev/null -w '%{http_code}' "${URL}does-not-exist")
+[[ $code == 404 ]] || { echo "smoke: ${URL}does-not-exist returned $code, not 404" >&2; exit 1; }
