@@ -1,5 +1,6 @@
 import { expect, within } from 'storybook/test';
-import { ART, COLOURS, cell, lettering, logo, rule, toMosaic } from './_mosaic.js';
+import { cell, toMosaic } from '../src/mosaic.js';
+import { ART, COLOURS, lettering, logo, rule } from './_mosaic.js';
 
 // cf-mosaic (#75, ADR-0021): teletext mosaics written as characters. The controls are the
 // component's own inputs: data-variant (ink), data-band (background), data-mosaic="separated" and
@@ -45,8 +46,8 @@ const assertSeparated = async (el, separated) => {
 const banner = (args) =>
   '<header>' +
   '<div class="cf-cluster" data-gap="1" data-align="end">' +
-  `<span class="cf-mosaic"${sep(args.separated)} role="img" aria-label="CF">${toMosaic(logo('CF'), args.separated)}</span>` +
-  mosaic(args, (s) => toMosaic(lettering('WEATHER'), s)) +
+  `<span class="cf-mosaic"${sep(args.separated)} role="img" aria-label="CF">${toMosaic(logo('CF'), { separated: args.separated })}</span>` +
+  mosaic(args, (s) => toMosaic(lettering('WEATHER'), { separated: s })) +
   '</div>' +
   '<p>The forecast for your area, page 401</p>' +
   `<div><span class="cf-mosaic" data-mosaic="separated" aria-hidden="true" data-variant="blue">${rule('middle', 40, true)}</span></div>` +
@@ -226,7 +227,8 @@ export const Picture = {
       },
     },
   },
-  render: (args) => page(`<p>${mosaic(args, (s) => toMosaic(ART.heart, s))} Valentine’s Day: page 520</p>`),
+  render: (args) =>
+    page(`<p>${mosaic(args, (s) => toMosaic(ART.heart, { separated: s }))} Valentine’s Day: page 520</p>`),
   args: { variant: 'red', label: 'A red heart' },
   play: async ({ canvasElement, args }) => {
     await fontsLoaded();
@@ -238,6 +240,10 @@ export const Picture = {
     // One row per three pixel rows, one em each.
     const size = parseFloat(getComputedStyle(pic).fontSize);
     await expect(pic.getBoundingClientRect().height).toBeCloseTo((ART.heart.length / 3) * size, 0);
+    // The formula's edges: either side of the first gap, the older block elements, the separated top.
+    await expect([cell(20), cell(22)]).toEqual(['\u{1FB13}', '\u{1FB14}']);
+    await expect([cell(21), cell(63), cell(0)]).toEqual(['▌', '█', ' ']);
+    await expect(cell(63, { separated: true })).toBe('\u{1CE8F}');
   },
 };
 
@@ -264,7 +270,8 @@ const VOTES = [
   ['LIB', 14, 'yellow'],
   ['GRN', 7, 'green'],
 ];
-const bar = (v, separated) => cell(63, separated).repeat(Math.floor(v / 4)) + (v % 4 >= 2 ? cell(21, separated) : '');
+const bar = (v, separated) =>
+  cell(63, { separated }).repeat(Math.floor(v / 4)) + (v % 4 >= 2 ? cell(21, { separated }) : '');
 export const BarChart = {
   parameters: {
     docs: {
@@ -341,7 +348,7 @@ export const Artwork = {
           '</p>',
       ).join('') +
       '</div>' +
-      `<div class="cf-sidebar__main">${mosaic(args, (s) => toMosaic(ART.saturn, s))}</div>` +
+      `<div class="cf-sidebar__main">${mosaic(args, (s) => toMosaic(ART.saturn, { separated: s }))}</div>` +
       '</div>' +
       '</main>';
     return section;
@@ -401,12 +408,13 @@ export const InTheScreenFrame = {
       banner(args) +
       TEMPS.map(
         ([city, t, c]) =>
-          `<p>${city} <span class="cf-mosaic"${s} aria-hidden="true" data-variant="${c}">${cell(63, args.separated).repeat(t)}</span> ${t}C</p>`,
+          `<p>${city} <span class="cf-mosaic"${s} aria-hidden="true" data-variant="${c}">${cell(63, { separated: args.separated }).repeat(t)}</span> ${t}C</p>`,
       ).join('') +
       `<p><span class="cf-mosaic"${s} role="img" aria-label="Temperature key: red hot, yellow mild, cyan cold">` +
-      KEY.map(([c, label]) => `<span data-variant="${c}">${cell(63, args.separated).repeat(4)}</span> ${label}`).join(
-        '\n',
-      ) +
+      KEY.map(
+        ([c, label]) =>
+          `<span data-variant="${c}">${cell(63, { separated: args.separated }).repeat(4)}</span> ${label}`,
+      ).join('\n') +
       '</span></p>' +
       '</main>';
     return section;

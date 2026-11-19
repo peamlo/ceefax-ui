@@ -23,6 +23,7 @@ export const BUDGETS: Sizes = {
   './tokens': 1500,
   './elements': 1500,
   './elements/cf-loader': 1000,
+  './mosaic': 600,
   [FONTS]: 100000,
 };
 

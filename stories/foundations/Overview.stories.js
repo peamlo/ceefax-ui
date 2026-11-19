@@ -1,5 +1,6 @@
 import { page, heading } from './_tokens.js';
-import { lettering, rule, toMosaic } from '../_mosaic.js';
+import { toMosaic } from '../../src/mosaic.js';
+import { lettering, rule } from '../_mosaic.js';
 
 export default { title: 'Foundations/Overview' };
 

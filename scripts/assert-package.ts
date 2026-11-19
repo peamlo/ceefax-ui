@@ -111,7 +111,7 @@ check('exports targets exist', () => {
 check('CSS exports are pure CSS', () => {
   const problems = [];
   for (const [key, value] of Object.entries(pkg.exports)) {
-    if (key.startsWith('./elements')) continue;
+    if (key.startsWith('./elements') || key === './mosaic') continue;
     // Wildcard targets (`./fonts/*`) are covered by the woff2-only check.
     for (const target of targets(value))
       if (!target.endsWith('.css') && !target.endsWith('*')) problems.push(`${key} -> ${target} (not .css)`);
@@ -188,6 +188,16 @@ check('publint', () => {
     const { stdout, message } = err as { stdout?: string; message: string };
     throw new Error(stdout?.trim() || message, { cause: err });
   }
+});
+
+// The mosaic helpers import from a consumer and give the right characters.
+check('import @peamlo/ceefax-ui/mosaic', () => {
+  const out = execFileSync(
+    'node',
+    ['--input-type=module', '-e', `import { cell } from '${pkg.name}/mosaic'; process.stdout.write(cell(62))`],
+    { cwd: consumer, encoding: 'utf8' },
+  );
+  if (out !== '🬻') throw new Error(`cell(62) gave ${JSON.stringify(out)}`);
 });
 
 // 9. Each element subpath, resolved through `exports` from the consumer, imports

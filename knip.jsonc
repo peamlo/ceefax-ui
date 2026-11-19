@@ -9,7 +9,8 @@
     "entry": [".storybook/{preview,test-runner}.js", "stories/**/*.stories.js"],
   },
   // The teaching courses load their scripts from HTML lessons, which knip doesn't read either.
-  "ignore": ["docs/courses/**"],
+  // The declaration file beside src/mosaic.js is found by TypeScript, not imported.
+  "ignore": ["docs/courses/**", "src/mosaic.d.ts"],
   // Run as `npm exec publint` inside assert-package.ts, which knip can't see.
   "ignoreDependencies": ["publint"],
 }
