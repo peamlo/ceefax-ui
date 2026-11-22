@@ -14,14 +14,14 @@ export default async function vitestChecks({ title, name, canvasElement, paramet
   await expect(problems, `Invalid HTML in story "${title} / ${name}"`).toEqual([]);
 
   // Contract (#12): every axe-gated story also passes axe under the accessible theme, at AAA
-  // contrast. The same config and options as the addon's pass, which disables `region` too.
+  // contrast. The same config and options as the addon's pass, straight from the parameters.
   const { test, config = {}, options = {} } = parameters.a11y ?? {};
   if (test !== 'error') return;
   const root = document.documentElement;
   root.dataset.theme = 'accessible';
   try {
     axe.reset();
-    axe.configure({ ...config, rules: [{ id: 'region', enabled: false }, ...(config.rules ?? [])] });
+    axe.configure(config);
     const { violations } = await axe.run(canvasElement, {
       ...options,
       rules: { ...options.rules, 'color-contrast-enhanced': { enabled: true } },
