@@ -107,7 +107,10 @@ emulation, clicks at a point, screenshots, Chrome's accessibility tree and font 
 CDP). They're imported behind a guard (`stories/_real-input.js`), so the story still opens in
 the Storybook UI, where those checks skip and the UI's **Run tests** runs them; under Vitest a
 missing API throws, so a skipped step can't pass. The axe pass is the a11y addon's own,
-failing on `Components/*` and the Screen frame stories (the preview's `beforeEach`).
+and it fails the build on every story: the preview sets `a11y.test: 'error'`. A story that
+renders the raw palette on purpose (the Foundations colour, type and token pages) opts out
+in its own file with `a11y.test: 'todo'`, so axe still reports there. Moving or renaming a
+story can't drop it from the gate; only its own file can.
 html-validate and the accessible-theme AAA pass run once per story from the preview's
 `afterEach` (`.storybook/vitest-checks.js`): the two story-agnostic exceptions to "everything
 in `play()`". CI runs `vitest run` with no Storybook build or server.

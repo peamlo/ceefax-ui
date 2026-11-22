@@ -1,7 +1,12 @@
 import { css, page, heading, resolveColor } from './_tokens.js';
 import { COLOURS, bandSample, measureBand } from '../_bands.js';
 
-export default { title: 'Foundations/Colors' };
+export default {
+  title: 'Foundations/Colors',
+  // Renders the raw palette on purpose, with its known contrast tradeoffs: axe reports here,
+  // it doesn't fail the build (ADR-0006).
+  parameters: { a11y: { test: 'todo' } },
+};
 
 const BASE = [
   'cf-base-black',

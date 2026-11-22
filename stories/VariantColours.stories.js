@@ -5,8 +5,8 @@ import { COLOURS, bandSample } from './_bands.js';
 // sees, so the variant→colour mapping can move (issue #7) without any outcome drifting.
 // The mapping lives in one seam (ADR-0007), so it is checked once; each component checks
 // only what is its own (#198). Asserts the rendered result only — never the
-// custom property that carries it. Kept out of Components/* so the axe gate (ADR-0006)
-// doesn't run over a raw colour matrix.
+// custom property that carries it. Opts out of the axe gate (ADR-0006), as it renders a raw
+// colour matrix.
 //
 // The pairs are generated, not listed: each theme says which colour every variant name
 // resolves to, each component says which properties it paints with that colour. A new
@@ -221,7 +221,12 @@ const BAND_GROUPS = [
 
 const row = 'display:flex;flex-wrap:wrap;align-items:flex-start;gap:1ch;width:100%';
 
-export default { title: 'Foundations/Variant colours' };
+export default {
+  title: 'Foundations/Variant colours',
+  // Renders the raw palette on purpose, with its known contrast tradeoffs: axe reports here,
+  // it doesn't fail the build (ADR-0006).
+  parameters: { a11y: { test: 'todo' } },
+};
 
 // Deliberately ONE story: a Foundations file with more than one story reproducibly hung the
 // old Storybook test-runner for 60s with a "navigation" error on CI (ADR-0006). The nested
