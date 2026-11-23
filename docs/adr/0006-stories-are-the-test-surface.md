@@ -95,3 +95,30 @@ for the reason above. A story that must stay out of the gate takes the `!test` t
 - Out of scope here, enabled by this: contrast under `[data-theme="accessible"]`
   (#12) reuses this surface; the Astro adapter (#9) proves its output against these
   same assertions rather than building a parallel one.
+
+## Update (2026-11, #65): one seam
+
+The stories run as Vitest tests in browser mode through `@storybook/addon-vitest`. Browser
+mode is a real Chromium driven by Playwright, so it has layout, `:focus-visible` and real
+input. That answers this ADR's reason for turning Vitest down (jsdom has none of them). The
+split described above is gone. A story's `play()` carries its real-input checks too, through
+`vitest/browser`'s `userEvent`, viewport and browser commands (`vitest.config.js`: media
+emulation, clicks at a point, screenshots, Chrome's accessibility tree and font use over
+CDP). They're imported behind a guard (`stories/_real-input.js`), so the story still opens in
+the Storybook UI, where those checks skip and the UI's **Run tests** runs them; under Vitest a
+missing API throws, so a skipped step can't pass. The axe pass is the a11y addon's own,
+and it fails the build on every story: the preview sets `a11y.test: 'error'`. A story that
+renders the raw palette on purpose (the Foundations colour, type and token pages) opts out
+in its own file with `a11y.test: 'todo'`, so axe still reports there. Moving or renaming a
+story can't drop it from the gate; only its own file can.
+html-validate and the accessible-theme AAA pass run once per story from the preview's
+`afterEach` (`.storybook/vitest-checks.js`): the two story-agnostic exceptions to "everything
+in `play()`". CI runs `vitest run` with no Storybook build or server.
+`@storybook/test-runner`, `axe-playwright`, `http-server` and `wait-on` are gone, and so is
+the `uuid` override. The job keeps the name `test-storybook`, so the ruleset is unchanged.
+
+Consequences: in the plain story view a real-input check skips; the UI's Run tests and CI run
+it. Under Vitest, `<body>` doesn't get Storybook's own classes, so the preview sets them.
+Pointer state carries over between stories, so a story parks the pointer before it reads a
+resting state. A real-input step waits for the web fonts before it measures. Failure output
+can point at the wrong line in a story file: find the check by its step names and diff.

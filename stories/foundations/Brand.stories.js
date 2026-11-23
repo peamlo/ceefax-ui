@@ -2,7 +2,12 @@ import { expect } from 'storybook/test';
 import { page } from './_tokens.js';
 // <cf-loader> is registered globally by the import in .storybook/preview.js.
 
-export default { title: 'Foundations/Brand' };
+export default {
+  title: 'Foundations/Brand',
+  // Renders the raw palette on purpose, with its known contrast tradeoffs: axe reports here,
+  // it doesn't fail the build (ADR-0006).
+  parameters: { a11y: { test: 'todo' } },
+};
 
 // ---------------------------------------------------------------------------
 // Wordmark — the name in the display face on a colour block. There is no logo; do not

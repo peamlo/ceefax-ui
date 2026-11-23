@@ -1,6 +1,8 @@
-# Runs the Storybook test-runner against a built Storybook: the story play()
-# functions (contract interaction assertions) + the axe a11y pass on Components/*
-# + html-validate over every story's rendered HTML (.htmlvalidate.js, #127).
+# Runs the story test gate: every story as a Vitest test in browser mode (Playwright, Chromium)
+# through the Storybook Vitest addon, with no Storybook build or server. Each story's play()
+# carries its checks, real input included; the preview's hooks add the a11y addon's axe pass
+# (failing on every story but the palette pages), axe again under the accessible theme at AAA,
+# and html-validate over every story's rendered HTML (.htmlvalidate.js, #127).
 # Per ADR-0002 this is a HARD gate — the `main protection` ruleset requires
 # `test-storybook`, so a red run blocks merge. See ADR-0006. A docs-only PR
 # (changes.yml, issue #157) skips it by `if:`, never by `paths:`, so the
@@ -46,11 +48,4 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: npm run build-storybook
-      - name: Serve Storybook and run the test-runner
-        # Every story, documentation ones included: they run cleanly now (ADR-0006). axe stays
-        # gated to the contract stories inside the hook, not by path.
-        run: |
-          npx --no -- http-server storybook-static -p 6006 --silent &
-          npx --no -- wait-on http://127.0.0.1:6006
-          npm run test-storybook
+      - run: npm run test-storybook

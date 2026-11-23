@@ -1,7 +1,12 @@
 import { expect } from 'storybook/test';
 import { css, page } from './_tokens.js';
 
-export default { title: 'Foundations/Layout' };
+export default {
+  title: 'Foundations/Layout',
+  // Renders the raw palette on purpose, with its known contrast tradeoffs: axe reports here,
+  // it doesn't fail the build (ADR-0006).
+  parameters: { a11y: { test: 'todo' } },
+};
 
 const TOKENS = [
   ['cf-content-max', 'prose reading measure (only the Screen frame is 40 cells)'],

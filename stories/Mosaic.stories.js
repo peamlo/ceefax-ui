@@ -1,5 +1,6 @@
 import { expect, within } from 'storybook/test';
 import { ART, COLOURS, cell, lettering, logo, rule, toMosaic } from './_mosaic.js';
+import { pixels, realInput, underForcedColours } from './_real-input.js';
 
 // cf-mosaic (#75, ADR-0021): teletext mosaics written as characters. The controls are the
 // component's own inputs: data-variant (ink), data-band (background), data-mosaic="separated" and
@@ -188,6 +189,23 @@ export const Banner = {
       ['block', 'U+2580-259F, U+1FB00-1FB3B, U+1CE51-1CE8F, U+EE00-EE7F'],
     ]);
     await expect(faces.filter((f) => !mosaic.includes(f)).every((f) => f.display === 'swap')).toBe(true);
+
+    // Contract (#75): under forced colours a mosaic is a picture: it keeps its ink and band, on its
+    // own --cf-bg background. The logo (default ink, no band), title (yellow on blue) and rule
+    // (blue, no band). Needs emulated media.
+    const input = await realInput();
+    if (!input || args.variant !== 'yellow' || args.band !== 'blue') return;
+    const forced = await underForcedColours(input, () =>
+      mosaics(canvasElement).map((m) => {
+        const cs = getComputedStyle(m);
+        return { color: cs.color, backgroundColor: cs.backgroundColor, adjust: cs.forcedColorAdjust };
+      }),
+    );
+    await expect(forced).toEqual([
+      { color: 'rgb(255, 255, 255)', backgroundColor: 'rgb(0, 0, 0)', adjust: 'none' },
+      { color: 'rgb(255, 255, 0)', backgroundColor: 'rgb(0, 0, 255)', adjust: 'none' },
+      { color: 'rgb(0, 0, 255)', backgroundColor: 'rgb(0, 0, 0)', adjust: 'none' },
+    ]);
   },
 };
 
@@ -241,7 +259,7 @@ export const Picture = {
   },
 };
 
-// The test-runner finds play() by reading the source, so name it rather than spread it in.
+// Storybook's indexer finds play() by reading the source, so name it rather than spread it in.
 export const Separated = {
   ...Picture,
   parameters: {
@@ -363,8 +381,7 @@ export const Artwork = {
 
 // The authentic mode: a whole page inside the Screen frame, where every mosaic sits on the 40-cell
 // grid beside text. The temperature key is one mosaic of three whole-cell colour runs, each with
-// its label; the runs tile edge to edge, across and down (pixels checked in
-// .storybook/test-runner.js postVisit). The bars are decorative and the figures text, as in Bar chart.
+// its label; the runs tile edge to edge, across and down (pixels checked below). The bars are decorative and the figures text, as in Bar chart.
 const KEY = [
   ['red', 'HOT'],
   ['yellow', 'MILD'],
@@ -381,7 +398,7 @@ export const InTheScreenFrame = {
     docs: {
       description: {
         story:
-          "A whole page in the authentic mode: every mosaic sits on the 40-cell grid beside text. The temperature key's colour runs tile edge to edge, and the test-runner checks their pixels for gaps.",
+          "A whole page in the authentic mode: every mosaic sits on the 40-cell grid beside text. The temperature key's colour runs tile edge to edge, and the story's test checks their pixels for gaps.",
       },
     },
   },
@@ -423,7 +440,7 @@ export const InTheScreenFrame = {
     const content = body.clientWidth - parseFloat(paddingLeft) - parseFloat(paddingRight);
     await expect(size * ADVANCE).toBeCloseTo(Math.floor(content / 40), 1);
     // Across: four cells. Down: one row per em, and a glyph fills its em, so rows meet. That the
-    // painted pixels leave no gap is checked on a screenshot in .storybook/test-runner.js postVisit.
+    // painted pixels leave no gap is checked on a screenshot, below.
     for (const r of runs) await expect(r.width).toBeCloseTo(4 * size * ADVANCE, 1);
     for (let i = 1; i < runs.length; i++) await expect(runs[i].top - runs[i - 1].top).toBeCloseTo(size, 1);
     await expect(runs.map((_, i) => getComputedStyle(key.children[i]).color)).toEqual([
@@ -431,5 +448,18 @@ export const InTheScreenFrame = {
       'rgb(255, 255, 0)',
       'rgb(0, 255, 255)',
     ]);
+
+    // Contract (#75): the cells tile with no gap, across or down. Layout can't show it (a glyph's
+    // ink isn't its box), so read the pixels: a real screenshot of the colour runs has no
+    // page-black pixel inside a 1px inset. And the runs keep their own inks under forced colours.
+    const input = await realInput();
+    if (!input) return;
+    key.scrollIntoView({ block: 'center' });
+    const [first, , last] = [...key.children].map((r) => r.getBoundingClientRect());
+    const inset = { x: first.left + 1, y: first.top + 1, width: first.width - 2, height: last.bottom - first.top - 2 };
+    await expect((await pixels(input, inset)).filter((p) => Math.max(...p) < 64)).toHaveLength(0);
+    const inks = () => [...key.children].map((s) => getComputedStyle(s).color);
+    const rendered = inks();
+    await expect(await underForcedColours(input, inks)).toEqual(rendered);
   },
 };

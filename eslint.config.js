@@ -11,7 +11,7 @@ export default [
   { ignores: ['dist/', 'storybook-static/', '.agents/', '.claude/', 'scripts/**/*.ts'] },
   js.configs.recommended,
   {
-    files: ['src/**/*.js', 'stories/**/*.js', '.storybook/preview.js', 'docs/courses/**/*.js'],
+    files: ['src/**/*.js', 'stories/**/*.js', '.storybook/{preview,vitest-checks}.js', 'docs/courses/**/*.js'],
     languageOptions: { globals: globals.browser },
   },
   {
@@ -32,12 +32,7 @@ export default [
     ...noUnsanitized.configs.recommended,
   },
   {
-    files: ['*.js', '.storybook/main.js', '.storybook/test-runner.js'],
+    files: ['*.js', '.storybook/main.js'],
     languageOptions: { globals: globals.node },
-  },
-  {
-    // The test-runner hook runs under Jest, and its page.evaluate() callbacks in the browser.
-    files: ['.storybook/test-runner.js'],
-    languageOptions: { globals: { ...globals.browser, ...globals.jest } },
   },
 ];

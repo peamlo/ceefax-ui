@@ -1,4 +1,5 @@
 import { expect, within } from 'storybook/test';
+import { atViewport, realInput } from './_real-input.js';
 
 // cf-header-row (#72): the single top line of a teletext page, as broadcast:
 // requested page, service, the page on air, then the consumer's static date and time.
@@ -173,11 +174,21 @@ export const InScreenFrame = {
       1,
     );
     await assertColours(header);
+
+    // Contract (#72): at phone width the row wraps inside the page shell, keeping the page
+    // number visible and nothing spilling sideways. Needs a real viewport resize.
+    const input = await realInput();
+    if (!input) return;
+    await atViewport(input, 320, 640, async () => {
+      const r = part(header, 'page').getBoundingClientRect();
+      await expect(r.width).toBeGreaterThan(0);
+      await expect(r.left).toBeGreaterThanOrEqual(0);
+      await expect(r.right).toBeLessThanOrEqual(innerWidth);
+      await expect(header.scrollWidth).toBeLessThanOrEqual(header.clientWidth);
+    });
   },
 };
 
-// The phone-width viewport check (frame dropped, row wrapping in the shell) runs in
-// .storybook/test-runner.js postVisit, which can resize the real viewport.
 // A phone-width row: the time wraps under, the page number stays first and visible.
 export const Narrow = {
   render: (args) => {

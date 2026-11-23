@@ -1,7 +1,12 @@
 import { expect } from 'storybook/test';
 import { css, page } from './_tokens.js';
 
-export default { title: 'Foundations/Typography' };
+export default {
+  title: 'Foundations/Typography',
+  // Renders the raw palette on purpose, with its known contrast tradeoffs: axe reports here,
+  // it doesn't fail the build (ADR-0006).
+  parameters: { a11y: { test: 'todo' } },
+};
 
 const FAMILIES = [
   ['Display', 'cf-font-display', 'Bedstead,monospace', 'Headings, card titles and fastext keys.'],

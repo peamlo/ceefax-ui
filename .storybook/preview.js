@@ -26,6 +26,21 @@ export default {
     },
   },
   initialGlobals: { theme: 'authentic', backgrounds: { value: 'ceefax' } },
+  beforeEach: async ({ parameters }) => {
+    if (globalThis.__vitest_browser__) {
+      // Storybook's own iframe gives <body> `sb-show-main` (the backgrounds decorator paints it)
+      // and `sb-main-<layout>` (the padding). Vitest's page has neither: every story would sit
+      // flush on white, and axe would report false contrast failures.
+      document.body.className = `sb-show-main sb-main-${parameters.layout ?? 'padded'}`;
+      // The pointer stays where the last story left it, often on this story's first control,
+      // which then renders hovered. Park it off the page before the story renders.
+      await (await import('vitest/browser')).commands.movePointerAway();
+    }
+  },
+  // html-validate and the accessible-theme AAA pass, once per story, under Vitest only.
+  afterEach: async (context) => {
+    if (globalThis.__vitest_browser__) await (await import('./vitest-checks.js')).default(context);
+  },
   decorators: [
     (story, { globals }) => {
       if (globals.theme === 'accessible') document.documentElement.dataset.theme = 'accessible';
@@ -46,6 +61,10 @@ export default {
       },
     },
     controls: { expanded: true },
+    // axe fails the build on every story (ADR-0006). A story that shows the raw palette, with
+    // its known contrast tradeoffs, on purpose opts out in its own file with `test: 'todo'`.
+    // target-size (WCAG 2.2 AA, 24px pointer targets, #171) is off by default in axe.
+    a11y: { test: 'error', options: { rules: { 'target-size': { enabled: true } } } },
     options: {
       // Foundations before Components; within each, follow this explicit order.
       storySort: {

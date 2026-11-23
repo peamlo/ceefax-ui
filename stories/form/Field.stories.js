@@ -1,4 +1,5 @@
 import { expect, within } from 'storybook/test';
+import { ACCENT, controlLook, realInput, underForcedColours } from '../_real-input.js';
 import {
   assertDrawnRest,
   assertError,
@@ -68,6 +69,29 @@ export const Field = {
     // :invalid alone is not the invalid look: the empty required email is untouched.
     await expect(email.matches(':invalid')).toBe(true);
     await expect(style(email).borderTopWidth).toBe('2px');
+
+    // Contract (#130): a real Tab to a text control shows the accent ring and keeps its colours
+    // (no inversion while you type); typing an invalid value and leaving gives the :user-invalid
+    // look; every state stays visible under forced colours. Leaves forced colours off.
+    const input = await realInput();
+    if (!input) return;
+    const rest = controlLook(email);
+    await input.userEvent.tab();
+    await expect(document.activeElement).toBe(email);
+    await expect(controlLook(email)).toEqual({ ...rest, borderColor: ACCENT, outline: `solid 2px ${ACCENT}` });
+    // Empty and required, yet untouched: not invalid. Then a bad value, and leave the field.
+    await expect(rest.borderWidth).toBe('2px');
+    await input.userEvent.keyboard('not-an-email');
+    await input.userEvent.tab();
+    await expect(controlLook(email)).toMatchObject({
+      borderColor: 'rgb(255, 0, 0)',
+      borderWidth: '4px',
+      outline: expect.stringMatching(/^none/),
+      width: rest.width,
+    });
+    const [invalid, focused] = await underForcedColours(input, () => [controlLook(email), controlLook(postcode)]);
+    await expect(invalid.borderWidth).toBe('4px');
+    await expect(focused.outline).toMatch(/^solid 2px/);
   },
 };
 

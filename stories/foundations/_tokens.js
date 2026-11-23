@@ -11,7 +11,7 @@ export const page = (html = '') => {
 };
 
 export const heading = (text) => {
-  const h = document.createElement('h3');
+  const h = document.createElement('h2');
   h.style.cssText = 'font-family:Bedstead,monospace;font-size:32px;color:var(--cf-accent);margin:24px 0 8px';
   h.textContent = text;
   return h;
